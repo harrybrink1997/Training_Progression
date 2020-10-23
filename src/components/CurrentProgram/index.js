@@ -23,16 +23,20 @@ class CurrentProgramPage extends Component {
         this.props.firebase.getUserData(currUserUid).on('value', userData => {
 
             const userObject = userData.val();
-            console.log(userObject)
-
-            Object.keys(userObject.currentPrograms).forEach(key => {
-                this.setState({
-                    programList: [...this.state.programList, key]
+            if ('currentPrograms' in userObject) {
+                Object.keys(userObject.currentPrograms).forEach(key => {
+                    this.setState({
+                        programList: [...this.state.programList, key]
+                    })
                 })
-            })
-
-            console.log(this.state.programList)
+            } else {
+                this.setState({
+                    programList: ['No Current Programs']
+                })
+            }
         });
+
+        this.render()
     }
 
     componentWillUnmount() {

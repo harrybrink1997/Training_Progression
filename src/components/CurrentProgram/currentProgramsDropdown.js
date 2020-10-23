@@ -5,6 +5,8 @@ import { Dropdown } from 'react-bootstrap'
 
 
 const CurrentProgramsDropdown = (programList) => {
+
+    console.log(programList.programList)
     return (
 
         <Dropdown>
@@ -12,7 +14,7 @@ const CurrentProgramsDropdown = (programList) => {
                 Current Programs
                 </Dropdown.Toggle>
             <Dropdown.Menu variant="dark">
-                {programList.map(programName => {
+                {programList.programList.map(programName => {
                     return (
                         <Dropdown.Item as="button" key={programName} value={programName} >{programName}</Dropdown.Item>
                     )
