@@ -21,7 +21,7 @@ const config = {
 
 class Firebase {
     constructor() {
-        var db = app.initializeApp(config);
+        app.initializeApp(config);
 
         this.auth = app.auth();
         this.db = app.database();
@@ -49,7 +49,7 @@ class Firebase {
     }
 
     // USER API
-    user = uid => this.db.ref(`users/${uid}`);
+    getUserData = (uid) => this.db.ref(`users/${uid}`);
 
     users = () => this.db.ref('users');
 
@@ -57,5 +57,11 @@ class Firebase {
 
     exercises = () => this.db.ref('exercises')
 
+    createProgramUpstream = (name, uid) => {
+
+        return this.db.ref(`users/${uid}/currentPrograms/${name}`).set({
+            currentWeek: 1,
+        })
+    }
 }
 export default Firebase

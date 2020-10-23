@@ -11,6 +11,7 @@ import AccountPage from '../Account';
 import AdminPage from '../Admin';
 import SafetyGraphPage from '../SafetyGraph'
 import ProgressionDataPage from '../ProgressionData'
+import CurrentProgramPage from '../CurrentProgram'
 
 import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
@@ -35,6 +36,7 @@ const App = () => (
             <Route path={ROUTES.ADMIN} component={AdminPage} />
             <Route path={ROUTES.SAFETY_GRAPH} component={SafetyGraphPage} />
             <Route path={ROUTES.PROG_DATA} component={ProgressionDataPage} />
+            <Route path={ROUTES.CURRENT_PROGRAMS} component={CurrentProgramPage} />
         </div>
     </Router>
 );

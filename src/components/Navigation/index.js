@@ -1,5 +1,4 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 
 import { AuthUserContext } from '../Session'
 import SignOutButton from '../SignOut'
@@ -41,6 +40,13 @@ const NavigationAuth = () => (
         <Nav.Link href={ROUTES.ACCOUNT}>
             Account
         </Nav.Link>
+        <Nav.Link href={ROUTES.CURRENT_PROGRAMS}>
+            Current Programs
+        </Nav.Link>
+        <Nav.Item>
+            <SignOutButton />
+        </Nav.Item>
+
     </Nav>
 
 )
