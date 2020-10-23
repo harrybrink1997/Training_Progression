@@ -4,20 +4,39 @@ import { withFirebase } from '../Firebase/context'
 import { Dropdown } from 'react-bootstrap'
 
 
-const CurrentProgramsDropdown = (programList) => {
+const CurrentProgramsDropdown = ({ programList, activeProgram, buttonHandler }) => {
 
-    console.log(programList.programList)
+    console.log(activeProgram)
     return (
 
-        <Dropdown>
+        <Dropdown >
             <Dropdown.Toggle variant="dark" id="dropdown-basic">
                 Current Programs
                 </Dropdown.Toggle>
             <Dropdown.Menu variant="dark">
-                {programList.programList.map(programName => {
-                    return (
-                        <Dropdown.Item as="button" key={programName} value={programName} >{programName}</Dropdown.Item>
-                    )
+                {programList.map(programName => {
+                    if (programName === activeProgram) {
+                        return (
+                            <Dropdown.Item
+                                as="button"
+                                onClick={buttonHandler}
+                                key={programName}
+                                value={programName}
+                                active>
+                                {programName}
+                            </Dropdown.Item>
+                        )
+                    } else {
+                        return (
+                            <Dropdown.Item
+                                as="button"
+                                onClick={buttonHandler}
+                                key={programName}
+                                value={programName}>
+                                {programName}
+                            </Dropdown.Item>
+                        )
+                    }
                 })}
             </Dropdown.Menu>
         </Dropdown>

@@ -1,13 +1,13 @@
-import React, { Component, useEffect, useState } from 'react'
+import React, { Component } from 'react'
 import { withAuthorisation } from '../Session';
 
 import { Table, Button, Container, Row, Col, Dropdown } from 'react-bootstrap'
 
 import { useTable, useFilters, useGlobalFilter, usePagination, useRowSelect } from 'react-table'
 import { DefaultColumnFilter, GlobalFilter, fuzzyTextFilterFn, SelectColumnFilter } from './filterSearch'
-import { AddExerciseButton } from './progressionPageButtons'
+import { AddExerciseButton } from './currentProgramPageButtons'
 
-class ExerciseTable extends Component {
+class AvailableExercisesList extends Component {
     constructor(props) {
         super(props)
 
@@ -61,7 +61,6 @@ class ExerciseTable extends Component {
 
         this.props.firebase.exercises().on('value', snapshot => {
             const exerciseObject = snapshot.val();
-            console.log(exerciseObject)
             const exerciseList = Object.keys(exerciseObject).map(key => ({
                 uid: key,
                 primary: exerciseObject[key].primary,
@@ -78,9 +77,6 @@ class ExerciseTable extends Component {
                 },
                 loading: false,
             });
-
-            console.log(this.state)
-
         });
     }
 
@@ -296,4 +292,4 @@ const ExerciseList = ({ columns, data }) => {
 
 
 const condition = authUser => !!authUser;
-export default withAuthorisation(condition)(ExerciseTable);
+export default withAuthorisation(condition)(AvailableExercisesList);

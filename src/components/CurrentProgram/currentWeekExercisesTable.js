@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useTable } from 'react-table'
 import Table from 'react-bootstrap/Table'
 
 
-const ProgressionTable = ({ currentWeekExercises, newExercise }) => {
+const CurrentWeekExercisesTable = ({ currentWeekExercises, newExercise }) => {
 
     const columns = React.useMemo(
         () => [
@@ -98,4 +98,4 @@ const ProgressionTable = ({ currentWeekExercises, newExercise }) => {
 
 
 
-export default ProgressionTable;
+export default CurrentWeekExercisesTable;
