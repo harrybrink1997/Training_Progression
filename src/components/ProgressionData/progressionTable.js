@@ -26,6 +26,10 @@ const ProgressionTable = ({ currentWeekExercises, newExercise }) => {
             {
                 Header: 'Weight',
                 accessor: 'weight'
+            },
+            {
+                Header: 'Delete',
+                accessor: 'deleteButton'
             }
 
         ],

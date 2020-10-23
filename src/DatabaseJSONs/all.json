@@ -2,7 +2,9 @@
     "users": {
         "ww4NmPjLgQR7HX7BWZXpybtvkzg1": {
             "email": "harrybrink123@gmail.com",
-            "username": "Harry Brink"
+            "username": "Harry Brink",
+            "currentPrograms": [],
+            "pastPrograms": []
         }
     },
     "exercises": {

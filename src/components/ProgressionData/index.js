@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { withAuthorisation } from '../Session';
 import ProgressionTable from './progressionTable'
 import ExerciseTable from './exerciseTable'
+import { DeleteExerciseButton, SaveButton } from './progressionPageButtons'
 
 
 import { Container, Row, Col } from 'react-bootstrap'
@@ -31,9 +32,27 @@ class ProgressionDataPage extends Component {
     }
 
     generateExerciseUID = (string) => {
-        return string + '_' + '1' + '_' + '1' + '_'
+        return string + '_' + '1' + '_' + '1' + '_' + '1'
     }
 
+    handleDeleteExerciseButton = (event) => {
+        console.log(event.target.id.slice(0, -10))
+
+        var updatedExerciseList = this.state.currentWeekExercises.filter(element => {
+            return element.uid != event.target.id.slice(0, -10)
+        })
+
+        console.log(updatedExerciseList)
+        this.setState({
+            currentWeekExercises: updatedExerciseList
+        })
+
+
+    }
+
+    handleSaveButton = () => {
+        console.log("Being saved")
+    }
 
     handleAddExerciseButton = (event) => {
 
@@ -47,12 +66,12 @@ class ProgressionDataPage extends Component {
             time: '',
             reps: '',
             weight: '',
+            deleteButton: <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={uid} />,
             uid: uid
         }
 
 
         this.setState({
-            newExercise: event.target.id,
             currentWeekExercises: [...this.state.currentWeekExercises, exerciseObject]
         })
         console.log(this.state.currentWeekExercises)
@@ -62,7 +81,7 @@ class ProgressionDataPage extends Component {
 
     render() {
 
-        const { newExercise, currentWeekExercises } = this.state
+        const { currentWeekExercises } = this.state
 
         return (
             <div>
@@ -73,10 +92,14 @@ class ProgressionDataPage extends Component {
                         <Col xs={5}>
                             <ExerciseTable
                                 handleAddExerciseButton={this.handleAddExerciseButton}
-                                underscoreToSpaced={this.underscoreToSpaced} />
+                                underscoreToSpaced={this.underscoreToSpaced}
+                            />
                         </Col>
                         <Col>
-                            <ProgressionTable currentWeekExercises={currentWeekExercises} newExercise={newExercise} />
+                            <ProgressionTable
+                                currentWeekExercises={currentWeekExercises}
+                            />
+                            <SaveButton buttonHandler={this.handleSaveButton} />
                         </Col>
                     </Row>
                 </Container>
