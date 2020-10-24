@@ -60,8 +60,12 @@ class Firebase {
     createProgramUpstream = (name, uid) => {
 
         return this.db.ref(`users/${uid}/currentPrograms/${name}`).set({
-            currentWeek: 1,
+            currentWeek: 1
         })
+    }
+
+    createExerciseUpStreamNoWeekDay = (uid, progName, week, day, exercise) => {
+        return this.db.ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}`).set([exercise])
     }
 }
 export default Firebase

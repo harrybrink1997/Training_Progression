@@ -1,9 +1,82 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTable } from 'react-table'
-import Table from 'react-bootstrap/Table'
+import { Table, Tabs, Tab, Pagination, Nav, Col, Row } from 'react-bootstrap'
+
+const CurrentWeekExercisesContainer = ({ currentWeekExercises, tabHandler, dayPaginationHandler }) => {
+
+    const [currentTab, setCurrentTab] = useState('dayView')
+
+    const [currentPage, setCurrentPage] = useState('1')
+
+    const handleChangeTab = (key) => {
+        setCurrentTab(key)
+        tabHandler(key)
+    }
+
+    const handleChangeDay = (currentDay) => {
+        setCurrentPage(currentDay)
+        dayPaginationHandler(currentDay)
+    }
 
 
-const CurrentWeekExercisesTable = ({ currentWeekExercises, newExercise }) => {
+    return (
+        <Tabs
+            id="currentProgramViewTabs"
+            activeKey={currentTab}
+            onSelect={(key) => { handleChangeTab(key) }}>
+            <Tab
+                eventKey="dayView"
+                title="Day View"
+            >
+                <Row className="justify-content-md-center">
+                    <DayViewPagenation buttonHandler={handleChangeDay} />
+                </Row>
+
+            </Tab>
+            <Tab
+                eventKey="weekView"
+                title="Week View"
+            >
+                <div> week view</div>
+                <ExerciseTableDayView
+                    data={currentWeekExercises}
+                />
+            </Tab>
+        </Tabs>
+    )
+}
+
+const DayViewPagenation = ({ buttonHandler }) => {
+
+    const [currentDay, setCurrentDay] = useState("1")
+
+    const handleChangeDayClick = (event) => {
+        setCurrentDay(event.target.value)
+        buttonHandler(event.target.value)
+    }
+
+    const days = [1, 2, 3, 4, 5, 6, 7]
+    return (
+        <Pagination>
+            {days.map(day => {
+                return (
+                    <Pagination.Item
+                        as="button"
+                        key={day}
+                        onClick={handleChangeDayClick}
+                        active={day == currentDay}
+                        value={day}>
+                        Day {day}
+                    </Pagination.Item>
+                )
+            })}
+        </Pagination>
+    )
+}
+
+
+
+const ExerciseTableDayView = ({ data }) => {
 
     const columns = React.useMemo(
         () => [
@@ -36,10 +109,6 @@ const CurrentWeekExercisesTable = ({ currentWeekExercises, newExercise }) => {
         []
     )
 
-    const data = currentWeekExercises
-
-
-
     const {
         getTableProps,
         getTableBodyProps,
@@ -50,7 +119,6 @@ const CurrentWeekExercisesTable = ({ currentWeekExercises, newExercise }) => {
         columns,
         data,
     })
-
 
     return (
         <Table striped bordered hover variant="dark" {...getTableProps()}>
@@ -94,8 +162,8 @@ const CurrentWeekExercisesTable = ({ currentWeekExercises, newExercise }) => {
             </tbody>
         </Table>
     )
+
 }
 
 
-
-export default CurrentWeekExercisesTable;
+export default CurrentWeekExercisesContainer;
