@@ -17,6 +17,7 @@ class CurrentProgramPage extends Component {
 
         this.state = {
             currentWeekExercises: [],
+            exerciseListPerDay: {},
             activeProgram: '',
             currentWeekInProgram: '',
             programList: [],
@@ -210,19 +211,23 @@ class CurrentProgramPage extends Component {
             dataPayload,
             exerciseObject.uid
         ).then(() => {
+            // If promise goes through then update front end. 
             this.addExerciseLocally(dataPayload, exerciseObject.uid)
         })
 
-        //Set the data locally instead then relying on async call.
 
+        var currExListPerDay = this.state.exerciseListPerDay[this.state.currentDay]
 
+        // Have to update current exercise list dynamically thast is the next step.
         this.setState({
             currentWeekExercises: [...this.state.currentWeekExercises, renderPayload]
+            // exerciseListPerDay: this.state.exerciseListPerDay[this.state.currentDay]  
         })
     }
 
     render() {
         const { hasPrograms, programList, activeProgram, currentWeekExercises } = this.state
+        console.log("state")
         console.log(this.state)
 
         return (
