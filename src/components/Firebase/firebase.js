@@ -64,8 +64,8 @@ class Firebase {
         })
     }
 
-    createExerciseUpStreamNoWeekDay = (uid, progName, week, day, exercise) => {
-        return this.db.ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}`).set([exercise])
+    createExerciseUpStream = (uid, progName, week, day, exercise, exUid) => {
+        return this.db.ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`).set(exercise)
     }
 }
 export default Firebase
