@@ -7,16 +7,18 @@ import { Container, Row, Col } from 'react-bootstrap'
 import CurrentProgramDropdown from './currentProgramsDropdown'
 import CurrentWeekExercisesContainer from './currentWeekExercisesContainer'
 import AvailableExercisesList from './availableExercisesList'
-import { DeleteExerciseButton, SaveButton } from './currentProgramPageButtons'
-
-
+import SubmitWeekModal from './submitWeekModal'
+import { DeleteExerciseButton } from './currentProgramPageButtons'
+import { AddExerciseButton } from './currentProgramPageButtons'
+import { SelectColumnFilter } from './filterSearch'
 
 class CurrentProgramPage extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
-            currentWeekExercises: [],
+            // Current Program Data
+            currentWeekExercises: [], // redundent must delete. 
             exerciseListPerDay: {},
             activeProgram: '',
             currentWeekInProgram: '',
@@ -25,15 +27,37 @@ class CurrentProgramPage extends Component {
             currentView: 'dayView',
             currentDay: '1',
             hasPrograms: false,
-            allPrograms: []
+            allPrograms: [],
+
+            // Exercise List Data
+            availExercisesCols: [],
+            availExercisesData: []
         }
     }
 
     componentDidMount() {
+
+        console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
         this.setState({ loading: true });
 
-        var currUserUid = this.props.firebase.auth.currentUser.uid
 
+        // Get the data for available exercises. 
+        this.props.firebase.exercises().on('value', snapshot => {
+            const exerciseObject = snapshot.val();
+            const exerciseList = Object.keys(exerciseObject).map(key => ({
+                uid: key,
+                primary: exerciseObject[key].primary,
+                secondary: exerciseObject[key].secondary,
+                experience: exerciseObject[key].experience,
+                name: this.underscoreToSpaced(key)
+            }));
+            this.setState({
+                availExercisesCols: this.setAvailExerciseCols(),
+                availExercisesData: this.setAvailExerciseChartData(exerciseList),
+            });
+        });
+
+        var currUserUid = this.props.firebase.auth.currentUser.uid
         // Get Current User Data
         this.props.firebase.getUserData(currUserUid).on('value', userData => {
             const userObject = userData.val();
@@ -67,10 +91,62 @@ class CurrentProgramPage extends Component {
         })
     }
 
+    setAvailExerciseChartData = (exerciseList) => {
+        var tableData = []
+
+        exerciseList.forEach(exercise => {
+            tableData.push({
+                exercise: exercise.name,
+                primMusc: exercise.primary.join(', '),
+                secMusc: exercise.secondary.join(', '),
+                expLevel: exercise.experience,
+                addExerciseBtn: <AddExerciseButton buttonHandler={this.handleAddExerciseButton} uid={exercise.uid} primaryMusc={exercise.primary} />
+            })
+        })
+
+        return tableData
+    }
+
+    setAvailExerciseCols = () => {
+        return (
+            [
+                {
+                    Header: 'Exercise Name',
+                    accessor: 'exercise',
+                    filter: 'fuzzyText'
+                },
+                {
+                    Header: 'Primary Muscles',
+                    accessor: 'primMusc',
+                    filter: 'fuzzyText'
+                },
+                {
+                    Header: 'Secondary Muscles',
+                    accessor: 'secMusc',
+                    filter: 'fuzzyText'
+                },
+                {
+                    Header: 'Experience Level',
+                    accessor: 'expLevel',
+                    Filter: SelectColumnFilter,
+                    filter: 'includes',
+                },
+                {
+                    Header: 'Add Me',
+                    accessor: 'addExerciseBtn',
+                }
+            ]
+        )
+    }
+
+
     updatedDailyExerciseList = () => {
         // Introduce a call back to show the current exercises. 
         // Can only be done once the other parameters above have been set. 
         var currProg = this.state.activeProgram
+
+        console.log("Inside update")
+        console.log(this.state)
 
         var currWeek = 'week' + this.state.currentWeekInProgram
         var numDaysInWeek = [1, 2, 3, 4, 5, 6, 7]
@@ -111,6 +187,8 @@ class CurrentProgramPage extends Component {
 
     componentWillUnmount() {
         this.props.firebase.getUserData().off();
+        this.props.firebase.exercises().off();
+
     }
 
     handleChangeTab = (currentTab) => {
@@ -127,11 +205,16 @@ class CurrentProgramPage extends Component {
     }
 
     handleSelectProgramButton = (event) => {
+
         var currentWeek = this.state.allPrograms[event.target.value].currentWeek
 
         this.setState({
+            loading: true,
             activeProgram: event.target.value,
-            currentWeekInProgram: currentWeek
+            currentWeekInProgram: currentWeek,
+            currentDay: '1'
+        }, () => {
+            this.updatedDailyExerciseList()
         })
     }
 
@@ -152,9 +235,7 @@ class CurrentProgramPage extends Component {
 
         var programObject = this.state.allPrograms[this.state.activeProgram]
 
-        console.log("ProgramObject")
         var exerciseStringComp = this.underscoreToSpaced(exerciseName)
-        console.log(exerciseStringComp)
 
         // Check if not input for week
         if (('week' + this.state.currentWeekInProgram) in programObject) {
@@ -224,25 +305,54 @@ class CurrentProgramPage extends Component {
         })
     }
 
-    handleSaveButton = () => {
-        console.log("Being saved")
+    handleSubmitButton = () => {
+
+        this.setState({
+            loading: true
+        }, () => {
+            //Updated the current week in the database. 
+            this.props.firebase.progressToNextWeek(
+                this.props.firebase.auth.currentUser.uid,
+                this.state.activeProgram,
+                parseInt(this.state.currentWeekInProgram + 1)
+            ).then(() => {
+                this.setState({
+                    currentWeekInProgram: this.state.currentWeekInProgram++
+                }, () => {
+                    this.updatedDailyExerciseList()
+                })
+            })
+        })
+
+
     }
 
     addExerciseLocally = (payload, exUid) => {
+
+
+        console.log("Inside add locally")
+        console.log(this.state)
+
+        var programsObj = this.state.allPrograms
         var currentProgramObject = this.state.allPrograms[this.state.activeProgram]
 
+        console.log("Active Program in add ex local")
+        console.log(programsObj)
         console.log(currentProgramObject)
+
 
         var weekString = 'week' + this.state.currentWeekInProgram
         var dayString = this.state.currentDay
+
         console.log(weekString)
         console.log(dayString)
-        console.log(payload)
 
         currentProgramObject[weekString][dayString][exUid] = payload
 
-        // Once added to the 
+        programsObj[this.state.activeProgram] = currentProgramObject
+
         this.setState({
+            allPrograms: programsObj,
             loading: true
         }, () => {
             this.updatedDailyExerciseList()
@@ -250,7 +360,6 @@ class CurrentProgramPage extends Component {
     }
 
     handleAddExerciseButton = (event) => {
-        event.preventDefault()
         var exerciseName = event.target.id.slice(0, -10)
         var exerciseObject = this.generateExerciseUID(exerciseName)
 
@@ -262,15 +371,8 @@ class CurrentProgramPage extends Component {
             weight: '',
         }
 
-        var renderPayload = {
-            exercise: this.underscoreToSpaced(exerciseName),
-            rpe: '',
-            time: '',
-            reps: '',
-            weight: '',
-            deleteButton: <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exerciseObject.uid} />,
-            uid: exerciseObject.uid
-        }
+        console.log("Inside handle add exercise button")
+        console.log(this.state)
 
         //Single db call to enter the data. Using set with uid generated by function above. 
         this.props.firebase.createExerciseUpStream(
@@ -281,15 +383,10 @@ class CurrentProgramPage extends Component {
             dataPayload,
             exerciseObject.uid
         ).then(() => {
+            console.log("Inside handle add exercise button - then")
+            console.log(this.state)
             // If promise goes through then update front end. 
             this.addExerciseLocally(dataPayload, exerciseObject.uid)
-        }).then(() => {
-            var currExListPerDay = this.state.exerciseListPerDay[this.state.currentDay]
-            // Have to update current exercise list dynamically thast is the next step.
-            this.setState({
-                currentWeekExercises: [...this.state.currentWeekExercises, renderPayload]
-                // exerciseListPerDay: this.state.exerciseListPerDay[this.state.currentDay]  
-            })
         })
 
 
@@ -304,65 +401,72 @@ class CurrentProgramPage extends Component {
             exerciseListPerDay,
             loading,
             currentDay,
-            currentView } = this.state
+            currentView,
+            currentWeekInProgram,
+            availExercisesCols,
+            availExercisesData
+        } = this.state
+
+        console.log("active program")
+        console.log(activeProgram)
 
         console.log("state")
         console.log(this.state)
 
-        let htmlRender;
+        let loadingHTML = <h1>Loading...</h1>
+        let noCurrentProgramsHTML = <h1>Create A Program Before Accessing This Page</h1>
+        let hasCurrentProgramsHTML = <div>
+            < Container fluid >
+                <Row className="justify-content-md-center">
+                    <h1>{activeProgram} ,Week: {currentWeekInProgram}</h1>
+                    <Col>
+                        <CurrentProgramDropdown
+                            programList={programList}
+                            activeProgram={activeProgram}
+                            buttonHandler={this.handleSelectProgramButton}
+                        />
+                    </Col>
 
-        if (loading) {
-            htmlRender = <h1>Loading...</h1>
-        } else if (!hasPrograms) {
-            htmlRender = <h1>Create A Program Before Accessing This Page</h1>
-        } else {
-            htmlRender = <div>
-                < Container fluid >
-                    <Row className="justify-content-md-center">
-                        <h1>{activeProgram}</h1>
-                        <Col>
-                            <CurrentProgramDropdown
-                                programList={programList}
-                                activeProgram={activeProgram}
-                                buttonHandler={this.handleSelectProgramButton}
-                            />
-                        </Col>
+                </Row>
 
-                    </Row>
-
-                </Container >
-                <Container fluid>
-                    <Row>
-                        <Col xs={5}>
-                            <AvailableExercisesList
-                                handleAddExerciseButton={this.handleAddExerciseButton}
-                                underscoreToSpaced={this.underscoreToSpaced}
-                            />
-                        </Col>
-                        <Col>
-                            <h1>Create this week</h1>
-                            <CurrentWeekExercisesContainer
-                                dailyExercises={exerciseListPerDay}
-                                currentWeekExercises={currentWeekExercises}
-                                tabHandler={this.handleChangeTab}
-                                dayPaginationHandler={this.handleChangeDayPage}
-                                currentDay={currentDay}
-                                currentView={currentView}
-                            />
-                            <SaveButton buttonHandler={this.handleSaveButton} />
-                        </Col>
-                    </Row>
-                </Container>
-            </div >
-        }
+            </Container >
+            <Container fluid>
+                <Row>
+                    <Col xs={5}>
+                        <AvailableExercisesList
+                            columns={availExercisesCols}
+                            data={availExercisesData}
+                        />
+                    </Col>
+                    <Col>
+                        <h1>Create this week</h1>
+                        <CurrentWeekExercisesContainer
+                            dailyExercises={exerciseListPerDay}
+                            currentWeekExercises={currentWeekExercises}
+                            tabHandler={this.handleChangeTab}
+                            dayPaginationHandler={this.handleChangeDayPage}
+                            currentDay={currentDay}
+                            currentView={currentView}
+                        />
+                        <SubmitWeekModal handleFormSubmit={this.handleSubmitButton} />
+                    </Col>
+                </Row>
+            </Container>
+        </div >
 
         return (
             <div>
-                {htmlRender}
+                {loading && loadingHTML}
+                {!hasPrograms && !loading && noCurrentProgramsHTML}
+                {hasPrograms && !loading && hasCurrentProgramsHTML}
             </div>
         )
     }
 }
+
+
+
+
 
 const condition = authUser => !!authUser;
 export default withAuthorisation(condition)(CurrentProgramPage)

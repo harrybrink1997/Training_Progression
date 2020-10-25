@@ -16,10 +16,10 @@ const DeleteExerciseButton = ({ buttonHandler, uid }) => {
     )
 }
 
-const SaveButton = ({ buttonHandler }) => {
+const SubmitWeekButton = ({ buttonHandler }) => {
     return (
-        <Button variant="danger" onClick={buttonHandler}> Save </ Button>
+        <Button variant="danger" onClick={buttonHandler}> Submit Week </ Button>
     )
 }
 
-export { DeleteExerciseButton, AddExerciseButton, SaveButton };
+export { DeleteExerciseButton, AddExerciseButton, SubmitWeekButton };

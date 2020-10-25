@@ -58,18 +58,29 @@ class Firebase {
     exercises = () => this.db.ref('exercises')
 
     createProgramUpstream = (name, uid) => {
-
-        return this.db.ref(`users/${uid}/currentPrograms/${name}`).set({
-            currentWeek: 1
-        })
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${name}`)
+            .set({
+                currentWeek: 1
+            })
     }
 
     createExerciseUpStream = (uid, progName, week, day, exercise, exUid) => {
-        return this.db.ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`).set(exercise)
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`)
+            .set(exercise)
     }
 
     deleteExerciseUpStream = (uid, progName, week, day, exUid) => {
-        return this.db.ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`).remove()
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`)
+            .remove()
+    }
+
+    progressToNextWeek = (uid, progName, val) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}/currentWeek`)
+            .set(val)
     }
 }
 export default Firebase
