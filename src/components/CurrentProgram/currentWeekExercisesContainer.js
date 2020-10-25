@@ -2,11 +2,22 @@ import React, { useState } from 'react';
 import { useTable } from 'react-table'
 import { Table, Tabs, Tab, Pagination, Nav, Col, Row } from 'react-bootstrap'
 
-const CurrentWeekExercisesContainer = ({ currentWeekExercises, tabHandler, dayPaginationHandler }) => {
+const CurrentWeekExercisesContainer = ({ currentWeekExercises, tabHandler, dayPaginationHandler, dailyExercises }) => {
 
     const [currentTab, setCurrentTab] = useState('dayView')
 
     const [currentPage, setCurrentPage] = useState('1')
+
+    const setExerciseList = (list) => {
+        if (list == {}) {
+            return []
+        } else {
+            return dailyExercises['1']
+        }
+    }
+
+    const [currentExerciseList, setCurrentExerciseList] = useState(setExerciseList(dailyExercises))
+
 
     const handleChangeTab = (key) => {
         setCurrentTab(key)
@@ -14,9 +25,13 @@ const CurrentWeekExercisesContainer = ({ currentWeekExercises, tabHandler, dayPa
     }
 
     const handleChangeDay = (currentDay) => {
+
         setCurrentPage(currentDay)
         dayPaginationHandler(currentDay)
+        setCurrentExerciseList(dailyExercises[currentDay])
+
     }
+
 
 
     return (
@@ -29,7 +44,17 @@ const CurrentWeekExercisesContainer = ({ currentWeekExercises, tabHandler, dayPa
                 title="Day View"
             >
                 <Row className="justify-content-md-center">
-                    <DayViewPagenation buttonHandler={handleChangeDay} />
+                    <Col>
+                        <Row className="justify-content-md-center">
+                            <DayViewPagenation
+                                currentExerciseList={currentExerciseList}
+                                buttonHandler={handleChangeDay}
+                            />
+                        </Row>
+                        <ExerciseTableDayView
+                            data={currentExerciseList}
+                        />
+                    </Col>
                 </Row>
 
             </Tab>
@@ -47,7 +72,6 @@ const CurrentWeekExercisesContainer = ({ currentWeekExercises, tabHandler, dayPa
 }
 
 const DayViewPagenation = ({ buttonHandler }) => {
-
     const [currentDay, setCurrentDay] = useState("1")
 
     const handleChangeDayClick = (event) => {
@@ -65,7 +89,8 @@ const DayViewPagenation = ({ buttonHandler }) => {
                         key={day}
                         onClick={handleChangeDayClick}
                         active={day == currentDay}
-                        value={day}>
+                        value={day}
+                    >
                         Day {day}
                     </Pagination.Item>
                 )

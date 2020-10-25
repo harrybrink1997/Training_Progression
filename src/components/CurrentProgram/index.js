@@ -46,15 +46,49 @@ class CurrentProgramPage extends Component {
                 Object.keys(userObject.currentPrograms).forEach(key => {
                     programListArray.push(key)
                 })
+                // Initially Sets the state for the current day
+                // and current week and other parameters. 
                 this.setState({
                     programList: programListArray,
                     activeProgram: programListArray[0],
-                    loading: false,
                     hasPrograms: true,
                     allPrograms: userObject.currentPrograms,
                     currentWeekInProgram: userObject.currentPrograms[programListArray[0]].currentWeek
-                })
+                }, () => {
+                    // Introduce a call back to show the current exercises. 
+                    // Can only be done once the other parameters above have been set. 
+                    // var currProg = this.state.activeProgram
+                    // var currWeek = 'week' + this.state.currentWeekInProgram
 
+                    // var currWeekProgExer = this.state.allPrograms[currProg][currWeek]
+
+                    // var exPerDayObj = {}
+
+                    // var numDaysInWeek = [1, 2, 3, 4, 5, 6, 7]
+
+                    // for (var day in numDaysInWeek) {
+                    //     var dailyExercises = []
+
+                    //     if (day in currWeekProgExer) {
+                    //         for (var exercise in currWeekProgExer[day]) {
+
+                    //             var renderObj = currWeekProgExer[day][exercise]
+                    //             renderObj.uid = exercise
+                    //             renderObj.deleteButton = <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
+
+
+                    //             dailyExercises.push(renderObj)
+                    //         }
+                    //     }
+                    //     exPerDayObj[day] = dailyExercises
+                    // }
+
+                    // this.setState({
+                    //     exerciseListPerDay: exPerDayObj,
+                    //     loading: false,
+                    // }, () => { console.log(this.state.exerciseListPerDay) })
+                    this.updatedDailyExerciseList()
+                })
             } else {
                 this.setState({
                     programList: ['No Current Programs'],
@@ -63,6 +97,41 @@ class CurrentProgramPage extends Component {
                 })
             }
         })
+    }
+
+    updatedDailyExerciseList = () => {
+        // Introduce a call back to show the current exercises. 
+        // Can only be done once the other parameters above have been set. 
+        var currProg = this.state.activeProgram
+        var currWeek = 'week' + this.state.currentWeekInProgram
+
+        var currWeekProgExer = this.state.allPrograms[currProg][currWeek]
+
+        var exPerDayObj = {}
+
+        var numDaysInWeek = [1, 2, 3, 4, 5, 6, 7]
+
+        for (var day in numDaysInWeek) {
+            var dailyExercises = []
+
+            if (day in currWeekProgExer) {
+                for (var exercise in currWeekProgExer[day]) {
+
+                    var renderObj = currWeekProgExer[day][exercise]
+                    renderObj.uid = exercise
+                    renderObj.deleteButton = <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
+
+
+                    dailyExercises.push(renderObj)
+                }
+            }
+            exPerDayObj[day] = dailyExercises
+        }
+
+        this.setState({
+            exerciseListPerDay: exPerDayObj,
+            loading: false,
+        }, () => { console.log(this.state.exerciseListPerDay) })
     }
 
     componentWillUnmount() {
@@ -177,6 +246,13 @@ class CurrentProgramPage extends Component {
         console.log(payload)
 
         currentProgramObject[weekString][dayString][exUid] = payload
+
+        // Once added to the 
+        this.setState({
+            loading: true
+        }, () => {
+            this.updatedDailyExerciseList()
+        })
     }
 
     handleAddExerciseButton = (event) => {
@@ -213,62 +289,71 @@ class CurrentProgramPage extends Component {
         ).then(() => {
             // If promise goes through then update front end. 
             this.addExerciseLocally(dataPayload, exerciseObject.uid)
+        }).then(() => {
+            var currExListPerDay = this.state.exerciseListPerDay[this.state.currentDay]
+            // Have to update current exercise list dynamically thast is the next step.
+            this.setState({
+                currentWeekExercises: [...this.state.currentWeekExercises, renderPayload]
+                // exerciseListPerDay: this.state.exerciseListPerDay[this.state.currentDay]  
+            })
         })
 
 
-        var currExListPerDay = this.state.exerciseListPerDay[this.state.currentDay]
-
-        // Have to update current exercise list dynamically thast is the next step.
-        this.setState({
-            currentWeekExercises: [...this.state.currentWeekExercises, renderPayload]
-            // exerciseListPerDay: this.state.exerciseListPerDay[this.state.currentDay]  
-        })
     }
 
     render() {
-        const { hasPrograms, programList, activeProgram, currentWeekExercises } = this.state
+        const { hasPrograms, programList, activeProgram, currentWeekExercises, exerciseListPerDay, loading } = this.state
         console.log("state")
         console.log(this.state)
 
+        let htmlRender;
+
+        if (loading) {
+            htmlRender = <h1>Loading...</h1>
+        } else if (!hasPrograms) {
+            htmlRender = <h1>Create A Program Before Accessing This Page</h1>
+        } else {
+            htmlRender = <div>
+                < Container fluid >
+                    <Row className="justify-content-md-center">
+                        <h1>{activeProgram}</h1>
+                        <Col>
+                            <CurrentProgramDropdown
+                                programList={programList}
+                                activeProgram={activeProgram}
+                                buttonHandler={this.handleSelectProgramButton}
+                            />
+                        </Col>
+
+                    </Row>
+
+                </Container >
+                <Container fluid>
+                    <Row>
+                        <Col xs={5}>
+                            <AvailableExercisesList
+                                handleAddExerciseButton={this.handleAddExerciseButton}
+                                underscoreToSpaced={this.underscoreToSpaced}
+                            />
+                        </Col>
+                        <Col>
+                            <h1>Create this week</h1>
+                            <CurrentWeekExercisesContainer
+                                dailyExercises={exerciseListPerDay}
+                                currentWeekExercises={currentWeekExercises}
+                                tabHandler={this.handleChangeTab}
+                                dayPaginationHandler={this.handleChangeDayPage}
+                            />
+                            <SaveButton buttonHandler={this.handleSaveButton} />
+                        </Col>
+                    </Row>
+                </Container>
+            </div >
+        }
+
         return (
             <div>
-                {hasPrograms ?
-                    <div>
-                        < Container fluid >
-                            <Row className="justify-content-md-center">
-                                <h1>{activeProgram}</h1>
-                                <Col>
-                                    <CurrentProgramDropdown
-                                        programList={programList}
-                                        activeProgram={activeProgram}
-                                        buttonHandler={this.handleSelectProgramButton}
-                                    />
-                                </Col>
-
-                            </Row>
-
-                        </Container >
-                        <Container fluid>
-                            <Row>
-                                <Col xs={5}>
-                                    <AvailableExercisesList
-                                        handleAddExerciseButton={this.handleAddExerciseButton}
-                                        underscoreToSpaced={this.underscoreToSpaced}
-                                    />
-                                </Col>
-                                <Col>
-                                    <h1>Create this week</h1>
-                                    <CurrentWeekExercisesContainer
-                                        currentWeekExercises={currentWeekExercises}
-                                        tabHandler={this.handleChangeTab}
-                                        dayPaginationHandler={this.handleChangeDayPage}
-                                    />
-                                    <SaveButton buttonHandler={this.handleSaveButton} />
-                                </Col>
-                            </Row>
-                        </Container>
-                    </div >
-                    : <h1>Create A Program Before Accessing This Page</h1>}
+                {htmlRender}
             </div>
         )
     }
