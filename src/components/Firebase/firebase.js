@@ -67,5 +67,9 @@ class Firebase {
     createExerciseUpStream = (uid, progName, week, day, exercise, exUid) => {
         return this.db.ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`).set(exercise)
     }
+
+    deleteExerciseUpStream = (uid, progName, week, day, exUid) => {
+        return this.db.ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`).remove()
+    }
 }
 export default Firebase
