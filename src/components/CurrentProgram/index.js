@@ -55,38 +55,6 @@ class CurrentProgramPage extends Component {
                     allPrograms: userObject.currentPrograms,
                     currentWeekInProgram: userObject.currentPrograms[programListArray[0]].currentWeek
                 }, () => {
-                    // Introduce a call back to show the current exercises. 
-                    // Can only be done once the other parameters above have been set. 
-                    // var currProg = this.state.activeProgram
-                    // var currWeek = 'week' + this.state.currentWeekInProgram
-
-                    // var currWeekProgExer = this.state.allPrograms[currProg][currWeek]
-
-                    // var exPerDayObj = {}
-
-                    // var numDaysInWeek = [1, 2, 3, 4, 5, 6, 7]
-
-                    // for (var day in numDaysInWeek) {
-                    //     var dailyExercises = []
-
-                    //     if (day in currWeekProgExer) {
-                    //         for (var exercise in currWeekProgExer[day]) {
-
-                    //             var renderObj = currWeekProgExer[day][exercise]
-                    //             renderObj.uid = exercise
-                    //             renderObj.deleteButton = <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
-
-
-                    //             dailyExercises.push(renderObj)
-                    //         }
-                    //     }
-                    //     exPerDayObj[day] = dailyExercises
-                    // }
-
-                    // this.setState({
-                    //     exerciseListPerDay: exPerDayObj,
-                    //     loading: false,
-                    // }, () => { console.log(this.state.exerciseListPerDay) })
                     this.updatedDailyExerciseList()
                 })
             } else {
@@ -103,29 +71,36 @@ class CurrentProgramPage extends Component {
         // Introduce a call back to show the current exercises. 
         // Can only be done once the other parameters above have been set. 
         var currProg = this.state.activeProgram
+
         var currWeek = 'week' + this.state.currentWeekInProgram
-
-        var currWeekProgExer = this.state.allPrograms[currProg][currWeek]
-
+        var numDaysInWeek = [1, 2, 3, 4, 5, 6, 7]
         var exPerDayObj = {}
 
-        var numDaysInWeek = [1, 2, 3, 4, 5, 6, 7]
-
-        for (var day in numDaysInWeek) {
-            var dailyExercises = []
-
-            if (day in currWeekProgExer) {
-                for (var exercise in currWeekProgExer[day]) {
-
-                    var renderObj = currWeekProgExer[day][exercise]
-                    renderObj.uid = exercise
-                    renderObj.deleteButton = <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
-
-
-                    dailyExercises.push(renderObj)
-                }
+        // First check if the current week has been instantiated. If not return a clear slate for every day. 
+        // Exit the function afterwards. 
+        if (!(currWeek in this.state.allPrograms[currProg])) {
+            for (var day in numDaysInWeek) {
+                exPerDayObj[numDaysInWeek[day]] = []
             }
-            exPerDayObj[day] = dailyExercises
+        } else {
+            var currWeekProgExer = this.state.allPrograms[currProg][currWeek]
+
+            for (var day in numDaysInWeek) {
+                var dailyExercises = []
+
+                if (numDaysInWeek[day] in currWeekProgExer) {
+                    for (var exercise in currWeekProgExer[numDaysInWeek[day]]) {
+
+                        var renderObj = currWeekProgExer[numDaysInWeek[day]][exercise]
+                        renderObj.uid = exercise
+                        renderObj.deleteButton = <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
+
+
+                        dailyExercises.push(renderObj)
+                    }
+                }
+                exPerDayObj[numDaysInWeek[day]] = dailyExercises
+            }
         }
 
         this.setState({
@@ -217,11 +192,25 @@ class CurrentProgramPage extends Component {
         }
     }
 
+
+    deleteExerciseLocally = () => {
+
+    }
+
     handleDeleteExerciseButton = (event) => {
+        event.preventDefault()
+
+        var currWeek = this.state.currentWeekInProgram
+        var currDay = this.state.currentDay
+
+
+
 
         var updatedExerciseList = this.state.currentWeekExercises.filter(element => {
             return element.uid != event.target.id.slice(0, -10)
         })
+
+
 
         this.setState({
             currentWeekExercises: updatedExerciseList
@@ -256,7 +245,7 @@ class CurrentProgramPage extends Component {
     }
 
     handleAddExerciseButton = (event) => {
-
+        event.preventDefault()
         var exerciseName = event.target.id.slice(0, -10)
         var exerciseObject = this.generateExerciseUID(exerciseName)
 
@@ -302,7 +291,16 @@ class CurrentProgramPage extends Component {
     }
 
     render() {
-        const { hasPrograms, programList, activeProgram, currentWeekExercises, exerciseListPerDay, loading } = this.state
+        const {
+            hasPrograms,
+            programList,
+            activeProgram,
+            currentWeekExercises,
+            exerciseListPerDay,
+            loading,
+            currentDay,
+            currentView } = this.state
+
         console.log("state")
         console.log(this.state)
 
@@ -343,6 +341,8 @@ class CurrentProgramPage extends Component {
                                 currentWeekExercises={currentWeekExercises}
                                 tabHandler={this.handleChangeTab}
                                 dayPaginationHandler={this.handleChangeDayPage}
+                                currentDay={currentDay}
+                                currentView={currentView}
                             />
                             <SaveButton buttonHandler={this.handleSaveButton} />
                         </Col>

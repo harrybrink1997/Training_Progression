@@ -6,7 +6,6 @@ import { Dropdown } from 'react-bootstrap'
 
 const CurrentProgramsDropdown = ({ programList, activeProgram, buttonHandler }) => {
 
-    console.log(activeProgram)
     return (
 
         <Dropdown >
