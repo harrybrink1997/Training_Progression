@@ -65,20 +65,34 @@ class Firebase {
             })
     }
 
+    setActiveProgram = (uid, name) => {
+        this.db
+            .ref(`users/${uid}/activeProgram`)
+            .set(name)
+
+    }
+
+    setCurrentDay = (uid, progName, day) => {
+        this.db
+            .ref(`users/${uid}/currentPrograms/${progName}/currentDay`)
+            .set(day)
+
+    }
+
     createExerciseUpStream = (uid, progName, week, day, exercise, exUid) => {
-        return this.db
+        this.db
             .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`)
             .set(exercise)
     }
 
     deleteExerciseUpStream = (uid, progName, week, day, exUid) => {
-        return this.db
+        this.db
             .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`)
             .remove()
     }
 
     progressToNextWeek = (uid, progName, val) => {
-        return this.db
+        this.db
             .ref(`users/${uid}/currentPrograms/${progName}/currentWeek`)
             .set(val)
     }

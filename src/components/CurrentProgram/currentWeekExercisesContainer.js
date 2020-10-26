@@ -24,11 +24,9 @@ const CurrentWeekExercisesContainer = ({ currentWeekExercises, tabHandler, dayPa
         tabHandler(key)
     }
 
-    const handleChangeDay = (currentDay) => {
-
-        setCurrentPage(currentDay)
-        dayPaginationHandler(currentDay)
-        setCurrentExerciseList(dailyExercises[currentDay])
+    const handleChangeDay = (dayChange) => {
+        dayPaginationHandler(dayChange)
+        setCurrentExerciseList(dailyExercises[dayChange])
 
     }
 
@@ -47,9 +45,8 @@ const CurrentWeekExercisesContainer = ({ currentWeekExercises, tabHandler, dayPa
                     <Col>
                         <Row className="justify-content-md-center">
                             <DayViewPagenation
-                                currentExerciseList={currentExerciseList}
                                 buttonHandler={handleChangeDay}
-                                currDayPage={currentDay}
+                                currDayPage={currentPage}
                             />
                         </Row>
                         <ExerciseTableDayView
@@ -76,8 +73,10 @@ const DayViewPagenation = ({ buttonHandler, currDayPage }) => {
     const [currentDay, setCurrentDay] = useState(currDayPage)
 
     const handleChangeDayClick = (event) => {
-        setCurrentDay(event.target.value)
-        buttonHandler(event.target.value)
+        if (event.target.value != null) {
+            setCurrentDay(event.target.value)
+            buttonHandler(event.target.value)
+        }
     }
 
     const days = [1, 2, 3, 4, 5, 6, 7]
@@ -89,6 +88,7 @@ const DayViewPagenation = ({ buttonHandler, currDayPage }) => {
                         as="button"
                         key={day}
                         onClick={handleChangeDayClick}
+                        cursor="pointer"
                         active={day == currentDay}
                         value={day}
                     >

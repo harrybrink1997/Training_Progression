@@ -44,7 +44,8 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                             id="newProgramNameInput"
                             onChange={onChange}
                             value={programName}
-                            valueplaceholder="Enter Program Name...">
+                            valueplaceholder="Enter Program Name..."
+                        >
                         </InputGroup>
                     </Modal.Body>
                     <Modal.Footer>
