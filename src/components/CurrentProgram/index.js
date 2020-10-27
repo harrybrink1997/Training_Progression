@@ -16,6 +16,9 @@ class CurrentProgramPage extends Component {
     constructor(props) {
         super(props)
 
+
+        this.exerciseDataChanges = {}
+
         this.state = {
             // Current Program Data
             currentWeekExercises: [], // redundent must delete. 
@@ -59,7 +62,8 @@ class CurrentProgramPage extends Component {
         // object updates in the database. 
         this.props.firebase.getUserData(currUserUid).on('value', userData => {
             var userObject = userData.val();
-
+            console.log("inside big boy")
+            console.log(userData)
             if (!this.state.loading) {
                 this.setState({
                     loading: true
@@ -222,6 +226,21 @@ class CurrentProgramPage extends Component {
         this.props.firebase.setActiveProgram(
             this.props.firebase.auth.currentUser.uid,
             event.target.value
+        )
+    }
+
+    handleTableUpdate = (exUid, accessor, value, ref) => {
+
+        console.log("INSIDE")
+        console.log(ref)
+        this.props.firebase.pushExercisePropertiesUpstream(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram,
+            'week' + this.state.currentWeekInProgram,
+            this.state.currentDay,
+            exUid,
+            accessor,
+            value
         )
     }
 
@@ -396,6 +415,7 @@ class CurrentProgramPage extends Component {
                             dayPaginationHandler={this.handleChangeDayPage}
                             currentDay={currentDay}
                             currentView={currentView}
+                            handleTableUpdate={this.handleTableUpdate}
                         />
                         <SubmitWeekModal handleFormSubmit={this.handleSubmitButton} />
                     </Col>

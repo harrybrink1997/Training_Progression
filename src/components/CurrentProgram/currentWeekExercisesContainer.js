@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
 import { useTable } from 'react-table'
 import { Table, Tabs, Tab, Pagination, Col, Row } from 'react-bootstrap'
+import { EditableCell } from './editableTable'
 
-const CurrentWeekExercisesContainer = ({ currentWeekExercises, tabHandler, dayPaginationHandler, dailyExercises, currentDay, currentView }) => {
+
+const CurrentWeekExercisesContainer = ({
+    currentWeekExercises,
+    tabHandler,
+    dayPaginationHandler,
+    dailyExercises,
+    currentDay,
+    currentView,
+    handleTableUpdate }) => {
 
     const [currentTab, setCurrentTab] = useState(currentView)
 
@@ -51,6 +60,7 @@ const CurrentWeekExercisesContainer = ({ currentWeekExercises, tabHandler, dayPa
                         </Row>
                         <ExerciseTableDayView
                             data={currentExerciseList}
+                            handleTableUpdate={handleTableUpdate}
                         />
                     </Col>
                 </Row>
@@ -61,8 +71,10 @@ const CurrentWeekExercisesContainer = ({ currentWeekExercises, tabHandler, dayPa
                 title="Week View"
             >
                 <div> week view</div>
+                // this needs to be removed. TODO
                 <ExerciseTableDayView
                     data={currentWeekExercises}
+                    handleTableUpdate={handleTableUpdate}
                 />
             </Tab>
         </Tabs>
@@ -102,7 +114,7 @@ const DayViewPagenation = ({ buttonHandler, currDayPage }) => {
 
 
 
-const ExerciseTableDayView = ({ data }) => {
+const ExerciseTableDayView = ({ data, handleTableUpdate }) => {
 
     const columns = React.useMemo(
         () => [
@@ -112,19 +124,24 @@ const ExerciseTableDayView = ({ data }) => {
             },
             {
                 Header: 'RPE',
-                accessor: 'rpe'
+                accessor: 'rpe',
+                Cell: EditableCell
             },
             {
                 Header: 'Time',
-                accessor: 'time'
+                accessor: 'time',
+                Cell: EditableCell
             },
             {
                 Header: 'Repetitions',
-                accessor: 'reps'
+                accessor: 'reps',
+                Cell: EditableCell
+
             },
             {
                 Header: 'Weight',
-                accessor: 'weight'
+                accessor: 'weight',
+                Cell: EditableCell
             },
             {
                 Header: 'Delete',
@@ -135,6 +152,18 @@ const ExerciseTableDayView = ({ data }) => {
         []
     )
 
+
+    const passTableDataUpStream = (row, col, value, ref) => {
+
+        handleTableUpdate(
+            rows[row].values.deleteButton.props.uid,
+            col,
+            value,
+            ref
+        )
+
+    }
+
     const {
         getTableProps,
         getTableBodyProps,
@@ -144,7 +173,10 @@ const ExerciseTableDayView = ({ data }) => {
     } = useTable({
         columns,
         data,
+        passTableDataUpStream
     })
+
+
 
     return (
         <Table striped bordered hover variant="dark" {...getTableProps()}>
