@@ -22,4 +22,10 @@ const SubmitWeekButton = ({ buttonHandler }) => {
     )
 }
 
-export { DeleteExerciseButton, AddExerciseButton, SubmitWeekButton };
+const SaveProgramButton = ({ buttonHandler }) => {
+    return (
+        <Button variant="danger" onClick={buttonHandler}> Save Week </ Button>
+    )
+}
+
+export { DeleteExerciseButton, AddExerciseButton, SubmitWeekButton, SaveProgramButton };

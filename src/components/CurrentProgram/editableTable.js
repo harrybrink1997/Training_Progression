@@ -8,15 +8,14 @@ const EditableCell = ({
 }) => {
     // We need to keep and update the state of the cell normally
     const [value, setValue] = React.useState(initialValue)
-    const ref = React.createRef()
 
     const onChange = e => {
         setValue(e.target.value)
     }
 
     // We'll only update the external data when the input is blurred
-    const onBlur = () => {
-        passTableDataUpStream(index, id, value, ref)
+    const onBlur = async () => {
+        passTableDataUpStream(index, id, value)
     }
 
     // If the initialValue is changed external, sync it up with our state
