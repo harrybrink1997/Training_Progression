@@ -1,14 +1,6 @@
 import React from 'react'
 import { Button } from 'react-bootstrap'
 
-const AddExerciseButton = ({ buttonHandler, uid }) => {
-
-    return (
-        <Button variant="danger" id={uid + "_addButton"} className="addExerciseButton" onClick={buttonHandler}> Add to Day </ Button>
-    )
-}
-
-
 const DeleteExerciseButton = ({ buttonHandler, uid }) => {
 
     return (
@@ -28,4 +20,10 @@ const SaveProgramButton = ({ buttonHandler }) => {
     )
 }
 
-export { DeleteExerciseButton, AddExerciseButton, SubmitWeekButton, SaveProgramButton };
+const EditExerciseButton = ({ buttonHandler }) => {
+    return (
+        <Button variant="primary" onClick={buttonHandler}> Edit </ Button>
+    )
+}
+
+export { DeleteExerciseButton, SubmitWeekButton, SaveProgramButton, EditExerciseButton };

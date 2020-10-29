@@ -85,9 +85,9 @@ class Firebase {
             .set(exercise)
     }
 
-    pushExercisePropertiesUpstream = (uid, progName, week, day, exUid, accessor, value) => {
+    pushExercisePropertiesUpstream = (uid, progName, week, day, exUid, value) => {
         return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}/${accessor}`)
+            .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`)
             .set(value)
     }
 

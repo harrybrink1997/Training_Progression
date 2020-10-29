@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useTable } from 'react-table'
 import { Table, Tabs, Tab, Pagination, Col, Row } from 'react-bootstrap'
-import { EditableCell } from './editableTable'
 
 
 const CurrentWeekExercisesContainer = ({
@@ -125,23 +124,19 @@ const ExerciseTableDayView = ({ data, handleTableUpdate }) => {
             {
                 Header: 'RPE',
                 accessor: 'rpe',
-                Cell: EditableCell
             },
             {
                 Header: 'Time',
                 accessor: 'time',
-                Cell: EditableCell
             },
             {
                 Header: 'Repetitions',
                 accessor: 'reps',
-                Cell: EditableCell
 
             },
             {
                 Header: 'Weight',
                 accessor: 'weight',
-                Cell: EditableCell
             },
             {
                 Header: 'Delete',

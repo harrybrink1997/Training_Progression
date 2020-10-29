@@ -3,8 +3,8 @@ import { withAuthorisation } from '../Session';
 
 import { Table, Button, Container, Row, Col, Dropdown } from 'react-bootstrap'
 
-import { useTable, useFilters, useGlobalFilter, usePagination, useRowSelect } from 'react-table'
-import { DefaultColumnFilter, GlobalFilter, fuzzyTextFilterFn, SelectColumnFilter } from './filterSearch'
+import { useTable, useFilters, useGlobalFilter, usePagination } from 'react-table'
+import { DefaultColumnFilter, GlobalFilter, fuzzyTextFilterFn } from './filterSearch'
 
 const AvailableExercisesList = ({ columns, data }) => {
 
