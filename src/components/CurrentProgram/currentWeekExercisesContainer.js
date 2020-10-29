@@ -4,7 +4,6 @@ import { Table, Tabs, Tab, Pagination, Col, Row } from 'react-bootstrap'
 
 
 const CurrentWeekExercisesContainer = ({
-    currentWeekExercises,
     tabHandler,
     dayPaginationHandler,
     dailyExercises,
@@ -69,12 +68,18 @@ const CurrentWeekExercisesContainer = ({
                 eventKey="weekView"
                 title="Week View"
             >
-                <div> week view</div>
-                // this needs to be removed. TODO
-                <ExerciseTableDayView
-                    data={currentWeekExercises}
-                    handleTableUpdate={handleTableUpdate}
-                />
+                <Col>
+                    {['1', '2', '3', '4', '5', '6', '7'].map(day => {
+                        return (
+                            <div key={day}>
+                                <h4>Day {day}</h4>
+                                <ExerciseTableDayView
+                                    data={dailyExercises[day]}
+                                />
+                            </div>
+                        )
+                    })}
+                </Col>
             </Tab>
         </Tabs>
     )
@@ -217,6 +222,5 @@ const ExerciseTableDayView = ({ data, handleTableUpdate }) => {
     )
 
 }
-
 
 export default CurrentWeekExercisesContainer;

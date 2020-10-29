@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { Modal, Button, Form, InputGroup, Dropdown, Row, Col } from 'react-bootstrap'
 
-const AddExerciseModal = ({ submitHandler, name, primaryMusc }) => {
+const AddExerciseModal = ({ submitHandler, name, currDay }) => {
 
     const [show, setShow] = useState(false);
     const [rpe, setRpe] = useState('')
     const [time, setTime] = useState('')
     const [reps, setReps] = useState('')
     const [weight, setWeight] = useState('')
+    const [dayInsert, setDayInsert] = useState(currDay)
 
     const handleClose = (event) => {
         setShow(false);
@@ -19,12 +20,12 @@ const AddExerciseModal = ({ submitHandler, name, primaryMusc }) => {
 
         var exerciseObj = {
             name: name,
+            day: dayInsert,
             rpe: rpe,
             time: time,
             reps: reps,
             weight: weight
         }
-
         submitHandler(exerciseObj)
 
     }
@@ -35,17 +36,35 @@ const AddExerciseModal = ({ submitHandler, name, primaryMusc }) => {
 
     const handleTimeUpdate = (event) => {
         event.preventDefault()
-        setTime(event.target.value)
+        if (event.target.value.slice(-1) >= '0' && event.target.value.slice(-1) <= '9') {
+            setTime(event.target.value)
+        } else if (event.target.value == '') {
+            setTime(event.target.value)
+        }
     }
 
     const handleRepsUpdate = (event) => {
         event.preventDefault()
-        setReps(event.target.value)
+        console.log(event.target.value.slice(-1))
+        if (event.target.value.slice(-1) >= '0' && event.target.value.slice(-1) <= '9') {
+            setReps(event.target.value)
+        } else if (event.target.value == '') {
+            setReps(event.target.value)
+        }
     }
 
     const handleWeightUpdate = (event) => {
         event.preventDefault()
-        setWeight(event.target.value)
+        if (event.target.value.slice(-1) >= '0' && event.target.value.slice(-1) <= '9') {
+            setWeight(event.target.value)
+        } else if (event.target.value == '') {
+            setWeight(event.target.value)
+        }
+    }
+
+    const handleInsertDay = (day) => {
+        console.log(day)
+        setDayInsert(day)
     }
 
     const handleShow = () => setShow(true);
@@ -92,6 +111,13 @@ const AddExerciseModal = ({ submitHandler, name, primaryMusc }) => {
                                     placeholder="..."
                                     value={weight}
                                     onChange={handleWeightUpdate}
+                                />
+                            </Col>
+                            <Col>
+                                <label>Day</label>
+                                <DayDropdown
+                                    buttonHandler={handleInsertDay}
+                                    currDay={dayInsert}
                                 />
                             </Col>
 
@@ -148,6 +174,39 @@ const RPEDropdown = ({ buttonHandler }) => {
     )
 }
 
+const DayDropdown = ({ buttonHandler, currDay }) => {
 
+    const [currentDay, setCurrentDay] = useState(currDay)
+
+
+    const handleClick = (event) => {
+        event.preventDefault()
+        setCurrentDay(event.target.value)
+        buttonHandler(event.target.value)
+    }
+
+    return (
+        <Dropdown >
+            <Dropdown.Toggle variant="dark" id="dropdown-basic">
+                {currentDay}
+            </Dropdown.Toggle>
+            <Dropdown.Menu variant="dark">
+                {[1, 2, 3, 4, 5, 6, 7].map(day => {
+                    return (
+                        <Dropdown.Item
+                            as="button"
+                            onClick={handleClick}
+                            key={day}
+                            value={day}
+                        >
+                            {day}
+                        </Dropdown.Item>
+                    )
+
+                })}
+            </Dropdown.Menu>
+        </Dropdown>
+    )
+}
 
 export default AddExerciseModal;
