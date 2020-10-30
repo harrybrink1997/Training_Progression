@@ -9,7 +9,8 @@ const CurrentWeekExercisesContainer = ({
     dailyExercises,
     currentDay,
     currentView,
-    handleTableUpdate }) => {
+    handleTableUpdate,
+    loadingScheme }) => {
 
     const [currentTab, setCurrentTab] = useState(currentView)
 
@@ -56,10 +57,20 @@ const CurrentWeekExercisesContainer = ({
                                 currDayPage={currentPage}
                             />
                         </Row>
-                        <ExerciseTableDayView
-                            data={currentExerciseList}
-                            handleTableUpdate={handleTableUpdate}
-                        />
+                        {loadingScheme == 'rpe_time'
+                            &&
+                            <ExerciseTableDayViewRpeTime
+                                data={currentExerciseList}
+                                handleTableUpdate={handleTableUpdate}
+                            />
+                        }
+                        {loadingScheme == 'weight_reps'
+                            &&
+                            <ExerciseTableDayViewWeightReps
+                                data={currentExerciseList}
+                                handleTableUpdate={handleTableUpdate}
+                            />
+                        }
                     </Col>
                 </Row>
 
@@ -73,9 +84,20 @@ const CurrentWeekExercisesContainer = ({
                         return (
                             <div key={day}>
                                 <h4>Day {day}</h4>
-                                <ExerciseTableDayView
-                                    data={dailyExercises[day]}
-                                />
+                                {loadingScheme == 'rpe_time'
+                                    &&
+                                    <ExerciseTableDayViewRpeTime
+                                        data={dailyExercises[day]}
+                                    // handleTableUpdate={handleTableUpdate}
+                                    />
+                                }
+                                {loadingScheme == 'weight_reps'
+                                    &&
+                                    <ExerciseTableDayViewWeightReps
+                                        data={dailyExercises[day]}
+                                    // handleTableUpdate={handleTableUpdate}
+                                    />
+                                }
                             </div>
                         )
                     })}
@@ -115,8 +137,6 @@ const DayViewPagenation = ({ buttonHandler, currDayPage }) => {
         </Pagination>
     )
 }
-
-
 
 const ExerciseTableDayView = ({ data, handleTableUpdate }) => {
 
@@ -222,5 +242,217 @@ const ExerciseTableDayView = ({ data, handleTableUpdate }) => {
     )
 
 }
+
+const ExerciseTableDayViewRpeTime = ({ data, handleTableUpdate }) => {
+
+    const columns = React.useMemo(
+        () => [
+            {
+                Header: 'Exercise',
+                accessor: 'exercise'
+            },
+            {
+                Header: 'Sets',
+                accessor: 'sets',
+
+            },
+            {
+                Header: 'Repetitions',
+                accessor: 'reps',
+
+            },
+            {
+                Header: 'Time',
+                accessor: 'time',
+            },
+            {
+                Header: 'RPE',
+                accessor: 'rpe',
+            },
+            {
+                Header: 'Delete',
+                accessor: 'deleteButton'
+            }
+
+        ],
+        []
+    )
+
+
+    const passTableDataUpStream = (row, col, value, ref) => {
+
+        handleTableUpdate(
+            rows[row].values.deleteButton.props.uid,
+            col,
+            value,
+            ref
+        )
+
+    }
+
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        rows,
+        prepareRow,
+    } = useTable({
+        columns,
+        data,
+        passTableDataUpStream
+    })
+
+
+
+    return (
+        <Table striped bordered hover variant="dark" {...getTableProps()}>
+            <thead>
+                {// Loop over the header rows
+                    headerGroups.map(headerGroup => (
+                        // Apply the header row props
+                        <tr {...headerGroup.getHeaderGroupProps()}>
+                            {// Loop over the headers in each row
+                                headerGroup.headers.map(column => (
+                                    // Apply the header cell props
+                                    <th {...column.getHeaderProps()}>
+                                        {// Render the header
+                                            column.render('Header')}
+                                    </th>
+                                ))}
+                        </tr>
+                    ))}
+            </thead>
+            <tbody {...getTableBodyProps()}>
+                {// Loop over the table rows
+                    rows.map(row => {
+                        // Prepare the row for display
+                        prepareRow(row)
+                        return (
+                            // Apply the row props
+                            <tr {...row.getRowProps()}>
+                                {// Loop over the rows cells
+                                    row.cells.map(cell => {
+                                        // Apply the cell props
+                                        return (
+                                            <td {...cell.getCellProps()}>
+                                                {// Render the cell contents
+                                                    cell.render('Cell')}
+                                            </td>
+                                        )
+                                    })}
+                            </tr>
+                        )
+                    })}
+            </tbody>
+        </Table>
+    )
+
+}
+
+const ExerciseTableDayViewWeightReps = ({ data, handleTableUpdate }) => {
+
+    const columns = React.useMemo(
+        () => [
+            {
+                Header: 'Exercise',
+                accessor: 'exercise'
+            },
+            {
+                Header: 'Sets',
+                accessor: 'sets',
+
+            },
+            {
+                Header: 'Repetitions',
+                accessor: 'reps',
+
+            },
+            {
+                Header: 'Weight',
+                accessor: 'weight',
+            },
+            {
+                Header: 'Time',
+                accessor: 'time',
+            },
+            {
+                Header: 'Delete',
+                accessor: 'deleteButton'
+            }
+
+        ],
+        []
+    )
+
+    const passTableDataUpStream = (row, col, value, ref) => {
+
+        handleTableUpdate(
+            rows[row].values.deleteButton.props.uid,
+            col,
+            value,
+            ref
+        )
+
+    }
+
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        rows,
+        prepareRow,
+    } = useTable({
+        columns,
+        data,
+        passTableDataUpStream
+    })
+
+
+
+    return (
+        <Table striped bordered hover variant="dark" {...getTableProps()}>
+            <thead>
+                {// Loop over the header rows
+                    headerGroups.map(headerGroup => (
+                        // Apply the header row props
+                        <tr {...headerGroup.getHeaderGroupProps()}>
+                            {// Loop over the headers in each row
+                                headerGroup.headers.map(column => (
+                                    // Apply the header cell props
+                                    <th {...column.getHeaderProps()}>
+                                        {// Render the header
+                                            column.render('Header')}
+                                    </th>
+                                ))}
+                        </tr>
+                    ))}
+            </thead>
+            <tbody {...getTableBodyProps()}>
+                {// Loop over the table rows
+                    rows.map(row => {
+                        // Prepare the row for display
+                        prepareRow(row)
+                        return (
+                            // Apply the row props
+                            <tr {...row.getRowProps()}>
+                                {// Loop over the rows cells
+                                    row.cells.map(cell => {
+                                        // Apply the cell props
+                                        return (
+                                            <td {...cell.getCellProps()}>
+                                                {// Render the cell contents
+                                                    cell.render('Cell')}
+                                            </td>
+                                        )
+                                    })}
+                            </tr>
+                        )
+                    })}
+            </tbody>
+        </Table>
+    )
+
+}
+
 
 export default CurrentWeekExercisesContainer;

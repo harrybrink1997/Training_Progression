@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { Modal, Button, Form, InputGroup } from 'react-bootstrap'
+import { Modal, Button, Form, InputGroup, Row, Col } from 'react-bootstrap'
 
 const CreateProgramModal = ({ handleFormSubmit }) => {
 
     const [show, setShow] = useState(false);
+    const [rpeActive, setRPEActive] = useState(false)
+    const [weightActive, setWeightActive] = useState(true)
 
     const [programName, setProgramName] = useState('')
 
@@ -21,7 +23,23 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
         event.preventDefault();
         setShow(false);
         setProgramName('')
-        handleFormSubmit(programName)
+
+        if (rpeActive) {
+            handleFormSubmit(programName, 'rpe_time')
+        } else {
+            handleFormSubmit(programName, 'weight_reps')
+        }
+
+    }
+
+    const handleRadioToggle = (event) => {
+        if (event.target.id == 'rpe-time' && !rpeActive) {
+            setWeightActive(false)
+            setRPEActive(true)
+        } else if (event.target.id == 'weight-reps' && !weightActive) {
+            setRPEActive(false)
+            setWeightActive(true)
+        }
     }
 
     const handleShow = () => setShow(true);
@@ -45,8 +63,27 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                             onChange={onChange}
                             value={programName}
                             valueplaceholder="Enter Program Name..."
-                        >
-                        </InputGroup>
+                        />
+                        <div key='rpe-time' className="mb-3">
+                            <Form.Check
+                                type='radio'
+                                id='weight-reps'
+                                label='Weight / Repetitions'
+                                checked={weightActive}
+                                onClick={handleRadioToggle}
+                                onChange={() => { }}
+
+                            />
+                            <Form.Check
+                                type='radio'
+                                id='rpe-time'
+                                label='RPE / Time / Repetions'
+                                checked={rpeActive}
+                                onClick={handleRadioToggle}
+                                onChange={() => { }}
+                            />
+
+                        </div>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={handleClose}>Close</Button>
@@ -57,6 +94,5 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
         </div >
     );
 }
-
 
 export default CreateProgramModal;

@@ -16,8 +16,8 @@ class HomePage extends Component {
     }
 
 
-    handleCreateProgram = (programName) => {
-        this.props.firebase.createProgramUpstream(programName, this.state.userInformation.uid).then(() => {
+    handleCreateProgram = (programName, scheme) => {
+        this.props.firebase.createProgramUpstream(this.state.userInformation.uid, programName, scheme).then(() => {
             alert(`${programName} created.`)
         }).then(() => {
             this.props.firebase.setActiveProgram(

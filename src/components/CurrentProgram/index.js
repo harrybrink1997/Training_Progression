@@ -8,8 +8,8 @@ import CurrentProgramDropdown from './currentProgramsDropdown'
 import CurrentWeekExercisesContainer from './currentWeekExercisesContainer'
 import AvailableExercisesList from './availableExercisesList'
 import SubmitWeekModal from './submitWeekModal'
-import AddExerciseModal from './addExerciseModal'
-import EditExerciseModal from './editExerciseModal'
+import { AddExerciseModalWeightReps, AddExerciseModalRpeTime } from './addExerciseModal'
+import { EditExerciseModalWeightSets, EditExerciseModalRpeTime } from './editExerciseModal'
 import { DeleteExerciseButton } from './currentProgramPageButtons'
 import { SelectColumnFilter } from './filterSearch'
 
@@ -29,6 +29,7 @@ class CurrentProgramPage extends Component {
             currentDay: null,
             hasPrograms: false,
             allPrograms: [],
+            loadingScheme: '',
 
             // Exercise List Data
             availExercisesCols: [],
@@ -92,9 +93,17 @@ class CurrentProgramPage extends Component {
                 allPrograms: userObject.currentPrograms,
                 currentWeekInProgram: userObject.currentPrograms[userObject.activeProgram].currentWeek,
                 currentDay: userObject.currentPrograms[userObject.activeProgram].currentDay,
-                exerciseListPerDay: this.updatedDailyExerciseList(userObject),
                 loading: false,
-                availExercisesData: this.setAvailExerciseChartData(this.state.exerciseList, userObject.currentPrograms[userObject.activeProgram].currentDay)
+                loadingScheme: userObject.currentPrograms[userObject.activeProgram].loading_scheme,
+                exerciseListPerDay: this.updatedDailyExerciseList(
+                    userObject,
+                    userObject.currentPrograms[userObject.activeProgram].loading_scheme
+                ),
+                availExercisesData: this.setAvailExerciseChartData(
+                    this.state.exerciseList,
+                    userObject.currentPrograms[userObject.activeProgram].currentDay,
+                    userObject.currentPrograms[userObject.activeProgram].loading_scheme
+                )
             })
         } else {
             this.setState({
@@ -105,7 +114,7 @@ class CurrentProgramPage extends Component {
         }
     }
 
-    setAvailExerciseChartData = (exerciseList, currDay) => {
+    setAvailExerciseChartData = (exerciseList, currDay, loadingScheme) => {
         var tableData = []
         exerciseList.forEach(exercise => {
             tableData.push({
@@ -113,10 +122,12 @@ class CurrentProgramPage extends Component {
                 primMusc: exercise.primary.join(', '),
                 secMusc: exercise.secondary.join(', '),
                 expLevel: exercise.experience,
-                addExerciseBtn: <AddExerciseModal submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
+                // addExerciseBtn: <AddExerciseModal submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
+                addExerciseBtn: (loadingScheme === 'rpe_time') ?
+                    <AddExerciseModalRpeTime submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
+                    : <AddExerciseModalWeightReps submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
             })
         })
-
         return tableData
     }
 
@@ -156,13 +167,24 @@ class CurrentProgramPage extends Component {
 
         var day = updateObject.exUid.split('_').reverse()[1]
 
-        var dataPayload = {
-            exercise: updateObject.exercise,
-            rpe: updateObject.rpe,
-            weight: updateObject.weight,
-            time: updateObject.time,
-            reps: updateObject.reps,
-            primMusc: updateObject.primMusc
+        if (this.state.loadingScheme === 'rpe_time') {
+            var dataPayload = {
+                exercise: updateObject.exercise,
+                rpe: updateObject.rpe,
+                sets: updateObject.sets,
+                time: updateObject.time,
+                reps: updateObject.reps,
+                primMusc: updateObject.primMusc
+            }
+        } else {
+            var dataPayload = {
+                exercise: updateObject.exercise,
+                time: updateObject.time,
+                sets: updateObject.sets,
+                weight: updateObject.weight,
+                reps: updateObject.reps,
+                primMusc: updateObject.primMusc
+            }
         }
 
         await this.props.firebase.pushExercisePropertiesUpstream(
@@ -175,7 +197,7 @@ class CurrentProgramPage extends Component {
         )
     }
 
-    updatedDailyExerciseList = (userObject) => {
+    updatedDailyExerciseList = (userObject, loadingScheme) => {
         // Introduce a call back to show the current exercises. 
         // Can only be done once the other parameters above have been set. 
         var currProg = userObject.activeProgram
@@ -201,7 +223,12 @@ class CurrentProgramPage extends Component {
                         var renderObj = currWeekProgExer[numDaysInWeek[day]][exercise]
                         renderObj.uid = exercise
                         renderObj.deleteButton = <Row>
-                            <EditExerciseModal submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+                            {loadingScheme === 'rpe_time' ?
+                                <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+                                :
+                                <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+                            }
+                            {/* <EditExerciseModal submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} /> */}
                             <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
                         </Row>
 
@@ -244,9 +271,6 @@ class CurrentProgramPage extends Component {
     }
 
     handleSelectProgramButton = (event) => {
-
-        this.updateExerciseDataUpstream()
-        console.log(this.exerciseDataChanges)
 
         this.props.firebase.setActiveProgram(
             this.props.firebase.auth.currentUser.uid,
@@ -360,14 +384,27 @@ class CurrentProgramPage extends Component {
 
         var exUidObject = this.generateExerciseUID(exerciseObject.name)
 
-        var dataPayload = {
-            exercise: this.underscoreToSpaced(exerciseObject.name),
-            rpe: exerciseObject.rpe,
-            time: exerciseObject.time,
-            reps: exerciseObject.reps,
-            weight: exerciseObject.weight,
-            primMusc: exerciseObject.primMusc
+        if (this.state.loadingScheme == 'rpe_time') {
+            var dataPayload = {
+                exercise: this.underscoreToSpaced(exerciseObject.name),
+                sets: exerciseObject.sets,
+                rpe: exerciseObject.rpe,
+                time: exerciseObject.time,
+                reps: exerciseObject.reps,
+                primMusc: exerciseObject.primMusc
+            }
+        } else {
+            var dataPayload = {
+                exercise: this.underscoreToSpaced(exerciseObject.name),
+                sets: exerciseObject.sets,
+                time: exerciseObject.time,
+                reps: exerciseObject.reps,
+                weight: exerciseObject.weight,
+                primMusc: exerciseObject.primMusc
+            }
         }
+
+        console.log(dataPayload)
 
         await this.props.firebase.createExerciseUpStream(
             this.props.firebase.auth.currentUser.uid,
@@ -392,7 +429,8 @@ class CurrentProgramPage extends Component {
             currentView,
             currentWeekInProgram,
             availExercisesCols,
-            availExercisesData
+            availExercisesData,
+            loadingScheme
         } = this.state
 
         console.log("active program")
@@ -435,6 +473,7 @@ class CurrentProgramPage extends Component {
                             currentDay={currentDay}
                             currentView={currentView}
                             handleTableUpdate={this.handleTableUpdate}
+                            loadingScheme={loadingScheme}
                         />
                         <SubmitWeekModal handleFormSubmit={this.handleSubmitButton} />
                     </Col>

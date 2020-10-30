@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { Modal, Button, Form, InputGroup, Dropdown, Row, Col } from 'react-bootstrap'
 
-const AddExerciseModal = ({ submitHandler, name, currDay, primMusc }) => {
+const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc }) => {
 
     const [show, setShow] = useState(false);
     const [rpe, setRpe] = useState('')
     const [time, setTime] = useState('')
     const [reps, setReps] = useState('')
-    const [weight, setWeight] = useState('')
+    const [sets, setSets] = useState('')
     const [dayInsert, setDayInsert] = useState(currDay)
 
     const handleClose = (event) => {
@@ -24,7 +24,7 @@ const AddExerciseModal = ({ submitHandler, name, currDay, primMusc }) => {
             rpe: rpe,
             time: time,
             reps: reps,
-            weight: weight,
+            sets: sets,
             primMusc: primMusc
         }
         submitHandler(exerciseObj)
@@ -51,6 +51,143 @@ const AddExerciseModal = ({ submitHandler, name, currDay, primMusc }) => {
             setReps(event.target.value)
         } else if (event.target.value == '') {
             setReps(event.target.value)
+        }
+    }
+
+    const handleSetsUpdate = (event) => {
+        event.preventDefault()
+        console.log(event.target.value.slice(-1))
+        if (event.target.value.slice(-1) >= '0' && event.target.value.slice(-1) <= '9') {
+            setSets(event.target.value)
+        } else if (event.target.value == '') {
+            setSets(event.target.value)
+        }
+    }
+
+    const handleInsertDay = (day) => {
+        console.log(day)
+        setDayInsert(day)
+    }
+
+    const handleShow = () => setShow(true);
+
+    return (
+        <div>
+            <Button variant="danger" onClick={handleShow}>
+                Add to Day
+            </Button>
+
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add an Exercise</Modal.Title>
+                </Modal.Header>
+                <Form onSubmit={handleSubmit}>
+                    <Modal.Body>
+                        <Row>
+                            <Col>
+                                <label>Sets</label>
+                                <InputGroup
+                                    as="input"
+                                    value={sets}
+                                    onChange={handleSetsUpdate}
+                                />
+                            </Col>
+                            <Col>
+                                <label>Repetitions</label>
+                                <InputGroup
+                                    as="input"
+                                    value={reps}
+                                    onChange={handleRepsUpdate}
+                                />
+                            </Col>
+                            <Col>
+                                <label>Time</label>
+                                <InputGroup
+                                    as="input"
+                                    value={time}
+                                    onChange={handleTimeUpdate}
+                                />
+                            </Col>
+                            <Col>
+                                <label>RPE</label>
+                                <RPEDropdown buttonHandler={handleRPEUpdate} />
+                            </Col>
+                            <Col>
+                                <label>Day</label>
+                                <DayDropdown
+                                    buttonHandler={handleInsertDay}
+                                    currDay={dayInsert}
+                                />
+                            </Col>
+
+                        </Row>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={handleClose}>Close</Button>
+                        <Button variant="danger" type="submit">Add to Day</Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
+        </div >
+    );
+}
+
+const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) => {
+
+    const [show, setShow] = useState(false);
+    const [time, setTime] = useState('')
+    const [reps, setReps] = useState('')
+    const [weight, setWeight] = useState('')
+    const [sets, setSets] = useState('')
+    const [dayInsert, setDayInsert] = useState(currDay)
+
+    const handleClose = (event) => {
+        setShow(false);
+    }
+
+    const handleSubmit = (event) => {
+        event.preventDefault()
+        setShow(false);
+
+        var exerciseObj = {
+            name: name,
+            day: dayInsert,
+            time: time,
+            reps: reps,
+            weight: weight,
+            sets: sets,
+            primMusc: primMusc
+        }
+        submitHandler(exerciseObj)
+
+    }
+
+    const handleTimeUpdate = (event) => {
+        event.preventDefault()
+        if (event.target.value.slice(-1) >= '0' && event.target.value.slice(-1) <= '9') {
+            setTime(event.target.value)
+        } else if (event.target.value == '') {
+            setTime(event.target.value)
+        }
+    }
+
+    const handleRepsUpdate = (event) => {
+        event.preventDefault()
+        console.log(event.target.value.slice(-1))
+        if (event.target.value.slice(-1) >= '0' && event.target.value.slice(-1) <= '9') {
+            setReps(event.target.value)
+        } else if (event.target.value == '') {
+            setReps(event.target.value)
+        }
+    }
+
+    const handleSetsUpdate = (event) => {
+        event.preventDefault()
+        console.log(event.target.value.slice(-1))
+        if (event.target.value.slice(-1) >= '0' && event.target.value.slice(-1) <= '9') {
+            setSets(event.target.value)
+        } else if (event.target.value == '') {
+            setSets(event.target.value)
         }
     }
 
@@ -84,23 +221,17 @@ const AddExerciseModal = ({ submitHandler, name, currDay, primMusc }) => {
                     <Modal.Body>
                         <Row>
                             <Col>
-                                <label>RPE</label>
-                                <RPEDropdown buttonHandler={handleRPEUpdate} />
-                            </Col>
-                            <Col>
-                                <label>Time</label>
+                                <label>Sets</label>
                                 <InputGroup
                                     as="input"
-                                    placeholder="..."
-                                    value={time}
-                                    onChange={handleTimeUpdate}
+                                    value={sets}
+                                    onChange={handleSetsUpdate}
                                 />
                             </Col>
                             <Col>
                                 <label>Repetitions</label>
                                 <InputGroup
                                     as="input"
-                                    placeholder="..."
                                     value={reps}
                                     onChange={handleRepsUpdate}
                                 />
@@ -109,11 +240,19 @@ const AddExerciseModal = ({ submitHandler, name, currDay, primMusc }) => {
                                 <label>Weight</label>
                                 <InputGroup
                                     as="input"
-                                    placeholder="..."
                                     value={weight}
                                     onChange={handleWeightUpdate}
                                 />
                             </Col>
+                            <Col>
+                                <label>Time</label>
+                                <InputGroup
+                                    as="input"
+                                    value={time}
+                                    onChange={handleTimeUpdate}
+                                />
+                            </Col>
+
                             <Col>
                                 <label>Day</label>
                                 <DayDropdown
@@ -210,4 +349,4 @@ const DayDropdown = ({ buttonHandler, currDay }) => {
     )
 }
 
-export default AddExerciseModal;
+export { AddExerciseModalWeightReps, AddExerciseModalRpeTime };

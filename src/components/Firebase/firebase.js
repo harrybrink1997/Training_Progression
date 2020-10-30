@@ -57,10 +57,11 @@ class Firebase {
 
     exercises = () => this.db.ref('exercises')
 
-    createProgramUpstream = (name, uid) => {
+    createProgramUpstream = (uid, name, scheme) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${name}`)
             .set({
+                loading_scheme: scheme,
                 currentWeek: 1
             })
     }
