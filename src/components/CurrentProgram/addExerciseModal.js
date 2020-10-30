@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Modal, Button, Form, InputGroup, Dropdown, Row, Col } from 'react-bootstrap'
 
-const AddExerciseModal = ({ submitHandler, name, currDay }) => {
+const AddExerciseModal = ({ submitHandler, name, currDay, primMusc }) => {
 
     const [show, setShow] = useState(false);
     const [rpe, setRpe] = useState('')
@@ -24,7 +24,8 @@ const AddExerciseModal = ({ submitHandler, name, currDay }) => {
             rpe: rpe,
             time: time,
             reps: reps,
-            weight: weight
+            weight: weight,
+            primMusc: primMusc
         }
         submitHandler(exerciseObj)
 

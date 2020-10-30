@@ -17,9 +17,6 @@ class CurrentProgramPage extends Component {
     constructor(props) {
         super(props)
 
-
-        this.exerciseDataChanges = {}
-
         this.state = {
             // Current Program Data
             currentWeekExercises: [], // redundent must delete. 
@@ -55,7 +52,6 @@ class CurrentProgramPage extends Component {
             this.setState({
                 exerciseList: exerciseList,
                 availExercisesCols: this.setAvailExerciseCols(),
-                // availExercisesData: this.setAvailExerciseChartData(exerciseList),
             });
         });
 
@@ -64,8 +60,6 @@ class CurrentProgramPage extends Component {
         // object updates in the database. 
         await this.props.firebase.getUserData(currUserUid).on('value', userData => {
             var userObject = userData.val();
-            console.log("inside big boy")
-            console.log(userData)
             if (!this.state.loading) {
                 this.setState({
                     loading: true
@@ -119,7 +113,7 @@ class CurrentProgramPage extends Component {
                 primMusc: exercise.primary.join(', '),
                 secMusc: exercise.secondary.join(', '),
                 expLevel: exercise.experience,
-                addExerciseBtn: <AddExerciseModal submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} />
+                addExerciseBtn: <AddExerciseModal submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
             })
         })
 
@@ -160,19 +154,22 @@ class CurrentProgramPage extends Component {
 
     handleUpdateExercise = async (updateObject) => {
 
+        var day = updateObject.exUid.split('_').reverse()[1]
+
         var dataPayload = {
             exercise: updateObject.exercise,
             rpe: updateObject.rpe,
             weight: updateObject.weight,
             time: updateObject.time,
-            reps: updateObject.reps
+            reps: updateObject.reps,
+            primMusc: updateObject.primMusc
         }
 
         await this.props.firebase.pushExercisePropertiesUpstream(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
             'week' + this.state.currentWeekInProgram,
-            this.state.currentDay,
+            day,
             updateObject.exUid,
             dataPayload
         )
@@ -230,16 +227,10 @@ class CurrentProgramPage extends Component {
     }
 
     handleChangeTab = (currentTab) => {
-        this.updateExerciseDataUpstream()
-        console.log(this.exerciseDataChanges)
 
         this.setState({
             currentView: currentTab
         })
-    }
-
-    handleSaveProgramButton = () => {
-        console.log("YEW")
     }
 
     // Handles the pagination day change
@@ -261,26 +252,6 @@ class CurrentProgramPage extends Component {
             this.props.firebase.auth.currentUser.uid,
             event.target.value
         )
-    }
-
-    handleTableUpdate = async (exUid, accessor, value) => {
-
-
-        await this.props.firebase.pushExercisePropertiesUpstream(
-            this.props.firebase.auth.currentUser.uid,
-            this.state.activeProgram,
-            'week' + this.state.currentWeekInProgram,
-            this.state.currentDay,
-            exUid,
-            accessor,
-            value
-        )
-        // if (!(exUid in this.exerciseDataChanges)) {
-        //     this.exerciseDataChanges[exUid] = {}
-        //     this.exerciseDataChanges[exUid][accessor] = value
-        // } else {
-        //     this.exerciseDataChanges[exUid][accessor] = value
-        // }
     }
 
     underscoreToSpaced = (string) => {
@@ -336,26 +307,6 @@ class CurrentProgramPage extends Component {
             week: false,
             day: false
         }
-    }
-
-    // CURRENTLY NOT USED FUNCTION... KEEPING IN CASE NEEDED LATER.
-    updateExerciseDataUpstream = async () => {
-
-        for (var exUid in this.exerciseDataChanges) {
-            for (var accessor in this.exerciseDataChanges[exUid]) {
-                await this.props.firebase.pushExercisePropertiesUpstream(
-                    this.props.firebase.auth.currentUser.uid,
-                    this.state.activeProgram,
-                    'week' + this.state.currentWeekInProgram,
-                    this.state.currentDay,
-                    exUid,
-                    accessor,
-                    this.exerciseDataChanges[exUid][accessor]
-                )
-            }
-        }
-        // After update reset changes in queue back to zero.
-        this.exerciseDataChanges = {}
     }
 
     handleDeleteExerciseButton = async (event) => {
@@ -415,6 +366,7 @@ class CurrentProgramPage extends Component {
             time: exerciseObject.time,
             reps: exerciseObject.reps,
             weight: exerciseObject.weight,
+            primMusc: exerciseObject.primMusc
         }
 
         await this.props.firebase.createExerciseUpStream(

@@ -23,7 +23,8 @@ const EditExerciseModal = ({ submitHandler, exUid, currentData }) => {
             rpe: rpe,
             time: time,
             reps: reps,
-            weight: weight
+            weight: weight,
+            primMusc: currentData.primMusc
         }
 
         submitHandler(exerciseObj)
