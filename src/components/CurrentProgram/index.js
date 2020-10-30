@@ -12,6 +12,7 @@ import { AddExerciseModalWeightReps, AddExerciseModalRpeTime } from './addExerci
 import { EditExerciseModalWeightSets, EditExerciseModalRpeTime } from './editExerciseModal'
 import { DeleteExerciseButton } from './currentProgramPageButtons'
 import { SelectColumnFilter } from './filterSearch'
+import { calculateWeeklyLoads } from './calculateWeeklyLoads'
 
 class CurrentProgramPage extends Component {
     constructor(props) {
@@ -349,27 +350,48 @@ class CurrentProgramPage extends Component {
         )
     }
 
-    handleSubmitButton = () => {
-
-        this.setState({
-            loading: true
-        }, async () => {
-            this.updateExerciseDataUpstream()
-            console.log(this.exerciseDataChanges)
-
-            //Updated the current week in the database. 
-            await this.props.firebase.progressToNextWeek(
-                this.props.firebase.auth.currentUser.uid,
-                this.state.activeProgram,
-                parseInt(this.state.currentWeekInProgram + 1)
+    handleSubmitButton = async (event) => {
+        // Get the current exercise data for the given week. 
+        await this.props.firebase.getProgramData(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram
+        ).once('value', userData => {
+            var userObject = userData.val();
+            var processedData = calculateWeeklyLoads(
+                userObject['week' + userObject.currentWeek],
+                userObject.loading_scheme
             )
 
-            await this.props.firebase.setCurrentDay(
+            this.props.firebase.pushWeekLoadingDataUpstream(
                 this.props.firebase.auth.currentUser.uid,
                 this.state.activeProgram,
-                '1'
+                'week' + userObject.currentData,
+                processedData
             )
+            console.log(processedData)
+
+
+
         })
+
+
+        // this.setState({
+        //     loading: true
+        // }, async () => {
+
+        //     //Updated the current week in the database. 
+        //     await this.props.firebase.progressToNextWeek(
+        //         this.props.firebase.auth.currentUser.uid,
+        //         this.state.activeProgram,
+        //         parseInt(this.state.currentWeekInProgram + 1)
+        //     )
+
+        //     await this.props.firebase.setCurrentDay(
+        //         this.props.firebase.auth.currentUser.uid,
+        //         this.state.activeProgram,
+        //         '1'
+        //     )
+        // })
 
 
     }

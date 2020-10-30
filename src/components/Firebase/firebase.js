@@ -51,6 +51,10 @@ class Firebase {
     // USER API
     getUserData = (uid) => this.db.ref(`users/${uid}`);
 
+    getProgramData = (uid, programName) => {
+        return this.db.ref(`users/${uid}/currentPrograms/${programName}`)
+    }
+
     users = () => this.db.ref('users');
 
     exercisesName = name => this.db.ref(`exercises/${name}`)
@@ -89,6 +93,12 @@ class Firebase {
     pushExercisePropertiesUpstream = (uid, progName, week, day, exUid, value) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`)
+            .set(value)
+    }
+
+    pushWeekLoadingDataUpstream = (uid, progName, week, value) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}/${week}/loadingData`)
             .set(value)
     }
 

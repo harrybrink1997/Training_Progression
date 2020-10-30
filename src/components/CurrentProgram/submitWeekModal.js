@@ -9,7 +9,8 @@ const SubmitWeekModal = ({ handleFormSubmit }) => {
         setShow(false);
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = (event) => {
+        event.preventDefault()
         setShow(false);
         handleFormSubmit()
 
