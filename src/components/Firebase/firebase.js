@@ -102,6 +102,12 @@ class Firebase {
             .set(value)
     }
 
+    pushRollingAverageUpstream = (uid, progName, weeksID, value) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}/rollingAverages/${weeksID}`)
+            .set(value)
+    }
+
     deleteExerciseUpStream = (uid, progName, week, day, exUid) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`)
