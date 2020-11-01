@@ -171,9 +171,9 @@ const SafetyGraphChart = () => {
 
         // Set the state for all the chart parameters. 
         setSafetyChartThreshold(targetLoad)
-        setSafetyChartData(returnData);
-        setgraphSeries(graphSeries);
-        event.preventDefault();
+        setSafetyChartData(returnData)
+        setgraphSeries(graphSeries)
+        event.preventDefault()
 
     }
 

@@ -350,7 +350,7 @@ class CurrentProgramPage extends Component {
         )
     }
 
-    handleSubmitButton = async (event) => {
+    handleSubmitButton = async () => {
         // Get the current exercise data for the given week.
         // And for the current active program. 
         await this.props.firebase.getProgramData(
@@ -377,14 +377,15 @@ class CurrentProgramPage extends Component {
             // Calculate the rolling monthly average.
             if (userObject.currentWeek >= 4) {
                 var rollingAverageData = calculateRollingMonthlyAverage(userObject, processedData)
+
+                await this.props.firebase.pushRollingAverageUpstream(
+                    this.props.firebase.auth.currentUser.uid,
+                    this.state.activeProgram,
+                    rollingAverageData.weekID,
+                    rollingAverageData.averageLoads
+                )
             }
 
-            await this.props.firebase.pushRollingAverageUpstream(
-                this.props.firebase.auth.currentUser.uid,
-                this.state.activeProgram,
-                rollingAverageData.weekID,
-                rollingAverageData.averageLoads
-            )
 
         })
 
@@ -469,12 +470,6 @@ class CurrentProgramPage extends Component {
             availExercisesData,
             loadingScheme
         } = this.state
-
-        console.log("active program")
-        console.log(activeProgram)
-
-        console.log("state")
-        console.log(this.state)
 
         let loadingHTML = <h1>Loading...</h1>
         let noCurrentProgramsHTML = <h1>Create A Program Before Accessing This Page</h1>
