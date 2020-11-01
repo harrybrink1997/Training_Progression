@@ -63,6 +63,7 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                             onChange={onChange}
                             value={programName}
                             valueplaceholder="Enter Program Name..."
+                            required
                         />
                         <div key='rpe-time' className="mb-3">
                             <Form.Check

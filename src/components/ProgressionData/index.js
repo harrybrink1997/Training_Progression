@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Container, Row } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 
 import { withAuthorisation } from '../Session';
 import CurrentProgramDropdown from './currentProgramsDropdown'
 import RollingAverageGraph from './rollingAverageGraph'
-
+import ProgressionPredictiveGraph from './progressionPredictiveGraph'
+import { BodyPartListGroup } from './bodyPartListGroup'
 
 class ProgressionDataPage extends Component {
     constructor(props) {
@@ -17,8 +18,10 @@ class ProgressionDataPage extends Component {
             currentWeekInProgram: '',
             loadingScheme: '',
             hasPrograms: false,
+            currentBodyPart: 'Chest',
+            currentBodyPartAverageLoad: '',
             rollingAverageGraphProps: {
-                data: [],
+                totalData: [],
                 series: []
             }
         }
@@ -57,6 +60,8 @@ class ProgressionDataPage extends Component {
             })
             // Initially Sets the state for the current day
             // and current week and other parameters. 
+            var bodyPartsArray = ['Chest', 'Back', 'Shoulders', 'Legs', 'Arms']
+
             this.setState({
                 programList: programListArray,
                 activeProgram: userObject.activeProgram,
@@ -64,7 +69,11 @@ class ProgressionDataPage extends Component {
                 allPrograms: userObject.currentPrograms,
                 currentWeekInProgram: userObject.currentPrograms[userObject.activeProgram].currentWeek,
                 loadingScheme: userObject.currentPrograms[userObject.activeProgram].loading_scheme,
-                rollingAverageGraphProps: this.generateRollingAverageProps(userObject),
+                bodyPartsList: bodyPartsArray,
+                rollingAverageGraphProps: this.generateRollingAverageProps(
+                    userObject.currentPrograms[userObject.activeProgram].rollingAverages,
+                    bodyPartsArray
+                ),
                 loading: false,
             })
         } else {
@@ -76,17 +85,17 @@ class ProgressionDataPage extends Component {
         }
     }
 
-    generateRollingAverageProps = (userObject) => {
+    generateRollingAverageProps = (averageLoadData, bodyParts,) => {
 
         var ghostThresholds = [20]
-        var bodyPart = 'Back'
-
-        var averageLoadData = userObject.currentPrograms[userObject.activeProgram].rollingAverages
 
         // First generate the series
         var chartSeries = ['Actual Loading']
-        var chartData = []
+        var totalLoadingData = {}
 
+        bodyParts.map(bodyPart => {
+            totalLoadingData[bodyPart] = []
+        })
 
         ghostThresholds.forEach(threshold => {
 
@@ -94,30 +103,36 @@ class ProgressionDataPage extends Component {
             var upperSeries = 'Threshold - (+' + threshold + '%)'
 
             for (var weeks in averageLoadData) {
-                var loadingVal = parseFloat(averageLoadData[weeks][bodyPart])
 
-                var upperThreshold = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
-                var lowerThreshold = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                for (var bodyPart in averageLoadData[weeks]) {
 
-                var weeksString = 'Weeks (' + weeks.split('_')[0] + '-' + weeks.split('_')[1] + ')'
+                    var loadingVal = parseFloat(averageLoadData[weeks][bodyPart])
 
-                var dataPointObj = {
-                    name: weeksString
+                    var upperThreshold = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+                    var lowerThreshold = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+
+                    var weeksString = 'Weeks (' + weeks.split('_')[0] + '-' + weeks.split('_')[1] + ')'
+
+                    var dataPointObj = {
+                        name: weeksString
+                    }
+
+                    dataPointObj[upperSeries] = upperThreshold
+                    dataPointObj[lowerSeries] = lowerThreshold
+                    dataPointObj['Actual Loading'] = loadingVal
+
+                    totalLoadingData[bodyPart].push(dataPointObj)
                 }
-
-                dataPointObj[upperSeries] = upperThreshold
-                dataPointObj[lowerSeries] = lowerThreshold
-                dataPointObj['Actual Loading'] = loadingVal
-
-                chartData.push(dataPointObj)
             }
             chartSeries.push(lowerSeries)
             chartSeries.push(upperSeries)
         })
 
+        console.log(totalLoadingData)
+
         return {
             series: chartSeries,
-            data: chartData
+            totalData: totalLoadingData
         }
     }
 
@@ -129,6 +144,23 @@ class ProgressionDataPage extends Component {
         )
     }
 
+    handleSelectBodyPart = (value) => {
+        this.setState({
+            currentBodyPart: value
+        })
+    }
+
+    generateCurrentAverageLoad = (data) => {
+        if (data != null) {
+            if (data.length > 0) {
+                return data.slice(-1)[0]['Actual Loading']
+            } else {
+                return ''
+            }
+        } else {
+            return ''
+        }
+    }
 
     render() {
         const {
@@ -138,16 +170,20 @@ class ProgressionDataPage extends Component {
             loading,
             currentWeekInProgram,
             loadingScheme,
-            rollingAverageGraphProps
+            rollingAverageGraphProps,
+            bodyPartsList,
+            currentBodyPart,
         } = this.state
 
-        console.log(rollingAverageGraphProps)
+        console.log(currentBodyPart)
+        console.log(rollingAverageGraphProps.totalData[currentBodyPart])
 
         let loadingHTML = <h1>Loading...</h1>
         let noCurrentProgramsHTML = <h1>Create A Program Before Accessing This Page</h1>
         let hasCurrentProgramsHTML =
             <div>
                 <h1>Progression Data - {activeProgram}</h1>
+                <h3>Current Week: {currentWeekInProgram}, Loading Scheme: {loadingScheme}</h3>
                 <CurrentProgramDropdown
                     programList={programList}
                     activeProgram={activeProgram}
@@ -155,10 +191,23 @@ class ProgressionDataPage extends Component {
                 />
                 <Container>
                     <Row>
-                        <RollingAverageGraph
-                            graphData={rollingAverageGraphProps.data}
-                            graphSeries={rollingAverageGraphProps.series}
-                        />
+                        <Col xs={3}>
+                            <BodyPartListGroup
+                                currBodyPart={currentBodyPart}
+                                bodyPartsList={bodyPartsList}
+                                changeBodyPartHandler={this.handleSelectBodyPart}
+                            />
+                        </Col>
+                        <Col>
+                            <RollingAverageGraph
+                                graphData={rollingAverageGraphProps.totalData[currentBodyPart]}
+                                graphSeries={rollingAverageGraphProps.series}
+                                currentWeek={currentWeekInProgram}
+                            />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <ProgressionPredictiveGraph startLoad={this.generateCurrentAverageLoad(rollingAverageGraphProps.totalData[currentBodyPart])} />
                     </Row>
                 </Container>
             </div>
