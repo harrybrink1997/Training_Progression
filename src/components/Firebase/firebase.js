@@ -114,6 +114,18 @@ class Firebase {
             .remove()
     }
 
+    closeOffProgramUpstream = (uid, progName) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}`)
+            .remove()
+    }
+
+    transferProgramToRecordsUpstream = (uid, progName, val) => {
+        return this.db
+            .ref(`users/${uid}/pastPrograms/${progName}`)
+            .set(val)
+    }
+
     progressToNextWeek = (uid, progName, val) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${progName}/currentWeek`)

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Modal, Button, Form } from 'react-bootstrap'
 
-const SubmitWeekModal = ({ handleFormSubmit }) => {
+const CloseOffProgramModal = ({ handleFormSubmit }) => {
 
     const [show, setShow] = useState(false);
 
@@ -21,7 +21,7 @@ const SubmitWeekModal = ({ handleFormSubmit }) => {
     return (
         <div>
             <Button variant="danger" onClick={handleShow}>
-                Submit Week
+                Close Off Program
             </Button>
 
             <Modal
@@ -31,16 +31,16 @@ const SubmitWeekModal = ({ handleFormSubmit }) => {
                 centered
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Submit Current Week</Modal.Title>
+                    <Modal.Title>Program Close Off</Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={handleSubmit}>
                     <Modal.Body>
-                        WARNING! <br /> This action is not reversible. Once closed out a program week is no longer editable and you
-                        will be moved to the next week.
+                        WARNING! <br /> This action is not reversible. Once closed off a program will be uneditable and
+                        will be moved to your historical records.
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={handleClose}>Close</Button>
-                        <Button variant="warning" type="submit">Submit Week</Button>
+                        <Button variant="warning" type="submit">Close Off Program</Button>
                     </Modal.Footer>
                 </Form>
             </Modal>
@@ -49,4 +49,4 @@ const SubmitWeekModal = ({ handleFormSubmit }) => {
 }
 
 
-export default SubmitWeekModal;
+export default CloseOffProgramModal;

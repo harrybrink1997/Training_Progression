@@ -50,7 +50,12 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                 Create Program
             </Button>
 
-            <Modal show={show} onHide={handleClose}>
+            <Modal
+                show={show}
+                onHide={handleClose}
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Create A Program</Modal.Title>
                 </Modal.Header>

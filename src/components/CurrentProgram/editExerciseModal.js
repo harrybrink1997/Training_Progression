@@ -72,7 +72,12 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
                 Edit
             </Button>
 
-            <Modal show={show} onHide={handleClose}>
+            <Modal
+                show={show}
+                onHide={handleClose}
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Current Exercise</Modal.Title>
                 </Modal.Header>
@@ -198,7 +203,12 @@ const EditExerciseModalWeightSets = ({ submitHandler, exUid, currentData }) => {
                 Edit
             </Button>
 
-            <Modal show={show} onHide={handleClose}>
+            <Modal
+                show={show}
+                onHide={handleClose}
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Current Exercise</Modal.Title>
                 </Modal.Header>

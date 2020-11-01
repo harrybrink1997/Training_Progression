@@ -77,7 +77,12 @@ const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc }) => 
                 Add to Day
             </Button>
 
-            <Modal show={show} onHide={handleClose}>
+            <Modal
+                show={show}
+                onHide={handleClose}
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Add an Exercise</Modal.Title>
                 </Modal.Header>
@@ -213,7 +218,12 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) 
                 Add to Day
             </Button>
 
-            <Modal show={show} onHide={handleClose}>
+            <Modal
+                show={show}
+                onHide={handleClose}
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Submit Current Week</Modal.Title>
                 </Modal.Header>

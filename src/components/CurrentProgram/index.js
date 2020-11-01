@@ -13,6 +13,7 @@ import { EditExerciseModalWeightSets, EditExerciseModalRpeTime } from './editExe
 import { DeleteExerciseButton } from './currentProgramPageButtons'
 import { SelectColumnFilter } from './filterSearch'
 import { calculateWeeklyLoads, calculateRollingMonthlyAverage } from './calculateWeeklyLoads'
+import CloseOffProgramModal from './closeOffProgramModal'
 
 class CurrentProgramPage extends Component {
     constructor(props) {
@@ -456,6 +457,52 @@ class CurrentProgramPage extends Component {
 
     }
 
+    handleCloseOffProgram = async () => {
+        console.log("Closing Off")
+        console.log(this.state.programList)
+        if (this.state.programList.length == 1) {
+            var newProgram = ''
+        } else {
+            for (var program in this.state.programList) {
+                if (this.state.programList[program] != this.state.activeProgram) {
+                    var newProgram = this.state.programList[program]
+                    break
+                }
+            }
+        }
+        var programToCloseOff = this.state.activeProgram
+        console.log(newProgram)
+        console.log(programToCloseOff)
+
+        await this.props.firebase.getProgramData(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram
+        ).once('value', async data => {
+            var programData = data.val()
+            console.log(programData)
+
+            // Update active program to the first in the list that isn't current program. Else set to none- this will allow user to switch programs and delete can then run. 
+            await this.props.firebase.setActiveProgram(
+                this.props.firebase.auth.currentUser.uid,
+                newProgram
+            )
+
+            // Transfer program to past program first to ensure correct transfer
+            await this.props.firebase.transferProgramToRecordsUpstream(
+                this.props.firebase.auth.currentUser.uid,
+                programToCloseOff,
+                programData
+            )
+
+            // Delete program out of current programs afterwards.
+            await this.props.firebase.closeOffProgramUpstream(
+                this.props.firebase.auth.currentUser.uid,
+                programToCloseOff,
+            )
+        })
+
+    }
+
     render() {
         const {
             hasPrograms,
@@ -471,6 +518,7 @@ class CurrentProgramPage extends Component {
             loadingScheme
         } = this.state
 
+
         let loadingHTML = <h1>Loading...</h1>
         let noCurrentProgramsHTML = <h1>Create A Program Before Accessing This Page</h1>
         let hasCurrentProgramsHTML = <div>
@@ -485,6 +533,7 @@ class CurrentProgramPage extends Component {
                         />
                     </Col>
 
+                    <CloseOffProgramModal handleFormSubmit={this.handleCloseOffProgram} />
                 </Row>
 
             </Container >
