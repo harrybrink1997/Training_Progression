@@ -43,6 +43,9 @@ const NavigationAuth = () => (
         <Nav.Link href={ROUTES.CURRENT_PROGRAMS}>
             Current Programs
         </Nav.Link>
+        <Nav.Link href={ROUTES.PAST_PROGRAMS}>
+            Past Programs
+        </Nav.Link>
         <Nav.Item>
             <SignOutButton />
         </Nav.Item>

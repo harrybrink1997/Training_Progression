@@ -12,6 +12,7 @@ import AdminPage from '../Admin';
 import SafetyGraphPage from '../SafetyGraph'
 import ProgressionDataPage from '../ProgressionData'
 import CurrentProgramPage from '../CurrentProgram'
+import PastProgramPage from '../PastPrograms'
 
 import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
@@ -39,6 +40,7 @@ const App = () => (
             <Route path={ROUTES.SAFETY_GRAPH} component={SafetyGraphPage} />
             <Route path={ROUTES.PROG_DATA} component={ProgressionDataPage} />
             <Route path={ROUTES.CURRENT_PROGRAMS} component={CurrentProgramPage} />
+            <Route path={ROUTES.PAST_PROGRAMS} component={PastProgramPage} />
         </div>
     </Router>
 );

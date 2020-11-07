@@ -8,3 +8,4 @@ export const PASSWORD_FORGET = '/pw-forget';
 export const SAFETY_GRAPH = '/safety-graph'
 export const PROG_DATA = '/progression'
 export const CURRENT_PROGRAMS = '/current-programs'
+export const PAST_PROGRAMS = '/past-programs'
