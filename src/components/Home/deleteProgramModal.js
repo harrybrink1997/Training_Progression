@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react'
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap'
 import ProgramsDropdown from './programsDropdown'
 
-
 const DeleteProgramModal = ({ handleFormSubmit, currentProgramList, pastProgramList }) => {
 
     const [show, setShow] = useState(false);
 
     const [programName, setProgramName] = useState('')
+
+    const [selectedPastPrograms, setSelectedPastPrograms] = useState([])
+    const [selectedCurrPrograms, setSelectedCurrPrograms] = useState([])
+
 
     const handleClose = (event) => {
         setShow(false);
@@ -16,8 +19,18 @@ const DeleteProgramModal = ({ handleFormSubmit, currentProgramList, pastProgramL
     const handleSubmit = (event) => {
         event.preventDefault();
         setShow(false);
-        setProgramName('')
 
+        handleFormSubmit(selectedCurrPrograms, selectedPastPrograms)
+    }
+
+    const handleProgramSelect = (programType, programList) => {
+        if (programType == 'past') {
+            setSelectedPastPrograms(programList)
+
+        } else {
+            setSelectedCurrPrograms(programList)
+
+        }
     }
 
     const handleShow = () => setShow(true);
@@ -43,12 +56,16 @@ const DeleteProgramModal = ({ handleFormSubmit, currentProgramList, pastProgramL
                             <Col>
                                 <ProgramsDropdown
                                     programList={currentProgramList}
-                                    headerString={'Select Current Program'} />
+                                    headerString={'Select Current Program'}
+                                    selectHandler={handleProgramSelect}
+                                    programType='current' />
                             </Col>
                             <Col>
                                 <ProgramsDropdown
                                     programList={pastProgramList}
-                                    headerString={'Select Past Program'} />
+                                    headerString={'Select Past Program'}
+                                    selectHandler={handleProgramSelect}
+                                    programType='past' />
                             </Col>
                         </Row>
                     </Modal.Body>

@@ -131,5 +131,17 @@ class Firebase {
             .ref(`users/${uid}/currentPrograms/${progName}/currentWeek`)
             .set(val)
     }
+
+    deleteCurrentProgramUpstream = (uid, progName) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}`)
+            .remove()
+    }
+
+    deletePastProgramUpstream = (uid, progName) => {
+        return this.db
+            .ref(`users/${uid}/pastPrograms/${progName}`)
+            .remove()
+    }
 }
 export default Firebase

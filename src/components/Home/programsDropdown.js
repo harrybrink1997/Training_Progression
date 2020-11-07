@@ -1,59 +1,39 @@
 import React, { useState } from 'react'
 import { withFirebase } from '../Firebase/context'
 
-import { Dropdown } from 'react-bootstrap'
+import { Dropdown } from 'semantic-ui-react'
 
+const ProgramsDropdown = ({ programList, headerString, selectHandler, programType }) => {
 
-const ProgramsDropdown = ({ programList, headerString }) => {
+    const generateDropData = (list) => {
 
-    const [selectedProgramList, setSelectedProgramList] = useState([])
-
-    const handleProgramSelect = (event) => {
-        event.preventDefault()
-        if (selectedProgramList.indexOf(event.target.value) == -1) {
-            var newList = [...selectedProgramList, event.target.value]
-            setSelectedProgramList(newList)
-        } else {
-            var newList = selectedProgramList.filter(program => {
-                return program != event.target.value
+        var inputData = []
+        if (programList) {
+            list.forEach(program => {
+                inputData.push({
+                    key: program,
+                    text: program,
+                    value: program,
+                })
             })
-            setSelectedProgramList(newList)
         }
+        return inputData
+    }
+
+    const [dropdownData, setdropdownData] = useState(generateDropData(programList))
+
+    const handleProgramSelect = (event, { value }) => {
+        event.preventDefault()
+        selectHandler(programType, value)
     }
 
     return (
-
-        <Dropdown >
-            <Dropdown.Toggle variant="dark" id="dropdown-basic">
-                {headerString}
-            </Dropdown.Toggle>
-            <Dropdown.Menu variant="dark">
-                {programList.map(programName => {
-                    if (selectedProgramList.indexOf(programName) > -1) {
-                        return (
-                            <Dropdown.Item
-                                as="button"
-                                onClick={handleProgramSelect}
-                                key={programName}
-                                value={programName}
-                                active>
-                                {programName}
-                            </Dropdown.Item>
-                        )
-                    } else {
-                        return (
-                            <Dropdown.Item
-                                as="button"
-                                onClick={handleProgramSelect}
-                                key={programName}
-                                value={programName}>
-                                {programName}
-                            </Dropdown.Item>
-                        )
-                    }
-                })}
-            </Dropdown.Menu>
-        </Dropdown >
+        <div>
+            {
+                programList.length > 0 &&
+                <Dropdown placeholder={headerString} fluid multiple selection options={dropdownData} onChange={handleProgramSelect} />
+            }
+        </div>
     )
 }
 
