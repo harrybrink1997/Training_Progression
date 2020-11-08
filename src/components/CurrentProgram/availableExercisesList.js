@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import { withAuthorisation } from '../Session';
 
-import { Button, Container, Row, Col, Dropdown } from 'react-bootstrap'
+import { Dropdown } from 'react-bootstrap'
 
-import { Table, Grid } from 'semantic-ui-react'
+import { Table, Grid, Container, Button } from 'semantic-ui-react'
 
 import { useTable, useFilters, useGlobalFilter, usePagination } from 'react-table'
 import { DefaultColumnFilter, GlobalFilter, fuzzyTextFilterFn } from './filterSearch'
@@ -82,7 +82,7 @@ const AvailableExercisesList = ({ columns, data }) => {
                     {headerGroups.map(headerGroup => (
                         <Table.Row {...headerGroup.getHeaderGroupProps()}>
                             {headerGroup.headers.map(column => (
-                                <Table.HeaderCell {...column.getHeaderProps()}>
+                                <Table.HeaderCell style={{ textAlign: 'center' }} {...column.getHeaderProps()}>
                                     {column.render('Header')}
                                     {/* Render the columns filter UI */}
                                     <div>{column.canFilter ? column.render('Filter') : null}</div>
@@ -121,22 +121,16 @@ const AvailableExercisesList = ({ columns, data }) => {
             <Container>
                 <Grid divided='vertically'>
                     <Grid.Row colums={3}>
-                        <Grid.Column width={5}>
-                            <Button variant="dark" onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-                                {'<<'}
-                            </Button>{' '}
-                            <Button variant="dark" onClick={() => previousPage()} disabled={!canPreviousPage}>
+                        <Grid.Column width={6}>
+                            <Button onClick={() => previousPage()} disabled={!canPreviousPage}>
                                 {'<'}
                             </Button>{' '}
-                            <Button variant="dark" onClick={() => nextPage()} disabled={!canNextPage}>
+                            <Button onClick={() => nextPage()} disabled={!canNextPage}>
                                 {'>'}
-                            </Button>{' '}
-                            <Button variant="dark" onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-                                {'>>'}
                             </Button>{' '}
                         </Grid.Column>
 
-                        <Grid.Column>
+                        <Grid.Column width={8}>
                             <span>
                                 Page{' '}
                                 <strong>
@@ -159,7 +153,7 @@ const AvailableExercisesList = ({ columns, data }) => {
 
                         <Grid.Column>
                             <Dropdown>
-                                <Dropdown.Toggle variant="dark" id="dropdown-basic">
+                                <Dropdown.Toggle>
                                     {pageSize}
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu>
@@ -178,63 +172,6 @@ const AvailableExercisesList = ({ columns, data }) => {
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
-                {/* <Row className="justify-content-md-center">
-                    <div className="pagination">
-                        <Col xs={5}>
-                            <Button variant="dark" onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-                                {'<<'}
-                            </Button>{' '}
-                            <Button variant="dark" onClick={() => previousPage()} disabled={!canPreviousPage}>
-                                {'<'}
-                            </Button>{' '}
-                            <Button variant="dark" onClick={() => nextPage()} disabled={!canNextPage}>
-                                {'>'}
-                            </Button>{' '}
-                            <Button variant="dark" onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-                                {'>>'}
-                            </Button>{' '}
-                        </Col>
-                        <Col xs={7}>
-                            <span>
-                                Page{' '}
-                                <strong>
-                                    {pageIndex + 1} of {pageOptions.length}
-                                </strong>{' '}
-                            </span>
-                            <span>
-                                | Go to page:{' '}
-                                <input
-                                    type="number"
-                                    defaultValue={pageIndex + 1}
-                                    onChange={e => {
-                                        const page = e.target.value ? Number(e.target.value) - 1 : 0
-                                        gotoPage(page)
-                                    }}
-                                    style={{ width: '100px' }}
-                                />
-                            </span>{' '}
-                        </Col>
-                        <Col>
-                            <Dropdown>
-                                <Dropdown.Toggle variant="dark" id="dropdown-basic">
-                                    {pageSize}
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu>
-                                    {[10, 20, 30, 40, 50].map(pageSize => (
-                                        <Dropdown.Item
-                                            as="button"
-                                            onClick={e => {
-                                                setPageSize(Number(e.target.value))
-                                            }}
-                                            key={pageSize} value={pageSize}>
-                                            Show {pageSize}
-                                        </Dropdown.Item>
-                                    ))}
-                                </Dropdown.Menu>
-                            </Dropdown>
-                        </Col>
-                    </div>
-                </Row> */}
             </Container>
         </>
     )

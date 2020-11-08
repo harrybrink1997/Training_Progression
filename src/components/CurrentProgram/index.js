@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import { withAuthorisation } from '../Session';
-import { Grid } from 'semantic-ui-react'
+import { Grid, Loader, Dimmer, Header, Container, Segment } from 'semantic-ui-react'
 
 
 import CurrentProgramDropdown from './currentProgramsDropdown'
@@ -14,7 +14,7 @@ import { DeleteExerciseButton } from './currentProgramPageButtons'
 import { SelectColumnFilter } from './filterSearch'
 import { calculateWeeklyLoads, calculateRollingMonthlyAverage } from './calculateWeeklyLoads'
 import CloseOffProgramModal from './closeOffProgramModal'
-import { StatsTable } from './statsTable'
+import { ExerciseSpreadStatsTable, LoadingSpreadStatsTable } from './statsTable'
 
 class CurrentProgramPage extends Component {
     constructor(props) {
@@ -518,48 +518,76 @@ class CurrentProgramPage extends Component {
         } = this.state
 
 
-        let loadingHTML = <h1>Loading...</h1>
-        let noCurrentProgramsHTML = <h1>Create A Program Before Accessing This Page</h1>
-        let hasCurrentProgramsHTML = <div>
-            <Grid divided='vertically'>
+        let loadingHTML =
+            <Dimmer inverted active>
+                <Loader inline='centered' content='Loading...' />
+            </Dimmer>
+        let noCurrentProgramsHTML = <Header as='h1'>Create A Program Before Accessing This Page</Header>
+        let hasCurrentProgramsHTML = <Container fluid>
+            <Grid padded divided='vertically'>
                 <Grid.Row>
-                    <h1>{activeProgram} ,Week: {currentWeekInProgram}</h1>
-                    <CurrentProgramDropdown
-                        programList={programList}
-                        activeProgram={activeProgram}
-                        buttonHandler={this.handleSelectProgramButton}
-                    />
+                    <Container textAlign='center' fluid>
+                        <Header as='h1'>{activeProgram}, Week: {currentWeekInProgram}</Header>
+                    </Container>
+                </Grid.Row>
 
-                    <CloseOffProgramModal handleFormSubmit={this.handleCloseOffProgram} />
+                <Grid.Row columns={3}>
+                    <Grid.Column>
+                        <Segment basic textAlign='right'>
+                            <SubmitWeekModal handleFormSubmit={this.handleSubmitButton} />
+                        </Segment>
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Segment basic textAlign='center'>
+                            <CurrentProgramDropdown
+                                programList={programList}
+                                activeProgram={activeProgram}
+                                buttonHandler={this.handleSelectProgramButton}
+                            />
+                        </Segment>
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Segment basic textAlign='left'>
+                            <CloseOffProgramModal handleFormSubmit={this.handleCloseOffProgram} />
+                        </Segment>
+                    </Grid.Column>
+
                 </Grid.Row>
                 <Grid.Row columns={2}>
                     <Grid.Column>
-                        <StatsTable data={[]} />
+                        <Container>
+                            <ExerciseSpreadStatsTable data={[]} />
+                        </Container>
                     </Grid.Column>
                     <Grid.Column>
-
+                        <Container>
+                            <LoadingSpreadStatsTable data={[]} />
+                        </Container>
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row columns={2}>
                     <Grid.Column>
-                        <AvailableExercisesList
-                            columns={availExercisesCols}
-                            data={availExercisesData}
-                        />
+                        <Segment basic>
+                            <AvailableExercisesList
+                                columns={availExercisesCols}
+                                data={availExercisesData}
+                            />
+                        </Segment>
                     </Grid.Column>
                     <Grid.Column>
-                        <h1>Create this week</h1>
-                        <CurrentWeekExercisesContainer
-                            dailyExercises={exerciseListPerDay}
-                            currentDay={currentDay}
-                            loadingScheme={loadingScheme}
-                            daysViewHandler={this.handleChangeDaysOpenView}
-                        />
-                        <SubmitWeekModal handleFormSubmit={this.handleSubmitButton} />
+                        <Segment basic>
+                            <Header as='h1'>Create this week</Header>
+                            <CurrentWeekExercisesContainer
+                                dailyExercises={exerciseListPerDay}
+                                currentDay={currentDay}
+                                loadingScheme={loadingScheme}
+                                daysViewHandler={this.handleChangeDaysOpenView}
+                            />
+                        </Segment>
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
-        </div >
+        </Container >
 
         return (
             <div>
