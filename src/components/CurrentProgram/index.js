@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import { withAuthorisation } from '../Session';
-import { Container, Row, Col } from 'react-bootstrap'
+import { Grid } from 'semantic-ui-react'
 
 
 import CurrentProgramDropdown from './currentProgramsDropdown'
@@ -14,6 +14,7 @@ import { DeleteExerciseButton } from './currentProgramPageButtons'
 import { SelectColumnFilter } from './filterSearch'
 import { calculateWeeklyLoads, calculateRollingMonthlyAverage } from './calculateWeeklyLoads'
 import CloseOffProgramModal from './closeOffProgramModal'
+import { StatsTable } from './statsTable'
 
 class CurrentProgramPage extends Component {
     constructor(props) {
@@ -27,11 +28,11 @@ class CurrentProgramPage extends Component {
             currentWeekInProgram: '',
             programList: [],
             loading: true,
-            currentView: 'dayView',
             currentDay: null,
             hasPrograms: false,
             allPrograms: [],
             loadingScheme: '',
+            currentDaysOpenInView: [],
 
             // Exercise List Data
             availExercisesCols: [],
@@ -224,15 +225,20 @@ class CurrentProgramPage extends Component {
 
                         var renderObj = currWeekProgExer[numDaysInWeek[day]][exercise]
                         renderObj.uid = exercise
-                        renderObj.deleteButton = <Row>
-                            {loadingScheme === 'rpe_time' ?
-                                <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-                                :
-                                <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-                            }
-                            {/* <EditExerciseModal submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} /> */}
-                            <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
-                        </Row>
+                        renderObj.deleteButton = <Grid divided='vertically'>
+                            <Grid.Row columns={2}>
+                                <Grid.Column>
+                                    {loadingScheme === 'rpe_time' ?
+                                        <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+                                        :
+                                        <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+                                    }
+                                </Grid.Column>
+                                <Grid.Column>
+                                    <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
 
 
                         dailyExercises.push(renderObj)
@@ -243,23 +249,12 @@ class CurrentProgramPage extends Component {
         }
 
         return exPerDayObj
-        // this.setState({
-        //     exerciseListPerDay: exPerDayObj,
-        //     loading: false,
-        // }, () => { console.log(this.state.exerciseListPerDay) })
     }
 
     componentWillUnmount() {
         this.props.firebase.getUserData().off();
         this.props.firebase.exercises().off();
 
-    }
-
-    handleChangeTab = (currentTab) => {
-
-        this.setState({
-            currentView: currentTab
-        })
     }
 
     // Handles the pagination day change
@@ -503,6 +498,10 @@ class CurrentProgramPage extends Component {
 
     }
 
+    handleChangeDaysOpenView = (days) => {
+        console.log(days)
+    }
+
     render() {
         const {
             hasPrograms,
@@ -522,44 +521,44 @@ class CurrentProgramPage extends Component {
         let loadingHTML = <h1>Loading...</h1>
         let noCurrentProgramsHTML = <h1>Create A Program Before Accessing This Page</h1>
         let hasCurrentProgramsHTML = <div>
-            < Container fluid >
-                <Row className="justify-content-md-center">
+            <Grid divided='vertically'>
+                <Grid.Row>
                     <h1>{activeProgram} ,Week: {currentWeekInProgram}</h1>
-                    <Col>
-                        <CurrentProgramDropdown
-                            programList={programList}
-                            activeProgram={activeProgram}
-                            buttonHandler={this.handleSelectProgramButton}
-                        />
-                    </Col>
+                    <CurrentProgramDropdown
+                        programList={programList}
+                        activeProgram={activeProgram}
+                        buttonHandler={this.handleSelectProgramButton}
+                    />
 
                     <CloseOffProgramModal handleFormSubmit={this.handleCloseOffProgram} />
-                </Row>
+                </Grid.Row>
+                <Grid.Row columns={2}>
+                    <Grid.Column>
+                        <StatsTable data={[]} />
+                    </Grid.Column>
+                    <Grid.Column>
 
-            </Container >
-            <Container fluid>
-                <Row>
-                    <Col xs={5}>
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row columns={2}>
+                    <Grid.Column>
                         <AvailableExercisesList
                             columns={availExercisesCols}
                             data={availExercisesData}
                         />
-                    </Col>
-                    <Col>
+                    </Grid.Column>
+                    <Grid.Column>
                         <h1>Create this week</h1>
                         <CurrentWeekExercisesContainer
                             dailyExercises={exerciseListPerDay}
-                            tabHandler={this.handleChangeTab}
-                            dayPaginationHandler={this.handleChangeDayPage}
                             currentDay={currentDay}
-                            currentView={currentView}
-                            handleTableUpdate={this.handleTableUpdate}
                             loadingScheme={loadingScheme}
+                            daysViewHandler={this.handleChangeDaysOpenView}
                         />
                         <SubmitWeekModal handleFormSubmit={this.handleSubmitButton} />
-                    </Col>
-                </Row>
-            </Container>
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>
         </div >
 
         return (

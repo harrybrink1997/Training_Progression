@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import { withAuthorisation } from '../Session';
 
-import { Table, Button, Container, Row, Col, Dropdown } from 'react-bootstrap'
+import { Button, Container, Row, Col, Dropdown } from 'react-bootstrap'
+
+import { Table, Grid } from 'semantic-ui-react'
 
 import { useTable, useFilters, useGlobalFilter, usePagination } from 'react-table'
 import { DefaultColumnFilter, GlobalFilter, fuzzyTextFilterFn } from './filterSearch'
@@ -75,21 +77,21 @@ const AvailableExercisesList = ({ columns, data }) => {
 
     return (
         <>
-            <Table striped bordered hover variant="dark" {...getTableProps()}>
-                <thead>
+            <Table celled {...getTableProps()}>
+                <Table.Header>
                     {headerGroups.map(headerGroup => (
-                        <tr {...headerGroup.getHeaderGroupProps()}>
+                        <Table.Row {...headerGroup.getHeaderGroupProps()}>
                             {headerGroup.headers.map(column => (
-                                <th {...column.getHeaderProps()}>
+                                <Table.HeaderCell {...column.getHeaderProps()}>
                                     {column.render('Header')}
                                     {/* Render the columns filter UI */}
                                     <div>{column.canFilter ? column.render('Filter') : null}</div>
-                                </th>
+                                </Table.HeaderCell>
                             ))}
-                        </tr>
+                        </Table.Row>
                     ))}
-                    <tr>
-                        <th
+                    <Table.Row>
+                        <Table.HeaderCell
                             colSpan={visibleColumns.length}
                             style={{
                                 textAlign: 'left',
@@ -100,24 +102,83 @@ const AvailableExercisesList = ({ columns, data }) => {
                                 globalFilter={state.globalFilter}
                                 setGlobalFilter={setGlobalFilter}
                             />
-                        </th>
-                    </tr>
-                </thead>
-                <tbody {...getTableBodyProps()}>
+                        </Table.HeaderCell>
+                    </Table.Row>
+                </Table.Header>
+                <Table.Body {...getTableBodyProps()}>
                     {page.map((row, i) => {
                         prepareRow(row)
                         return (
-                            <tr {...row.getRowProps()}>
+                            <Table.Row {...row.getRowProps()}>
                                 {row.cells.map(cell => {
-                                    return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                                    return <Table.Cell {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
                                 })}
-                            </tr>
+                            </Table.Row>
                         )
                     })}
-                </tbody>
+                </Table.Body>
             </Table>
             <Container>
-                <Row className="justify-content-md-center">
+                <Grid divided='vertically'>
+                    <Grid.Row colums={3}>
+                        <Grid.Column width={5}>
+                            <Button variant="dark" onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+                                {'<<'}
+                            </Button>{' '}
+                            <Button variant="dark" onClick={() => previousPage()} disabled={!canPreviousPage}>
+                                {'<'}
+                            </Button>{' '}
+                            <Button variant="dark" onClick={() => nextPage()} disabled={!canNextPage}>
+                                {'>'}
+                            </Button>{' '}
+                            <Button variant="dark" onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+                                {'>>'}
+                            </Button>{' '}
+                        </Grid.Column>
+
+                        <Grid.Column>
+                            <span>
+                                Page{' '}
+                                <strong>
+                                    {pageIndex + 1} of {pageOptions.length}
+                                </strong>{' '}
+                            </span>
+                            <span>
+                                | Go to page:{' '}
+                                <input
+                                    type="number"
+                                    defaultValue={pageIndex + 1}
+                                    onChange={e => {
+                                        const page = e.target.value ? Number(e.target.value) - 1 : 0
+                                        gotoPage(page)
+                                    }}
+                                    style={{ width: '100px' }}
+                                />
+                            </span>{' '}
+                        </Grid.Column>
+
+                        <Grid.Column>
+                            <Dropdown>
+                                <Dropdown.Toggle variant="dark" id="dropdown-basic">
+                                    {pageSize}
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu>
+                                    {[10, 20, 30, 40, 50].map(pageSize => (
+                                        <Dropdown.Item
+                                            as="button"
+                                            onClick={e => {
+                                                setPageSize(Number(e.target.value))
+                                            }}
+                                            key={pageSize} value={pageSize}>
+                                            Show {pageSize}
+                                        </Dropdown.Item>
+                                    ))}
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+                {/* <Row className="justify-content-md-center">
                     <div className="pagination">
                         <Col xs={5}>
                             <Button variant="dark" onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
@@ -173,7 +234,7 @@ const AvailableExercisesList = ({ columns, data }) => {
                             </Dropdown>
                         </Col>
                     </div>
-                </Row>
+                </Row> */}
             </Container>
         </>
     )
