@@ -1,10 +1,10 @@
 import React from 'react'
 
 import { withFirebase } from '../Firebase'
-import { Button } from 'react-bootstrap'
+import { Button } from 'semantic-ui-react'
 
 const SignOutButton = ({ firebase }) => (
-    <Button variant="dark" type="button" onClick={firebase.doSignOut}>
+    <Button onClick={firebase.doSignOut}>
         Sign Out
     </Button>
 );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { ListGroup } from 'react-bootstrap'
+import { Menu } from 'semantic-ui-react'
 
 export const BodyPartListGroup = ({ currBodyPart, bodyPartsList, changeBodyPartHandler }) => {
 
@@ -12,12 +12,12 @@ export const BodyPartListGroup = ({ currBodyPart, bodyPartsList, changeBodyPartH
     }
 
     return (
-        <ListGroup>
+        <Menu vertical>
             {
                 bodyPartsList.map(bodyPart => {
                     if (bodyPart === currentBodyPart) {
                         return (
-                            <ListGroup.Item
+                            <Menu.Item
                                 as="button"
                                 variant="dark"
                                 onClick={handleButtonClick}
@@ -26,11 +26,11 @@ export const BodyPartListGroup = ({ currBodyPart, bodyPartsList, changeBodyPartH
                                 active
                             >
                                 {bodyPart}
-                            </ListGroup.Item>
+                            </Menu.Item>
                         )
                     } else {
                         return (
-                            <ListGroup.Item
+                            <Menu.Item
                                 as="button"
                                 variant="dark"
                                 onClick={handleButtonClick}
@@ -38,15 +38,12 @@ export const BodyPartListGroup = ({ currBodyPart, bodyPartsList, changeBodyPartH
                                 key={bodyPart}
                             >
                                 {bodyPart}
-                            </ListGroup.Item>
+                            </Menu.Item>
                         )
                     }
                 })
 
             }
-        </ListGroup>
+        </Menu>
     )
-
-
-
 }

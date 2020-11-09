@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Grid, Header, Dimmer, Loader } from 'semantic-ui-react'
 
 import { withAuthorisation } from '../Session';
 import CurrentProgramDropdown from './currentProgramsDropdown'
@@ -178,37 +178,42 @@ class ProgressionDataPage extends Component {
         console.log(currentBodyPart)
         console.log(rollingAverageGraphProps.totalData[currentBodyPart])
 
-        let loadingHTML = <h1>Loading...</h1>
-        let noCurrentProgramsHTML = <h1>Create A Program Before Accessing This Page</h1>
+        let loadingHTML =
+            <Dimmer inverted active>
+                <Loader inline='centered' content='Loading...' />
+            </Dimmer>
+        let noCurrentProgramsHTML = <Header as='h1'>Create A Program Before Accessing This Page</Header>
         let hasCurrentProgramsHTML =
             <div>
-                <h1>Progression Data - {activeProgram}</h1>
-                <h3>Current Week: {currentWeekInProgram}, Loading Scheme: {loadingScheme}</h3>
+                <Header as='h1'>Progression Data - {activeProgram}</Header>
+                <Header as='h3'>Current Week: {currentWeekInProgram}, Loading Scheme: {loadingScheme}</Header>
                 <CurrentProgramDropdown
                     programList={programList}
                     activeProgram={activeProgram}
                     buttonHandler={this.handleSelectProgram}
                 />
                 <Container>
-                    <Row>
-                        <Col xs={3}>
-                            <BodyPartListGroup
-                                currBodyPart={currentBodyPart}
-                                bodyPartsList={bodyPartsList}
-                                changeBodyPartHandler={this.handleSelectBodyPart}
-                            />
-                        </Col>
-                        <Col>
-                            <RollingAverageGraph
-                                graphData={rollingAverageGraphProps.totalData[currentBodyPart]}
-                                graphSeries={rollingAverageGraphProps.series}
-                                currentWeek={currentWeekInProgram}
-                            />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <ProgressionPredictiveGraph startLoad={this.generateCurrentAverageLoad(rollingAverageGraphProps.totalData[currentBodyPart])} />
-                    </Row>
+                    <Grid divided='vertically'>
+                        <Grid.Row columns={2}>
+                            <Grid.Column>
+                                <BodyPartListGroup
+                                    currBodyPart={currentBodyPart}
+                                    bodyPartsList={bodyPartsList}
+                                    changeBodyPartHandler={this.handleSelectBodyPart}
+                                />
+                            </Grid.Column>
+                            <Grid.Column>
+                                <RollingAverageGraph
+                                    graphData={rollingAverageGraphProps.totalData[currentBodyPart]}
+                                    graphSeries={rollingAverageGraphProps.series}
+                                    currentWeek={currentWeekInProgram}
+                                />
+                            </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row>
+                            <ProgressionPredictiveGraph startLoad={this.generateCurrentAverageLoad(rollingAverageGraphProps.totalData[currentBodyPart])} />
+                        </Grid.Row>
+                    </Grid>
                 </Container>
             </div>
 

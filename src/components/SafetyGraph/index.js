@@ -4,7 +4,7 @@ import { withAuthorisation } from '../Session';
 import { LineChart, Line, XAxis, YAxis, ReferenceLine, CartesianGrid, Tooltip, Legend } from 'recharts'
 import randomColour from '../../constants/colours'
 
-import { Form, Button } from 'react-bootstrap'
+import { Form, Button } from 'semantic-ui-react'
 
 class SafetyGraphPage extends Component {
     constructor(props) {
