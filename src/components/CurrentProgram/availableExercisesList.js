@@ -75,35 +75,25 @@ const AvailableExercisesList = ({ columns, data }) => {
         usePagination,
     )
 
+    console.log(headerGroups)
     return (
         <>
-            <Table celled {...getTableProps()}>
+            <Table selectable celled {...getTableProps()}>
                 <Table.Header>
                     {headerGroups.map(headerGroup => (
                         <Table.Row {...headerGroup.getHeaderGroupProps()}>
                             {headerGroup.headers.map(column => (
-                                <Table.HeaderCell style={{ textAlign: 'center' }} {...column.getHeaderProps()}>
-                                    {column.render('Header')}
-                                    {/* Render the columns filter UI */}
-                                    <div>{column.canFilter ? column.render('Filter') : null}</div>
-                                </Table.HeaderCell>
+                                (column.Header == '') ?
+                                    <Table.HeaderCell key={column.accessor} />
+                                    :
+                                    <Table.HeaderCell style={{ textAlign: 'center' }} {...column.getHeaderProps()}>
+                                        {column.render('Header')}
+                                        {/* Render the columns filter UI */}
+                                        <div>{column.canFilter ? column.render('Filter') : null}</div>
+                                    </Table.HeaderCell>
                             ))}
                         </Table.Row>
                     ))}
-                    <Table.Row>
-                        <Table.HeaderCell
-                            colSpan={visibleColumns.length}
-                            style={{
-                                textAlign: 'left',
-                            }}
-                        >
-                            <GlobalFilter
-                                preGlobalFilteredRows={preGlobalFilteredRows}
-                                globalFilter={state.globalFilter}
-                                setGlobalFilter={setGlobalFilter}
-                            />
-                        </Table.HeaderCell>
-                    </Table.Row>
                 </Table.Header>
                 <Table.Body {...getTableBodyProps()}>
                     {page.map((row, i) => {

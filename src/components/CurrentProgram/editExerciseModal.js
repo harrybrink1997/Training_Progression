@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Modal, Button, Form, InputGroup, Dropdown, Row, Col } from 'react-bootstrap'
+import { Modal, Form, InputGroup, Dropdown, Row, Col } from 'react-bootstrap'
+import { Button } from 'semantic-ui-react'
 
 const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
 
@@ -68,10 +69,7 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
 
     return (
         <div>
-            <Button variant="light" onClick={handleShow}>
-                Edit
-            </Button>
-
+            <Button circular icon='settings' onClick={handleShow} />
             <Modal
                 show={show}
                 onHide={handleClose}
@@ -199,9 +197,7 @@ const EditExerciseModalWeightSets = ({ submitHandler, exUid, currentData }) => {
 
     return (
         <div>
-            <Button variant="light" onClick={handleShow}>
-                Edit
-            </Button>
+            <Button circular icon='edit' onClick={handleShow} />
 
             <Modal
                 show={show}

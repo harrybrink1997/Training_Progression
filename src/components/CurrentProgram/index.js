@@ -159,7 +159,7 @@ class CurrentProgramPage extends Component {
                     filter: 'includes',
                 },
                 {
-                    Header: 'Add Me',
+                    Header: '',
                     accessor: 'addExerciseBtn',
                 }
             ]
@@ -225,20 +225,19 @@ class CurrentProgramPage extends Component {
 
                         var renderObj = currWeekProgExer[numDaysInWeek[day]][exercise]
                         renderObj.uid = exercise
-                        renderObj.deleteButton = <Grid divided='vertically'>
-                            <Grid.Row columns={2}>
-                                <Grid.Column>
+                        renderObj.deleteButton =
+                            <Segment.Group horizontal basic compact>
+                                <Segment textAlign='center'>
                                     {loadingScheme === 'rpe_time' ?
                                         <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
                                         :
                                         <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
                                     }
-                                </Grid.Column>
-                                <Grid.Column>
+                                </Segment>
+                                <Segment textAlign='center'>
                                     <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
-                                </Grid.Column>
-                            </Grid.Row>
-                        </Grid>
+                                </Segment>
+                            </Segment.Group>
 
 
                         dailyExercises.push(renderObj)

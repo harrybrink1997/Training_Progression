@@ -148,7 +148,7 @@ const ExerciseTableDayViewRpeTime = ({ data, handleTableUpdate }) => {
 
 
     return (
-        <Table celled {...getTableProps()}>
+        <Table selectable celled {...getTableProps()}>
             <Table.Header>
                 {// Loop over the header rows
                     headerGroups.map(headerGroup => (
@@ -219,9 +219,11 @@ const ExerciseTableDayViewWeightReps = ({ data, handleTableUpdate }) => {
                 accessor: 'time',
             },
             {
-                Header: 'Delete',
+                // Header: 'Delete',
+                Header: '',
                 accessor: 'deleteButton'
             }
+
 
         ],
         []
@@ -253,7 +255,7 @@ const ExerciseTableDayViewWeightReps = ({ data, handleTableUpdate }) => {
 
 
     return (
-        <Table celled {...getTableProps()}>
+        <Table selectable celled {...getTableProps()}>
             <Table.Header>
                 {// Loop over the header rows
                     headerGroups.map(headerGroup => (
