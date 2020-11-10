@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
-import { Modal, Button, Form, InputGroup, Dropdown, Row, Col } from 'react-bootstrap'
+import { Row, Col } from 'react-bootstrap'
+import { Dropdown, Button, Input, Modal, Form, Segment } from 'semantic-ui-react'
+
+
 
 const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc }) => {
 
@@ -9,10 +12,6 @@ const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc }) => 
     const [reps, setReps] = useState('')
     const [sets, setSets] = useState('')
     const [dayInsert, setDayInsert] = useState(currDay)
-
-    const handleClose = (event) => {
-        setShow(false);
-    }
 
     const handleSubmit = (event) => {
         event.preventDefault()
@@ -69,71 +68,60 @@ const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc }) => 
         setDayInsert(day)
     }
 
-    const handleShow = () => setShow(true);
-
     return (
-        <div>
-            <Button variant="danger" onClick={handleShow}>
-                Add to Day
-            </Button>
+        <Modal
+            size='small'
+            centered={false}
+            onClose={() => setShow(false)}
+            onOpen={() => setShow(true)}
+            open={show}
+            trigger={<Button>Add Exercise</Button>}
+        >
+            <Modal.Header>Add an Exercise</Modal.Header>
 
-            <Modal
-                show={show}
-                onHide={handleClose}
-                aria-labelledby="contained-modal-title-vcenter"
-                centered
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Add an Exercise</Modal.Title>
-                </Modal.Header>
-                <Form onSubmit={handleSubmit}>
-                    <Modal.Body>
-                        <Row>
-                            <Col>
-                                <label>Sets</label>
-                                <InputGroup
-                                    as="input"
-                                    value={sets}
-                                    onChange={handleSetsUpdate}
-                                />
-                            </Col>
-                            <Col>
-                                <label>Repetitions</label>
-                                <InputGroup
-                                    as="input"
-                                    value={reps}
-                                    onChange={handleRepsUpdate}
-                                />
-                            </Col>
-                            <Col>
-                                <label>Time</label>
-                                <InputGroup
-                                    as="input"
-                                    value={time}
-                                    onChange={handleTimeUpdate}
-                                />
-                            </Col>
-                            <Col>
-                                <label>RPE</label>
-                                <RPEDropdown buttonHandler={handleRPEUpdate} />
-                            </Col>
-                            <Col>
-                                <label>Day</label>
-                                <DayDropdown
-                                    buttonHandler={handleInsertDay}
-                                    currDay={dayInsert}
-                                />
-                            </Col>
-
-                        </Row>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleClose}>Close</Button>
-                        <Button variant="danger" type="submit">Add to Day</Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal>
-        </div >
+            <Form onSubmit={handleSubmit}>
+                <Modal.Content>
+                    <Segment.Group horizontal>
+                        <Segment>
+                            <label>Sets</label>
+                            <Input
+                                value={sets}
+                                onChange={handleSetsUpdate}
+                            />
+                        </Segment>
+                        <Segment>
+                            <label>Repetitions</label>
+                            <Input
+                                value={reps}
+                                onChange={handleRepsUpdate}
+                            />
+                        </Segment>
+                        <Segment>
+                            <label>Time</label>
+                            <Input
+                                value={time}
+                                onChange={handleTimeUpdate}
+                            />
+                        </Segment>
+                        <Segment>
+                            <label>RPE</label>
+                            <RPEDropdown buttonHandler={handleRPEUpdate} />
+                        </Segment>
+                        <Segment>
+                            <label>Day</label>
+                            <DayDropdown
+                                buttonHandler={handleInsertDay}
+                                currDay={dayInsert}
+                            />
+                        </Segment>
+                    </Segment.Group>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button onClick={() => setShow(false)}>Close</Button>
+                    <Button type="submit">Add to Day</Button>
+                </Modal.Actions>
+            </Form>
+        </Modal>
     );
 }
 
@@ -145,10 +133,6 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) 
     const [weight, setWeight] = useState('')
     const [sets, setSets] = useState('')
     const [dayInsert, setDayInsert] = useState(currDay)
-
-    const handleClose = (event) => {
-        setShow(false);
-    }
 
     const handleSubmit = (event) => {
         event.preventDefault()
@@ -210,76 +194,63 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) 
         setDayInsert(day)
     }
 
-    const handleShow = () => setShow(true);
-
     return (
-        <div>
-            <Button variant="danger" onClick={handleShow}>
-                Add to Day
-            </Button>
+        <Modal
+            size='small'
+            centered={false}
+            onClose={() => setShow(false)}
+            onOpen={() => setShow(true)}
+            open={show}
+            trigger={<Button>Add Exercise</Button>}
+        >
+            <Modal.Header>Add Exercise</Modal.Header>
+            <Form onSubmit={handleSubmit}>
+                <Modal.Content>
+                    <Segment.Group horizontal>
+                        <Segment>
+                            <label>Sets</label>
+                            <Input
+                                value={sets}
+                                onChange={handleSetsUpdate}
+                            />
+                        </Segment>
+                        <Segment>
+                            <label>Repetitions</label>
+                            <Input
+                                value={reps}
+                                onChange={handleRepsUpdate}
+                            />
+                        </Segment>
+                        <Segment>
+                            <label>Weight</label>
+                            <Input
+                                value={weight}
+                                onChange={handleWeightUpdate}
+                            />
+                        </Segment>
+                        <Segment>
+                            <label>Time</label>
+                            <Input
+                                value={time}
+                                onChange={handleTimeUpdate}
+                            />
+                        </Segment>
+                        <Segment>
+                            <label>Day</label>
+                            <DayDropdown
+                                buttonHandler={handleInsertDay}
+                                currDay={dayInsert}
+                            />
+                        </Segment>
 
-            <Modal
-                show={show}
-                onHide={handleClose}
-                aria-labelledby="contained-modal-title-vcenter"
-                centered
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Submit Current Week</Modal.Title>
-                </Modal.Header>
-                <Form onSubmit={handleSubmit}>
-                    <Modal.Body>
-                        <Row>
-                            <Col>
-                                <label>Sets</label>
-                                <InputGroup
-                                    as="input"
-                                    value={sets}
-                                    onChange={handleSetsUpdate}
-                                />
-                            </Col>
-                            <Col>
-                                <label>Repetitions</label>
-                                <InputGroup
-                                    as="input"
-                                    value={reps}
-                                    onChange={handleRepsUpdate}
-                                />
-                            </Col>
-                            <Col>
-                                <label>Weight</label>
-                                <InputGroup
-                                    as="input"
-                                    value={weight}
-                                    onChange={handleWeightUpdate}
-                                />
-                            </Col>
-                            <Col>
-                                <label>Time</label>
-                                <InputGroup
-                                    as="input"
-                                    value={time}
-                                    onChange={handleTimeUpdate}
-                                />
-                            </Col>
-
-                            <Col>
-                                <label>Day</label>
-                                <DayDropdown
-                                    buttonHandler={handleInsertDay}
-                                    currDay={dayInsert}
-                                />
-                            </Col>
-
-                        </Row>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleClose}>Close</Button>
-                        <Button variant="danger" type="submit">Add to Day</Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal>
-        </div >
+                    </Segment.Group>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button onClick={() => setShow(false)}>Close</Button>
+                    <Button type="submit">Add to Day</Button>
+                </Modal.Actions>
+            </Form>
+        </Modal>
     );
 }
 
@@ -288,34 +259,26 @@ const RPEDropdown = ({ buttonHandler }) => {
     const [currentRPE, setCurrentRPE] = useState('None')
 
 
-    const handleClick = (event) => {
+    const handleClick = (event, { value }) => {
         event.preventDefault()
-        setCurrentRPE(event.target.value)
+        setCurrentRPE(value)
 
-        var payload = event.target.value
-
-        if (payload == 'None') {
-            payload = ''
+        if (value == 'None') {
+            value = ''
         }
-        buttonHandler(payload)
+        buttonHandler(value)
     }
 
     return (
-        <Dropdown >
-            <Dropdown.Toggle variant="dark" id="dropdown-basic">
-                {currentRPE}
-            </Dropdown.Toggle>
-            <Dropdown.Menu variant="dark">
-                {['None', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(rpe => {
+        <Dropdown text={currentRPE.toString()}>
+            <Dropdown.Menu>
+                {['None', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'].map(rpe => {
                     return (
                         <Dropdown.Item
-                            as="button"
                             onClick={handleClick}
                             key={rpe}
                             value={rpe}
-                        >
-                            {rpe}
-                        </Dropdown.Item>
+                            text={rpe} />
                     )
 
                 })}
@@ -329,28 +292,23 @@ const DayDropdown = ({ buttonHandler, currDay }) => {
     const [currentDay, setCurrentDay] = useState(currDay)
 
 
-    const handleClick = (event) => {
+    const handleClick = (event, { value }) => {
         event.preventDefault()
-        setCurrentDay(event.target.value)
-        buttonHandler(event.target.value)
+        console.log(value)
+        setCurrentDay(value)
+        buttonHandler(value)
     }
 
     return (
-        <Dropdown >
-            <Dropdown.Toggle variant="dark" id="dropdown-basic">
-                {currentDay}
-            </Dropdown.Toggle>
-            <Dropdown.Menu variant="dark">
-                {[1, 2, 3, 4, 5, 6, 7].map(day => {
+        <Dropdown text={currentDay.toString()}>
+            <Dropdown.Menu>
+                {['1', '2', '3', '4', '5', '6', '7'].map(day => {
                     return (
                         <Dropdown.Item
-                            as="button"
                             onClick={handleClick}
                             key={day}
                             value={day}
-                        >
-                            {day}
-                        </Dropdown.Item>
+                            text={day} />
                     )
 
                 })}

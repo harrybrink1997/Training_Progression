@@ -258,7 +258,8 @@ class CurrentProgramPage extends Component {
 
     // Handles the pagination day change
     handleChangeDayPage = (currentDay) => {
-
+        console.log("Inside correct function")
+        console.log(currentDay)
         this.props.firebase.setCurrentDay(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
