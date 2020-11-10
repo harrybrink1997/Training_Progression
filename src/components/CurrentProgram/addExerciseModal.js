@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Row, Col } from 'react-bootstrap'
 import { Dropdown, Button, Input, Modal, Form, Segment } from 'semantic-ui-react'
 
 

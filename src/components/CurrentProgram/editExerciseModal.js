@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { Modal, Form, InputGroup, Dropdown, Row, Col } from 'react-bootstrap'
-import { Button } from 'semantic-ui-react'
+import { Button, Form, Modal, Input, Dropdown, Segment } from 'semantic-ui-react'
 
 const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
 
@@ -9,10 +8,6 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
     const [time, setTime] = useState(currentData.time)
     const [reps, setReps] = useState(currentData.reps)
     const [sets, setSets] = useState(currentData.sets)
-
-    const handleClose = (event) => {
-        setShow(false);
-    }
 
     const handleSubmit = (event) => {
         event.preventDefault()
@@ -65,63 +60,55 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
         }
     }
 
-    const handleShow = () => setShow(true);
-
     return (
-        <div>
-            <Button circular icon='settings' onClick={handleShow} />
-            <Modal
-                show={show}
-                onHide={handleClose}
-                aria-labelledby="contained-modal-title-vcenter"
-                centered
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Edit Current Exercise</Modal.Title>
-                </Modal.Header>
-                <Form onSubmit={handleSubmit}>
-                    <Modal.Body>
-                        <Row>
-                            <Col>
-                                <label>Sets</label>
-                                <InputGroup
-                                    as="input"
-                                    value={sets}
-                                    onChange={handleSetsUpdate}
-                                />
-                            </Col>
-                            <Col>
-                                <label>Repetitions</label>
-                                <InputGroup
-                                    as="input"
-                                    value={reps}
-                                    onChange={handleRepsUpdate}
-                                />
-                            </Col>
-                            <Col>
-                                <label>Time</label>
-                                <InputGroup
-                                    as="input"
-                                    value={time}
-                                    onChange={handleTimeUpdate}
-                                />
-                            </Col>
-                            <Col>
-                                <label>RPE</label>
-                                <RPEDropdown
-                                    buttonHandler={handleRPEUpdate}
-                                    exerRpe={rpe} />
-                            </Col>
+        <Modal
+            size='small'
+            centered={false}
+            onClose={() => setShow(false)}
+            onOpen={() => setShow(true)}
+            open={show}
+            trigger={<Button circular icon='edit' />}
+        >
+            <Modal.Header>Edit Current Exercise</Modal.Header>
+            <Form onSubmit={handleSubmit}>
+                <Modal.Content>
+                    <Segment.Group>
+                        <Segment>
+                            <label>Sets</label>
+                            <Input
+                                value={sets}
+                                onChange={handleSetsUpdate}
+                            />
+                        </Segment>
+                        <Segment>
+                            <label>Repetitions</label>
+                            <Input
+                                value={reps}
+                                onChange={handleRepsUpdate}
+                            />
+                        </Segment>
+                        <Segment>
+                            <label>Time</label>
+                            <Input
+                                value={time}
+                                onChange={handleTimeUpdate}
+                            />
+                        </Segment>
+                        <Segment>
+                            <label>RPE</label>
+                            <RPEDropdown
+                                buttonHandler={handleRPEUpdate}
+                                exerRpe={rpe} />
+                        </Segment>
 
-                        </Row>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleClose}>Close</Button>
-                        <Button variant="danger" type="submit">Edit</Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal>
-        </div >
+                    </Segment.Group>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button onClick={() => setShow(false)}>Close</Button>
+                    <Button type="submit">Edit</Button>
+                </Modal.Actions>
+            </Form>
+        </Modal>
     );
 }
 
@@ -196,62 +183,54 @@ const EditExerciseModalWeightSets = ({ submitHandler, exUid, currentData }) => {
     const handleShow = () => setShow(true);
 
     return (
-        <div>
-            <Button circular icon='edit' onClick={handleShow} />
-
-            <Modal
-                show={show}
-                onHide={handleClose}
-                aria-labelledby="contained-modal-title-vcenter"
-                centered
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Edit Current Exercise</Modal.Title>
-                </Modal.Header>
-                <Form onSubmit={handleSubmit}>
-                    <Modal.Body>
-                        <Row>
-                            <Col>
-                                <label>Sets</label>
-                                <InputGroup
-                                    as="input"
-                                    value={sets}
-                                    onChange={handleSetsUpdate}
-                                />
-                            </Col>
-                            <Col>
-                                <label>Repetitions</label>
-                                <InputGroup
-                                    as="input"
-                                    value={reps}
-                                    onChange={handleRepsUpdate}
-                                />
-                            </Col>
-                            <Col>
-                                <label>Weight</label>
-                                <InputGroup
-                                    as="input"
-                                    value={weight}
-                                    onChange={handleWeightUpdate}
-                                />
-                            </Col>
-                            <Col>
-                                <label>Time</label>
-                                <InputGroup
-                                    as="input"
-                                    value={time}
-                                    onChange={handleTimeUpdate}
-                                />
-                            </Col>
-                        </Row>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleClose}>Close</Button>
-                        <Button variant="danger" type="submit">Edit</Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal>
-        </div >
+        <Modal
+            size='small'
+            centered={false}
+            onClose={() => setShow(false)}
+            onOpen={() => setShow(true)}
+            open={show}
+            trigger={<Button circular icon='edit' />}
+        >
+            <Modal.Header>Edit Current Exercise</Modal.Header>
+            <Form onSubmit={handleSubmit}>
+                <Modal.Content>
+                    <Segment.Group horizontal>
+                        <Segment>
+                            <label>Sets</label>
+                            <Input
+                                value={sets}
+                                onChange={handleSetsUpdate}
+                            />
+                        </Segment>
+                        <Segment>
+                            <label>Repetitions</label>
+                            <Input
+                                value={reps}
+                                onChange={handleRepsUpdate}
+                            />
+                        </Segment>
+                        <Segment>
+                            <label>Weight</label>
+                            <Input
+                                value={weight}
+                                onChange={handleWeightUpdate}
+                            />
+                        </Segment>
+                        <Segment>
+                            <label>Time</label>
+                            <Input
+                                value={time}
+                                onChange={handleTimeUpdate}
+                            />
+                        </Segment>
+                    </Segment.Group>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button onClick={() => setShow(false)}>Close</Button>
+                    <Button type="submit">Edit</Button>
+                </Modal.Actions>
+            </Form>
+        </Modal>
     );
 }
 
@@ -269,36 +248,27 @@ const RPEDropdown = ({ buttonHandler, exerRpe }) => {
     const [currentRPE, setCurrentRPE] = useState(determineRPE(exerRpe))
 
 
-    const handleClick = (event) => {
+    const handleClick = (event, { value }) => {
         event.preventDefault()
-        setCurrentRPE(event.target.value)
+        setCurrentRPE(value)
 
-        var payload = event.target.value
-
-        if (payload == 'None') {
-            payload = ''
+        if (value == 'None') {
+            value = ''
         }
-        buttonHandler(payload)
+        buttonHandler(value)
     }
 
     return (
-        <Dropdown >
-            <Dropdown.Toggle variant="dark" id="dropdown-basic">
-                {currentRPE}
-            </Dropdown.Toggle>
+        <Dropdown text={currentRPE.toString()}>
             <Dropdown.Menu variant="dark">
-                {['None', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(rpe => {
+                {['None', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'].map(rpe => {
                     return (
                         <Dropdown.Item
-                            as="button"
                             onClick={handleClick}
                             key={rpe}
                             value={rpe}
-                        >
-                            {rpe}
-                        </Dropdown.Item>
+                            text={rpe} />
                     )
-
                 })}
             </Dropdown.Menu>
         </Dropdown>
