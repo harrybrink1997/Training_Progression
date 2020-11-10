@@ -71,6 +71,7 @@ class Firebase {
                 startDayUTS: sUTS,
                 currentDayInProgram: 1,
                 currentDayUTS: sUTS,
+                currentDayUI: 1,
                 currentDay: 1, // TODO remove after handover
                 currentWeek: 1, // TODO remove after handover
             })
@@ -83,6 +84,7 @@ class Firebase {
 
     }
 
+    // TODO remove
     setCurrentDay = (uid, progName, day) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${progName}/currentDay`)
@@ -90,15 +92,34 @@ class Firebase {
 
     }
 
-    createExerciseUpStream = (uid, progName, week, day, exercise, exUid) => {
+    setCurrentDayUI = (uid, progName, day) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}/currentDayUI`)
+            .set(day)
+
+    }
+
+    // TODO remove
+    createExerciseUpStreamRemove = (uid, progName, week, day, exercise, exUid) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`)
             .set(exercise)
     }
 
-    pushExercisePropertiesUpstream = (uid, progName, week, day, exUid, value) => {
+    createExerciseUpStream = (uid, progName, day, exercise, exUid) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}/${day}/${exUid}`)
+            .set(exercise)
+    }
+
+    pushExercisePropertiesUpstreamRemove = (uid, progName, week, day, exUid, value) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`)
+            .set(value)
+    }
+    pushExercisePropertiesUpstream = (uid, progName, day, exUid, value) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}/${day}/${exUid}`)
             .set(value)
     }
 
@@ -114,9 +135,16 @@ class Firebase {
             .set(value)
     }
 
-    deleteExerciseUpStream = (uid, progName, week, day, exUid) => {
+    // TODO Remove
+    deleteExerciseUpStreamRemove = (uid, progName, week, day, exUid) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`)
+            .remove()
+    }
+
+    deleteExerciseUpStream = (uid, progName, day, exUid) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}/${day}/${exUid}`)
             .remove()
     }
 

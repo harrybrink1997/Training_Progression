@@ -1,5 +1,87 @@
-const calculateWeeklyLoads = (weekData, scheme) => {
+const calculateDailyLoads = (weekData, scheme) => {
 
+    if (scheme === 'rpe_time') {
+        var processedData = dailyLoadCalcsRpeTime(weekData)
+        console.log(processedData)
+    } else {
+        var processedData = dailyLoadCalcsWeightReps(weekData)
+        console.log(processedData)
+    }
+
+    return processedData
+}
+
+
+const dailyLoadCalcsRpeTime = (dayData) => {
+    console.log(dayData)
+    var dayLoading = {}
+
+    for (var ex in dayData) {
+        var exData = dayData[ex]
+
+        var load = exData.sets * exData.reps * exData.time * exData.rpe
+
+        for (var muscles in exData.primMusc) {
+            var muscle = exData.primMusc[muscles]
+
+            if (muscle in dayLoading) {
+                dayLoading[muscle] += load
+            } else {
+                dayLoading[muscle] = load
+            }
+        }
+    }
+
+    console.log(dayLoading)
+    return dayLoading
+
+}
+
+
+const dailyLoadCalcsWeightReps = (dayData) => {
+    console.log(dayData)
+    var dayLoading = {}
+
+    for (var ex in dayData) {
+        var exData = dayData[ex]
+
+        var load = exData.sets * exData.reps * exData.weight
+
+        for (var muscles in exData.primMusc) {
+            var muscle = exData.primMusc[muscles]
+
+            if (muscle in dayLoading) {
+                dayLoading[muscle] += load
+            } else {
+                dayLoading[muscle] = load
+            }
+        }
+    }
+    console.log(dayLoading)
+    return dayLoading
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const calculateWeeklyLoads = (weekData, scheme) => {
     if (scheme === 'rpe_time') {
         var processedData = weeklyLoadCalcsRpeTime(weekData)
         console.log(processedData)
@@ -97,4 +179,4 @@ const calculateRollingMonthlyAverage = (pastUserData, currentWeekData) => {
     }
 }
 
-export { calculateWeeklyLoads, calculateRollingMonthlyAverage }
+export { calculateDailyLoads, calculateWeeklyLoads, calculateRollingMonthlyAverage }

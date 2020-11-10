@@ -7,12 +7,12 @@ import { Grid, Loader, Dimmer, Header, Container, Segment } from 'semantic-ui-re
 import CurrentProgramDropdown from './currentProgramsDropdown'
 import CurrentWeekExercisesContainer from './currentWeekExercisesContainer'
 import AvailableExercisesList from './availableExercisesList'
-import SubmitWeekModal from './submitWeekModal'
+import SubmitDayModal from './submitDayModal'
 import { AddExerciseModalWeightReps, AddExerciseModalRpeTime } from './addExerciseModal'
 import { EditExerciseModalWeightSets, EditExerciseModalRpeTime } from './editExerciseModal'
 import { DeleteExerciseButton } from './currentProgramPageButtons'
 import { SelectColumnFilter } from './filterSearch'
-import { calculateWeeklyLoads, calculateRollingMonthlyAverage } from './calculateWeeklyLoads'
+import { calculateDailyLoads, calculateWeeklyLoads, calculateRollingMonthlyAverage } from './calculateWeeklyLoads'
 import CloseOffProgramModal from './closeOffProgramModal'
 import { ExerciseSpreadStatsTable, LoadingSpreadStatsTable } from './statsTable'
 
@@ -35,6 +35,9 @@ class CurrentProgramPage extends Component {
             currentDaysOpenInView: [],
 
             // New state variables.
+            currentDayInProgram: '',
+            currentDayUTS: '',
+            currentDayUI: '',
 
             // Exercise List Data
             availExercisesCols: [],
@@ -98,10 +101,15 @@ class CurrentProgramPage extends Component {
                 activeProgram: userObject.activeProgram,
                 hasPrograms: true,
                 allPrograms: userObject.currentPrograms,
-                currentWeekInProgram: userObject.currentPrograms[userObject.activeProgram].currentWeek, // TODO remove becomes redundant. 
+
+                currentWeekInProgram: Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7),
 
                 currentDay: userObject.currentPrograms[userObject.activeProgram].currentDay, // TODO remove becomes redundant. 
+
                 currentDayInProgram: userObject.currentPrograms[userObject.activeProgram].currentDayInProgram, // Sets the current day in program.
+                currentDayUTS: userObject.currentPrograms[userObject.activeProgram].currentDayUTS, // Gets unix timestamp for current day
+                currentDayUI: userObject.currentPrograms[userObject.activeProgram].currentDayUI, // Gets current day on UI - used for planning week.
+
                 loading: false,
                 loadingScheme: userObject.currentPrograms[userObject.activeProgram].loading_scheme,
                 exerciseListPerDay: this.updatedDailyExerciseList(
@@ -123,6 +131,7 @@ class CurrentProgramPage extends Component {
         }
     }
 
+    // Updated with new ratio calcs format
     setAvailExerciseChartData = (exerciseList, currDay, loadingScheme) => {
         var tableData = []
         exerciseList.forEach(exercise => {
@@ -139,6 +148,7 @@ class CurrentProgramPage extends Component {
         return tableData
     }
 
+    // Updated with new ratio calcs format
     setAvailExerciseCols = () => {
         return (
             [
@@ -171,6 +181,7 @@ class CurrentProgramPage extends Component {
         )
     }
 
+    // Updated with new ratio calcs format
     handleUpdateExercise = async (updateObject) => {
 
         var day = updateObject.exUid.split('_').reverse()[1]
@@ -195,11 +206,20 @@ class CurrentProgramPage extends Component {
             }
         }
 
-        await this.props.firebase.pushExercisePropertiesUpstream(
+        // TODO remove
+        await this.props.firebase.pushExercisePropertiesUpstreamRemove(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
             'week' + this.state.currentWeekInProgram,
             day,
+            updateObject.exUid,
+            dataPayload
+        )
+
+        await this.props.firebase.pushExercisePropertiesUpstream(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram,
+            this.convertUIDayToTotalDays(day),
             updateObject.exUid,
             dataPayload
         )
@@ -256,6 +276,7 @@ class CurrentProgramPage extends Component {
         return exPerDayObj
     }
 
+    // Updated with new ratio calcs format
     componentWillUnmount() {
         this.props.firebase.getUserData().off();
         this.props.firebase.exercises().off();
@@ -273,6 +294,7 @@ class CurrentProgramPage extends Component {
         )
     }
 
+    // Updated with new ratio calcs format
     handleSelectProgramButton = (event, { value }) => {
         if (this.state.activeProgram != value) {
             this.props.firebase.setActiveProgram(
@@ -282,6 +304,7 @@ class CurrentProgramPage extends Component {
         }
     }
 
+    // Updated with new ratio calcs format
     underscoreToSpaced = (string) => {
         string = string.split('_')
         var returnString = ''
@@ -295,6 +318,7 @@ class CurrentProgramPage extends Component {
     }
 
     // Uid generated based on exercise_week_day_occurance
+    // TODO change this function - does generate unique id.
     generateExerciseUID = (exerciseName) => {
 
         var programObject = this.state.allPrograms[this.state.activeProgram]
@@ -337,6 +361,7 @@ class CurrentProgramPage extends Component {
         }
     }
 
+    // Updated with new ratio calcs format
     handleDeleteExerciseButton = async (event) => {
         event.preventDefault()
         var exUid = event.target.id.slice(0, -10)
@@ -344,11 +369,19 @@ class CurrentProgramPage extends Component {
         console.log(exUid)
         var day = exUid.split('_').reverse()[1]
 
-        await this.props.firebase.deleteExerciseUpStream(
+        // TODO remove
+        await this.props.firebase.deleteExerciseUpStreamRemove(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
             'week' + this.state.currentWeekInProgram,
             day,
+            exUid
+        )
+
+        await this.props.firebase.deleteExerciseUpStream(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram,
+            this.convertUIDayToTotalDays(day),
             exUid
         )
     }
@@ -415,9 +448,23 @@ class CurrentProgramPage extends Component {
 
     }
 
+    // Updated with new ratio calcs format
+    convertUIDayToTotalDays = (day) => {
+        console.log((parseInt((this.state.currentWeekInProgram - 1) * 7) + parseInt(day)).toString())
+        return (parseInt((this.state.currentWeekInProgram - 1) * 7) + parseInt(day)).toString()
+    }
+
+    // Updated with new ratio calcs format
     handleAddExerciseButton = async (exerciseObject) => {
 
+        // Redundant been replaced by: setCurrentDayUI()
         await this.props.firebase.setCurrentDay(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram,
+            exerciseObject.day
+        )
+
+        await this.props.firebase.setCurrentDayUI(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
             exerciseObject.day
@@ -445,9 +492,8 @@ class CurrentProgramPage extends Component {
             }
         }
 
-        console.log(dataPayload)
-
-        await this.props.firebase.createExerciseUpStream(
+        // TODO remove to be replaced.
+        await this.props.firebase.createExerciseUpStreamRemove(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
             'week' + this.state.currentWeekInProgram,
@@ -456,12 +502,19 @@ class CurrentProgramPage extends Component {
             exUidObject.uid
         )
 
+        await this.props.firebase.createExerciseUpStream(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram,
+            this.convertUIDayToTotalDays(exerciseObject.day),
+            dataPayload,
+            exUidObject.uid
+        )
+
 
     }
 
+    // Updated with new ratio calcs format
     handleCloseOffProgram = async () => {
-        console.log("Closing Off")
-        console.log(this.state.programList)
         if (this.state.programList.length == 1) {
             var newProgram = ''
         } else {
@@ -473,8 +526,6 @@ class CurrentProgramPage extends Component {
             }
         }
         var programToCloseOff = this.state.activeProgram
-        console.log(newProgram)
-        console.log(programToCloseOff)
 
         await this.props.firebase.getProgramData(
             this.props.firebase.auth.currentUser.uid,
@@ -521,12 +572,13 @@ class CurrentProgramPage extends Component {
             currentWeekInProgram,
             availExercisesCols,
             availExercisesData,
-            loadingScheme
+            loadingScheme,
 
             // New state variables.
+            currentDayInProgram
         } = this.state
 
-        console.log(loadingScheme)
+        console.log(this.state)
         let loadingHTML =
             <Dimmer inverted active>
                 <Loader inline='centered' content='Loading...' />
@@ -536,14 +588,14 @@ class CurrentProgramPage extends Component {
             <Grid padded divided='vertically'>
                 <Grid.Row>
                     <Container textAlign='center' fluid>
-                        <Header as='h1'>{activeProgram}, Week {currentWeekInProgram}, Day {currentDay}</Header>
+                        <Header as='h1'>{activeProgram}, Week {currentWeekInProgram}, Day {this.convertUIDayToTotalDays(currentDayInProgram)}</Header>
                     </Container>
                 </Grid.Row>
 
                 <Grid.Row columns={3}>
                     <Grid.Column>
                         <Segment basic textAlign='right'>
-                            <SubmitWeekModal handleFormSubmit={this.handleSubmitButton} />
+                            <SubmitDayModal handleFormSubmit={this.handleSubmitButton} />
                         </Segment>
                     </Grid.Column>
                     <Grid.Column>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Modal, Button, Form } from 'semantic-ui-react'
 
-const SubmitWeekModal = ({ handleFormSubmit }) => {
+const SubmitDayModal = ({ handleFormSubmit }) => {
 
     const [show, setShow] = useState(false);
 
@@ -41,4 +41,4 @@ const SubmitWeekModal = ({ handleFormSubmit }) => {
     );
 }
 
-export default SubmitWeekModal;
+export default SubmitDayModal;
