@@ -266,12 +266,13 @@ class CurrentProgramPage extends Component {
         )
     }
 
-    handleSelectProgramButton = (event) => {
-
-        this.props.firebase.setActiveProgram(
-            this.props.firebase.auth.currentUser.uid,
-            event.target.value
-        )
+    handleSelectProgramButton = (event, { value }) => {
+        if (this.state.activeProgram != value) {
+            this.props.firebase.setActiveProgram(
+                this.props.firebase.auth.currentUser.uid,
+                value
+            )
+        }
     }
 
     underscoreToSpaced = (string) => {

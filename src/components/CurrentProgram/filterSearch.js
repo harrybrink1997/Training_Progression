@@ -3,7 +3,7 @@ import { useAsyncDebounce } from 'react-table'
 // A great library for fuzzy filtering/sorting items
 import { matchSorter } from 'match-sorter'
 
-import { InputGroup } from 'react-bootstrap'
+import { Input } from 'semantic-ui-react'
 
 // Define a default UI for filtering
 function GlobalFilter({
@@ -20,7 +20,7 @@ function GlobalFilter({
     return (
         <span>
             Search:{' '}
-            <InputGroup as="input"
+            <Input
                 value={value || ""}
                 onChange={e => {
                     setValue(e.target.value);
@@ -43,7 +43,9 @@ function DefaultColumnFilter({
     const count = preFilteredRows.length
 
     return (
-        <InputGroup as="input"
+        <Input
+            size='mini'
+            transparent
             value={filterValue || ''}
             onChange={e => {
                 setFilter(e.target.value || undefined) // Set undefined to remove the filter entirely

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { act } from 'react-dom/test-utils';
 import { useTable } from 'react-table'
 // import { Tabs, Tab, Pagination } from 'react-bootstrap'
-import { Table, Grid, Container, Header, Accordion, Menu, Icon } from 'semantic-ui-react'
+import { Table, Accordion } from 'semantic-ui-react'
 
 const CurrentWeekExercisesContainer = ({
     dailyExercises,
