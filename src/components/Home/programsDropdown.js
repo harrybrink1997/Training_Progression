@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { withFirebase } from '../Firebase/context'
 
-import { Dropdown } from 'semantic-ui-react'
+import { Dropdown, TextArea } from 'semantic-ui-react'
 
 const ProgramsDropdown = ({ programList, headerString, selectHandler, programType }) => {
 
@@ -30,8 +30,13 @@ const ProgramsDropdown = ({ programList, headerString, selectHandler, programTyp
     return (
         <div>
             {
-                programList.length > 0 &&
-                <Dropdown placeholder={headerString} fluid multiple selection options={dropdownData} onChange={handleProgramSelect} />
+                programList.length > 0
+                    ?
+                    <Dropdown placeholder={headerString} fluid multiple selection options={dropdownData} onChange={handleProgramSelect} />
+                    :
+                    <p style={{ textAlign: 'center' }}>
+                        No {headerString.split(' ')[1] + ' ' + headerString.split(' ')[2] + "'s "} In Database
+                    </p>
             }
         </div>
     )

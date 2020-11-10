@@ -62,22 +62,54 @@ class HomePage extends Component {
         });
     }
 
+    checkIfProgramAlreadyExists(newProgram) {
 
-    handleCreateProgram = (programName, scheme) => {
-        this.props.firebase.createProgramUpstream(this.state.userInformation.uid, programName, scheme).then(() => {
-            alert(`${programName} created.`)
-        }).then(() => {
+        if (this.state.currentProgramList.length > 0) {
+            for (var program in this.state.currentProgramList) {
+                if (this.state.currentProgramList[program] == newProgram) {
+                    return true
+                }
+            }
+        }
+
+        if (this.state.pastProgramList.length > 0) {
+            for (var program in this.state.pastProgramList) {
+                if (this.state.pastProgramList[program] == newProgram) {
+                    return true
+                }
+            }
+        }
+
+        return false
+
+    }
+
+    handleCreateProgram = async (programName, acutePeriod, chronicPeriod, loadingScheme, date) => {
+
+        programName = programName.trim()
+
+        if (this.checkIfProgramAlreadyExists(programName)) {
+            alert('Program with name "' + programName + '" already exists in either your current or past programs.')
+        } else {
+            var dateConversion = date.split('-')
+
+            dateConversion = dateConversion[2] + '-' + dateConversion[1] + '-' + dateConversion[0]
+
+            var startTimestamp = Math.floor(new Date(dateConversion).getTime() / 1000)
+
+            await this.props.firebase.createProgramUpstream(
+                this.state.userInformation.uid,
+                programName,
+                acutePeriod,
+                chronicPeriod,
+                loadingScheme,
+                startTimestamp)
+
             this.props.firebase.setActiveProgram(
                 this.state.userInformation.uid,
                 programName
             )
-            this.props.firebase.setCurrentDay(
-                this.state.userInformation.uid,
-                programName,
-                '1'
-            )
-        })
-
+        }
     }
 
 
