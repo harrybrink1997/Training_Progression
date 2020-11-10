@@ -5,7 +5,6 @@ import { Dropdown, Table, Grid, Container, Button } from 'semantic-ui-react'
 
 import { useTable, useFilters, useGlobalFilter, usePagination } from 'react-table'
 import { DefaultColumnFilter, GlobalFilter, fuzzyTextFilterFn } from './filterSearch'
-import { compositionDependencies } from 'mathjs';
 
 const AvailableExercisesList = ({ columns, data }) => {
 

@@ -22,7 +22,7 @@ class CurrentProgramPage extends Component {
 
         this.state = {
             // Current Program Data
-            currentWeekExercises: [], // redundent must delete. 
+            // Old state variables
             exerciseListPerDay: {},
             activeProgram: '',
             currentWeekInProgram: '',
@@ -33,6 +33,8 @@ class CurrentProgramPage extends Component {
             allPrograms: [],
             loadingScheme: '',
             currentDaysOpenInView: [],
+
+            // New state variables.
 
             // Exercise List Data
             availExercisesCols: [],
@@ -82,6 +84,8 @@ class CurrentProgramPage extends Component {
         // Format the user data based on whether or not user has current programs. 
         if ('currentPrograms' in userObject) {
 
+            console.log(userObject)
+
             var programListArray = []
 
             Object.keys(userObject.currentPrograms).forEach(key => {
@@ -94,8 +98,10 @@ class CurrentProgramPage extends Component {
                 activeProgram: userObject.activeProgram,
                 hasPrograms: true,
                 allPrograms: userObject.currentPrograms,
-                currentWeekInProgram: userObject.currentPrograms[userObject.activeProgram].currentWeek,
-                currentDay: userObject.currentPrograms[userObject.activeProgram].currentDay,
+                currentWeekInProgram: userObject.currentPrograms[userObject.activeProgram].currentWeek, // TODO remove becomes redundant. 
+
+                currentDay: userObject.currentPrograms[userObject.activeProgram].currentDay, // TODO remove becomes redundant. 
+                currentDayInProgram: userObject.currentPrograms[userObject.activeProgram].currentDayInProgram, // Sets the current day in program.
                 loading: false,
                 loadingScheme: userObject.currentPrograms[userObject.activeProgram].loading_scheme,
                 exerciseListPerDay: this.updatedDailyExerciseList(
@@ -125,7 +131,6 @@ class CurrentProgramPage extends Component {
                 primMusc: exercise.primary.join(', '),
                 secMusc: exercise.secondary.join(', '),
                 expLevel: exercise.experience,
-                // addExerciseBtn: <AddExerciseModal submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
                 addExerciseBtn: (loadingScheme === 'rpe_time') ?
                     <AddExerciseModalRpeTime submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
                     : <AddExerciseModalWeightReps submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
@@ -203,6 +208,7 @@ class CurrentProgramPage extends Component {
     updatedDailyExerciseList = (userObject, loadingScheme) => {
         // Introduce a call back to show the current exercises. 
         // Can only be done once the other parameters above have been set. 
+
         var currProg = userObject.activeProgram
         var currWeek = 'week' + userObject.currentPrograms[userObject.activeProgram].currentWeek
         var numDaysInWeek = [1, 2, 3, 4, 5, 6, 7]
@@ -505,20 +511,22 @@ class CurrentProgramPage extends Component {
 
     render() {
         const {
+            // Old State variables.
             hasPrograms,
             programList,
             activeProgram,
             exerciseListPerDay,
             loading,
             currentDay,
-            currentView,
             currentWeekInProgram,
             availExercisesCols,
             availExercisesData,
             loadingScheme
+
+            // New state variables.
         } = this.state
 
-
+        console.log(loadingScheme)
         let loadingHTML =
             <Dimmer inverted active>
                 <Loader inline='centered' content='Loading...' />
@@ -528,7 +536,7 @@ class CurrentProgramPage extends Component {
             <Grid padded divided='vertically'>
                 <Grid.Row>
                     <Container textAlign='center' fluid>
-                        <Header as='h1'>{activeProgram}, Week: {currentWeekInProgram}</Header>
+                        <Header as='h1'>{activeProgram}, Week {currentWeekInProgram}, Day {currentDay}</Header>
                     </Container>
                 </Grid.Row>
 

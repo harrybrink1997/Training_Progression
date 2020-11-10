@@ -12,7 +12,7 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
     const [acutePeriod, setAcutePeriod] = useState(7)
     const [chronicPeriod, setChronicPeriod] = useState(28)
     const [programName, setProgramName] = useState('')
-    const [loadingScheme, setLoadingScheme] = useState('rpe-time')
+    const [loadingScheme, setLoadingScheme] = useState('rpe_time')
     const [date, setDate] = useState(new Date())
 
     const generateTodaysDate = (inputDay) => {
@@ -130,14 +130,14 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                                 </label>
                                 <Form.Radio
                                     label='RPE / Time'
-                                    value='rpe-time'
-                                    checked={loadingScheme === 'rpe-time'}
+                                    value='rpe_time'
+                                    checked={loadingScheme === 'rpe_time'}
                                     onChange={handleLoadingSchemeChange}
                                 />
                                 <Form.Radio
                                     label='Weight / Repetitions'
-                                    value='weight-reps'
-                                    checked={loadingScheme === 'weight-reps'}
+                                    value='weight_reps'
+                                    checked={loadingScheme === 'weight_reps'}
                                     onChange={handleLoadingSchemeChange}
                                 />
                             </Form.Field>

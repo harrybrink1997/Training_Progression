@@ -26,7 +26,7 @@ const CurrentWeekExercisesContainer = ({
                     title: `Day ${day}`,
                     content: {
                         content: (
-                            (loadingScheme == 'rpe-time') ?
+                            (loadingScheme == 'rpe_time') ?
                                 <ExerciseTableDayViewRpeTime
                                     data={dailyExercises[day]}
                                 />
