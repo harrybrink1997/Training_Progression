@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 import { withAuthorisation } from '../Session';
 
-import { Dropdown } from 'react-bootstrap'
-
-import { Table, Grid, Container, Button } from 'semantic-ui-react'
+import { Dropdown, Table, Grid, Container, Button } from 'semantic-ui-react'
 
 import { useTable, useFilters, useGlobalFilter, usePagination } from 'react-table'
 import { DefaultColumnFilter, GlobalFilter, fuzzyTextFilterFn } from './filterSearch'
+import { compositionDependencies } from 'mathjs';
 
 const AvailableExercisesList = ({ columns, data }) => {
 
@@ -142,20 +141,19 @@ const AvailableExercisesList = ({ columns, data }) => {
                         </Grid.Column>
 
                         <Grid.Column>
-                            <Dropdown>
-                                <Dropdown.Toggle>
-                                    {pageSize}
-                                </Dropdown.Toggle>
+                            <Dropdown
+                                text={pageSize.toString()}>
                                 <Dropdown.Menu>
-                                    {[10, 20, 30, 40, 50].map(pageSize => (
+                                    {['10', '20', '30', '40', '50'].map(pageSize => (
                                         <Dropdown.Item
-                                            as="button"
-                                            onClick={e => {
-                                                setPageSize(Number(e.target.value))
+                                            // as="button"
+                                            onClick={(e, { value }) => {
+                                                setPageSize(Number(value))
                                             }}
-                                            key={pageSize} value={pageSize}>
-                                            Show {pageSize}
-                                        </Dropdown.Item>
+                                            key={pageSize.toString()}
+                                            value={pageSize.toString()}
+                                            text={'Show ' + pageSize}
+                                        />
                                     ))}
                                 </Dropdown.Menu>
                             </Dropdown>
