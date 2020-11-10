@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Modal, Button, Form } from 'react-bootstrap'
+import { Modal, Button, Form } from 'semantic-ui-react'
 
 const CloseOffProgramModal = ({ handleFormSubmit }) => {
 
@@ -16,35 +16,28 @@ const CloseOffProgramModal = ({ handleFormSubmit }) => {
 
     }
 
-    const handleShow = () => setShow(true);
-
     return (
-        <div>
-            <Button variant="danger" onClick={handleShow}>
-                Close Off Program
-            </Button>
+        <Modal
+            size='small'
+            centered={false}
+            onClose={() => setShow(false)}
+            onOpen={() => setShow(true)}
+            open={show}
+            trigger={<Button>Close Off Program</Button>}
+        >
+            <Modal.Header>Close Off Program</Modal.Header>
 
-            <Modal
-                show={show}
-                onHide={handleClose}
-                aria-labelledby="contained-modal-title-vcenter"
-                centered
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Program Close Off</Modal.Title>
-                </Modal.Header>
-                <Form onSubmit={handleSubmit}>
-                    <Modal.Body>
-                        WARNING! <br /> This action is not reversible. Once closed off a program will be uneditable and
-                        will be moved to your historical records.
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleClose}>Close</Button>
-                        <Button variant="warning" type="submit">Close Off Program</Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal>
-        </div >
+            <Form onSubmit={handleSubmit}>
+                <Modal.Content>
+                    WARNING! <br /> This action is not reversible. Once closed off a program is no longer editable and you
+                        will only be able to access the historical data.
+                    </Modal.Content>
+                <Modal.Actions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button type="submit">Proceed</Button>
+                </Modal.Actions>
+            </Form>
+        </Modal>
     );
 }
 
