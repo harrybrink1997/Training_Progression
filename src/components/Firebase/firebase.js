@@ -123,9 +123,15 @@ class Firebase {
             .set(value)
     }
 
+    // TODO REMOVE
     pushWeekLoadingDataUpstream = (uid, progName, week, value) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${progName}/${week}/loadingData`)
+            .set(value)
+    }
+    pushDailyLoadingDataUpstream = (uid, progName, day, value) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}/${day}/loadingData`)
             .set(value)
     }
 
@@ -160,9 +166,17 @@ class Firebase {
             .set(val)
     }
 
+    // TODO REMOVE
     progressToNextWeek = (uid, progName, val) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${progName}/currentWeek`)
+            .set(val)
+    }
+
+
+    progressToNextDay = (uid, progName, val) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}/currentDayInProgram`)
             .set(val)
     }
 

@@ -38,6 +38,7 @@ class CurrentProgramPage extends Component {
             currentDayInProgram: '',
             currentDayUTS: '',
             currentDayUI: '',
+            currentWeekInProgram: '',
 
             // Exercise List Data
             availExercisesCols: [],
@@ -396,31 +397,44 @@ class CurrentProgramPage extends Component {
             var userObject = userData.val();
             // Calculate the weekly load per exercise based
             // on the loading scheme specified at creation of program.
-            var processedData = calculateWeeklyLoads(
-                userObject['week' + userObject.currentWeek],
+            // var processedData = calculateWeeklyLoads(
+            //     userObject['week' + userObject.currentWeek],
+            //     userObject.loading_scheme
+            // )
+            var processedDayData = calculateDailyLoads(
+                userObject[userObject.currentDayInProgram],
                 userObject.loading_scheme
             )
+            console.log("processed data")
+            console.log(processedDayData)
 
             // Weekly loading figures to be pushed upstream to db. 
-            await this.props.firebase.pushWeekLoadingDataUpstream(
+            await this.props.firebase.pushDailyLoadingDataUpstream(
                 this.props.firebase.auth.currentUser.uid,
                 this.state.activeProgram,
-                'week' + userObject.currentWeek,
-                processedData
+                userObject.currentDayInProgram,
+                processedDayData
             )
+            //TODO REMOVE
+            // await this.props.firebase.pushWeekLoadingDataUpstream(
+            //     this.props.firebase.auth.currentUser.uid,
+            //     this.state.activeProgram,
+            //     'week' + userObject.currentWeek,
+            //     processedData
+            // )
 
             // If the current week is greater then or equal to 4.
             // Calculate the rolling monthly average.
-            if (userObject.currentWeek >= 4) {
-                var rollingAverageData = calculateRollingMonthlyAverage(userObject, processedData)
+            // if (userObject.currentWeek >= 4) {
+            //     var rollingAverageData = calculateRollingMonthlyAverage(userObject, processedData)
 
-                await this.props.firebase.pushRollingAverageUpstream(
-                    this.props.firebase.auth.currentUser.uid,
-                    this.state.activeProgram,
-                    rollingAverageData.weekID,
-                    rollingAverageData.averageLoads
-                )
-            }
+            //     await this.props.firebase.pushRollingAverageUpstream(
+            //         this.props.firebase.auth.currentUser.uid,
+            //         this.state.activeProgram,
+            //         rollingAverageData.weekID,
+            //         rollingAverageData.averageLoads
+            //     )
+            // }
 
 
         })
@@ -432,20 +446,40 @@ class CurrentProgramPage extends Component {
         }, async () => {
 
             //Updated the current week in the database. 
-            await this.props.firebase.progressToNextWeek(
+            await this.props.firebase.progressToNextDay(
                 this.props.firebase.auth.currentUser.uid,
                 this.state.activeProgram,
-                parseInt(this.state.currentWeekInProgram + 1)
+                parseInt(this.state.currentDayInProgram + 1)
             )
+            // await this.props.firebase.progressToNextWeek(
+            //     this.props.firebase.auth.currentUser.uid,
+            //     this.state.activeProgram,
+            //     parseInt(this.state.currentWeekInProgram + 1)
+            // )
 
-            await this.props.firebase.setCurrentDay(
+            await this.props.firebase.setCurrentDayUI(
                 this.props.firebase.auth.currentUser.uid,
                 this.state.activeProgram,
-                '1'
+                this.convertTotalDaysToUIDay(
+                    this.state.currentDayInProgram
+                )
             )
+            // await this.props.firebase.setCurrentDay(
+            //     this.props.firebase.auth.currentUser.uid,
+            //     this.state.activeProgram,
+            //     '1'
+            // )
         })
 
 
+    }
+
+    convertTotalDaysToUIDay = (day) => {
+        if (day < 8) {
+            return day
+        } else {
+            return day % 7
+        }
     }
 
     // Updated with new ratio calcs format

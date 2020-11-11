@@ -2,10 +2,8 @@ const calculateDailyLoads = (weekData, scheme) => {
 
     if (scheme === 'rpe_time') {
         var processedData = dailyLoadCalcsRpeTime(weekData)
-        console.log(processedData)
     } else {
         var processedData = dailyLoadCalcsWeightReps(weekData)
-        console.log(processedData)
     }
 
     return processedData
@@ -13,39 +11,46 @@ const calculateDailyLoads = (weekData, scheme) => {
 
 
 const dailyLoadCalcsRpeTime = (dayData) => {
-    console.log(dayData)
-    var dayLoading = {}
+    var dayLoading = {
+        total: 0
+    }
 
     for (var ex in dayData) {
-        var exData = dayData[ex]
+        if (ex != 'loadingData') {
+            var exData = dayData[ex]
 
-        var load = exData.sets * exData.reps * exData.time * exData.rpe
+            var load = exData.sets * exData.reps * exData.time * exData.rpe
+            console.log(load)
+            console.log(dayLoading.total)
+            dayLoading['total'] += load
+            console.log(dayLoading.total)
 
-        for (var muscles in exData.primMusc) {
-            var muscle = exData.primMusc[muscles]
+            for (var muscles in exData.primMusc) {
+                var muscle = exData.primMusc[muscles]
 
-            if (muscle in dayLoading) {
-                dayLoading[muscle] += load
-            } else {
-                dayLoading[muscle] = load
+                if (muscle in dayLoading) {
+                    dayLoading[muscle] += load
+                } else {
+                    dayLoading[muscle] = load
+                }
             }
         }
     }
 
-    console.log(dayLoading)
     return dayLoading
 
 }
 
 
 const dailyLoadCalcsWeightReps = (dayData) => {
-    console.log(dayData)
     var dayLoading = {}
+    var totalLoading = 0
 
     for (var ex in dayData) {
         var exData = dayData[ex]
 
         var load = exData.sets * exData.reps * exData.weight
+        totalLoading += load
 
         for (var muscles in exData.primMusc) {
             var muscle = exData.primMusc[muscles]
@@ -57,7 +62,9 @@ const dailyLoadCalcsWeightReps = (dayData) => {
             }
         }
     }
-    console.log(dayLoading)
+
+    dayLoading['total'] = totalLoading
+
     return dayLoading
 
 }
@@ -81,70 +88,70 @@ const dailyLoadCalcsWeightReps = (dayData) => {
 
 
 
-const calculateWeeklyLoads = (weekData, scheme) => {
-    if (scheme === 'rpe_time') {
-        var processedData = weeklyLoadCalcsRpeTime(weekData)
-        console.log(processedData)
-    } else {
-        var processedData = weeklyLoadCalcsWeightReps(weekData)
-        console.log(processedData)
-    }
+// const calculateWeeklyLoads = (weekData, scheme) => {
+//     if (scheme === 'rpe_time') {
+//         var processedData = weeklyLoadCalcsRpeTime(weekData)
+//         console.log(processedData)
+//     } else {
+//         var processedData = weeklyLoadCalcsWeightReps(weekData)
+//         console.log(processedData)
+//     }
 
-    return processedData
-}
-
-
-const weeklyLoadCalcsRpeTime = (weekData) => {
-    var weekLoading = {}
-
-    for (var day in weekData) {
-        for (var ex in weekData[day]) {
-            var exData = weekData[day][ex]
-
-            var load = exData.sets * exData.reps * exData.time * exData.rpe
-
-            for (var muscles in exData.primMusc) {
-                var muscle = exData.primMusc[muscles]
-
-                if (muscle in weekLoading) {
-                    weekLoading[muscle] += load
-                } else {
-                    weekLoading[muscle] = load
-                }
-            }
-        }
-    }
-
-    return weekLoading
-
-}
+//     return processedData
+// }
 
 
-const weeklyLoadCalcsWeightReps = (weekData) => {
-    console.log(weekData)
-    var weekLoading = {}
+// const weeklyLoadCalcsRpeTime = (weekData) => {
+//     var weekLoading = {}
 
-    for (var day in weekData) {
-        for (var ex in weekData[day]) {
-            var exData = weekData[day][ex]
+//     for (var day in weekData) {
+//         for (var ex in weekData[day]) {
+//             var exData = weekData[day][ex]
 
-            var load = exData.sets * exData.reps * exData.weight
+//             var load = exData.sets * exData.reps * exData.time * exData.rpe
 
-            for (var muscles in exData.primMusc) {
-                var muscle = exData.primMusc[muscles]
+//             for (var muscles in exData.primMusc) {
+//                 var muscle = exData.primMusc[muscles]
 
-                if (muscle in weekLoading) {
-                    weekLoading[muscle] += load
-                } else {
-                    weekLoading[muscle] = load
-                }
-            }
-        }
-    }
+//                 if (muscle in weekLoading) {
+//                     weekLoading[muscle] += load
+//                 } else {
+//                     weekLoading[muscle] = load
+//                 }
+//             }
+//         }
+//     }
 
-    return weekLoading
+//     return weekLoading
 
-}
+// }
+
+
+// const weeklyLoadCalcsWeightReps = (weekData) => {
+//     console.log(weekData)
+//     var weekLoading = {}
+
+//     for (var day in weekData) {
+//         for (var ex in weekData[day]) {
+//             var exData = weekData[day][ex]
+
+//             var load = exData.sets * exData.reps * exData.weight
+
+//             for (var muscles in exData.primMusc) {
+//                 var muscle = exData.primMusc[muscles]
+
+//                 if (muscle in weekLoading) {
+//                     weekLoading[muscle] += load
+//                 } else {
+//                     weekLoading[muscle] = load
+//                 }
+//             }
+//         }
+//     }
+
+//     return weekLoading
+
+// }
 
 
 const calculateRollingMonthlyAverage = (pastUserData, currentWeekData) => {
@@ -179,4 +186,4 @@ const calculateRollingMonthlyAverage = (pastUserData, currentWeekData) => {
     }
 }
 
-export { calculateDailyLoads, calculateWeeklyLoads, calculateRollingMonthlyAverage }
+export { calculateDailyLoads, calculateRollingMonthlyAverage }
