@@ -402,11 +402,13 @@ class CurrentProgramPage extends Component {
             //     userObject.loading_scheme
             // )
             var processedDayData = calculateDailyLoads(
-                userObject[userObject.currentDayInProgram],
-                userObject.loading_scheme
+                // userObject[userObject.currentDayInProgram],
+                userObject,
+                userObject.currentDayInProgram,
+                userObject.loading_scheme,
+                userObject.acutePeriod,
+                userObject.chronicPeriod
             )
-            console.log("processed data")
-            console.log(processedDayData)
 
             // Weekly loading figures to be pushed upstream to db. 
             await this.props.firebase.pushDailyLoadingDataUpstream(
@@ -415,6 +417,8 @@ class CurrentProgramPage extends Component {
                 userObject.currentDayInProgram,
                 processedDayData
             )
+
+
             //TODO REMOVE
             // await this.props.firebase.pushWeekLoadingDataUpstream(
             //     this.props.firebase.auth.currentUser.uid,
@@ -451,11 +455,6 @@ class CurrentProgramPage extends Component {
                 this.state.activeProgram,
                 parseInt(this.state.currentDayInProgram + 1)
             )
-            // await this.props.firebase.progressToNextWeek(
-            //     this.props.firebase.auth.currentUser.uid,
-            //     this.state.activeProgram,
-            //     parseInt(this.state.currentWeekInProgram + 1)
-            // )
 
             await this.props.firebase.setCurrentDayUI(
                 this.props.firebase.auth.currentUser.uid,
@@ -464,6 +463,13 @@ class CurrentProgramPage extends Component {
                     this.state.currentDayInProgram
                 )
             )
+
+            // USE FOR WEEK CALCULATION - TO BE REMOVED. 
+            // await this.props.firebase.progressToNextWeek(
+            //     this.props.firebase.auth.currentUser.uid,
+            //     this.state.activeProgram,
+            //     parseInt(this.state.currentWeekInProgram + 1)
+            // )
             // await this.props.firebase.setCurrentDay(
             //     this.props.firebase.auth.currentUser.uid,
             //     this.state.activeProgram,
