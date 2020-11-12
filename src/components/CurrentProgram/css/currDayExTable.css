@@ -1,0 +1,15 @@
+.currDayExerciseBtnCol {
+    width: 150px;
+}
+
+.editExBtnTrigger {
+    padding-right: 10px;
+}
+
+.currDayExBtnContainer {
+    display: inline-flex;
+    width: fit-content;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}

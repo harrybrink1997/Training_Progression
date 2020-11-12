@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Button, Form, Modal, Input, Dropdown, Segment } from 'semantic-ui-react'
 
+import './css/currDayExTable.css'
+
 const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
 
     const [show, setShow] = useState(false);
@@ -67,7 +69,12 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
             onClose={() => setShow(false)}
             onOpen={() => setShow(true)}
             open={show}
-            trigger={<Button circular icon='edit' />}
+            trigger=
+            {
+                <div className='editExBtnTrigger'>
+                    <Button circular icon='edit' />
+                </div>
+            }
         >
             <Modal.Header>Edit Current Exercise</Modal.Header>
             <Form onSubmit={handleSubmit}>
@@ -183,7 +190,12 @@ const EditExerciseModalWeightSets = ({ submitHandler, exUid, currentData }) => {
             onClose={() => setShow(false)}
             onOpen={() => setShow(true)}
             open={show}
-            trigger={<Button circular icon='edit' />}
+            trigger=
+            {
+                <div className='editExBtnTrigger'>
+                    <Button circular icon='edit' />
+                </div>
+            }
         >
             <Modal.Header>Edit Current Exercise</Modal.Header>
             <Form onSubmit={handleSubmit}>

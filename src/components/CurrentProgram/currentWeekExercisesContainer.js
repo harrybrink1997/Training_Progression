@@ -3,11 +3,12 @@ import { useTable } from 'react-table'
 // import { Tabs, Tab, Pagination } from 'react-bootstrap'
 import { Table, Accordion } from 'semantic-ui-react'
 
+import './css/currDayExTable.css'
+
+
 const CurrentWeekExercisesContainer = ({
     dailyExercises,
-    currentDay,
     loadingScheme,
-    daysViewHandler,
     currentIndexsOpen,
     daysInWeekScope }) => {
 
@@ -77,34 +78,6 @@ const CurrentWeekExercisesContainer = ({
             panels={accordHTML}
             onTitleClick={handleAccordionChange}
         />
-        // <Container>
-        //     <Grid divided='vertically'>
-        //         {['1', '2', '3', '4', '5', '6', '7'].map(day => {
-        //             return (
-        //                 dailyExercises[day].length > 0 &&
-
-        //                 <Grid.Row key={day}>
-        //                     <Icon as='minus square' />
-        //                     <Header fluid as='h4' onClick={() => { alert("ay") }}> Day {day} </Header>
-
-        //                     {loadingScheme == 'rpe_time'
-        //                         &&
-        // <ExerciseTableDayViewRpeTime
-        //     data={dailyExercises[day]}
-        // />
-        //                     }
-        //                     {loadingScheme == 'weight_reps'
-        //                         &&
-        // <ExerciseTableDayViewWeightReps
-        //     data={dailyExercises[day]}
-        // />
-        //                     }
-
-        //                 </Grid.Row>
-        //             )
-        //         })}
-        //     </Grid>
-        // </Container>
     )
 }
 
@@ -135,8 +108,8 @@ const ExerciseTableDayViewRpeTime = ({ data, handleTableUpdate }) => {
                 accessor: 'rpe',
             },
             {
-                Header: 'Delete',
-                accessor: 'deleteButton'
+                Header: '',
+                accessor: 'deleteButton',
             }
 
         ],
@@ -179,10 +152,22 @@ const ExerciseTableDayViewRpeTime = ({ data, handleTableUpdate }) => {
                             {// Loop over the headers in each row
                                 headerGroup.headers.map(column => (
                                     // Apply the header cell props
-                                    <Table.HeaderCell {...column.getHeaderProps()}>
-                                        {// Render the header
-                                            column.render('Header')}
-                                    </Table.HeaderCell>
+                                    (column.Header === '') ?
+                                        <Table.HeaderCell className='currDayExerciseBtnCol' style={{ textAlign: 'center' }} {...column.getHeaderProps()}>
+                                            {// Render the header
+                                                column.render('Header')}
+                                        </Table.HeaderCell>
+                                        :
+
+                                        <Table.HeaderCell style={{ textAlign: 'center' }} {...column.getHeaderProps()}>
+                                            {// Render the header
+                                                column.render('Header')}
+                                        </Table.HeaderCell>
+
+                                    // <Table.HeaderCell {...column.getHeaderProps()}>
+                                    //     {// Render the header
+                                    //         column.render('Header')}
+                                    // </Table.HeaderCell>
                                 ))}
                         </Table.Row>
                     ))}
@@ -198,8 +183,9 @@ const ExerciseTableDayViewRpeTime = ({ data, handleTableUpdate }) => {
                                 {// Loop over the rows cells
                                     row.cells.map(cell => {
                                         // Apply the cell props
+
                                         return (
-                                            <Table.Cell {...cell.getCellProps()}>
+                                            <Table.Cell style={{ textAlign: 'center' }} {...cell.getCellProps()}>
                                                 {// Render the cell contents
                                                     cell.render('Cell')}
                                             </Table.Cell>

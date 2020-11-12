@@ -16,6 +16,9 @@ import { calculateDailyLoads } from './calculateWeeklyLoads'
 import CloseOffProgramModal from './closeOffProgramModal'
 import { ExerciseSpreadStatsTable, LoadingSpreadStatsTable } from './statsTable'
 
+import './css/currDayExTable.css'
+
+
 class CurrentProgramPage extends Component {
     constructor(props) {
         super(props)
@@ -268,18 +271,42 @@ class CurrentProgramPage extends Component {
                         var renderObj = currWeekProgExer[programDaysInCurrWeek[dayIndex]][exercise]
                         renderObj.uid = exercise
                         renderObj.deleteButton =
-                            <Segment.Group horizontal basic compact>
-                                <Segment textAlign='center'>
-                                    {loadingScheme === 'rpe_time' ?
-                                        <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-                                        :
-                                        <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-                                    }
-                                </Segment>
-                                <Segment textAlign='center'>
-                                    <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
-                                </Segment>
-                            </Segment.Group>
+                            // <Segment.Group
+                            //     horizontal
+                            //     // basic="true"
+                            //     // compact
+                            //     className=''>
+                            //     <Segment textAlign='center'>
+                            //         {loadingScheme === 'rpe_time' ?
+                            //             <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+                            //             :
+                            //             <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+                            //         }
+                            //     </Segment>
+                            //     <Segment textAlign='center'>
+                            //         <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
+                            //     </Segment>
+                            // </Segment.Group>
+                            <div className='currDayExBtnContainer'>
+                                {loadingScheme === 'rpe_time' ?
+                                    <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+
+                                    :
+                                    <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+                                }
+                                <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
+                            </div>
+
+                        // <Segment className='currDayExBtnContainer' compact textAlign='center'>
+                        //     {loadingScheme === 'rpe_time' ?
+                        //         <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+
+                        //         :
+                        //         <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+                        //     }
+                        //     <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
+
+                        // </Segment>
 
 
                         dailyExercises.push(renderObj)

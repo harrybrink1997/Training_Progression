@@ -94,7 +94,7 @@ const AvailableExercisesList = ({ columns, data }) => {
                         return (
                             <Table.Row {...row.getRowProps()}>
                                 {row.cells.map(cell => {
-                                    return <Table.Cell {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
+                                    return <Table.Cell style={{ textAlign: 'center' }} {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
                                 })}
                             </Table.Row>
                         )
