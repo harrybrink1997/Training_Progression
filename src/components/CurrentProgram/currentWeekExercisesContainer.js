@@ -140,7 +140,13 @@ const ExerciseTableDayViewRpeTime = ({ data, handleTableUpdate }) => {
         passTableDataUpStream
     })
 
+    const headerCellCSS = {
+        textAlign: 'center',
+    }
 
+    const bodyCellCSS = {
+        textAlign: 'center',
+    }
 
     return (
         <Table selectable celled {...getTableProps()}>
@@ -153,13 +159,13 @@ const ExerciseTableDayViewRpeTime = ({ data, handleTableUpdate }) => {
                                 headerGroup.headers.map(column => (
                                     // Apply the header cell props
                                     (column.Header === '') ?
-                                        <Table.HeaderCell className='currDayExerciseBtnCol' style={{ textAlign: 'center' }} {...column.getHeaderProps()}>
+                                        <Table.HeaderCell className='currDayExerciseBtnCol' style={headerCellCSS} {...column.getHeaderProps()}>
                                             {// Render the header
                                                 column.render('Header')}
                                         </Table.HeaderCell>
                                         :
 
-                                        <Table.HeaderCell style={{ textAlign: 'center' }} {...column.getHeaderProps()}>
+                                        <Table.HeaderCell style={bodyCellCSS} {...column.getHeaderProps()}>
                                             {// Render the header
                                                 column.render('Header')}
                                         </Table.HeaderCell>
@@ -185,7 +191,7 @@ const ExerciseTableDayViewRpeTime = ({ data, handleTableUpdate }) => {
                                         // Apply the cell props
 
                                         return (
-                                            <Table.Cell style={{ textAlign: 'center' }} {...cell.getCellProps()}>
+                                            <Table.Cell style={bodyCellCSS} {...cell.getCellProps()}>
                                                 {// Render the cell contents
                                                     cell.render('Cell')}
                                             </Table.Cell>
@@ -260,7 +266,13 @@ const ExerciseTableDayViewWeightReps = ({ data, handleTableUpdate }) => {
         passTableDataUpStream
     })
 
+    const headerCellCSS = {
+        textAlign: 'center',
+    }
 
+    const bodyCellCSS = {
+        textAlign: 'center',
+    }
 
     return (
         <Table selectable celled {...getTableProps()}>
@@ -272,7 +284,7 @@ const ExerciseTableDayViewWeightReps = ({ data, handleTableUpdate }) => {
                             {// Loop over the headers in each row
                                 headerGroup.headers.map(column => (
                                     // Apply the header cell props
-                                    <Table.HeaderCell {...column.getHeaderProps()}>
+                                    <Table.HeaderCell style={headerCellCSS} {...column.getHeaderProps()}>
                                         {// Render the header
                                             column.render('Header')}
                                     </Table.HeaderCell>
@@ -292,7 +304,7 @@ const ExerciseTableDayViewWeightReps = ({ data, handleTableUpdate }) => {
                                     row.cells.map(cell => {
                                         // Apply the cell props
                                         return (
-                                            <Table.Cell {...cell.getCellProps()}>
+                                            <Table.Cell style={bodyCellCSS} {...cell.getCellProps()}>
                                                 {// Render the cell contents
                                                     cell.render('Cell')}
                                             </Table.Cell>

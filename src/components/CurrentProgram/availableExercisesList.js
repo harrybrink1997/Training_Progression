@@ -136,6 +136,7 @@ const AvailableExercisesList = ({ columns, data }) => {
 
                         <Grid.Column>
                             <Dropdown
+
                                 text={pageSize.toString()}>
                                 <Dropdown.Menu>
                                     {['10', '20', '30', '40', '50'].map(pageSize => (

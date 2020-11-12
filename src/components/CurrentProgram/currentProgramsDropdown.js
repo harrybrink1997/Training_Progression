@@ -8,7 +8,7 @@ const CurrentProgramsDropdown = ({ programList, activeProgram, buttonHandler }) 
 
     return (
 
-        <Dropdown text='Current Programs'>
+        <Dropdown selection text='Current Programs'>
             <Dropdown.Menu>
                 {programList.map(programName => {
                     if (programName === activeProgram) {
