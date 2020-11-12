@@ -39,6 +39,7 @@ class CurrentProgramPage extends Component {
             currentDayUTS: '',
             currentDayUI: '',
             currentWeekInProgram: '',
+            daysInWeekScope: [],
 
             // Exercise List Data
             availExercisesCols: [],
@@ -110,6 +111,7 @@ class CurrentProgramPage extends Component {
                 currentDayInProgram: userObject.currentPrograms[userObject.activeProgram].currentDayInProgram, // Sets the current day in program.
                 currentDayUTS: userObject.currentPrograms[userObject.activeProgram].currentDayUTS, // Gets unix timestamp for current day
                 currentDayUI: userObject.currentPrograms[userObject.activeProgram].currentDayUI, // Gets current day on UI - used for planning week.
+                daysInWeekScope: this.generateDaysInWeekScope(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram),
 
                 loading: false,
                 loadingScheme: userObject.currentPrograms[userObject.activeProgram].loading_scheme,
@@ -182,6 +184,21 @@ class CurrentProgramPage extends Component {
         )
     }
 
+    generateDaysInWeekScope = (currentDayInProgram) => {
+        var currWeek = Math.ceil(currentDayInProgram / 7)
+
+        var firstDayOfWeek = 1 + 7 * (currWeek - 1)
+        var lastDayOfWeek = firstDayOfWeek + 6
+
+        var programDaysInCurrWeek = []
+
+        for (var day = firstDayOfWeek; day <= lastDayOfWeek; day++) {
+            programDaysInCurrWeek.push(day)
+        }
+
+        return programDaysInCurrWeek
+    }
+
     // Updated with new ratio calcs format
     handleUpdateExercise = async (updateObject) => {
 
@@ -229,28 +246,30 @@ class CurrentProgramPage extends Component {
     updatedDailyExerciseList = (userObject, loadingScheme) => {
         // Introduce a call back to show the current exercises. 
         // Can only be done once the other parameters above have been set. 
+        var currWeek = Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7)
+
+        var firstDayOfWeek = 1 + 7 * (currWeek - 1)
+        var lastDayOfWeek = firstDayOfWeek + 6
+
+        var programDaysInCurrWeek = []
+
+        for (var day = firstDayOfWeek; day <= lastDayOfWeek; day++) {
+            programDaysInCurrWeek.push(day)
+        }
 
         var currProg = userObject.activeProgram
-        var currWeek = 'week' + userObject.currentPrograms[userObject.activeProgram].currentWeek
-        var numDaysInWeek = [1, 2, 3, 4, 5, 6, 7]
         var exPerDayObj = {}
 
-        // First check if the current week has been instantiated. If not return a clear slate for every day. 
-        // Exit the function afterwards. 
-        if (!(currWeek in userObject.currentPrograms[currProg])) {
-            for (var day in numDaysInWeek) {
-                exPerDayObj[numDaysInWeek[day]] = []
-            }
-        } else {
-            var currWeekProgExer = userObject.currentPrograms[currProg][currWeek]
+        for (var dayIndex = 0; dayIndex < 7; dayIndex++) {
+            var currWeekProgExer = userObject.currentPrograms[currProg]
 
-            for (var day in numDaysInWeek) {
-                var dailyExercises = []
+            var dailyExercises = []
 
-                if (numDaysInWeek[day] in currWeekProgExer) {
-                    for (var exercise in currWeekProgExer[numDaysInWeek[day]]) {
+            if (programDaysInCurrWeek[dayIndex] in currWeekProgExer) {
+                for (var exercise in currWeekProgExer[programDaysInCurrWeek[dayIndex]]) {
 
-                        var renderObj = currWeekProgExer[numDaysInWeek[day]][exercise]
+                    if (exercise != 'loadingData') {
+                        var renderObj = currWeekProgExer[programDaysInCurrWeek[dayIndex]][exercise]
                         renderObj.uid = exercise
                         renderObj.deleteButton =
                             <Segment.Group horizontal basic compact>
@@ -270,10 +289,48 @@ class CurrentProgramPage extends Component {
                         dailyExercises.push(renderObj)
                     }
                 }
-                exPerDayObj[numDaysInWeek[day]] = dailyExercises
             }
+            exPerDayObj[programDaysInCurrWeek[dayIndex]] = dailyExercises
         }
 
+        // if (!(currWeek in userObject.currentPrograms[currProg])) {
+        //     for (var day in numDaysInWeek) {
+        //         exPerDayObj[numDaysInWeek[day]] = []
+        //     }
+        // } else {
+        //     var currWeekProgExer = userObject.currentPrograms[currProg][currWeek]
+
+        //     for (var day in numDaysInWeek) {
+        //         var dailyExercises = []
+
+        //         if (numDaysInWeek[day] in currWeekProgExer) {
+        //             for (var exercise in currWeekProgExer[numDaysInWeek[day]]) {
+
+        //                 var renderObj = currWeekProgExer[numDaysInWeek[day]][exercise]
+        //                 renderObj.uid = exercise
+        //                 renderObj.deleteButton =
+        //                     <Segment.Group horizontal basic compact>
+        //                         <Segment textAlign='center'>
+        //                             {loadingScheme === 'rpe_time' ?
+        //                                 <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+        //                                 :
+        //                                 <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+        //                             }
+        //                         </Segment>
+        //                         <Segment textAlign='center'>
+        //                             <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
+        //                         </Segment>
+        //                     </Segment.Group>
+
+
+        //                 dailyExercises.push(renderObj)
+        //             }
+        //         }
+        //         exPerDayObj[numDaysInWeek[day]] = dailyExercises
+        //     }
+        // }
+
+        console.log(exPerDayObj)
         return exPerDayObj
     }
 
@@ -326,58 +383,77 @@ class CurrentProgramPage extends Component {
 
         var exerciseStringComp = this.underscoreToSpaced(exerciseName)
 
+        console.log(programObject)
         // Check if not input for week
-        if (('week' + this.state.currentWeekInProgram) in programObject) {
-            var dayObject = programObject['week' + this.state.currentWeekInProgram]
+        if (this.state.currentDayInProgram in programObject) {
+            console.log("day already logged in week")
+            var num = 0;
 
-            if (this.state.currentDay in dayObject) {
-                console.log("day already logged in week")
-                var num = 0;
-
-                var dayExercises = dayObject[this.state.currentDay]
-                for (var exercise in dayExercises) {
-                    if (dayExercises[exercise].exercise === exerciseStringComp) {
-                        num++;
-                    }
-                }
-
-                return {
-                    uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDay + '_' + num,
-                    week: true,
-                    day: true
+            var dayExercises = programObject[this.state.currentDayInProgram]
+            for (var exercise in dayExercises) {
+                if (dayExercises[exercise].exercise === exerciseStringComp) {
+                    num++;
                 }
             }
 
             return {
-                uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDay + '_' + '0',
+                uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDay + '_' + num,
                 week: true,
-                day: false
+                day: true
             }
         }
 
         return {
             uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDay + '_' + '0',
-            week: false,
+            week: true,
             day: false
         }
+
+        // if (('week' + this.state.currentWeekInProgram) in programObject) {
+        //     var dayObject = programObject['week' + this.state.currentWeekInProgram]
+
+        //     if (this.state.currentDay in dayObject) {
+        //         console.log("day already logged in week")
+        //         var num = 0;
+
+        //         var dayExercises = dayObject[this.state.currentDay]
+        //         for (var exercise in dayExercises) {
+        //             if (dayExercises[exercise].exercise === exerciseStringComp) {
+        //                 num++;
+        //             }
+        //         }
+
+        //         return {
+        //             uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDay + '_' + num,
+        //             week: true,
+        //             day: true
+        //         }
+        //     }
+
+        //     return {
+        //         uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDay + '_' + '0',
+        //         week: true,
+        //         day: false
+        //     }
+        // }
+
+        // return {
+        //     uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDay + '_' + '0',
+        //     week: false,
+        //     day: false
+        // }
     }
 
     // Updated with new ratio calcs format
-    handleDeleteExerciseButton = async (event) => {
+    handleDeleteExerciseButton = async (event, { id }) => {
         event.preventDefault()
-        var exUid = event.target.id.slice(0, -10)
+        var exUid = id.slice(0, -10)
         //Single db call to delete the data. Using set with uid generated by function above.
-        console.log(exUid)
         var day = exUid.split('_').reverse()[1]
 
-        // TODO remove
-        await this.props.firebase.deleteExerciseUpStreamRemove(
-            this.props.firebase.auth.currentUser.uid,
-            this.state.activeProgram,
-            'week' + this.state.currentWeekInProgram,
-            day,
-            exUid
-        )
+        console.log(day)
+        console.log(this.convertUIDayToTotalDays(day))
+        console.log(exUid)
 
         await this.props.firebase.deleteExerciseUpStream(
             this.props.firebase.auth.currentUser.uid,
@@ -445,37 +521,37 @@ class CurrentProgramPage extends Component {
 
         // Updates the current week in the db and iterates 
         // to the next week and sets current day to 1.
-        this.setState({
-            loading: true
-        }, async () => {
+        // this.setState({
+        //     loading: true
+        // }, async () => {
 
-            //Updated the current week in the database. 
-            await this.props.firebase.progressToNextDay(
-                this.props.firebase.auth.currentUser.uid,
-                this.state.activeProgram,
-                parseInt(this.state.currentDayInProgram + 1)
-            )
+        //     //Updated the current week in the database. 
+        //     await this.props.firebase.progressToNextDay(
+        //         this.props.firebase.auth.currentUser.uid,
+        //         this.state.activeProgram,
+        //         parseInt(this.state.currentDayInProgram + 1)
+        //     )
 
-            await this.props.firebase.setCurrentDayUI(
-                this.props.firebase.auth.currentUser.uid,
-                this.state.activeProgram,
-                this.convertTotalDaysToUIDay(
-                    this.state.currentDayInProgram
-                )
-            )
+        //     await this.props.firebase.setCurrentDayUI(
+        //         this.props.firebase.auth.currentUser.uid,
+        //         this.state.activeProgram,
+        //         this.convertTotalDaysToUIDay(
+        //             this.state.currentDayInProgram
+        //         )
+        //     )
 
-            // USE FOR WEEK CALCULATION - TO BE REMOVED. 
-            // await this.props.firebase.progressToNextWeek(
-            //     this.props.firebase.auth.currentUser.uid,
-            //     this.state.activeProgram,
-            //     parseInt(this.state.currentWeekInProgram + 1)
-            // )
-            // await this.props.firebase.setCurrentDay(
-            //     this.props.firebase.auth.currentUser.uid,
-            //     this.state.activeProgram,
-            //     '1'
-            // )
-        })
+        //     // USE FOR WEEK CALCULATION - TO BE REMOVED. 
+        //     // await this.props.firebase.progressToNextWeek(
+        //     //     this.props.firebase.auth.currentUser.uid,
+        //     //     this.state.activeProgram,
+        //     //     parseInt(this.state.currentWeekInProgram + 1)
+        //     // )
+        //     // await this.props.firebase.setCurrentDay(
+        //     //     this.props.firebase.auth.currentUser.uid,
+        //     //     this.state.activeProgram,
+        //     //     '1'
+        //     // )
+        // })
 
 
     }
@@ -615,7 +691,9 @@ class CurrentProgramPage extends Component {
             loadingScheme,
 
             // New state variables.
-            currentDayInProgram
+            currentDayInProgram,
+            currentDayUI,
+            daysInWeekScope
         } = this.state
 
         console.log(this.state)
@@ -628,7 +706,7 @@ class CurrentProgramPage extends Component {
             <Grid padded divided='vertically'>
                 <Grid.Row>
                     <Container textAlign='center' fluid>
-                        <Header as='h1'>{activeProgram}, Week {currentWeekInProgram}, Day {this.convertUIDayToTotalDays(currentDayInProgram)}</Header>
+                        <Header as='h1'>{activeProgram}, Week {currentWeekInProgram}, Day {this.convertTotalDaysToUIDay(currentDayInProgram)}</Header>
                     </Container>
                 </Grid.Row>
 
@@ -683,6 +761,7 @@ class CurrentProgramPage extends Component {
                                 currentDay={currentDay}
                                 loadingScheme={loadingScheme}
                                 daysViewHandler={this.handleChangeDaysOpenView}
+                                daysInWeekScope={daysInWeekScope}
                             />
                         </Segment>
                     </Grid.Column>

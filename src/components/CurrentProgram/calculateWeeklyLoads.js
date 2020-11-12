@@ -140,8 +140,6 @@ const appendEWMA = (
     } else if (currentDayInProgram <= period) {
         var prevDayData = programData[currentDayInProgram - 1].loadingData
         muscleGroups.forEach(muscle => {
-            // Calculate the EWMA. 
-            // Input: current load for the day, time period, previousDayEWMA
             if (prevDayData[muscle][inputVariable] == 0) {
                 currDayData[muscle][inputVariable] = currDayData[muscle].dailyLoad
             } else {
@@ -154,7 +152,40 @@ const appendEWMA = (
         })
 
     } else {
+        var startDay = currentDayInProgram - period + 1
 
+        var calculatedEWMA = {}
+
+
+        for (var day = startDay; day < currentDayInProgram; day++) {
+            muscleGroups.forEach(muscle => {
+                if (day == startDay) {
+                    calculatedEWMA[muscle] = programData[day]['loadingData'][muscle].dailyLoad
+                } else {
+                    if (calculatedEWMA[muscle] == 0) {
+                        calculatedEWMA[muscle] = programData[day]['loadingData'][muscle].dailyLoad
+                    } else {
+                        calculatedEWMA[muscle] = calculateCurrentEWMA(
+                            programData[day]['loadingData'][muscle].dailyLoad,
+                            period,
+                            calculatedEWMA[muscle]
+                        )
+                    }
+                }
+            })
+        }
+
+        muscleGroups.forEach(muscle => {
+            if (calculatedEWMA[muscle] == 0) {
+                currDayData[muscle][inputVariable] = programData[day]['loadingData'][muscle].dailyLoad
+            } else {
+                currDayData[muscle][inputVariable] = calculateCurrentEWMA(
+                    programData[day]['loadingData'][muscle].dailyLoad,
+                    period,
+                    calculatedEWMA[muscle]
+                )
+            }
+        })
     }
 
     return currDayData

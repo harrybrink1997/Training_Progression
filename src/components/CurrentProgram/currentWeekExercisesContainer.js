@@ -8,7 +8,8 @@ const CurrentWeekExercisesContainer = ({
     currentDay,
     loadingScheme,
     daysViewHandler,
-    currentIndexsOpen }) => {
+    currentIndexsOpen,
+    daysInWeekScope }) => {
 
     const handleAccordionChange = (event, data) => {
         console.log(data)
@@ -19,11 +20,12 @@ const CurrentWeekExercisesContainer = ({
         var daysInWeek = ['1', '2', '3', '4', '5', '6', '7']
         var returnData = []
 
-        daysInWeek.forEach(day => {
+        for (var dayIndex = 0; dayIndex < 7; dayIndex++) {
+            var day = daysInWeekScope[dayIndex]
             if (dailyExercises[day].length > 0) {
                 returnData.push({
-                    key: day,
-                    title: `Day ${day}`,
+                    key: daysInWeek[dayIndex],
+                    title: `Day ${daysInWeek[dayIndex]}`,
                     content: {
                         content: (
                             (loadingScheme == 'rpe_time') ?
@@ -38,7 +40,28 @@ const CurrentWeekExercisesContainer = ({
                     }
                 })
             }
-        })
+        }
+
+        // daysInWeekScope.forEach(day => {
+        //     if (dailyExercises[day].length > 0) {
+        //         returnData.push({
+        //             key: day,
+        //             title: `Day ${day}`,
+        //             content: {
+        //                 content: (
+        //                     (loadingScheme == 'rpe_time') ?
+        //                         <ExerciseTableDayViewRpeTime
+        //                             data={dailyExercises[day]}
+        //                         />
+        //                         :
+        //                         <ExerciseTableDayViewWeightReps
+        //                             data={dailyExercises[day]}
+        //                         />
+        //                 )
+        //             }
+        //         })
+        //     }
+        // })
         return returnData
     }
 
