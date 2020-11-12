@@ -486,7 +486,8 @@ class CurrentProgramPage extends Component {
                 userObject.chronicPeriod
             )
 
-            // Weekly loading figures to be pushed upstream to db. 
+            console.log(processedDayData)
+
             await this.props.firebase.pushDailyLoadingDataUpstream(
                 this.props.firebase.auth.currentUser.uid,
                 this.state.activeProgram,
@@ -521,37 +522,37 @@ class CurrentProgramPage extends Component {
 
         // Updates the current week in the db and iterates 
         // to the next week and sets current day to 1.
-        // this.setState({
-        //     loading: true
-        // }, async () => {
+        this.setState({
+            loading: true
+        }, async () => {
 
-        //     //Updated the current week in the database. 
-        //     await this.props.firebase.progressToNextDay(
-        //         this.props.firebase.auth.currentUser.uid,
-        //         this.state.activeProgram,
-        //         parseInt(this.state.currentDayInProgram + 1)
-        //     )
+            //Updated the current week in the database. 
+            await this.props.firebase.progressToNextDay(
+                this.props.firebase.auth.currentUser.uid,
+                this.state.activeProgram,
+                parseInt(this.state.currentDayInProgram + 1)
+            )
 
-        //     await this.props.firebase.setCurrentDayUI(
-        //         this.props.firebase.auth.currentUser.uid,
-        //         this.state.activeProgram,
-        //         this.convertTotalDaysToUIDay(
-        //             this.state.currentDayInProgram
-        //         )
-        //     )
+            await this.props.firebase.setCurrentDayUI(
+                this.props.firebase.auth.currentUser.uid,
+                this.state.activeProgram,
+                this.convertTotalDaysToUIDay(
+                    this.state.currentDayInProgram
+                )
+            )
 
-        //     // USE FOR WEEK CALCULATION - TO BE REMOVED. 
-        //     // await this.props.firebase.progressToNextWeek(
-        //     //     this.props.firebase.auth.currentUser.uid,
-        //     //     this.state.activeProgram,
-        //     //     parseInt(this.state.currentWeekInProgram + 1)
-        //     // )
-        //     // await this.props.firebase.setCurrentDay(
-        //     //     this.props.firebase.auth.currentUser.uid,
-        //     //     this.state.activeProgram,
-        //     //     '1'
-        //     // )
-        // })
+            // USE FOR WEEK CALCULATION - TO BE REMOVED. 
+            // await this.props.firebase.progressToNextWeek(
+            //     this.props.firebase.auth.currentUser.uid,
+            //     this.state.activeProgram,
+            //     parseInt(this.state.currentWeekInProgram + 1)
+            // )
+            // await this.props.firebase.setCurrentDay(
+            //     this.props.firebase.auth.currentUser.uid,
+            //     this.state.activeProgram,
+            //     '1'
+            // )
+        })
 
 
     }

@@ -4,7 +4,7 @@ const calculateDailyLoads = (programData,
     acutePeriod,
     chronicPeriod) => {
 
-    var muscleGroups = ['Chest', 'Back', 'Legs', ' Shoulders', 'Arms', 'total']
+    var muscleGroups = ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Total']
     var currDayData = programData[currentDayInProgram]
 
     if (scheme === 'rpe_time') {
@@ -44,7 +44,7 @@ const calculateDailyLoads = (programData,
 
 const dailyLoadCalcsRpeTime = (dayData, muscleGroups) => {
     var dayLoading = {
-        total: {
+        Total: {
             dailyLoad: 0
         }
     }
@@ -85,7 +85,7 @@ const dailyLoadCalcsRpeTime = (dayData, muscleGroups) => {
 
 const dailyLoadCalcsWeightReps = (dayData, muscleGroups) => {
     var dayLoading = {
-        total: {
+        Total: {
             dailyLoad: 0
         }
     }

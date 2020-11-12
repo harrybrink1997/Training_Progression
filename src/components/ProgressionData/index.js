@@ -5,6 +5,7 @@ import { withAuthorisation } from '../Session';
 import CurrentProgramDropdown from './currentProgramsDropdown'
 import RollingAverageGraph from './rollingAverageGraph'
 import ProgressionPredictiveGraph from './progressionPredictiveGraph'
+import ACWEGraph from './ACWRGraph'
 import { BodyPartListGroup } from './bodyPartListGroup'
 
 class ProgressionDataPage extends Component {
@@ -23,7 +24,8 @@ class ProgressionDataPage extends Component {
             rollingAverageGraphProps: {
                 totalData: [],
                 series: []
-            }
+            },
+            ACWRGraphProps: {}
         }
     }
 
@@ -60,7 +62,7 @@ class ProgressionDataPage extends Component {
             })
             // Initially Sets the state for the current day
             // and current week and other parameters. 
-            var bodyPartsArray = ['Chest', 'Back', 'Shoulders', 'Legs', 'Arms']
+            var bodyPartsArray = ['Chest', 'Back', 'Shoulders', 'Legs', 'Arms', 'Total']
 
             this.setState({
                 programList: programListArray,
@@ -70,10 +72,14 @@ class ProgressionDataPage extends Component {
                 currentWeekInProgram: userObject.currentPrograms[userObject.activeProgram].currentWeek,
                 loadingScheme: userObject.currentPrograms[userObject.activeProgram].loading_scheme,
                 bodyPartsList: bodyPartsArray,
-                rollingAverageGraphProps: this.generateRollingAverageProps(
-                    userObject.currentPrograms[userObject.activeProgram].rollingAverages,
+                ACWRGraphProps: this.generateACWRGraphData(
+                    userObject.currentPrograms[userObject.activeProgram],
                     bodyPartsArray
                 ),
+                // rollingAverageGraphProps: this.generateRollingAverageProps(
+                //     userObject.currentPrograms[userObject.activeProgram].rollingAverages,
+                //     bodyPartsArray
+                // ),
                 loading: false,
             })
         } else {
@@ -83,6 +89,59 @@ class ProgressionDataPage extends Component {
                 loading: false
             })
         }
+    }
+
+    stripDateFromTSString = (inputDay) => {
+
+        var day = String(inputDay.getDate()).padStart(2, '0');
+        var month = String(inputDay.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var year = inputDay.getFullYear();
+
+        var date = day + '-' + month + '-' + year;
+
+        return date
+    }
+
+    generateACWRGraphData = (programData, muscles) => {
+
+
+        var dataToGraph = {}
+
+        for (var day = 1; day < programData.currentDayInProgram; day++) {
+
+            var dateString = this.stripDateFromTSString(new Date((programData.startDayUTS + 86400000 * (day - 1))))
+
+            muscles.forEach(muscle => {
+                if (day == 1) {
+                    dataToGraph[muscle] = []
+
+                    var insertObj = {
+                        name: dateString
+                    }
+                    insertObj['Acute Load'] = programData[day]['loadingData'][muscle].acuteEWMA
+                    insertObj['Chronic Load'] = programData[day]['loadingData'][muscle].chronicEWMA
+                    insertObj['ACWR'] = programData[day]['loadingData'][muscle].ACWR
+
+                    dataToGraph[muscle].push(insertObj)
+
+                } else {
+                    var insertObj = {
+                        name: dateString
+                    }
+
+                    insertObj['Acute Load'] = programData[day]['loadingData'][muscle].acuteEWMA
+                    insertObj['Chronic Load'] = programData[day]['loadingData'][muscle].chronicEWMA
+                    insertObj['ACWR'] = programData[day]['loadingData'][muscle].ACWR
+
+                    dataToGraph[muscle].push(insertObj)
+                }
+            })
+
+
+
+        }
+        return dataToGraph
+
     }
 
     generateRollingAverageProps = (averageLoadData, bodyParts,) => {
@@ -172,13 +231,13 @@ class ProgressionDataPage extends Component {
             loading,
             currentWeekInProgram,
             loadingScheme,
-            rollingAverageGraphProps,
             bodyPartsList,
             currentBodyPart,
+            ACWRGraphProps
         } = this.state
 
         console.log(currentBodyPart)
-        console.log(rollingAverageGraphProps.totalData[currentBodyPart])
+
 
         let loadingHTML =
             <Dimmer inverted active>
@@ -205,15 +264,11 @@ class ProgressionDataPage extends Component {
                                 />
                             </Grid.Column>
                             <Grid.Column>
-                                <RollingAverageGraph
-                                    graphData={rollingAverageGraphProps.totalData[currentBodyPart]}
-                                    graphSeries={rollingAverageGraphProps.series}
-                                    currentWeek={currentWeekInProgram}
-                                />
+                                <ACWEGraph ACWRData={ACWRGraphProps[currentBodyPart]} />
                             </Grid.Column>
                         </Grid.Row>
                         <Grid.Row>
-                            <ProgressionPredictiveGraph startLoad={this.generateCurrentAverageLoad(rollingAverageGraphProps.totalData[currentBodyPart])} />
+                            {/* <ProgressionPredictiveGraph startLoad={this.generateCurrentAverageLoad(rollingAverageGraphProps.totalData[currentBodyPart])} /> */}
                         </Grid.Row>
                     </Grid>
                 </Container>

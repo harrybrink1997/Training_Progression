@@ -95,7 +95,7 @@ class HomePage extends Component {
 
             dateConversion = dateConversion[2] + '-' + dateConversion[1] + '-' + dateConversion[0]
 
-            var startTimestamp = Math.floor(new Date(dateConversion).getTime() / 1000)
+            var startTimestamp = Math.floor(new Date(dateConversion).getTime())
 
             await this.props.firebase.createProgramUpstream(
                 this.state.userInformation.uid,
