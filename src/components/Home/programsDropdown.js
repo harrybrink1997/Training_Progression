@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { withFirebase } from '../Firebase/context'
 
-import { Dropdown, TextArea } from 'semantic-ui-react'
+import { Dropdown } from 'semantic-ui-react'
 
 const ProgramsDropdown = ({ programList, headerString, selectHandler, programType }) => {
 
@@ -20,7 +20,7 @@ const ProgramsDropdown = ({ programList, headerString, selectHandler, programTyp
         return inputData
     }
 
-    const [dropdownData, setdropdownData] = useState(generateDropData(programList))
+    const [dropdownData] = useState(generateDropData(programList))
 
     const handleProgramSelect = (event, { value }) => {
         event.preventDefault()

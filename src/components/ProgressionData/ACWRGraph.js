@@ -1,5 +1,5 @@
 import React from 'react'
-import { ComposedChart, Label, LineChart, Area, Line, Brush, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { ComposedChart, LineChart, Area, Line, Brush, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 
 
 

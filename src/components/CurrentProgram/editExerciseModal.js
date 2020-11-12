@@ -120,10 +120,6 @@ const EditExerciseModalWeightSets = ({ submitHandler, exUid, currentData }) => {
     const [sets, setSets] = useState(currentData.sets)
     const [weight, setWeight] = useState(currentData.weight)
 
-    const handleClose = (event) => {
-        setShow(false);
-    }
-
     const handleSubmit = (event) => {
         event.preventDefault()
         setShow(false);
@@ -179,8 +175,6 @@ const EditExerciseModalWeightSets = ({ submitHandler, exUid, currentData }) => {
             setWeight(event.target.value)
         }
     }
-
-    const handleShow = () => setShow(true);
 
     return (
         <Modal

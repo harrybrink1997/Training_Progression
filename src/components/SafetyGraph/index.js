@@ -7,9 +7,6 @@ import randomColour from '../../constants/colours'
 import { Form, Button } from 'semantic-ui-react'
 
 class SafetyGraphPage extends Component {
-    constructor(props) {
-        super(props);
-    }
 
     render() {
         return (
@@ -71,13 +68,6 @@ const SafetyGraphChart = () => {
     useEffect(() => {
         localStorage.setItem('percentages', percentages)
     }, [percentages])
-
-    // Handles validation of the submit data button under the graph.
-    const isInvalid = targetLoad === ''
-        || startLoad === ''
-        || percentages === ''
-        || startLoad <= 0
-        || targetLoad <= startLoad
 
     // Handles the on change event with typing into targetLoad, startLoad and percentages. 
     const onChange = event => {

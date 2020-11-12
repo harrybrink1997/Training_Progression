@@ -1,7 +1,6 @@
-import { fractionDependencies } from 'mathjs';
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import './home.css'
-import { Header, Modal, Button, Form, Input, Segment, Container, Popup, Icon, Label } from 'semantic-ui-react'
+import { Modal, Button, Form, Input, Container, Popup, Icon } from 'semantic-ui-react'
 
 import SemanticDatepicker from 'react-semantic-ui-datepickers';
 import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';

@@ -3,9 +3,8 @@ import { Container, Grid, Header, Dimmer, Loader } from 'semantic-ui-react'
 
 import { withAuthorisation } from '../Session';
 import CurrentProgramDropdown from './currentProgramsDropdown'
-import RollingAverageGraph from './rollingAverageGraph'
-import ProgressionPredictiveGraph from './progressionPredictiveGraph'
-import { ACWEGraph, SynchronousACWRGraphs } from './ACWRGraph'
+// import ProgressionPredictiveGraph from './progressionPredictiveGraph'
+import { SynchronousACWRGraphs } from './ACWRGraph'
 import { BodyPartListGroup } from './bodyPartListGroup'
 
 class ProgressionDataPage extends Component {
@@ -125,7 +124,7 @@ class ProgressionDataPage extends Component {
                     dataToGraph[muscle].push(insertObj)
 
                 } else {
-                    var insertObj = {
+                    insertObj = {
                         name: dateString
                     }
 
@@ -182,7 +181,7 @@ class ProgressionDataPage extends Component {
                         dataToGraph[muscle].push(insertObj)
 
                     } else {
-                        var insertObj = {
+                        insertObj = {
                             name: dateString
                         }
 

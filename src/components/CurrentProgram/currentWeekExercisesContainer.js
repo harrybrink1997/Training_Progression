@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTable } from 'react-table'
 // import { Tabs, Tab, Pagination } from 'react-bootstrap'
 import { Table, Accordion } from 'semantic-ui-react'

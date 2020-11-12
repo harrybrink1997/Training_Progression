@@ -1,10 +1,10 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { withAuthorisation } from '../Session';
 
 import { Dropdown, Table, Grid, Container, Button } from 'semantic-ui-react'
 
 import { useTable, useFilters, useGlobalFilter, usePagination } from 'react-table'
-import { DefaultColumnFilter, GlobalFilter, fuzzyTextFilterFn } from './filterSearch'
+import { DefaultColumnFilter, fuzzyTextFilterFn } from './filterSearch'
 
 const AvailableExercisesList = ({ columns, data }) => {
 
@@ -48,7 +48,6 @@ const AvailableExercisesList = ({ columns, data }) => {
         canPreviousPage,
         canNextPage,
         pageOptions,
-        pageCount,
         gotoPage,
         nextPage,
         previousPage,
@@ -56,10 +55,6 @@ const AvailableExercisesList = ({ columns, data }) => {
 
 
         // For search filter
-        state,
-        visibleColumns,
-        preGlobalFilteredRows,
-        setGlobalFilter,
         state: { pageIndex, pageSize }
     } = useTable(
         {

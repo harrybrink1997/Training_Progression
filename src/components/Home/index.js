@@ -35,18 +35,18 @@ class HomePage extends Component {
                     currentProgramList.push(program)
                 }
             } else {
-                var currentProgramList = false
+                currentProgramList = false
             }
 
             // Make the list of past programs.
             if ('pastPrograms' in userObject) {
                 var pastProgramList = []
 
-                for (var program in userObject.pastPrograms) {
+                for (program in userObject.pastPrograms) {
                     pastProgramList.push(program)
                 }
             } else {
-                var pastProgramList = false
+                pastProgramList = false
             }
 
 
@@ -73,7 +73,7 @@ class HomePage extends Component {
         }
 
         if (this.state.pastProgramList.length > 0) {
-            for (var program in this.state.pastProgramList) {
+            for (program in this.state.pastProgramList) {
                 if (this.state.pastProgramList[program] == newProgram) {
                     return true
                 }

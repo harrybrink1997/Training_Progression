@@ -12,7 +12,7 @@ import { AddExerciseModalWeightReps, AddExerciseModalRpeTime } from './addExerci
 import { EditExerciseModalWeightSets, EditExerciseModalRpeTime } from './editExerciseModal'
 import { DeleteExerciseButton } from './currentProgramPageButtons'
 import { SelectColumnFilter } from './filterSearch'
-import { calculateDailyLoads, calculateWeeklyLoads, calculateRollingMonthlyAverage } from './calculateWeeklyLoads'
+import { calculateDailyLoads } from './calculateWeeklyLoads'
 import CloseOffProgramModal from './closeOffProgramModal'
 import { ExerciseSpreadStatsTable, LoadingSpreadStatsTable } from './statsTable'
 
@@ -25,10 +25,8 @@ class CurrentProgramPage extends Component {
             // Old state variables
             exerciseListPerDay: {},
             activeProgram: '',
-            currentWeekInProgram: '',
             programList: [],
             loading: true,
-            currentDay: null,
             hasPrograms: false,
             allPrograms: [],
             loadingScheme: '',
@@ -105,8 +103,6 @@ class CurrentProgramPage extends Component {
                 allPrograms: userObject.currentPrograms,
 
                 currentWeekInProgram: Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7),
-
-                currentDay: userObject.currentPrograms[userObject.activeProgram].currentDay, // TODO remove becomes redundant. 
 
                 currentDayInProgram: userObject.currentPrograms[userObject.activeProgram].currentDayInProgram, // Sets the current day in program.
                 currentDayUTS: userObject.currentPrograms[userObject.activeProgram].currentDayUTS, // Gets unix timestamp for current day
@@ -214,7 +210,7 @@ class CurrentProgramPage extends Component {
                 primMusc: updateObject.primMusc
             }
         } else {
-            var dataPayload = {
+            dataPayload = {
                 exercise: updateObject.exercise,
                 time: updateObject.time,
                 sets: updateObject.sets,
@@ -522,37 +518,37 @@ class CurrentProgramPage extends Component {
 
         // Updates the current week in the db and iterates 
         // to the next week and sets current day to 1.
-        this.setState({
-            loading: true
-        }, async () => {
+        // this.setState({
+        //     loading: true
+        // }, async () => {
 
-            //Updated the current week in the database. 
-            await this.props.firebase.progressToNextDay(
-                this.props.firebase.auth.currentUser.uid,
-                this.state.activeProgram,
-                parseInt(this.state.currentDayInProgram + 1)
-            )
+        //     //Updated the current week in the database. 
+        //     await this.props.firebase.progressToNextDay(
+        //         this.props.firebase.auth.currentUser.uid,
+        //         this.state.activeProgram,
+        //         parseInt(this.state.currentDayInProgram + 1)
+        //     )
 
-            await this.props.firebase.setCurrentDayUI(
-                this.props.firebase.auth.currentUser.uid,
-                this.state.activeProgram,
-                this.convertTotalDaysToUIDay(
-                    this.state.currentDayInProgram
-                )
-            )
+        //     await this.props.firebase.setCurrentDayUI(
+        //         this.props.firebase.auth.currentUser.uid,
+        //         this.state.activeProgram,
+        //         this.convertTotalDaysToUIDay(
+        //             this.state.currentDayInProgram
+        //         )
+        //     )
 
-            // USE FOR WEEK CALCULATION - TO BE REMOVED. 
-            // await this.props.firebase.progressToNextWeek(
-            //     this.props.firebase.auth.currentUser.uid,
-            //     this.state.activeProgram,
-            //     parseInt(this.state.currentWeekInProgram + 1)
-            // )
-            // await this.props.firebase.setCurrentDay(
-            //     this.props.firebase.auth.currentUser.uid,
-            //     this.state.activeProgram,
-            //     '1'
-            // )
-        })
+        //     // USE FOR WEEK CALCULATION - TO BE REMOVED. 
+        //     // await this.props.firebase.progressToNextWeek(
+        //     //     this.props.firebase.auth.currentUser.uid,
+        //     //     this.state.activeProgram,
+        //     //     parseInt(this.state.currentWeekInProgram + 1)
+        //     // )
+        //     // await this.props.firebase.setCurrentDay(
+        //     //     this.props.firebase.auth.currentUser.uid,
+        //     //     this.state.activeProgram,
+        //     //     '1'
+        //     // )
+        // })
 
 
     }
@@ -599,7 +595,7 @@ class CurrentProgramPage extends Component {
                 primMusc: exerciseObject.primMusc
             }
         } else {
-            var dataPayload = {
+            dataPayload = {
                 exercise: this.underscoreToSpaced(exerciseObject.name),
                 sets: exerciseObject.sets,
                 time: exerciseObject.time,
@@ -637,7 +633,7 @@ class CurrentProgramPage extends Component {
         } else {
             for (var program in this.state.programList) {
                 if (this.state.programList[program] != this.state.activeProgram) {
-                    var newProgram = this.state.programList[program]
+                    newProgram = this.state.programList[program]
                     break
                 }
             }
@@ -693,7 +689,6 @@ class CurrentProgramPage extends Component {
 
             // New state variables.
             currentDayInProgram,
-            currentDayUI,
             daysInWeekScope
         } = this.state
 

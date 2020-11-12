@@ -1,3 +1,4 @@
+
 const calculateDailyLoads = (programData,
     currentDayInProgram,
     scheme,
@@ -10,7 +11,7 @@ const calculateDailyLoads = (programData,
     if (scheme === 'rpe_time') {
         var processedData = dailyLoadCalcsRpeTime(currDayData, muscleGroups)
     } else {
-        var processedData = dailyLoadCalcsWeightReps(currDayData, muscleGroups)
+        processedData = dailyLoadCalcsWeightReps(currDayData, muscleGroups)
     }
 
     [{ type: 'acuteEWMA', period: acutePeriod },
@@ -302,7 +303,7 @@ const calculateRollingMonthlyAverage = (pastUserData, currentWeekData) => {
         }
     }
 
-    for (var bodyPart in averageLoad) {
+    for (bodyPart in averageLoad) {
         averageLoad[bodyPart] = parseFloat(averageLoad[bodyPart] / 4).toFixed(2)
     }
 

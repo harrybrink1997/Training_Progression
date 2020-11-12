@@ -3,10 +3,6 @@ import React, { Component } from 'react';
 import { withAuthorisation } from '../Session';
 
 class PastProgramsPage extends Component {
-    constructor(props) {
-        super(props);
-    }
-
 
     render() {
 
