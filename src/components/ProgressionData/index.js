@@ -5,7 +5,7 @@ import { withAuthorisation } from '../Session';
 import CurrentProgramDropdown from './currentProgramsDropdown'
 import RollingAverageGraph from './rollingAverageGraph'
 import ProgressionPredictiveGraph from './progressionPredictiveGraph'
-import ACWEGraph from './ACWRGraph'
+import { ACWEGraph, SynchronousACWRGraphs } from './ACWRGraph'
 import { BodyPartListGroup } from './bodyPartListGroup'
 
 class ProgressionDataPage extends Component {
@@ -76,10 +76,10 @@ class ProgressionDataPage extends Component {
                     userObject.currentPrograms[userObject.activeProgram],
                     bodyPartsArray
                 ),
-                // rollingAverageGraphProps: this.generateRollingAverageProps(
-                //     userObject.currentPrograms[userObject.activeProgram].rollingAverages,
-                //     bodyPartsArray
-                // ),
+                rollingAverageGraphProps: this.generateSafeLoadGraphProps(
+                    userObject.currentPrograms[userObject.activeProgram],
+                    bodyPartsArray
+                ),
                 loading: false,
             })
         } else {
@@ -144,54 +144,92 @@ class ProgressionDataPage extends Component {
 
     }
 
-    generateRollingAverageProps = (averageLoadData, bodyParts,) => {
+    generateSafeLoadGraphProps = (programData, muscles) => {
 
         var ghostThresholds = [20]
 
         // First generate the series
         var chartSeries = ['Actual Loading']
-        var totalLoadingData = {}
+        var dataToGraph = {}
 
-        bodyParts.map(bodyPart => {
-            totalLoadingData[bodyPart] = []
-        })
+        // muscles.map(muscle => {
+        //     totalLoadingData[muscle] = []
+        // })
 
         ghostThresholds.forEach(threshold => {
 
             var lowerSeries = 'Threshold - (-' + threshold + '%)'
             var upperSeries = 'Threshold - (+' + threshold + '%)'
 
-            for (var weeks in averageLoadData) {
 
-                for (var bodyPart in averageLoadData[weeks]) {
+            for (var day = 1; day < programData.currentDayInProgram; day++) {
 
-                    var loadingVal = parseFloat(averageLoadData[weeks][bodyPart])
+                var dateString = this.stripDateFromTSString(new Date((programData.startDayUTS + 86400000 * (day - 1))))
 
-                    var upperThreshold = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
-                    var lowerThreshold = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                muscles.forEach(muscle => {
+                    var loadingVal = parseFloat(programData[day]['loadingData'][muscle].chronicEWMA)
 
-                    var weeksString = 'Weeks (' + weeks.split('_')[0] + '-' + weeks.split('_')[1] + ')'
+                    if (day == 1) {
+                        dataToGraph[muscle] = []
 
-                    var dataPointObj = {
-                        name: weeksString
+                        var insertObj = {
+                            name: dateString
+                        }
+                        insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                        insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+                        insertObj['Actual Loading'] = loadingVal
+
+                        dataToGraph[muscle].push(insertObj)
+
+                    } else {
+                        var insertObj = {
+                            name: dateString
+                        }
+
+                        insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                        insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+                        insertObj['Actual Loading'] = loadingVal
+
+                        dataToGraph[muscle].push(insertObj)
                     }
+                })
 
-                    dataPointObj[upperSeries] = upperThreshold
-                    dataPointObj[lowerSeries] = lowerThreshold
-                    dataPointObj['Actual Loading'] = loadingVal
 
-                    totalLoadingData[bodyPart].push(dataPointObj)
-                }
+
             }
             chartSeries.push(lowerSeries)
             chartSeries.push(upperSeries)
+            // for (var weeks in programData) {
+
+            //     for (var bodyPart in programData[weeks]) {
+
+            //         var loadingVal = parseFloat(programData[weeks][bodyPart])
+
+            //         var upperThreshold = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+            //         var lowerThreshold = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+
+            //         var weeksString = 'Weeks (' + weeks.split('_')[0] + '-' + weeks.split('_')[1] + ')'
+
+            //         var dataPointObj = {
+            //             name: weeksString
+            //         }
+
+            //         dataPointObj[upperSeries] = upperThreshold
+            //         dataPointObj[lowerSeries] = lowerThreshold
+            //         dataPointObj['Actual Loading'] = loadingVal
+
+            //         totalLoadingData[bodyPart].push(dataPointObj)
+            //     }
+            // }
+
         })
 
-        console.log(totalLoadingData)
+        console.log(dataToGraph)
+        console.log(chartSeries)
 
         return {
             series: chartSeries,
-            totalData: totalLoadingData
+            totalData: dataToGraph
         }
     }
 
@@ -233,7 +271,8 @@ class ProgressionDataPage extends Component {
             loadingScheme,
             bodyPartsList,
             currentBodyPart,
-            ACWRGraphProps
+            ACWRGraphProps,
+            rollingAverageGraphProps
         } = this.state
 
         console.log(currentBodyPart)
@@ -264,7 +303,11 @@ class ProgressionDataPage extends Component {
                                 />
                             </Grid.Column>
                             <Grid.Column>
-                                <ACWEGraph ACWRData={ACWRGraphProps[currentBodyPart]} />
+                                <SynchronousACWRGraphs
+                                    ACWRData={ACWRGraphProps[currentBodyPart]}
+                                    rollChronicACWRData={rollingAverageGraphProps.totalData[currentBodyPart]}
+                                    rollChronicACWRDataSeries={rollingAverageGraphProps.series}
+                                />
                             </Grid.Column>
                         </Grid.Row>
                         <Grid.Row>
