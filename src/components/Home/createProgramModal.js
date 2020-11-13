@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import './home.css'
-import { Modal, Button, Form, Input, Container, Popup, Icon, Label } from 'semantic-ui-react'
+import { Modal, Button, Form, Input, Container, Popup, Icon, Label, Grid } from 'semantic-ui-react'
 
 import SemanticDatepicker from 'react-semantic-ui-datepickers';
 import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
@@ -119,50 +119,51 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                             </Form.Field>
                         </Form.Group>
 
-                        <Form.Group inline widths='equal'>
-                            <Form.Field>
-
-                                <InputLabel
-                                    text='Loading Scheme &nbsp;'
-                                    toolTip={<Popup
-                                        trigger={<Icon name='question circle outline' />}
-                                        content='This is the loading scheme tooltip'
-                                        position='right center'
-                                    />}
-                                />
-                                <Form.Radio
-                                    label='RPE / Time'
-                                    value='rpe_time'
-                                    checked={loadingScheme === 'rpe_time'}
-                                    onChange={handleLoadingSchemeChange}
-                                />
-                                <Form.Radio
-                                    label='Weight / Repetitions'
-                                    value='weight_reps'
-                                    checked={loadingScheme === 'weight_reps'}
-                                    onChange={handleLoadingSchemeChange}
-                                />
-                            </Form.Field>
-
-                            <Form.Field>
-                                <InputLabel
-                                    text='Starting Date &nbsp;'
-                                    toolTip={<Popup
-                                        trigger={<Icon name='question circle outline' />}
-                                        content='This is the date tooltip'
-                                        position='right center'
-                                    />}
-                                />
-                                <SemanticDatepicker
-                                    today
-                                    type='basic'
-                                    onChange={handleDateChange}
-                                    format='DD-MM-YYYY'
-                                    value={date}
-                                />
-
-                            </Form.Field>
-                        </Form.Group>
+                        <Grid columns='equal'>
+                            <Grid.Column>
+                                <Form.Field>
+                                    <InputLabel
+                                        text='Loading Scheme &nbsp;'
+                                        toolTip={<Popup
+                                            trigger={<Icon name='question circle outline' />}
+                                            content='This is the loading scheme tooltip'
+                                            position='right center'
+                                        />}
+                                    />
+                                    <Form.Radio
+                                        label='RPE / Time'
+                                        value='rpe_time'
+                                        checked={loadingScheme === 'rpe_time'}
+                                        onChange={handleLoadingSchemeChange}
+                                    />
+                                    <Form.Radio
+                                        label='Weight / Repetitions'
+                                        value='weight_reps'
+                                        checked={loadingScheme === 'weight_reps'}
+                                        onChange={handleLoadingSchemeChange}
+                                    />
+                                </Form.Field>
+                            </Grid.Column>
+                            <Grid.Column>
+                                <Form.Field>
+                                    <InputLabel
+                                        text='Starting Date &nbsp;'
+                                        toolTip={<Popup
+                                            trigger={<Icon name='question circle outline' />}
+                                            content='This is the date tooltip'
+                                            position='right center'
+                                        />}
+                                    />
+                                    <SemanticDatepicker
+                                        today
+                                        type='basic'
+                                        onChange={handleDateChange}
+                                        format='DD-MM-YYYY'
+                                        value={date}
+                                    />
+                                </Form.Field>
+                            </Grid.Column>
+                        </Grid>
                     </Container>
                 </Modal.Content>
                 <Modal.Actions>

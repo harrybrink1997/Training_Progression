@@ -13,10 +13,20 @@
 /*************************/
 /*************************/
 
+
+.ui.small.modal.transition.visible.active 
+> .ui.form
+> .content label {
+    color: white;
+    font-weight: 87%;
+}
+
 .ui.small.modal.transition.visible.active 
 > .ui.form
 > .content {
     margin: 10px;
+    color: white;
+    font-weight: 87%;
 }
 
 /*Background of a small modal*/
@@ -48,6 +58,15 @@
 > .ui.button.submitBtn {
     color: #121212;
     background: #BB86FC;
+}
+
+/*Colour of delete buttons in small modals*/
+.ui.small.modal.transition.visible.active
+> .ui.form 
+> .actions 
+> .ui.button.deleteBtn {
+    color:  #121212;
+    background: #CF6679;
 }
 
 /*Colour of inputs in small modals*/

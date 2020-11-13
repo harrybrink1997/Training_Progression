@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { Dropdown, Button, Input, Modal, Form, Segment } from 'semantic-ui-react'
-
+import { Dropdown, Button, Input, Modal, Form, Segment, Grid } from 'semantic-ui-react'
+import InputLabel from '../CustomComponents/DarkModeInput'
 
 
 const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc }) => {
@@ -77,47 +77,46 @@ const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc }) => 
             trigger={<Button>Add Exercise</Button>}
         >
             <Modal.Header>Add an Exercise</Modal.Header>
-
             <Form onSubmit={handleSubmit}>
                 <Modal.Content>
-                    <Segment.Group horizontal>
-                        <Segment>
-                            <label>Sets</label>
+                    <Grid columns='equal' padded>
+                        <Grid.Column>
+                            <InputLabel text='Sets' />
                             <Input
                                 value={sets}
                                 onChange={handleSetsUpdate}
                             />
-                        </Segment>
-                        <Segment>
-                            <label>Repetitions</label>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <InputLabel text='Repetitions' />
                             <Input
                                 value={reps}
                                 onChange={handleRepsUpdate}
                             />
-                        </Segment>
-                        <Segment>
-                            <label>Time</label>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <InputLabel text='Time' />
                             <Input
                                 value={time}
                                 onChange={handleTimeUpdate}
                             />
-                        </Segment>
-                        <Segment>
-                            <label>RPE</label>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <InputLabel text='RPE' />
                             <RPEDropdown buttonHandler={handleRPEUpdate} />
-                        </Segment>
-                        <Segment>
-                            <label>Day</label>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <InputLabel text='Day' />
                             <DayDropdown
                                 buttonHandler={handleInsertDay}
                                 currDay={dayInsert}
                             />
-                        </Segment>
-                    </Segment.Group>
+                        </Grid.Column>
+                    </Grid>
                 </Modal.Content>
                 <Modal.Actions>
                     <Button onClick={() => setShow(false)}>Close</Button>
-                    <Button type="submit">Add to Day</Button>
+                    <Button className='submitBtn' type="submit">Add to Day</Button>
                 </Modal.Actions>
             </Form>
         </Modal>
@@ -205,44 +204,43 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) 
             <Modal.Header>Add Exercise</Modal.Header>
             <Form onSubmit={handleSubmit}>
                 <Modal.Content>
-                    <Segment.Group horizontal>
-                        <Segment>
-                            <label>Sets</label>
+                    <Grid columns='equal' padded>
+                        <Grid.Column>
+                            <InputLabel text='Sets' />
                             <Input
                                 value={sets}
                                 onChange={handleSetsUpdate}
                             />
-                        </Segment>
-                        <Segment>
-                            <label>Repetitions</label>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <InputLabel text='Repetitions' />
                             <Input
                                 value={reps}
                                 onChange={handleRepsUpdate}
                             />
-                        </Segment>
-                        <Segment>
-                            <label>Weight</label>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <InputLabel text='Weight' />
                             <Input
                                 value={weight}
                                 onChange={handleWeightUpdate}
                             />
-                        </Segment>
-                        <Segment>
-                            <label>Time</label>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <InputLabel text='Time' />
                             <Input
                                 value={time}
                                 onChange={handleTimeUpdate}
                             />
-                        </Segment>
-                        <Segment>
-                            <label>Day</label>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <InputLabel text='Day' />
                             <DayDropdown
                                 buttonHandler={handleInsertDay}
                                 currDay={dayInsert}
                             />
-                        </Segment>
-
-                    </Segment.Group>
+                        </Grid.Column>
+                    </Grid>
                 </Modal.Content>
                 <Modal.Actions>
                     <Button onClick={() => setShow(false)}>Close</Button>
@@ -269,7 +267,7 @@ const RPEDropdown = ({ buttonHandler }) => {
     }
 
     return (
-        <Dropdown text={currentRPE.toString()}>
+        <Dropdown fluid selection text={currentRPE.toString()}>
             <Dropdown.Menu>
                 {['None', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'].map(rpe => {
                     return (
@@ -299,7 +297,7 @@ const DayDropdown = ({ buttonHandler, currDay }) => {
     }
 
     return (
-        <Dropdown text={currentDay.toString()}>
+        <Dropdown selection fluid text={currentDay.toString()}>
             <Dropdown.Menu>
                 {['1', '2', '3', '4', '5', '6', '7'].map(day => {
                     return (

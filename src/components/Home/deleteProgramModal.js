@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 // import { Modal, Button, Form, Row, Col } from 'react-bootstrap'
 import ProgramsDropdown from './programsDropdown'
-import { Modal, Button, Segment, Form } from 'semantic-ui-react'
+import { Modal, Button, Segment, Form, Grid } from 'semantic-ui-react'
 import './home.css'
 
 
@@ -43,26 +43,26 @@ const DeleteProgramModal = ({ handleFormSubmit, currentProgramList, pastProgramL
             <Form onSubmit={handleSubmit}>
                 <Modal.Content>
                     <h5>WARNING! This action is irreversible. This will permanently delete the program and its data from the database.</h5>
-                    <Segment.Group horizontal>
-                        <Segment>
+                    <Grid columns='equal' padded>
+                        <Grid.Column>
                             <ProgramsDropdown
                                 programList={currentProgramList}
                                 headerString={'Select Current Program'}
                                 selectHandler={handleProgramSelect}
                                 programType='current' />
-                        </Segment>
-                        <Segment>
+                        </Grid.Column>
+                        <Grid.Column>
                             <ProgramsDropdown
                                 programList={pastProgramList}
                                 headerString={'Select Past Program'}
                                 selectHandler={handleProgramSelect}
                                 programType='past' />
-                        </Segment>
-                    </Segment.Group>
+                        </Grid.Column>
+                    </Grid>
                 </Modal.Content>
                 <Modal.Actions>
                     <Button onClick={() => setShow(false)}>Close</Button>
-                    <Button type="submit">Delete Programs</Button>
+                    <Button className='deleteBtn' type="submit">Delete Programs</Button>
                 </Modal.Actions>
             </Form>
         </Modal>
