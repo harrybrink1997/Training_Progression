@@ -20,7 +20,8 @@ import { withAuthentication } from '../Session';
 import 'semantic-ui-css/semantic.min.css';
 
 import '../CurrentProgram/css/currDayExTable.css'
-import '../CurrentProgram/css/editExerciseModal.css'
+import '../../CustomCSS/editExerciseModal.css'
+import '../../CustomCSS/darkMode.css'
 
 const App = () => (
     <Router>

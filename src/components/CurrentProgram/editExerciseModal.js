@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import { Button, Form, Modal, Input, Dropdown, Segment, Grid } from 'semantic-ui-react'
-
-import './css/currDayExTable.css'
-import './css/editExerciseModal.css'
+import InputLabel from '../CustomComponents/DarkModeInput'
 
 const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
 
@@ -288,11 +286,5 @@ const RPEDropdown = ({ buttonHandler, exerRpe }) => {
         </Dropdown>
     )
 }
-
-const InputLabel = ({ text }) => (
-    <div className='editModalContentInputLabel'>
-        <label>{text}</label>
-    </div>
-)
 
 export { EditExerciseModalWeightSets, EditExerciseModalRpeTime }

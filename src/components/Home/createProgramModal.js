@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import './home.css'
-import { Modal, Button, Form, Input, Container, Popup, Icon } from 'semantic-ui-react'
+import { Modal, Button, Form, Input, Container, Popup, Icon, Label } from 'semantic-ui-react'
 
 import SemanticDatepicker from 'react-semantic-ui-datepickers';
 import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
+
+import InputLabel from '../CustomComponents/DarkModeInput'
 
 const CreateProgramModal = ({ handleFormSubmit }) => {
 
@@ -73,7 +75,7 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                 <Modal.Content>
                     <Container>
                         <Form.Field>
-                            <label>Program Name</label>
+                            <InputLabel text='Program Name' />
                             <Input
                                 fluid
                                 value={programName}
@@ -83,14 +85,14 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                         </Form.Field>
                         <Form.Group widths='equal'>
                             <Form.Field>
-                                <label>
-                                    Acute Workload Timeframe (Measured in Days) &nbsp;
-                                    <Popup
+                                <InputLabel
+                                    text='Acute Workload Timeframe (Measured in Days) &nbsp;'
+                                    toolTip={<Popup
                                         trigger={<Icon name='question circle outline' />}
                                         content='(Recommended 7)'
                                         position='right center'
-                                    />
-                                </label>
+                                    />}
+                                />
                                 <Input
                                     fluid
                                     value={acutePeriod}
@@ -100,14 +102,14 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                             </Form.Field>
 
                             <Form.Field>
-                                <label>
-                                    Chronic Workload Timeframe (Measured in Days) &nbsp;
-                                    <Popup
+                                <InputLabel
+                                    text='Chronic Workload Timeframe (Measured in Days) &nbsp;'
+                                    toolTip={<Popup
                                         trigger={<Icon name='question circle outline' />}
                                         content='(Recommended 28)'
                                         position='right center'
-                                    />
-                                </label>
+                                    />}
+                                />
                                 <Input
                                     fluid
                                     value={chronicPeriod}
@@ -119,14 +121,15 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
 
                         <Form.Group inline widths='equal'>
                             <Form.Field>
-                                <label>
-                                    Loading Scheme &nbsp;
-                                <Popup
+
+                                <InputLabel
+                                    text='Loading Scheme &nbsp;'
+                                    toolTip={<Popup
                                         trigger={<Icon name='question circle outline' />}
                                         content='This is the loading scheme tooltip'
                                         position='right center'
-                                    />
-                                </label>
+                                    />}
+                                />
                                 <Form.Radio
                                     label='RPE / Time'
                                     value='rpe_time'
@@ -142,15 +145,14 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                             </Form.Field>
 
                             <Form.Field>
-                                <label>
-                                    Starting Date &nbsp;
-                                <Popup
+                                <InputLabel
+                                    text='Starting Date &nbsp;'
+                                    toolTip={<Popup
                                         trigger={<Icon name='question circle outline' />}
                                         content='This is the date tooltip'
                                         position='right center'
-                                    />
-                                </label>
-
+                                    />}
+                                />
                                 <SemanticDatepicker
                                     today
                                     type='basic'
@@ -165,7 +167,7 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                 </Modal.Content>
                 <Modal.Actions>
                     <Button onClick={() => setShow(false)}>Close</Button>
-                    <Button type="submit">Create Program</Button>
+                    <Button className='submitBtn' type="submit">Create Program</Button>
                 </Modal.Actions>
             </Form>
         </Modal>

@@ -1,13 +1,3 @@
-.editModalContent {
-    margin: 10px;
-}
-
-.editModalContentInputLabel {
-    padding-bottom: 10px;
-    font-weight: 87%;
-    color: white
-
-}
 
 /*************************/
 /*************************/
@@ -22,6 +12,12 @@
 /******Small Modals*******/
 /*************************/
 /*************************/
+
+.ui.small.modal.transition.visible.active 
+> .ui.form
+> .content {
+    margin: 10px;
+}
 
 /*Background of a small modal*/
 .ui.small.modal.transition.visible.active {
