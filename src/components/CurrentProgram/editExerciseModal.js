@@ -63,12 +63,9 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
         }
     }
 
-    const InputLabel = ({ text }) => (
-        <label className='editModalContentInputLabel'>{text}</label>
-    )
-
     return (
         <Modal
+            // style={{ background: '#191919' }}
             size='small'
             centered={false}
             onClose={() => setShow(false)}
@@ -81,12 +78,13 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
                 </div>
             }
         >
-            <Modal.Header className='editModalHeaderContainer'>Edit Current Exercise</Modal.Header>
+            <Modal.Header>Edit Current Exercise</Modal.Header>
             <Form onSubmit={handleSubmit}>
                 <Modal.Content className='editModalContent'>
                     <Grid columns='equal' padded>
                         <Grid.Column>
                             {/* <label>Sets</label> */}
+
                             <InputLabel text='Sets' />
                             <Input
                                 value={sets}
@@ -94,21 +92,21 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
                             />
                         </Grid.Column>
                         <Grid.Column>
-                            <label>Repetitions</label>
+                            <InputLabel text='Repetitions' />
                             <Input
                                 value={reps}
                                 onChange={handleRepsUpdate}
                             />
                         </Grid.Column>
                         <Grid.Column>
-                            <label>Time</label>
+                            <InputLabel text='Time' />
                             <Input
                                 value={time}
                                 onChange={handleTimeUpdate}
                             />
                         </Grid.Column>
                         <Grid.Column>
-                            <label>RPE</label>
+                            <InputLabel text='RPE' />
                             <RPEDropdown
                                 buttonHandler={handleRPEUpdate}
                                 exerRpe={rpe} />
@@ -117,7 +115,8 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
                 </Modal.Content>
                 <Modal.Actions>
                     <Button onClick={() => setShow(false)}>Close</Button>
-                    <Button type="submit">Edit</Button>
+                    <Button className='submitBtn' type="submit"
+                    >Edit</Button>
                 </Modal.Actions>
             </Form>
         </Modal>
@@ -208,28 +207,28 @@ const EditExerciseModalWeightSets = ({ submitHandler, exUid, currentData }) => {
 
                     <Grid columns='equal' padded>
                         <Grid.Column>
-                            <label>Sets</label>
+                            <InputLabel text='Sets' />
                             <Input
                                 value={sets}
                                 onChange={handleSetsUpdate}
                             />
                         </Grid.Column>
                         <Grid.Column>
-                            <label>Repetitions</label>
+                            <InputLabel text='Repetitions' />
                             <Input
                                 value={reps}
                                 onChange={handleRepsUpdate}
                             />
                         </Grid.Column>
                         <Grid.Column>
-                            <label>Weight</label>
+                            <InputLabel text='Weight' />
                             <Input
                                 value={weight}
                                 onChange={handleWeightUpdate}
                             />
                         </Grid.Column>
                         <Grid.Column>
-                            <label>Time</label>
+                            <InputLabel text='Time' />
                             <Input
                                 value={time}
                                 onChange={handleTimeUpdate}
@@ -237,7 +236,7 @@ const EditExerciseModalWeightSets = ({ submitHandler, exUid, currentData }) => {
                         </Grid.Column>
                     </Grid>
                 </Modal.Content>
-                <Modal.Actions>
+                <Modal.Actions className='editModalActions'>
                     <Button onClick={() => setShow(false)}>Close</Button>
                     <Button type="submit">Edit</Button>
                 </Modal.Actions>
@@ -290,5 +289,10 @@ const RPEDropdown = ({ buttonHandler, exerRpe }) => {
     )
 }
 
+const InputLabel = ({ text }) => (
+    <div className='editModalContentInputLabel'>
+        <label>{text}</label>
+    </div>
+)
 
 export { EditExerciseModalWeightSets, EditExerciseModalRpeTime }

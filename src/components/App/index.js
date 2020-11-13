@@ -19,6 +19,9 @@ import { withAuthentication } from '../Session';
 
 import 'semantic-ui-css/semantic.min.css';
 
+import '../CurrentProgram/css/currDayExTable.css'
+import '../CurrentProgram/css/editExerciseModal.css'
+
 const App = () => (
     <Router>
         <div>

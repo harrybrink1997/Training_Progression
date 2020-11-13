@@ -1,11 +1,124 @@
-.editModalHeaderContainer {
-    background:blue;
-}
-
-
 .editModalContent {
     margin: 10px;
 }
 
 .editModalContentInputLabel {
+    padding-bottom: 10px;
+    font-weight: 87%;
+    color: white
+
+}
+
+/*************************/
+/*************************/
+/*Dark Mode Colour Scheme*/
+/*************************/
+/*************************/
+
+
+
+/*************************/
+/*************************/
+/******Small Modals*******/
+/*************************/
+/*************************/
+
+/*Background of a small modal*/
+.ui.small.modal.transition.visible.active {
+    background:#191919;
+}
+
+/*Background of a small modal header*/
+.ui.small.modal.transition.visible.active > .header {
+    background: #121212;
+    color: white;
+    font-weight: 87%;
+}
+
+/*Alignment of the buttons in a small modal*/
+.ui.small.modal.transition.visible.active 
+> .ui.form 
+> .actions {
+    margin: 10px;
+    margin-right: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/*Colour of submit buttons in small modals*/
+.ui.small.modal.transition.visible.active
+> .ui.form 
+> .actions 
+> .ui.button.submitBtn {
+    color: #121212;
+    background: #BB86FC;
+}
+
+/*Colour of inputs in small modals*/
+.ui.small.modal.transition.visible.active input {
+    color: white;
+    font-weight: 87%;
+    background: #393F44;
+}
+
+/*Colour of input focus in small modals*/
+.ui.small.modal.transition.visible.active input:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+/*Colour of input focus text selection in small modals*/
+.ui.small.modal.transition.visible.active input::selection {
+    background: #BB86FC;
+    color: white;
+}
+
+/*************************/
+/*************************/
+/*******Drop Downs********/
+/*************************/
+/*************************/
+
+/*Colour of dropdown*/
+
+
+
+/*Colour of dropdown selection*/
+.ui.fluid.selection.dropdown {
+    color: white;
+    font-weight: 87%;
+    background: #393F44;
+}
+
+.ui.fluid.selection.dropdown:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.active.visible.fluid.selection.dropdown {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    color: white;
+    font-weight: 87%;
+}
+
+.ui.fluid.selection.dropdown:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+
+
+
+/*Colour of dropdown selection item*/
+.ui.fluid.selection.dropdown div {
+    color: white;
+    font-weight: 87%;
+    background: #393F44;
+}
+
+.ui.fluid.selection.dropdown div:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    background: #BB86FC;
 }
