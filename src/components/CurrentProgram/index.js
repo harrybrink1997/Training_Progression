@@ -725,59 +725,57 @@ class CurrentProgramPage extends Component {
                 <Loader inline='centered' content='Loading...' />
             </Dimmer>
         let noCurrentProgramsHTML = <Header as='h1'>Create A Program Before Accessing This Page</Header>
-        let hasCurrentProgramsHTML = <Container fluid>
-            <Grid padded divided='vertically'>
-                <Grid.Row>
-                    <Container textAlign='center' fluid>
-                        <Header as='h1'>{activeProgram}, Week {currentWeekInProgram}, Day {this.convertTotalDaysToUIDay(currentDayInProgram)}</Header>
-                    </Container>
-                </Grid.Row>
-
-                <Grid.Row columns={3}>
-                    <Grid.Column>
-                        <Segment basic textAlign='right'>
-                            <SubmitDayModal handleFormSubmit={this.handleSubmitButton} />
-                        </Segment>
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Segment basic textAlign='center'>
-                            <CurrentProgramDropdown
-                                programList={programList}
-                                activeProgram={activeProgram}
-                                buttonHandler={this.handleSelectProgramButton}
-                            />
-                        </Segment>
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Segment basic textAlign='left'>
-                            <CloseOffProgramModal handleFormSubmit={this.handleCloseOffProgram} />
-                        </Segment>
-                    </Grid.Column>
-
-                </Grid.Row>
-                <Grid.Row columns={2}>
-                    <Grid.Column>
-                        <Container>
-                            <ExerciseSpreadStatsTable data={[]} />
+        let hasCurrentProgramsHTML =
+            <Container fluid>
+                <Grid padded divided='vertically'>
+                    <Grid.Row>
+                        <Container textAlign='center' fluid>
+                            <Header as='h1'>{activeProgram}, Week {currentWeekInProgram}, Day {this.convertTotalDaysToUIDay(currentDayInProgram)}</Header>
                         </Container>
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Container>
-                            <LoadingSpreadStatsTable data={[]} />
-                        </Container>
-                    </Grid.Column>
-                </Grid.Row>
-                <Grid.Row columns={2}>
-                    <Grid.Column>
-                        <Segment basic>
+                    </Grid.Row>
+
+                    <Grid.Row columns={3}>
+                        <Grid.Column>
+                            <Segment basic textAlign='right'>
+                                <SubmitDayModal handleFormSubmit={this.handleSubmitButton} />
+                            </Segment>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <Segment basic textAlign='center'>
+                                <CurrentProgramDropdown
+                                    programList={programList}
+                                    activeProgram={activeProgram}
+                                    buttonHandler={this.handleSelectProgramButton}
+                                />
+                            </Segment>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <Segment basic textAlign='left'>
+                                <CloseOffProgramModal handleFormSubmit={this.handleCloseOffProgram} />
+                            </Segment>
+                        </Grid.Column>
+
+                    </Grid.Row>
+                    <Grid.Row columns={2}>
+                        <Grid.Column>
+                            <Container>
+                                <ExerciseSpreadStatsTable data={[]} />
+                            </Container>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <Container>
+                                <LoadingSpreadStatsTable data={[]} />
+                            </Container>
+                        </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row columns={2}>
+                        <Grid.Column>
                             <AvailableExercisesList
                                 columns={availExercisesCols}
                                 data={availExercisesData}
                             />
-                        </Segment>
-                    </Grid.Column>
-                    <Grid.Column>
-                        <Segment basic>
+                        </Grid.Column>
+                        <Grid.Column>
                             <Header as='h1'>Create this week</Header>
                             <CurrentWeekExercisesContainer
                                 dailyExercises={exerciseListPerDay}
@@ -786,12 +784,10 @@ class CurrentProgramPage extends Component {
                                 daysViewHandler={this.handleChangeDaysOpenView}
                                 daysInWeekScope={daysInWeekScope}
                             />
-                        </Segment>
-                    </Grid.Column>
-                </Grid.Row>
-            </Grid>
-        </Container >
-
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+            </Container >
         return (
             <div>
                 {loading && loadingHTML}

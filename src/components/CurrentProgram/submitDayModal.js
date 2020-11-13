@@ -23,7 +23,7 @@ const SubmitDayModal = ({ handleFormSubmit }) => {
             onClose={() => setShow(false)}
             onOpen={() => setShow(true)}
             open={show}
-            trigger={<Button>Submit Day</Button>}
+            trigger={<Button className='closeOffPeriod'>Submit Day</Button>}
         >
             <Modal.Header>Submit Day</Modal.Header>
 

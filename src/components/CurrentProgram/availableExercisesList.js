@@ -71,7 +71,7 @@ const AvailableExercisesList = ({ columns, data }) => {
     console.log(headerGroups)
     return (
         <>
-            <Table selectable celled {...getTableProps()}>
+            <Table celled {...getTableProps()}>
                 <Table.Header>
                     {headerGroups.map(headerGroup => (
                         <Table.Row {...headerGroup.getHeaderGroupProps()}>

@@ -23,7 +23,7 @@ const CloseOffProgramModal = ({ handleFormSubmit }) => {
             onClose={() => setShow(false)}
             onOpen={() => setShow(true)}
             open={show}
-            trigger={<Button>Close Off Program</Button>}
+            trigger={<Button className='closeOffPeriod'>Close Off Program</Button>}
         >
             <Modal.Header>Close Off Program</Modal.Header>
 

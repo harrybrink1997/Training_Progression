@@ -35,7 +35,7 @@ export const ExerciseSpreadStatsTable = ({ data }) => {
     })
 
     return (
-        <Table {...getTableProps()}>
+        <Table celled {...getTableProps()}>
             <Table.Header>
                 {// Loop over the header rows
                     headerGroups.map(headerGroup => (
@@ -112,7 +112,7 @@ export const LoadingSpreadStatsTable = ({ data }) => {
     })
 
     return (
-        <Table {...getTableProps()}>
+        <Table celled {...getTableProps()}>
             <Table.Header>
                 {// Loop over the header rows
                     headerGroups.map(headerGroup => (

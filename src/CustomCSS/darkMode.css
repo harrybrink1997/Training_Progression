@@ -5,7 +5,36 @@
 /*************************/
 /*************************/
 
+/*Sets background color to dark mode*/
+body {
+    background-color: #121212;
+    color: white;  
+}
 
+/*Sets all header colors to white*/
+.ui.header {
+    color: white;
+    font-weight: 87%;
+}
+
+.ui.fluid.container {
+    background:  #121212;
+    padding: 40px;
+}
+
+.ui.circular.icon.button.deleteExerciseButton {
+    background: #CF6679;
+}
+
+.ui.button.addExerciseButton {
+    background: #BB86FC;
+}
+
+.ui.button.closeOffPeriod {
+    background: #868cfc;
+    font-weight: 900;
+    color:black;
+}
 
 /*************************/
 /*************************/
@@ -122,8 +151,136 @@
     border: 1px solid #BB86FC;
 }
 
+/*Colour of dropdown selection item*/
+.ui.fluid.selection.dropdown div {
+    color: white;
+    font-weight: 87%;
+    background: #393F44;
+}
+
+.ui.fluid.selection.dropdown div:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    background: #BB86FC;
+}
 
 
+
+
+/*************************/
+/*************************/
+/**Non Selectable Tables**/
+/*************************/
+/*************************/
+
+/* colours the header row of the table */
+.ui.celled.table th {
+    background: #191919;
+    color: white;
+}
+
+/*colours teh table body background*/
+.ui.celled.table > tbody tr {
+    background: #393F44;
+    color: white;
+}
+
+/*Colour of dropdown selection*/
+.ui.celled.table select {
+    color: rgb(168, 163, 163);
+    font-weight: 87%;
+    background: #191919;
+    border-color: #191919;
+}
+
+.ui.celled.table select:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+.ui.celled.table select:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+/*Colour of dropdown selection item*/
+.ui.celled.table option {
+    color: white;
+    font-weight: 87%;
+    background:#191919;
+}
+
+.ui.celled.table option:hover {
+    /* box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    background: #BB86FC; */
+    background: red;
+}
+
+/*colors all input text */
+.ui.celled.table input {
+    color: white;
+}
+
+.ui.celled.table > tbody tr:hover {
+    background-color:  #3b0380;
+    opacity: 1;
+    color: white;
+}
+
+
+/*************************/
+/*************************/
+/********Accoridian*******/
+/*************************/
+/*************************/
+
+.accordion.ui.fluid.styled {
+    background:#191919;
+    color: white;
+}
+
+.accordion.ui.fluid.styled .active.title {
+    color: #BB86FC;
+}
+
+.accordion.ui.fluid.styled .title {
+    color: #BB86FC;
+}
+
+
+/*************************/
+/*************************/
+/*******Drop Downs FLUID********/
+/*************************/
+/*************************/
+
+/*Colour of dropdown*/
+
+
+
+/*Colour of dropdown selection*/
+.ui.fluid.selection.dropdown {
+    color: white;
+    font-weight: 87%;
+    background: #393F44;
+}
+
+.ui.fluid.selection.dropdown:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.active.visible.fluid.selection.dropdown {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    color: white;
+    font-weight: 87%;
+}
+
+.ui.fluid.selection.dropdown:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
 
 /*Colour of dropdown selection item*/
 .ui.fluid.selection.dropdown div {
@@ -133,6 +290,53 @@
 }
 
 .ui.fluid.selection.dropdown div:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    background: #BB86FC;
+}
+
+/*************************/
+/*************************/
+/*******Drop Downs NON Fluid********/
+/*************************/
+/*************************/
+
+/*Colour of dropdown*/
+
+
+
+/*Colour of dropdown selection*/
+.ui.selection.dropdown {
+    color: white;
+    font-weight: 87%;
+    background: #393F44;
+}
+
+.ui.selection.dropdown:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.active.visible.selection.dropdown {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    color: white;
+    font-weight: 87%;
+}
+
+.ui.selection.dropdown:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+/*Colour of dropdown selection item*/
+.ui.selection.dropdown div {
+    color: white;
+    font-weight: 87%;
+    background: #393F44;
+}
+
+.ui.selection.dropdown div:hover {
     box-shadow: 0 0 5px #BB86FC;
     border: 1px solid #BB86FC;
     background: #BB86FC;

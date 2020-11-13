@@ -74,7 +74,7 @@ const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc }) => 
             onClose={() => setShow(false)}
             onOpen={() => setShow(true)}
             open={show}
-            trigger={<Button>Add Exercise</Button>}
+            trigger={<Button className='addExerciseButton'>Add Exercise</Button>}
         >
             <Modal.Header>Add an Exercise</Modal.Header>
             <Form onSubmit={handleSubmit}>

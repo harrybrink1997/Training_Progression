@@ -149,7 +149,7 @@ const ExerciseTableDayViewRpeTime = ({ data, handleTableUpdate }) => {
     }
 
     return (
-        <Table selectable celled {...getTableProps()}>
+        <Table celled {...getTableProps()}>
             <Table.Header>
                 {// Loop over the header rows
                     headerGroups.map(headerGroup => (
