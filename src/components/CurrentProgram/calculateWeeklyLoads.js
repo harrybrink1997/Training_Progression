@@ -5,8 +5,11 @@ const calculateDailyLoads = (programData,
     acutePeriod,
     chronicPeriod) => {
 
+    console.log(programData)
+
     var muscleGroups = ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Total']
     var currDayData = programData[currentDayInProgram]
+    console.log(currDayData)
 
     if (scheme === 'rpe_time') {
         var processedData = dailyLoadCalcsRpeTime(currDayData, muscleGroups)
@@ -55,7 +58,7 @@ const dailyLoadCalcsRpeTime = (dayData, muscleGroups) => {
             var exData = dayData[ex]
 
             var load = exData.sets * exData.reps * exData.time * exData.rpe
-            dayLoading['total']['dailyLoad'] += load
+            dayLoading['Total']['dailyLoad'] += load
 
             for (var muscles in exData.primMusc) {
                 var muscle = exData.primMusc[muscles]
@@ -95,7 +98,7 @@ const dailyLoadCalcsWeightReps = (dayData, muscleGroups) => {
         var exData = dayData[ex]
 
         var load = exData.sets * exData.reps * exData.weight
-        dayLoading['total']['dailyLoad'] += load
+        dayLoading['Total']['dailyLoad'] += load
 
 
         for (var muscles in exData.primMusc) {
@@ -313,4 +316,4 @@ const calculateRollingMonthlyAverage = (pastUserData, currentWeekData) => {
     }
 }
 
-export { calculateDailyLoads, calculateRollingMonthlyAverage }
+export { calculateDailyLoads, dailyLoadCalcsRpeTime, dailyLoadCalcsWeightReps }

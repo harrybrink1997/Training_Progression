@@ -34,7 +34,7 @@ const CloseOffProgramModal = ({ handleFormSubmit }) => {
                     </Modal.Content>
                 <Modal.Actions>
                     <Button onClick={handleClose}>Cancel</Button>
-                    <Button type="submit">Proceed</Button>
+                    <Button className='submitBtn' type="submit">Proceed</Button>
                 </Modal.Actions>
             </Form>
         </Modal>

@@ -278,7 +278,7 @@ class ProgressionDataPage extends Component {
 
 
         let loadingHTML =
-            <Dimmer inverted active>
+            <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
             </Dimmer>
         let noCurrentProgramsHTML = <Header as='h1'>Create A Program Before Accessing This Page</Header>

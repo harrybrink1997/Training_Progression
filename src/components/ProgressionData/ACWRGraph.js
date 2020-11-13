@@ -28,13 +28,13 @@ const ACWEGraph = ({ ACWRData }) => {
                     <YAxis yAxisId="left" label={{ dx: -30, value: "Load", angle: -90 }} />
                     <YAxis yAxisId="right" orientation="right" label={{ dx: 30, value: "Acute Workload Ratio (ACWR)", angle: 90 }} />
 
-                    <Tooltip />
+                    <Tooltip cursor={{ fill: '#393F44' }} />
                     <Legend />
                     <Brush />
                     <CartesianGrid stroke='#f5f5f5' />
-                    <Area yAxisId="left" type='monotone' dataKey='Chronic Load' fill='#03a734' stroke='#028e2c' />
-                    <Bar yAxisId="left" dataKey='Acute Load' barSize={20} fill='#413ea0' />
-                    <Line yAxisId="right" type='monotone' dataKey='ACWR' stroke='#ff7300' />
+                    <Area yAxisId="left" type='monotone' dataKey='Chronic Load' fill='#86fcbb' stroke='#8cfc86' />
+                    <Bar yAxisId="left" dataKey='Acute Load' barSize={20} fill='#bb86fc' />
+                    <Line yAxisId="right" type='monotone' dataKey='ACWR' stroke='#fcbb86' />
                 </ComposedChart>
             }
         </div>
@@ -66,11 +66,11 @@ const reChartSeriesHtml = (seriesNames) => {
     return (seriesNames.map(series => {
         if (series != 'Actual Loading') {
             return (
-                <Line key={series} type="monotone" dataKey={series} stroke='red' />
+                <Line key={series} type="monotone" dataKey={series} stroke='#fc868c' />
             )
         } else {
             return (
-                <Line key={series} type="monotone" dataKey={series} stroke='blue' />
+                <Line key={series} type="monotone" dataKey={series} stroke='#86c7fc' />
             )
         }
     }))

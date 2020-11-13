@@ -36,6 +36,24 @@ body {
     color:black;
 }
 
+/*colors all input text */
+.ui.mini.input input{
+    background: #393F44;
+    color: white;
+}
+
+/*Colour of input focus */
+.ui.mini.input input:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+/*Colour of input focus text selection*/
+.ui.mini.input input::selection {
+    background: #BB86FC;
+    color: white;
+}
+
 /*************************/
 /*************************/
 /******Small Modals*******/
@@ -301,10 +319,6 @@ body {
 /*************************/
 /*************************/
 
-/*Colour of dropdown*/
-
-
-
 /*Colour of dropdown selection*/
 .ui.selection.dropdown {
     color: white;
@@ -330,10 +344,16 @@ body {
 }
 
 /*Colour of dropdown selection item*/
-.ui.selection.dropdown div {
+.ui.selection.dropdown .item {
     color: white;
     font-weight: 87%;
     background: #393F44;
+}
+
+.ui.selection.dropdown .selected.item {
+    color: white;
+    font-weight: 87%;
+    background: #868cfc;
 }
 
 .ui.selection.dropdown div:hover {
@@ -341,3 +361,50 @@ body {
     border: 1px solid #BB86FC;
     background: #BB86FC;
 }
+/*************************/
+/*************************/
+/*******Drop Downs NON Fluid NON SELECTION ********/
+/*************************/
+/*************************/
+
+/*Colour of dropdown selection*/
+.ui.dropdown {
+    color: white;
+    font-weight: 87%;
+    background: #393F44;
+    height: 35px;
+    width: 175px;
+    border-radius: 5px;
+    padding: auto;
+}
+
+.ui.dropdown:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.active.visible.dropdown {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    color: white;
+    font-weight: 87%;
+}
+
+.ui.dropdown:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+/*Colour of dropdown selection item*/
+.ui.dropdown div {
+    color: white;
+    font-weight: 87%;
+    background: #393F44;
+}
+
+.ui.dropdown div:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    background: #BB86FC;
+}
+

@@ -199,7 +199,7 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) 
             onClose={() => setShow(false)}
             onOpen={() => setShow(true)}
             open={show}
-            trigger={<Button>Add Exercise</Button>}
+            trigger={<Button className='addExerciseButton'>Add Exercise</Button>}
         >
             <Modal.Header>Add Exercise</Modal.Header>
             <Form onSubmit={handleSubmit}>
@@ -244,7 +244,7 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) 
                 </Modal.Content>
                 <Modal.Actions>
                     <Button onClick={() => setShow(false)}>Close</Button>
-                    <Button type="submit">Add to Day</Button>
+                    <Button className='submitBtn' type="submit">Add to Day</Button>
                 </Modal.Actions>
             </Form>
         </Modal>
@@ -254,7 +254,6 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) 
 const RPEDropdown = ({ buttonHandler }) => {
 
     const [currentRPE, setCurrentRPE] = useState('None')
-
 
     const handleClick = (event, { value }) => {
         event.preventDefault()
@@ -266,21 +265,33 @@ const RPEDropdown = ({ buttonHandler }) => {
         buttonHandler(value)
     }
 
-    return (
-        <Dropdown fluid selection text={currentRPE.toString()}>
-            <Dropdown.Menu>
-                {['None', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'].map(rpe => {
-                    return (
-                        <Dropdown.Item
-                            onClick={handleClick}
-                            key={rpe}
-                            value={rpe}
-                            text={rpe} />
-                    )
+    const processData = () => {
 
-                })}
-            </Dropdown.Menu>
-        </Dropdown>
+        var returnData = []
+        var dataArray = ['None', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+
+        dataArray.forEach(rpe => {
+            returnData.push({
+                key: rpe,
+                value: rpe,
+                text: rpe
+            })
+        })
+
+        return returnData
+    }
+
+    const [dropDownData] = useState(processData())
+
+    return (
+
+        <Dropdown
+            fluid
+            selection
+            text={currentRPE.toString()}
+            options={dropDownData}
+            onChange={handleClick}
+        />
     )
 }
 
@@ -296,21 +307,48 @@ const DayDropdown = ({ buttonHandler, currDay }) => {
         buttonHandler(value)
     }
 
-    return (
-        <Dropdown selection fluid text={currentDay.toString()}>
-            <Dropdown.Menu>
-                {['1', '2', '3', '4', '5', '6', '7'].map(day => {
-                    return (
-                        <Dropdown.Item
-                            onClick={handleClick}
-                            key={day}
-                            value={day}
-                            text={day} />
-                    )
+    const processData = () => {
 
-                })}
-            </Dropdown.Menu>
-        </Dropdown>
+        var returnData = []
+        var dataArray = ['1', '2', '3', '4', '5', '6', '7']
+
+        dataArray.forEach(day => {
+            returnData.push({
+                key: day,
+                value: day,
+                text: day
+            })
+        })
+
+        return returnData
+    }
+
+    const [dropDownData] = useState(processData())
+
+    return (
+
+        <Dropdown
+            fluid
+            selection
+            text={currentDay.toString()}
+            options={dropDownData}
+            onChange={handleClick}
+        />
+
+        // <Dropdown selection fluid text={currentDay.toString()}>
+        //     <Dropdown.Menu>
+        //         {['1', '2', '3', '4', '5', '6', '7'].map(day => {
+        //             return (
+        //                 <Dropdown.Item
+        //                     onClick={handleClick}
+        //                     key={day}
+        //                     value={day}
+        //                     text={day} />
+        //             )
+
+        //         })}
+        //     </Dropdown.Menu>
+        // </Dropdown>
     )
 }
 

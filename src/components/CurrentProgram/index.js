@@ -12,7 +12,7 @@ import { AddExerciseModalWeightReps, AddExerciseModalRpeTime } from './addExerci
 import { EditExerciseModalWeightSets, EditExerciseModalRpeTime } from './editExerciseModal'
 import { DeleteExerciseButton } from './currentProgramPageButtons'
 import { SelectColumnFilter } from './filterSearch'
-import { calculateDailyLoads } from './calculateWeeklyLoads'
+import { calculateDailyLoads, dailyLoadCalcsRpeTime, dailyLoadCalcsWeightReps } from './calculateWeeklyLoads'
 import CloseOffProgramModal from './closeOffProgramModal'
 import { ExerciseSpreadStatsTable, LoadingSpreadStatsTable } from './statsTable'
 
@@ -41,6 +41,8 @@ class CurrentProgramPage extends Component {
             currentDayUI: '',
             currentWeekInProgram: '',
             daysInWeekScope: [],
+
+            currDaySafeLoadTableData: [],
 
             // Exercise List Data
             availExercisesCols: [],
@@ -118,11 +120,16 @@ class CurrentProgramPage extends Component {
                     userObject,
                     userObject.currentPrograms[userObject.activeProgram].loading_scheme
                 ),
+                currDaySafeLoadTableData: this.generateCurrDaySafeLoadData(
+                    userObject.currentPrograms[userObject.activeProgram],
+                    ['Chest', 'Legs', 'Back', 'Shoulders', 'Arms', 'Total']
+                ),
                 availExercisesData: this.setAvailExerciseChartData(
                     this.state.exerciseList,
-                    userObject.currentPrograms[userObject.activeProgram].currentDay,
+                    this.state.currentDayUI,
                     userObject.currentPrograms[userObject.activeProgram].loading_scheme
                 )
+
             })
         } else {
             this.setState({
@@ -144,7 +151,7 @@ class CurrentProgramPage extends Component {
                 expLevel: exercise.experience,
                 addExerciseBtn: (loadingScheme === 'rpe_time') ?
                     <AddExerciseModalRpeTime submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
-                    : <AddExerciseModalWeightReps submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
+                    : <AddExerciseModalWeightReps submitHandler={this.handleAddExerciseButton} name={exercise.uid} primMusc={exercise.primary} />
             })
         })
         return tableData
@@ -224,14 +231,14 @@ class CurrentProgramPage extends Component {
         }
 
         // TODO remove
-        await this.props.firebase.pushExercisePropertiesUpstreamRemove(
-            this.props.firebase.auth.currentUser.uid,
-            this.state.activeProgram,
-            'week' + this.state.currentWeekInProgram,
-            day,
-            updateObject.exUid,
-            dataPayload
-        )
+        // await this.props.firebase.pushExercisePropertiesUpstreamRemove(
+        //     this.props.firebase.auth.currentUser.uid,
+        //     this.state.activeProgram,
+        //     'week' + this.state.currentWeekInProgram,
+        //     day,
+        //     updateObject.exUid,
+        //     dataPayload
+        // )
 
         await this.props.firebase.pushExercisePropertiesUpstream(
             this.props.firebase.auth.currentUser.uid,
@@ -377,6 +384,7 @@ class CurrentProgramPage extends Component {
 
     // Updated with new ratio calcs format
     handleSelectProgramButton = (event, { value }) => {
+
         if (this.state.activeProgram != value) {
             this.props.firebase.setActiveProgram(
                 this.props.firebase.auth.currentUser.uid,
@@ -420,14 +428,14 @@ class CurrentProgramPage extends Component {
             }
 
             return {
-                uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDay + '_' + num,
+                uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDayUI + '_' + num,
                 week: true,
                 day: true
             }
         }
 
         return {
-            uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDay + '_' + '0',
+            uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDayUI + '_' + '0',
             week: true,
             day: false
         }
@@ -545,37 +553,37 @@ class CurrentProgramPage extends Component {
 
         // Updates the current week in the db and iterates 
         // to the next week and sets current day to 1.
-        // this.setState({
-        //     loading: true
-        // }, async () => {
+        this.setState({
+            loading: true
+        }, async () => {
 
-        //     //Updated the current week in the database. 
-        //     await this.props.firebase.progressToNextDay(
-        //         this.props.firebase.auth.currentUser.uid,
-        //         this.state.activeProgram,
-        //         parseInt(this.state.currentDayInProgram + 1)
-        //     )
+            //Updated the current week in the database. 
+            await this.props.firebase.progressToNextDay(
+                this.props.firebase.auth.currentUser.uid,
+                this.state.activeProgram,
+                parseInt(this.state.currentDayInProgram + 1)
+            )
 
-        //     await this.props.firebase.setCurrentDayUI(
-        //         this.props.firebase.auth.currentUser.uid,
-        //         this.state.activeProgram,
-        //         this.convertTotalDaysToUIDay(
-        //             this.state.currentDayInProgram
-        //         )
-        //     )
+            await this.props.firebase.setCurrentDayUI(
+                this.props.firebase.auth.currentUser.uid,
+                this.state.activeProgram,
+                this.convertTotalDaysToUIDay(
+                    this.state.currentDayInProgram
+                )
+            )
 
-        //     // USE FOR WEEK CALCULATION - TO BE REMOVED. 
-        //     // await this.props.firebase.progressToNextWeek(
-        //     //     this.props.firebase.auth.currentUser.uid,
-        //     //     this.state.activeProgram,
-        //     //     parseInt(this.state.currentWeekInProgram + 1)
-        //     // )
-        //     // await this.props.firebase.setCurrentDay(
-        //     //     this.props.firebase.auth.currentUser.uid,
-        //     //     this.state.activeProgram,
-        //     //     '1'
-        //     // )
-        // })
+            // USE FOR WEEK CALCULATION - TO BE REMOVED. 
+            // await this.props.firebase.progressToNextWeek(
+            //     this.props.firebase.auth.currentUser.uid,
+            //     this.state.activeProgram,
+            //     parseInt(this.state.currentWeekInProgram + 1)
+            // )
+            // await this.props.firebase.setCurrentDay(
+            //     this.props.firebase.auth.currentUser.uid,
+            //     this.state.activeProgram,
+            //     '1'
+            // )
+        })
 
 
     }
@@ -633,14 +641,14 @@ class CurrentProgramPage extends Component {
         }
 
         // TODO remove to be replaced.
-        await this.props.firebase.createExerciseUpStreamRemove(
-            this.props.firebase.auth.currentUser.uid,
-            this.state.activeProgram,
-            'week' + this.state.currentWeekInProgram,
-            exerciseObject.day,
-            dataPayload,
-            exUidObject.uid
-        )
+        // await this.props.firebase.createExerciseUpStreamRemove(
+        //     this.props.firebase.auth.currentUser.uid,
+        //     this.state.activeProgram,
+        //     'week' + this.state.currentWeekInProgram,
+        //     exerciseObject.day,
+        //     dataPayload,
+        //     exUidObject.uid
+        // )
 
         await this.props.firebase.createExerciseUpStream(
             this.props.firebase.auth.currentUser.uid,
@@ -700,6 +708,11 @@ class CurrentProgramPage extends Component {
         console.log(days)
     }
 
+    generateCurrDaySafeLoadData = (programData, muscles) => {
+        console.log(programData)
+        console.log(muscles)
+    }
+
     render() {
         const {
             // Old State variables.
@@ -708,7 +721,6 @@ class CurrentProgramPage extends Component {
             activeProgram,
             exerciseListPerDay,
             loading,
-            currentDay,
             currentWeekInProgram,
             availExercisesCols,
             availExercisesData,
@@ -721,7 +733,7 @@ class CurrentProgramPage extends Component {
 
         console.log(this.state)
         let loadingHTML =
-            <Dimmer inverted active>
+            <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
             </Dimmer>
         let noCurrentProgramsHTML = <Header as='h1'>Create A Program Before Accessing This Page</Header>
@@ -779,7 +791,6 @@ class CurrentProgramPage extends Component {
                             <Header as='h1'>Create this week</Header>
                             <CurrentWeekExercisesContainer
                                 dailyExercises={exerciseListPerDay}
-                                currentDay={currentDay}
                                 loadingScheme={loadingScheme}
                                 daysViewHandler={this.handleChangeDaysOpenView}
                                 daysInWeekScope={daysInWeekScope}

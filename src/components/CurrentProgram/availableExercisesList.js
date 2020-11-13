@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { withAuthorisation } from '../Session';
 
-import { Dropdown, Table, Grid, Container, Button } from 'semantic-ui-react'
+import { Dropdown, Table, Grid, Container, Button, Input } from 'semantic-ui-react'
 
 import { useTable, useFilters, useGlobalFilter, usePagination } from 'react-table'
 import { DefaultColumnFilter, fuzzyTextFilterFn } from './filterSearch'
+import { size } from 'mathjs';
 
 const AvailableExercisesList = ({ columns, data }) => {
 
@@ -121,9 +122,9 @@ const AvailableExercisesList = ({ columns, data }) => {
                                 </strong>{' '}
                             </span>
                             <span>
-                                | Go to page:{' '}
-                                <input
-                                    type="number"
+                                | Go to page:{'  '}
+                                <Input
+                                    size='mini'
                                     defaultValue={pageIndex + 1}
                                     onChange={e => {
                                         const page = e.target.value ? Number(e.target.value) - 1 : 0
@@ -134,24 +135,8 @@ const AvailableExercisesList = ({ columns, data }) => {
                             </span>{' '}
                         </Grid.Column>
 
-                        <Grid.Column>
-                            <Dropdown
-
-                                text={pageSize.toString()}>
-                                <Dropdown.Menu>
-                                    {['10', '20', '30', '40', '50'].map(pageSize => (
-                                        <Dropdown.Item
-                                            // as="button"
-                                            onClick={(e, { value }) => {
-                                                setPageSize(Number(value))
-                                            }}
-                                            key={pageSize.toString()}
-                                            value={pageSize.toString()}
-                                            text={'Show ' + pageSize}
-                                        />
-                                    ))}
-                                </Dropdown.Menu>
-                            </Dropdown>
+                        <Grid.Column width={2}>
+                            <PagenationDropdown buttonHandler={setPageSize} />
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
@@ -160,7 +145,44 @@ const AvailableExercisesList = ({ columns, data }) => {
     )
 };
 
+const PagenationDropdown = ({ buttonHandler }) => {
 
+    const processData = () => {
+
+        var returnData = []
+        var sizeArray = ['10', '20', '30', '40', '50']
+        sizeArray.forEach(size => {
+            returnData.push({
+                key: size,
+                value: size,
+                text: size
+            })
+        })
+        return returnData
+    }
+
+    const handleChange = (event, { value }) => {
+        console.log(value)
+        setActiveSize(value)
+        buttonHandler(Number(value))
+    }
+
+
+    const [dropDownData] = useState(processData())
+    const [activeSize, setActiveSize] = useState('10')
+
+    return (
+        <Dropdown
+            selection
+            fluid
+            text={activeSize}
+            onChange={handleChange}
+            options={dropDownData}
+            defaultValue={'10'}
+        />
+    )
+
+}
 
 const condition = authUser => !!authUser;
 export default withAuthorisation(condition)(AvailableExercisesList);

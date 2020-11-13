@@ -34,7 +34,7 @@ const SubmitDayModal = ({ handleFormSubmit }) => {
                     </Modal.Content>
                 <Modal.Actions>
                     <Button onClick={handleClose}>Close</Button>
-                    <Button type="submit">Submit Day</Button>
+                    <Button className='submitBtn' type="submit">Submit Day</Button>
                 </Modal.Actions>
             </Form>
         </Modal>

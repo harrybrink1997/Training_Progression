@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { withFirebase } from '../Firebase/context'
 
 import { Dropdown } from 'semantic-ui-react'
@@ -6,34 +6,33 @@ import { Dropdown } from 'semantic-ui-react'
 
 const CurrentProgramsDropdown = ({ programList, activeProgram, buttonHandler }) => {
 
+    const processData = (renderList) => {
+
+        var returnData = []
+
+        if (renderList.length > 0) {
+            renderList.forEach(program => {
+                returnData.push({
+                    key: program,
+                    value: program,
+                    text: program
+                })
+            })
+        }
+        return returnData
+    }
+
+    const [dropDownData] = useState(processData(programList))
+
     return (
 
-        <Dropdown selection text='Current Programs'>
-            <Dropdown.Menu>
-                {programList.map(programName => {
-                    if (programName === activeProgram) {
-                        return (
-                            <Dropdown.Item
-                                onClick={buttonHandler}
-                                key={programName}
-                                value={programName}
-                                active>
-                                {programName}
-                            </Dropdown.Item>
-                        )
-                    } else {
-                        return (
-                            <Dropdown.Item
-                                onClick={buttonHandler}
-                                key={programName}
-                                value={programName}>
-                                {programName}
-                            </Dropdown.Item>
-                        )
-                    }
-                })}
-            </Dropdown.Menu>
-        </Dropdown>
+        <Dropdown
+            selection
+            text='Current Programs'
+            onChange={buttonHandler}
+            options={dropDownData}
+            defaultValue={activeProgram}
+        />
     )
 }
 

@@ -29,6 +29,7 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
     }
 
     const handleRPEUpdate = (value) => {
+        console.log(value)
         setRpe(value)
     }
 
@@ -267,24 +268,53 @@ const RPEDropdown = ({ buttonHandler, exerRpe }) => {
         buttonHandler(value)
     }
 
+    const processData = () => {
+
+        var returnData = []
+        var dataArray = ['None', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+
+        dataArray.forEach(rpe => {
+            returnData.push({
+                key: rpe,
+                value: rpe,
+                text: rpe
+            })
+        })
+
+        return returnData
+    }
+
+    const [dropDownData] = useState(processData())
+
     return (
+
         <Dropdown
             fluid
             selection
-            text={currentRPE.toString()}>
-            <Dropdown.Menu>
-                {['None', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'].map(rpe => {
-                    return (
-                        <Dropdown.Item
-                            onClick={handleClick}
-                            key={rpe}
-                            value={rpe}
-                            text={rpe} />
-                    )
-                })}
-            </Dropdown.Menu>
-        </Dropdown>
+            text={currentRPE.toString()}
+            options={dropDownData}
+            onChange={handleClick}
+            defaultValue={currentRPE}
+        />
     )
+    // return (
+    //     <Dropdown
+    //         fluid
+    //         selection
+    //         text={currentRPE.toString()}>
+    //         <Dropdown.Menu>
+    //             {['None', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'].map(rpe => {
+    //                 return (
+    //                     <Dropdown.Item
+    //                         onClick={handleClick}
+    //                         key={rpe}
+    //                         value={rpe}
+    //                         text={rpe} />
+    //                 )
+    //             })}
+    //         </Dropdown.Menu>
+    //     </Dropdown>
+    // )
 }
 
 export { EditExerciseModalWeightSets, EditExerciseModalRpeTime }
