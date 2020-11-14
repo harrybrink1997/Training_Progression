@@ -1,84 +1,103 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTable } from 'react-table'
 // import { Tabs, Tab, Pagination } from 'react-bootstrap'
-import { Table, Accordion } from 'semantic-ui-react'
-
+import { Table, Accordion, Icon } from 'semantic-ui-react'
+import InputLabel from '../CustomComponents/DarkModeInput'
 import './css/currDayExTable.css'
 
 
 const CurrentWeekExercisesContainer = ({
     dailyExercises,
     loadingScheme,
-    currentIndexsOpen,
-    daysInWeekScope }) => {
+    daysInWeekScope,
+    daysViewHandler,
+    openDaysUI }) => {
 
     const handleAccordionChange = (event, data) => {
+        daysViewHandler(data)
         console.log(data)
     }
 
-    const generateAccordion = () => {
-
-        var daysInWeek = ['1', '2', '3', '4', '5', '6', '7']
-        var returnData = []
-
-        for (var dayIndex = 0; dayIndex < 7; dayIndex++) {
-            var day = daysInWeekScope[dayIndex]
-            if (dailyExercises[day].length > 0) {
-                returnData.push({
-                    key: daysInWeek[dayIndex],
-                    title: `Day ${daysInWeek[dayIndex]}`,
-                    content: {
-                        content: (
-                            (loadingScheme == 'rpe_time') ?
-                                <ExerciseTableDayViewRpeTime
-                                    data={dailyExercises[day]}
-                                />
-                                :
-                                <ExerciseTableDayViewWeightReps
-                                    data={dailyExercises[day]}
-                                />
+    return (
+        <div className='exerciseTableContainer'>
+            {
+                [0, 1, 2, 3, 4, 5, 6].map(dayIndex => {
+                    var day = daysInWeekScope[dayIndex]
+                    if (dailyExercises[day].length > 0) {
+                        return (
+                            <ExerciseTableContainer
+                                key={dayIndex}
+                                dayText={'Day ' + day}
+                                tableData={dailyExercises[day]}
+                                tableScheme={loadingScheme}
+                                initVisib={true}
+                                defaultOpen={openDaysUI[dayIndex]}
+                                clickHandler={daysViewHandler}
+                                dayIndex={dayIndex}
+                            />
+                        )
+                    } else {
+                        return (
+                            <></>
                         )
                     }
                 })
             }
-        }
+        </div >
+        // <Accordion
+        //     fluid
+        //     styled
+        //     defaultActiveIndex={[]}
+        //     exclusive={false}
+        //     panels={accordHTML}
+        //     onTitleClick={handleAccordionChange}
+        // />
+    )
+}
 
-        // daysInWeekScope.forEach(day => {
-        //     if (dailyExercises[day].length > 0) {
-        //         returnData.push({
-        //             key: day,
-        //             title: `Day ${day}`,
-        //             content: {
-        //                 content: (
-        //                     (loadingScheme == 'rpe_time') ?
-        //                         <ExerciseTableDayViewRpeTime
-        //                             data={dailyExercises[day]}
-        //                         />
-        //                         :
-        //                         <ExerciseTableDayViewWeightReps
-        //                             data={dailyExercises[day]}
-        //                         />
-        //                 )
-        //             }
-        //         })
-        //     }
-        // })
-        return returnData
+const ExerciseTableContainer = ({ dayText, tableData, tableScheme, initVisib, defaultOpen, clickHandler, dayIndex }) => {
+
+    const [tableVisible, setTableVisible] = useState(defaultOpen)
+
+    const containerIndex = dayIndex
+
+    const iconString = tableVisible ? 'caret down' : 'caret right'
+
+    const handleOpenClose = (event) => {
+        clickHandler(containerIndex)
+        setTableVisible(!tableVisible)
     }
 
-    const accordHTML = generateAccordion()
-
-
     return (
-        <Accordion
-            fluid
-            styled
-            defaultActiveIndex={[0]}
-            exclusive={false}
-            panels={accordHTML}
-            onTitleClick={handleAccordionChange}
-        />
+        < div>
+            <div onClick={handleOpenClose}>
+
+                <InputLabel
+                    text={dayText}
+                    leftIcon={<Icon name={iconString} />}
+                />
+            </div>
+            {
+                tableVisible && <LoadingSchemeExTable data={tableData} scheme={tableScheme} />
+            }
+        </div >
     )
+}
+
+const LoadingSchemeExTable = ({ data, scheme }) => {
+    if (scheme === 'rpe_time') {
+        return (
+            <ExerciseTableDayViewRpeTime
+                data={data}
+            />
+        )
+    } else {
+        return (
+            <ExerciseTableDayViewWeightReps
+                data={data}
+            />
+        )
+    }
 }
 
 const ExerciseTableDayViewRpeTime = ({ data, handleTableUpdate }) => {

@@ -61,7 +61,7 @@ class Firebase {
 
     exercises = () => this.db.ref('exercises')
 
-    createProgramUpstream = (uid, pName, acuteP, chronicP, lScheme, sUTS) => {
+    createProgramUpstream = (uid, pName, acuteP, chronicP, lScheme, sUTS, daysOpenAccordUI) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${pName}`)
             .set({
@@ -71,9 +71,7 @@ class Firebase {
                 startDayUTS: sUTS,
                 currentDayInProgram: 1,
                 currentDayUTS: sUTS,
-                currentDayUI: 1,
-                currentDay: 1, // TODO remove after handover
-                currentWeek: 1, // TODO remove after handover
+                currentDayUI: 1
             })
     }
 

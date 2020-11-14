@@ -201,7 +201,7 @@ const calculateCurrentEWMA = (currDayLoad, period, prevDayEWMA) => {
 
     var lambda = 2 / (period + 1)
 
-    return currDayLoad * lambda + prevDayEWMA * (1 - lambda)
+    return (currDayLoad * lambda + prevDayEWMA * (1 - lambda))
 }
 
 

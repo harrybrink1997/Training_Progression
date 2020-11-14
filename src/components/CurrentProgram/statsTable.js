@@ -81,6 +81,7 @@ export const ExerciseSpreadStatsTable = ({ data }) => {
 
 export const LoadingSpreadStatsTable = ({ data }) => {
 
+
     const columns = React.useMemo(
         () => [
             {
@@ -88,13 +89,17 @@ export const LoadingSpreadStatsTable = ({ data }) => {
                 accessor: 'bodyPart'
             },
             {
-                Header: 'Loading Value Current Week',
-                accessor: 'loadingValCurrWeek',
+                Header: 'Load',
+                accessor: 'currDayLoad',
 
             },
             {
-                Header: 'Loading Increase / Decrease Running Month',
-                accessor: 'loadingIncDec',
+                Header: 'Minimum Safe Load ',
+                accessor: 'minSafeLoad',
+            },
+            {
+                Header: 'Maximum Safe Load',
+                accessor: 'maxSafeLoad',
             }
         ],
         []
@@ -134,21 +139,40 @@ export const LoadingSpreadStatsTable = ({ data }) => {
                     rows.map(row => {
                         // Prepare the row for display
                         prepareRow(row)
-                        return (
-                            // Apply the row props
-                            <Table.Row {...row.getRowProps()}>
-                                {// Loop over the rows cells
-                                    row.cells.map(cell => {
-                                        // Apply the cell props
-                                        return (
-                                            <Table.Cell {...cell.getCellProps()}>
-                                                {// Render the cell contents
-                                                    cell.render('Cell')}
-                                            </Table.Cell>
-                                        )
-                                    })}
-                            </Table.Row>
-                        )
+                        if (row.values.currDayLoad > row.values.maxSafeLoad ||
+                            row.values.currDayLoad < row.values.minSafeLoad) {
+                            return (
+                                // Apply the row props
+                                <Table.Row className='invalidTableValues' {...row.getRowProps()}>
+                                    {// Loop over the rows cells
+                                        row.cells.map(cell => {
+                                            // Apply the cell props
+                                            return (
+                                                <Table.Cell {...cell.getCellProps()}>
+                                                    {// Render the cell contents
+                                                        cell.render('Cell')}
+                                                </Table.Cell>
+                                            )
+                                        })}
+                                </Table.Row>
+                            )
+                        } else {
+                            return (
+                                // Apply the row props
+                                <Table.Row className='validTableValues' {...row.getRowProps()}>
+                                    {// Loop over the rows cells
+                                        row.cells.map(cell => {
+                                            // Apply the cell props
+                                            return (
+                                                <Table.Cell {...cell.getCellProps()}>
+                                                    {// Render the cell contents
+                                                        cell.render('Cell')}
+                                                </Table.Cell>
+                                            )
+                                        })}
+                                </Table.Row>
+                            )
+                        }
                     })}
             </Table.Body>
         </Table>

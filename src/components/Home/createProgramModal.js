@@ -54,7 +54,7 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
 
         setProgramName('')
         setDate(new Date())
-        setLoadingScheme('rpe-time')
+        setLoadingScheme('rpe_time')
         setChronicPeriod(28)
         setAcutePeriod(7)
     }

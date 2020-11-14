@@ -245,6 +245,13 @@ body {
     color: white;
 }
 
+.ui.celled.table .invalidTableValues {
+    background: linear-gradient(#393F44 90%,#CF6679);
+} 
+
+.ui.celled.table .validTableValues {
+    background: linear-gradient(#393F44 90%,#8cfc86);
+} 
 
 /*************************/
 /*************************/
@@ -408,3 +415,8 @@ body {
     background: #BB86FC;
 }
 
+.exerciseTableContainer {
+    padding: 5px;
+    border: 1px solid white;
+    border-radius: 5px;
+}

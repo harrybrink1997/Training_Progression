@@ -103,7 +103,8 @@ class HomePage extends Component {
                 acutePeriod,
                 chronicPeriod,
                 loadingScheme,
-                startTimestamp)
+                startTimestamp,
+            )
 
             this.props.firebase.setActiveProgram(
                 this.state.userInformation.uid,

@@ -41,6 +41,7 @@ class CurrentProgramPage extends Component {
             currentDayUI: '',
             currentWeekInProgram: '',
             daysInWeekScope: [],
+            openDaysUI: [false, false, false, false, false, false, false],
 
             currDaySafeLoadTableData: [],
 
@@ -70,13 +71,13 @@ class CurrentProgramPage extends Component {
         });
 
         var currUserUid = this.props.firebase.auth.currentUser.uid
-        // Creates a reference to the current user object in the database. Function will be run each time the user
+        // Creates reference to the current user object in the database. Function will be run each time the user
         // object updates in the database. 
         await this.props.firebase.getUserData(currUserUid).on('value', userData => {
             var userObject = userData.val();
             if (!this.state.loading) {
                 this.setState({
-                    loading: true
+                    loading: true,
                 }, () => {
                     console.log(userObject)
                     // Format the user data based on whether or not user has current programs. 
@@ -128,8 +129,7 @@ class CurrentProgramPage extends Component {
                     this.state.exerciseList,
                     this.state.currentDayUI,
                     userObject.currentPrograms[userObject.activeProgram].loading_scheme
-                )
-
+                ),
             })
         } else {
             this.setState({
@@ -704,13 +704,53 @@ class CurrentProgramPage extends Component {
 
     }
 
-    handleChangeDaysOpenView = (days) => {
-        console.log(days)
+    handleChangeDaysOpenView = (day) => {
+        console.log(day)
+        var newArray = this.state.openDaysUI
+        newArray[day] = !newArray[day]
+        this.setState({
+            openDaysUI: newArray
+        })
     }
 
     generateCurrDaySafeLoadData = (programData, muscles) => {
-        console.log(programData)
-        console.log(muscles)
+
+        var returnData = []
+
+        if (programData.currentDayInProgram !== 1) {
+            if (programData.loading_scheme == 'rpe_time') {
+                var currDayData = dailyLoadCalcsRpeTime(
+                    programData[programData.currentDayInProgram],
+                    muscles
+                )
+
+            } else {
+                currDayData = dailyLoadCalcsWeightReps(
+                    programData[programData.currentDayInProgram],
+                    muscles
+                )
+            }
+
+            muscles.forEach(muscle => {
+                var prevDayChronicLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscle]['chronicEWMA']
+                var prevDayAcuteLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscle]['acuteEWMA']
+                var maxLoadData = 0;
+                (prevDayAcuteLoad * 1.1 > prevDayChronicLoad * 1.2) ? maxLoadData = prevDayAcuteLoad : maxLoadData = prevDayChronicLoad
+
+                if (maxLoadData !== 0 || prevDayChronicLoad !== 0) {
+                    returnData.push({
+                        bodyPart: muscle,
+                        currDayLoad: currDayData[muscle].dailyLoad.toFixed(2),
+                        minSafeLoad: (prevDayChronicLoad * 0.8).toFixed(2),
+                        maxSafeLoad: maxLoadData.toFixed(2),
+                        selector: 'the bois'
+                    })
+                }
+            })
+        }
+
+
+        return returnData
     }
 
     render() {
@@ -725,10 +765,12 @@ class CurrentProgramPage extends Component {
             availExercisesCols,
             availExercisesData,
             loadingScheme,
+            currDaySafeLoadTableData,
 
             // New state variables.
             currentDayInProgram,
-            daysInWeekScope
+            daysInWeekScope,
+            openDaysUI
         } = this.state
 
         console.log(this.state)
@@ -776,7 +818,7 @@ class CurrentProgramPage extends Component {
                         </Grid.Column>
                         <Grid.Column>
                             <Container>
-                                <LoadingSpreadStatsTable data={[]} />
+                                <LoadingSpreadStatsTable data={currDaySafeLoadTableData} />
                             </Container>
                         </Grid.Column>
                     </Grid.Row>
@@ -794,6 +836,7 @@ class CurrentProgramPage extends Component {
                                 loadingScheme={loadingScheme}
                                 daysViewHandler={this.handleChangeDaysOpenView}
                                 daysInWeekScope={daysInWeekScope}
+                                openDaysUI={openDaysUI}
                             />
                         </Grid.Column>
                     </Grid.Row>
