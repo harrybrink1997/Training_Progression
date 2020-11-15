@@ -411,20 +411,12 @@ class CurrentProgramPage extends Component {
     generateExerciseUID = (exerciseName, uiDay) => {
 
         var programObject = this.state.allPrograms[this.state.activeProgram]
-
-        var exerciseStringComp = this.underscoreToSpaced(exerciseName)
         var insertionDay = this.convertUIDayToTotalDays(uiDay)
-
-        console.log(programObject)
-        console.log(uiDay)
 
         // Check if not input for week
         if (insertionDay in programObject) {
 
-            console.log("day already logged in week")
-
             var dayExercises = programObject[insertionDay]
-            console.log(dayExercises)
             var num = 0;
 
             for (var exercise in dayExercises) {

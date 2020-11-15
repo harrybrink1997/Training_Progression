@@ -420,3 +420,19 @@ body {
     border: 1px solid white;
     border-radius: 5px;
 }
+
+.recharts-default-tooltip {
+    background-color:  #393F44 !important;
+    border: 1px solid #393F44 !important;
+    border-radius: 5px;
+}
+
+.recharts-text.recharts-label tspan {
+    fill: white;
+    font-size: medium;
+}
+
+.recharts-brush-slide {
+    fill: #393F44;
+    fill-opacity: 1;
+}
