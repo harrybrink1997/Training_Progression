@@ -408,71 +408,40 @@ class CurrentProgramPage extends Component {
 
     // Uid generated based on exercise_week_day_occurance
     // TODO change this function - does generate unique id.
-    generateExerciseUID = (exerciseName) => {
+    generateExerciseUID = (exerciseName, uiDay) => {
 
         var programObject = this.state.allPrograms[this.state.activeProgram]
 
         var exerciseStringComp = this.underscoreToSpaced(exerciseName)
+        var insertionDay = this.convertUIDayToTotalDays(uiDay)
 
         console.log(programObject)
+        console.log(uiDay)
+
         // Check if not input for week
-        if (this.state.currentDayInProgram in programObject) {
+        if (insertionDay in programObject) {
+
             console.log("day already logged in week")
+
+            var dayExercises = programObject[insertionDay]
+            console.log(dayExercises)
             var num = 0;
 
-            var dayExercises = programObject[this.state.currentDayInProgram]
             for (var exercise in dayExercises) {
-                if (dayExercises[exercise].exercise === exerciseStringComp) {
-                    num++;
+                var exUID = exerciseName + '_' + this.state.currentWeekInProgram + '_' + insertionDay + '_' + num
+                if (exercise != exUID) {
+                    break
                 }
+                num++
             }
 
-            return {
-                uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDayUI + '_' + num,
-                week: true,
-                day: true
-            }
+            return exUID
+
         }
 
-        return {
-            uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDayUI + '_' + '0',
-            week: true,
-            day: false
-        }
+        return exerciseName + '_' + this.state.currentWeekInProgram + '_' + insertionDay + '_' + '0'
 
-        // if (('week' + this.state.currentWeekInProgram) in programObject) {
-        //     var dayObject = programObject['week' + this.state.currentWeekInProgram]
 
-        //     if (this.state.currentDay in dayObject) {
-        //         console.log("day already logged in week")
-        //         var num = 0;
-
-        //         var dayExercises = dayObject[this.state.currentDay]
-        //         for (var exercise in dayExercises) {
-        //             if (dayExercises[exercise].exercise === exerciseStringComp) {
-        //                 num++;
-        //             }
-        //         }
-
-        //         return {
-        //             uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDay + '_' + num,
-        //             week: true,
-        //             day: true
-        //         }
-        //     }
-
-        //     return {
-        //         uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDay + '_' + '0',
-        //         week: true,
-        //         day: false
-        //     }
-        // }
-
-        // return {
-        //     uid: exerciseName + '_' + this.state.currentWeekInProgram + '_' + this.state.currentDay + '_' + '0',
-        //     week: false,
-        //     day: false
-        // }
     }
 
     // Updated with new ratio calcs format
@@ -606,11 +575,11 @@ class CurrentProgramPage extends Component {
     handleAddExerciseButton = async (exerciseObject) => {
 
         // Redundant been replaced by: setCurrentDayUI()
-        await this.props.firebase.setCurrentDay(
-            this.props.firebase.auth.currentUser.uid,
-            this.state.activeProgram,
-            exerciseObject.day
-        )
+        // await this.props.firebase.setCurrentDay(
+        //     this.props.firebase.auth.currentUser.uid,
+        //     this.state.activeProgram,
+        //     exerciseObject.day
+        // )
 
         await this.props.firebase.setCurrentDayUI(
             this.props.firebase.auth.currentUser.uid,
@@ -618,7 +587,7 @@ class CurrentProgramPage extends Component {
             exerciseObject.day
         )
 
-        var exUidObject = this.generateExerciseUID(exerciseObject.name)
+        var exUID = this.generateExerciseUID(exerciseObject.name, exerciseObject.day)
 
         if (this.state.loadingScheme == 'rpe_time') {
             var dataPayload = {
@@ -655,7 +624,7 @@ class CurrentProgramPage extends Component {
             this.state.activeProgram,
             this.convertUIDayToTotalDays(exerciseObject.day),
             dataPayload,
-            exUidObject.uid
+            exUID
         )
 
 
