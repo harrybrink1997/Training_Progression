@@ -1,0 +1,24 @@
+#pdProgramHeader {
+    padding: 30px;
+    font-size: 40px;
+    text-align: center;
+}
+
+#pdWeekHeader {
+    padding: 20px;
+    padding-bottom: 10px;
+    font-size: 25px;
+    text-align: center;
+}
+
+#pdSchemeHeader {
+    padding: 20px;
+    padding-top: 10px;
+    font-size: 25px;
+    text-align: center;   
+}
+
+#pdBodyContainer {
+    display: flex;
+    flex-direction: row;
+}

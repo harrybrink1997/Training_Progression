@@ -5,13 +5,6 @@
 /*************************/
 /*************************/
 
-/*Sets background color to dark mode*/
-body {
-    background-color: #121212;
-    color: white;  
-}
-
-/*Sets all header colors to white*/
 .ui.header {
     color: white;
     font-weight: 87%;
@@ -22,19 +15,6 @@ body {
     padding: 40px;
 }
 
-.ui.circular.icon.button.deleteExerciseButton {
-    background: #CF6679;
-}
-
-.ui.button.addExerciseButton {
-    background: #BB86FC;
-}
-
-.ui.button.closeOffPeriod {
-    background: #868cfc;
-    font-weight: 900;
-    color:black;
-}
 
 /*colors all input text */
 .ui.mini.input input{
@@ -227,12 +207,6 @@ body {
     background:#191919;
 }
 
-.ui.celled.table option:hover {
-    /* box-shadow: 0 0 5px #BB86FC;
-    border: 1px solid #BB86FC;
-    background: #BB86FC; */
-    background: red;
-}
 
 /*colors all input text */
 .ui.celled.table input {

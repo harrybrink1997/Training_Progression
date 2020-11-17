@@ -1,0 +1,53 @@
+.ui.button.addExerciseButton {
+    background: #BB86FC;
+}
+
+.ui.button.closeOffPeriod {
+    background: #868cfc;
+    font-weight: 900;
+    color:black;
+}
+
+.ui.button.purpleButton {
+    background: #868cfc;
+    font-weight: 900;
+    color:black;
+}
+.ui.button.purpleButton:hover {
+    box-shadow: 0 0 5px #868cfc;
+
+}
+
+.ui.button.lightPurpleButton {
+    background:#BB86FC;
+    font-weight: 900;
+    color:black;
+}
+.ui.button.lightPurpleButton:hover {
+    box-shadow: 0 0 5px #BB86FC;
+}
+
+.ui.button.purpleButton-inverted {
+    background: inherit;
+    font-weight: 900;
+    color:#868cfc;
+    border: 2px solid #868cfc;
+}
+.ui.button.purpleButton-inverted:hover {
+    box-shadow: 0 0 5px #868cfc;
+}
+
+.ui.button.lightPurpleButton-inverted {
+    background: inherit;
+    border: 2px solid #BB86FC;
+    font-weight: 900;
+    color:#BB86FC;
+}
+
+.ui.button.lightPurpleButton-inverted:hover {
+    box-shadow: 0 0 5px #BB86FC;
+}
+
+.ui.circular.icon.button.deleteExerciseButton {
+    background: #CF6679;
+}

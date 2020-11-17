@@ -1,0 +1,17 @@
+.pageContainerLevel1 {
+    margin: 10px;
+    background: #191919;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
+}
+
+.pageContainerLevel2 {
+    background: #393F44;
+    padding: 10px;
+    margin-right: 10px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
+}

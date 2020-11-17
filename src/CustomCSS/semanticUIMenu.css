@@ -1,0 +1,21 @@
+.ui.vertical.menu {
+    background: #393F44;
+    border: 1px solid white;
+}
+
+.ui.vertical.menu:hover {
+    border: 1px solid #BB86FC;
+    box-shadow: 0 0 5px #BB86FC;
+}
+
+.ui.vertical.menu .item:hover {
+    background: #3b0380;
+}
+
+.ui.vertical.menu .item.active {
+    background: #BB86FC;
+}
+.ui.vertical.menu .item.active:hover {
+    background: #BB86FC;
+}
+

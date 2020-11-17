@@ -19,9 +19,16 @@ import { withAuthentication } from '../Session';
 
 import 'semantic-ui-css/semantic.min.css';
 
+// CSS Modules to Include
 import '../CurrentProgram/css/currDayExTable.css'
 import '../../CustomCSS/editExerciseModal.css'
 import '../../CustomCSS/darkMode.css'
+import '../../CustomCSS/standardElements.css'
+import '../../CustomCSS/landingPage.css'
+import '../../CustomCSS/semanticUIButton.css'
+import '../../CustomCSS/nonPageSpecific.css'
+import '../../CustomCSS/progressionPage.css'
+import '../../CustomCSS/semanticUIMenu.css'
 
 const App = () => (
     <Router>

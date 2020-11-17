@@ -1,0 +1,29 @@
+#CTA4THeader {
+    font-size: 60px;
+    color: white;
+    text-align: center;
+    padding: 30px;
+    padding-bottom: 60px;
+    padding-top: 40px;
+}
+
+#CTAImpactStatement {
+    padding-top: 30px;
+    font-size: 25px;
+    color: white;
+    text-align: center;
+}
+
+#CTAContainerButtonDiv {
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+}
+
+#lpSignUpBtn {
+    padding: 10px;
+}
+
+#lpLearnMoreBtn {
+    padding: 10px;
+}

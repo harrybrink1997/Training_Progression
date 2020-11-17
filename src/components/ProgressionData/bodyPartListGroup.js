@@ -6,21 +6,21 @@ export const BodyPartListGroup = ({ currBodyPart, bodyPartsList, changeBodyPartH
 
     const [currentBodyPart, setCurrentBodyPart] = useState(currBodyPart)
 
-    const handleButtonClick = (event) => {
-        setCurrentBodyPart(event.target.value)
-        changeBodyPartHandler(event.target.value)
+    const handleClick = (event, { value }) => {
+        setCurrentBodyPart(value)
+        changeBodyPartHandler(value)
     }
 
     return (
-        <Menu vertical>
+        <Menu
+            vertical
+        >
             {
                 bodyPartsList.map(bodyPart => {
                     if (bodyPart === currentBodyPart) {
                         return (
                             <Menu.Item
-                                as="button"
-                                variant="dark"
-                                onClick={handleButtonClick}
+                                onClick={handleClick}
                                 value={bodyPart}
                                 key={bodyPart}
                                 active
@@ -31,9 +31,7 @@ export const BodyPartListGroup = ({ currBodyPart, bodyPartsList, changeBodyPartH
                     } else {
                         return (
                             <Menu.Item
-                                as="button"
-                                variant="dark"
-                                onClick={handleButtonClick}
+                                onClick={handleClick}
                                 value={bodyPart}
                                 key={bodyPart}
                             >

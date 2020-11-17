@@ -68,7 +68,7 @@ class ProgressionDataPage extends Component {
                 activeProgram: userObject.activeProgram,
                 hasPrograms: true,
                 allPrograms: userObject.currentPrograms,
-                currentWeekInProgram: userObject.currentPrograms[userObject.activeProgram].currentWeek,
+                currentWeekInProgram: Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7),
                 loadingScheme: userObject.currentPrograms[userObject.activeProgram].loading_scheme,
                 bodyPartsList: bodyPartsArray,
                 ACWRGraphProps: this.generateACWRGraphData(
@@ -260,6 +260,14 @@ class ProgressionDataPage extends Component {
         }
     }
 
+    loadingSchemeString = (scheme) => {
+        if (scheme == 'rpe_time') {
+            return 'RPE / Time'
+        } else {
+            return 'Weight / Repetitions'
+        }
+    }
+
     render() {
         const {
             hasPrograms,
@@ -284,13 +292,47 @@ class ProgressionDataPage extends Component {
         let noCurrentProgramsHTML = <Header as='h1'>Create A Program Before Accessing This Page</Header>
         let hasCurrentProgramsHTML =
             <div>
-                <Header as='h1'>Progression Data - {activeProgram}</Header>
-                <Header as='h3'>Current Week: {currentWeekInProgram}, Loading Scheme: {loadingScheme}</Header>
-                <CurrentProgramDropdown
-                    programList={programList}
-                    activeProgram={activeProgram}
-                    buttonHandler={this.handleSelectProgram}
-                />
+                <div className='pageContainerLevel1'>
+                    <div id='pdProgramHeader'>
+                        Progression Data - {activeProgram}
+                    </div>
+                    <div id='pdWeekHeader'>
+                        Current Week: {currentWeekInProgram}
+                    </div>
+                    <div id='pdSchemeHeader'>
+                        Loading Scheme: {this.loadingSchemeString(loadingScheme)}
+                    </div>
+                </div>
+                <div
+                    className='pageContainerLevel1'
+                    id='pdBodyContainer'
+                >
+                    <div
+                        className='pageContainerLevel2' id='pdSideBarContainer'
+                    >
+                        <CurrentProgramDropdown
+                            programList={programList}
+                            activeProgram={activeProgram}
+                            buttonHandler={this.handleSelectProgram}
+                        />
+
+                        <BodyPartListGroup
+                            currBodyPart={currentBodyPart}
+                            bodyPartsList={bodyPartsList}
+                            changeBodyPartHandler={this.handleSelectBodyPart}
+                        />
+                    </div>
+
+                    <div
+                        className='pageContainerLevel2' id='pdGraphContainer'
+                    >
+                        <SynchronousACWRGraphs
+                            ACWRData={ACWRGraphProps[currentBodyPart]}
+                            rollChronicACWRData={rollingAverageGraphProps.totalData[currentBodyPart]}
+                            rollChronicACWRDataSeries={rollingAverageGraphProps.series}
+                        />
+                    </div>
+                </div>
                 <Container>
                     <Grid divided='vertically'>
                         <Grid.Row columns={2}>
