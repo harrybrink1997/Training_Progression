@@ -1,6 +1,6 @@
 .ui.vertical.menu {
     background: #393F44;
-    border: 1px solid white;
+    /* border: 1px solid white; */
 }
 
 .ui.vertical.menu:hover {
@@ -10,6 +10,10 @@
 
 .ui.vertical.menu .item:hover {
     background: #3b0380;
+    color: white;
+}
+.ui.vertical.menu .item {
+    color: white;
 }
 
 .ui.vertical.menu .item.active {

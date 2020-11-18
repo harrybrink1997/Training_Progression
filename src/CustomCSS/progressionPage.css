@@ -18,7 +18,114 @@
     text-align: center;   
 }
 
-#pdBodyContainer {
+#pdCurrentProgramHeader {
+    padding: 20px;
+    padding-top: 10px;
+    display: flex;
+    justify-content: center;
+    width: 200px;
+    margin: auto;
+}
+
+#pdBodyContainer1 {
     display: flex;
     flex-direction: row;
+}
+
+#pdBodyContainer1 {
+    display: flex;
+    flex-direction: row;
+}
+
+#pdSideBarContainer {
+    height: 100%;
+    width: 15%;
+    margin: auto;
+
+}
+
+#pdGraphContainer {
+    width: 85%;
+    height: 320px;
+    display: contents;
+
+}
+
+#rollChronicGraphContainer {
+    width: 50%;
+    height: 100%;
+    padding: 5px;
+    margin: 20px;
+}
+#ACWRGraphContainer {
+    width: 50%;
+    height: 100%;
+    padding: 5px;
+    margin: 20px;
+}
+
+#rollChronicGraphLabel {
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+}
+#ACWRGraphLabel {
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+}
+
+#progPredictiveGraphLabel {
+    font-size: 18px;
+    display: flex;
+    justify-content: center; 
+}
+
+#progPredictiveGraphContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+#progPredictiveGraphFormContainer {
+    width: 25%;
+    height: 320px;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+#progPredictiveGraph {
+    width: 75%;
+    margin: 20px;
+
+}
+
+#targetLoadInputContainer {
+    margin-bottom: 10px;
+}
+
+#percentagesInputContainer {
+    margin-bottom: 40px;
+}
+
+#calcLoadsBtnContainer {
+    margin: auto;
+    display: flex;
+    justify-content: center;
+}
+
+#pdBodyContainer2 {
+    width: 50%;
+}
+
+#pdBodyContainer3 {
+    width: 50%;
+
+}
+#plPageSecondRowContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+.pageContainerLevel1 {
+    border: 1px solid #BB86FC;
 }

@@ -14,6 +14,7 @@ export const BodyPartListGroup = ({ currBodyPart, bodyPartsList, changeBodyPartH
     return (
         <Menu
             vertical
+            fluid
         >
             {
                 bodyPartsList.map(bodyPart => {

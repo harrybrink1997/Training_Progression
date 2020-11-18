@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Container, Grid, Header, Dimmer, Loader } from 'semantic-ui-react'
+import { Popup, Icon, Header, Dimmer, Loader } from 'semantic-ui-react'
 
 import { withAuthorisation } from '../Session';
 import CurrentProgramDropdown from './currentProgramsDropdown'
-// import ProgressionPredictiveGraph from './progressionPredictiveGraph'
-import { SynchronousACWRGraphs } from './ACWRGraph'
+import ProgressionPredictiveGraph from './progressionPredictiveGraph'
+import { ACWEGraph, RollChronicACWRGraph } from './ACWRGraph'
 import { BodyPartListGroup } from './bodyPartListGroup'
+import InputLabel from '../CustomComponents/DarkModeInput'
 
 class ProgressionDataPage extends Component {
     constructor(props) {
@@ -302,20 +303,23 @@ class ProgressionDataPage extends Component {
                     <div id='pdSchemeHeader'>
                         Loading Scheme: {this.loadingSchemeString(loadingScheme)}
                     </div>
-                </div>
-                <div
-                    className='pageContainerLevel1'
-                    id='pdBodyContainer'
-                >
-                    <div
-                        className='pageContainerLevel2' id='pdSideBarContainer'
-                    >
+
+                    <div id='pdCurrentProgramHeader'>
                         <CurrentProgramDropdown
+                            className='lpCurrentProgramDropDown'
                             programList={programList}
                             activeProgram={activeProgram}
                             buttonHandler={this.handleSelectProgram}
                         />
-
+                    </div>
+                </div>
+                <div
+                    className='pageContainerLevel1'
+                    id='pdBodyContainer1'
+                >
+                    <div
+                        className='pageContainerLevel2' id='pdSideBarContainer'
+                    >
                         <BodyPartListGroup
                             currBodyPart={currentBodyPart}
                             bodyPartsList={bodyPartsList}
@@ -326,36 +330,46 @@ class ProgressionDataPage extends Component {
                     <div
                         className='pageContainerLevel2' id='pdGraphContainer'
                     >
-                        <SynchronousACWRGraphs
-                            ACWRData={ACWRGraphProps[currentBodyPart]}
-                            rollChronicACWRData={rollingAverageGraphProps.totalData[currentBodyPart]}
-                            rollChronicACWRDataSeries={rollingAverageGraphProps.series}
-                        />
+
+                        <div id='rollChronicGraphContainer'>
+                            <InputLabel
+                                custID='rollChronicGraphLabel'
+                                text='Rolling Safe Loading Threshold &nbsp;'
+                                toolTip={<Popup
+                                    trigger={<Icon name='question circle outline' />}
+                                    content='Work bitch'
+                                    position='right center'
+                                />}
+                            />
+                            <RollChronicACWRGraph
+                                graphData={rollingAverageGraphProps.totalData[currentBodyPart]}
+                                graphSeries={rollingAverageGraphProps.series}
+                            />
+                        </div>
+                        <div id='ACWRGraphContainer'>
+                            <InputLabel
+                                custID='ACWRGraphLabel'
+                                text='Rolling Acute Chronic Workload Ratio & Subcomponents &nbsp;'
+                                toolTip={<Popup
+                                    trigger={<Icon name='question circle outline' />}
+                                    content='Work bitch'
+                                    position='right center'
+                                />}
+                            />
+                            <ACWEGraph ACWRData={ACWRGraphProps[currentBodyPart]} />
+                        </div>
+
+
                     </div>
                 </div>
-                <Container>
-                    <Grid divided='vertically'>
-                        <Grid.Row columns={2}>
-                            <Grid.Column>
-                                <BodyPartListGroup
-                                    currBodyPart={currentBodyPart}
-                                    bodyPartsList={bodyPartsList}
-                                    changeBodyPartHandler={this.handleSelectBodyPart}
-                                />
-                            </Grid.Column>
-                            <Grid.Column>
-                                <SynchronousACWRGraphs
-                                    ACWRData={ACWRGraphProps[currentBodyPart]}
-                                    rollChronicACWRData={rollingAverageGraphProps.totalData[currentBodyPart]}
-                                    rollChronicACWRDataSeries={rollingAverageGraphProps.series}
-                                />
-                            </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row>
-                            {/* <ProgressionPredictiveGraph startLoad={this.generateCurrentAverageLoad(rollingAverageGraphProps.totalData[currentBodyPart])} /> */}
-                        </Grid.Row>
-                    </Grid>
-                </Container>
+                <div id='plPageSecondRowContainer'>
+                    <div className='pageContainerLevel1' id='pdBodyContainer2'>
+                        <ProgressionPredictiveGraph startLoad={this.generateCurrentAverageLoad(rollingAverageGraphProps.totalData[currentBodyPart])} />
+                    </div>
+                    <div className='pageContainerLevel1' id='pdBodyContainer3'>
+                    </div>
+
+                </div>
             </div>
 
 

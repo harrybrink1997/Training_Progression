@@ -8,10 +8,11 @@
 }
 
 .pageContainerLevel2 {
-    background: #393F44;
+    background: #252525;
     padding: 10px;
     margin-right: 10px;
     display: flex;
     flex-direction: column;
     border-radius: 5px;
+    /* border: 1px solid white; */
 }

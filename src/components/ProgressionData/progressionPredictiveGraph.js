@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
-import { LineChart, Line, XAxis, YAxis, ReferenceLine, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, ReferenceLine, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import randomColour from '../../constants/colours'
 
-import { Form, Button } from 'semantic-ui-react'
+import { Form, Button, Popup, Icon } from 'semantic-ui-react'
+import InputLabel from '../CustomComponents/DarkModeInput'
 
 const ProgressionPredictiveGraph = ({ startLoad }) => {
 
@@ -131,45 +132,79 @@ const ProgressionPredictiveGraph = ({ startLoad }) => {
     }
 
     return (
-        <div>
-            <LineChart width={800} height={500} data={safetyChartData}
-                margin={{ top: 20, right: 50, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <ReferenceLine y={safetyChartThreshold} label="Target Load" stroke="red" />
-                {reChartSeriesHtml(graphSeries)}
-            </LineChart>
-            <Form onSubmit={processData}>
-                <div>
+        <div id='progPredictiveGraphContainer'>
+            <div className='pageContainerLevel2' id='progPredictiveGraphFormContainer'>
+                <form onSubmit={processData}>
                     <div>
-                        <h5>Target Load</h5>
-                        <input
-                            name="targetLoad"
-                            value={targetLoad}
-                            onChange={onChange}
-                            type="number"
-                            placeholder="Input Target Load"
-                        />
+                        <div id='targetLoadInputContainer'>
+                            <InputLabel
+                                text='Target Load &nbsp;'
+                                toolTip={<Popup
+                                    trigger={<Icon name='question circle outline' />}
+                                    content='Work bitch'
+                                    position='right center'
+                                />}
+                            />
+                            <input
+                                name="targetLoad"
+                                className='darkModeInput'
+                                value={targetLoad}
+                                onChange={onChange}
+                                type="text"
+                                placeholder="Input Target Load"
+                            />
+                        </div>
+                        <div id='percentagesInputContainer'>
+                            <InputLabel
+                                text='Percentages &nbsp;'
+                                toolTip={<Popup
+                                    trigger={<Icon name='question circle outline' />}
+                                    content='Work bitch'
+                                    position='right center'
+                                />}
+                            />
+                            <input
+                                className='darkModeInput'
+                                name="percentages"
+                                value={percentages}
+                                onChange={onChange}
+                                type="text"
+                                placeholder="Input Percentages"
+                            />
+                        </div>
                     </div>
-                    <div>
-                        <h5>Percentages</h5>
-                        <input
-                            name="percentages"
-                            value={percentages}
-                            onChange={onChange}
-                            type="text"
-                            placeholder="Input Percentages"
-                        />
+                    <div id='calcLoadsBtnContainer'>
+                        <Button className='lightPurpleButton-inverted' type="submit">
+                            Calculate Loads
+                        </Button>
                     </div>
-                </div>
-                <Button variant="dark" type="submit">
-                    Calculate Loads
-                </Button>
-            </Form>
-
+                </form>
+            </div>
+            <div id='progPredictiveGraph'>
+                <InputLabel
+                    custID='progPredictiveGraphLabel'
+                    text='Theoretical Load Projection &nbsp;'
+                    toolTip={<Popup
+                        trigger={<Icon name='question circle outline' />}
+                        content='Work bitch'
+                        position='right center'
+                    />}
+                />
+                <ResponsiveContainer width="100%" height={315} >
+                    <LineChart data={safetyChartData}
+                        margin={{ top: 5, right: 30, left: 30, bottom: 5 }}>
+                        <CartesianGrid />
+                        <XAxis dataKey="name"
+                            tick={{ fill: 'white' }}
+                        />
+                        <YAxis label={{ dx: -30, value: "Load", angle: -90 }} tick={{ fill: 'white' }} />
+                        <Tooltip />
+                        <Legend />
+                        <ReferenceLine y={safetyChartThreshold} label="Target Load" stroke="#fc868c" />
+                        {reChartSeriesHtml(graphSeries)}
+                    </LineChart>
+                </ResponsiveContainer>
+            </div>
         </div>
     )
 };

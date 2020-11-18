@@ -121,10 +121,6 @@
 /*************************/
 /*************************/
 
-/*Colour of dropdown*/
-
-
-
 /*Colour of dropdown selection*/
 .ui.fluid.selection.dropdown {
     color: white;
@@ -226,25 +222,6 @@
 .ui.celled.table .validTableValues {
     background: linear-gradient(#393F44 90%,#8cfc86);
 } 
-
-/*************************/
-/*************************/
-/********Accoridian*******/
-/*************************/
-/*************************/
-
-.accordion.ui.fluid.styled {
-    background:#191919;
-    color: white;
-}
-
-.accordion.ui.fluid.styled .active.title {
-    color: #BB86FC;
-}
-
-.accordion.ui.fluid.styled .title {
-    color: #BB86FC;
-}
 
 
 /*************************/

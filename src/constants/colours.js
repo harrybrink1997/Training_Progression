@@ -1,16 +1,20 @@
 
+// these are all pastel colours
+// names do not align with the actual colours lol
 const randomColour = () => {
     var colours = {
-        aqua: "#00ffff",
-        black: "#000000",
-        blue: "#0000ff",
-        brown: "#a52a2a",
-        cyan: "#00ffff",
-        darkblue: "#00008b",
-        darkcyan: "#008b8b",
-        darkgrey: "#a9a9a9",
-        darkgreen: "#006400",
-        darkkhaki: "#bdb76b",
+        mint: "#B5EAD7",
+        periwinkle: "#C7CEEA",
+        dirty_white: "#E2F0CB",
+        pale_orange: "#FFDAC1",
+        melon: "#FFB7B2",
+        salmon_pink: "#FF9AA2",
+
+        light_red: "#FFD3D4",
+        blossom_pink: "#FFB9C4",
+        lilac: "#CAA7BD",
+        manatee: "#9A91AC",
+
         darkmagenta: "#8b008b",
         darkolivegreen: "#556b2f",
         darkorange: "#ff8c00",
