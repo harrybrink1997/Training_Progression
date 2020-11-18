@@ -31,6 +31,7 @@ import '../../CustomCSS/progressionPage.css'
 import '../../CustomCSS/semanticUIMenu.css'
 import '../../CustomCSS/currentProgramsPage.css'
 import '../../CustomCSS/homePage.css'
+import '../../CustomCSS/pastProgramsPage.css'
 
 const App = () => (
     <Router>

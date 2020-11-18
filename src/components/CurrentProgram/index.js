@@ -644,16 +644,27 @@ class CurrentProgramPage extends Component {
             console.log(programData)
 
             // Update active program to the first in the list that isn't current program. Else set to none- this will allow user to switch programs and delete can then run. 
+
+
             await this.props.firebase.setActiveProgram(
                 this.props.firebase.auth.currentUser.uid,
                 newProgram
             )
+
+            var endTimestamp = Math.floor(new Date().getTime())
 
             // Transfer program to past program first to ensure correct transfer
             await this.props.firebase.transferProgramToRecordsUpstream(
                 this.props.firebase.auth.currentUser.uid,
                 programToCloseOff,
                 programData
+            )
+
+            // Set an end timestamp date for the program.
+            await this.props.firebase.appendEndDateUpstream(
+                this.props.firebase.auth.currentUser.uid,
+                programToCloseOff,
+                endTimestamp
             )
 
             // Delete program out of current programs afterwards.

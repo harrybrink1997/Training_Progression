@@ -1,0 +1,28 @@
+#ppProgramHeader {
+    padding: 30px;
+    font-size: 40px;
+    text-align: center;
+}
+
+#ppWeekHeader {
+    padding: 20px;
+    padding-bottom: 10px;
+    font-size: 25px;
+    text-align: center;
+}
+
+#ppSchemeHeader {
+    padding: 20px;
+    padding-top: 10px;
+    font-size: 25px;
+    text-align: center;   
+}
+
+#ppCurrentProgramHeader {
+    padding: 20px;
+    padding-top: 10px;
+    display: flex;
+    justify-content: center;
+    width: 200px;
+    margin: auto;
+}

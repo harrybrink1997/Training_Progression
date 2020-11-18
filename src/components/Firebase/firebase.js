@@ -158,6 +158,12 @@ class Firebase {
             .remove()
     }
 
+    appendEndDateUpstream = (uid, progName, endUTS) => {
+        return this.db
+            .ref(`users/${uid}/pastPrograms/${progName}/endDayUTS`)
+            .set(endUTS)
+    }
+
     transferProgramToRecordsUpstream = (uid, progName, val) => {
         return this.db
             .ref(`users/${uid}/pastPrograms/${progName}`)

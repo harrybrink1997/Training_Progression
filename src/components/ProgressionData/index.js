@@ -8,6 +8,9 @@ import { ACWEGraph, RollChronicACWRGraph } from './ACWRGraph'
 import { BodyPartListGroup } from './bodyPartListGroup'
 import InputLabel from '../CustomComponents/DarkModeInput'
 
+// Custom Function Importing
+import loadingSchemeString from '../../constants/loadingSchemeString'
+
 class ProgressionDataPage extends Component {
     constructor(props) {
         super(props);
@@ -261,14 +264,6 @@ class ProgressionDataPage extends Component {
         }
     }
 
-    loadingSchemeString = (scheme) => {
-        if (scheme == 'rpe_time') {
-            return 'RPE / Time'
-        } else {
-            return 'Weight / Repetitions'
-        }
-    }
-
     render() {
         const {
             hasPrograms,
@@ -301,7 +296,7 @@ class ProgressionDataPage extends Component {
                         Current Week: {currentWeekInProgram}
                     </div>
                     <div id='pdSchemeHeader'>
-                        Loading Scheme: {this.loadingSchemeString(loadingScheme)}
+                        Loading Scheme: {loadingSchemeString(loadingScheme)}
                     </div>
 
                     <div id='pdCurrentProgramHeader'>
