@@ -1,0 +1,27 @@
+.ui.segment.clndr-calendars-segment.clndr-floating.clndr-left {
+    background: #393F44;
+}
+
+.clndr-cell {
+    color: white;
+    background: #424242;
+}
+
+.ui.basic.compact.icon.button {
+    color: white;
+}
+
+.ui.compact.fluid.button.clndr-button-today {
+    color: block;
+    background: #BB86FC;
+}
+
+.clndr-cell.clndr-cell-disabled {
+    background: #191919;
+    color: white;
+}
+
+.clndr-cell.clndr-cell-selected {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 2px solid #BB86FC;
+}
