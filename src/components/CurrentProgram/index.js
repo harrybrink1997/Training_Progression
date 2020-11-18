@@ -741,68 +741,59 @@ class CurrentProgramPage extends Component {
             </Dimmer>
         let noCurrentProgramsHTML = <Header as='h1'>Create A Program Before Accessing This Page</Header>
         let hasCurrentProgramsHTML =
-            <Container fluid>
-                <Grid padded divided='vertically'>
-                    <Grid.Row>
-                        <Container textAlign='center' fluid>
-                            <Header as='h1'>{activeProgram}, Week {currentWeekInProgram}, Day {this.convertTotalDaysToUIDay(currentDayInProgram)}</Header>
-                        </Container>
-                    </Grid.Row>
-
-                    <Grid.Row columns={3}>
-                        <Grid.Column>
-                            <Segment basic textAlign='right'>
-                                <SubmitDayModal handleFormSubmit={this.handleSubmitButton} />
-                            </Segment>
-                        </Grid.Column>
-                        <Grid.Column>
-                            <Segment basic textAlign='center'>
-                                <CurrentProgramDropdown
-                                    programList={programList}
-                                    activeProgram={activeProgram}
-                                    buttonHandler={this.handleSelectProgramButton}
-                                />
-                            </Segment>
-                        </Grid.Column>
-                        <Grid.Column>
-                            <Segment basic textAlign='left'>
-                                <CloseOffProgramModal handleFormSubmit={this.handleCloseOffProgram} />
-                            </Segment>
-                        </Grid.Column>
-
-                    </Grid.Row>
-                    <Grid.Row columns={2}>
-                        <Grid.Column>
-                            <Container>
-                                <ExerciseSpreadStatsTable data={[]} />
-                            </Container>
-                        </Grid.Column>
-                        <Grid.Column>
-                            <Container>
-                                <LoadingSpreadStatsTable data={currDaySafeLoadTableData} />
-                            </Container>
-                        </Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row columns={2}>
-                        <Grid.Column>
-                            <AvailableExercisesList
-                                columns={availExercisesCols}
-                                data={availExercisesData}
+            <div>
+                <div className='pageContainerLevel1'
+                    id='cpPageContainer1'>
+                    <div id='cpProgramHeader'>
+                        {activeProgram}
+                    </div>
+                    <div id='cpWeekHeader'>
+                        Week {currentWeekInProgram}, Day {this.convertTotalDaysToUIDay(currentDayInProgram)}
+                    </div>
+                    <div id='cpButtonsHeader'>
+                        <div id='submitDayBtnContainer'>
+                            <SubmitDayModal handleFormSubmit={this.handleSubmitButton} />
+                        </div>
+                        <div id='programsDropdownContainer'>
+                            <CurrentProgramDropdown
+                                programList={programList}
+                                activeProgram={activeProgram}
+                                buttonHandler={this.handleSelectProgramButton}
                             />
-                        </Grid.Column>
-                        <Grid.Column>
-                            <Header as='h1'>Create this week</Header>
-                            <CurrentWeekExercisesContainer
-                                dailyExercises={exerciseListPerDay}
-                                loadingScheme={loadingScheme}
-                                daysViewHandler={this.handleChangeDaysOpenView}
-                                daysInWeekScope={daysInWeekScope}
-                                openDaysUI={openDaysUI}
-                            />
-                        </Grid.Column>
-                    </Grid.Row>
-                </Grid>
-            </Container >
+                        </div>
+                        <div id='closeOffProgBtnContainer'>
+                            <CloseOffProgramModal handleFormSubmit={this.handleCloseOffProgram} />
+                        </div>
+                    </div>
+                </div>
+                <div className='pageRowContainer'>
+                    <div className='pageContainerLevel1' id='cpExerciseSpreadTableContainer'>
+                        <ExerciseSpreadStatsTable data={[]} />
+                    </div>
+                    <div className='pageContainerLevel1'
+                        id='cpLoadingSpreadTableContainer'>
+                        <LoadingSpreadStatsTable data={currDaySafeLoadTableData} />
+                    </div>
+                </div>
+                <div className='pageRowContainer'>
+                    <div className='pageContainerLevel1' id='availExerciseTableContainer'>
+                        <AvailableExercisesList
+                            columns={availExercisesCols}
+                            data={availExercisesData}
+                        />
+                    </div>
+                    <div className='pageContainerLevel1'
+                        id='currentWeekExTableContainer'>
+                        <CurrentWeekExercisesContainer
+                            dailyExercises={exerciseListPerDay}
+                            loadingScheme={loadingScheme}
+                            daysViewHandler={this.handleChangeDaysOpenView}
+                            daysInWeekScope={daysInWeekScope}
+                            openDaysUI={openDaysUI}
+                        />
+                    </div>
+                </div>
+            </div>
         return (
             <div>
                 {loading && loadingHTML}
