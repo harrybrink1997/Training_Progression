@@ -16,7 +16,8 @@ import { calculateDailyLoads, dailyLoadCalcsRpeTime, dailyLoadCalcsWeightReps } 
 import CloseOffProgramModal from './closeOffProgramModal'
 import { ExerciseSpreadStatsTable, LoadingSpreadStatsTable } from './statsTable'
 
-import './css/currDayExTable.css'
+// Import Custom functions
+import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
 
 
 class CurrentProgramPage extends Component {
@@ -528,7 +529,7 @@ class CurrentProgramPage extends Component {
             await this.props.firebase.setCurrentDayUI(
                 this.props.firebase.auth.currentUser.uid,
                 this.state.activeProgram,
-                this.convertTotalDaysToUIDay(
+                convertTotalDaysToUIDay(
                     this.state.currentDayInProgram
                 )
             )
@@ -547,14 +548,6 @@ class CurrentProgramPage extends Component {
         })
 
 
-    }
-
-    convertTotalDaysToUIDay = (day) => {
-        if (day < 8) {
-            return day
-        } else {
-            return day % 7
-        }
     }
 
     // Updated with new ratio calcs format
@@ -759,7 +752,7 @@ class CurrentProgramPage extends Component {
                         {activeProgram}
                     </div>
                     <div id='cpWeekHeader'>
-                        Week {currentWeekInProgram}, Day {this.convertTotalDaysToUIDay(currentDayInProgram)}
+                        Week {currentWeekInProgram}, Day {convertTotalDaysToUIDay(currentDayInProgram)}
                     </div>
                     <div id='cpButtonsHeader'>
                         <div id='submitDayBtnContainer'>

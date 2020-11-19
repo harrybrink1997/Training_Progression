@@ -14,5 +14,18 @@
     display: flex;
     flex-direction: column;
     border-radius: 5px;
-    /* border: 1px solid white; */
+}
+
+.rowContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+.pageContainerLevel1.half-width {
+    width: 50%;
+}
+
+.centeredPageContainerLabel {
+    display: flex;
+    justify-content: center;
 }

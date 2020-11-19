@@ -8,8 +8,15 @@ import ProgramListDropdown from '../CustomComponents/programListDropdown'
 
 import { Dimmer, Header, Loader } from 'semantic-ui-react'
 
+// Import Internal Components
+import { GeneralInfoTable } from './generalInfoTable'
+import LoadInfoTable from './loadInfoTable'
+import InputLabel from '../CustomComponents/DarkModeInput'
+import BodyPartListGroup from '../CustomComponents/bodyPartListGroup'
+
 // Import Custom Functions
 import loadingSchemeString from '../../constants/loadingSchemeString'
+import utsToDateString from '../../constants/utsToDateString'
 
 
 
@@ -67,11 +74,13 @@ class PastProgramsPage extends Component {
             this.setState({
                 programList: programListArray,
                 hasPrograms: true,
-                allPrograms: userObject.pastPrograms,
                 activeProgram: programListArray[0],
+                allPrograms: userObject.pastPrograms,
                 durationOfProgram: Math.ceil(userObject.pastPrograms[programListArray[0]].currentDayInProgram / 7),
                 loadingScheme: userObject.pastPrograms[programListArray[0]].loading_scheme,
                 bodyPartsList: bodyPartsArray,
+                startDate: utsToDateString(userObject.pastPrograms[programListArray[0]].startDayUTS),
+                endDate: utsToDateString(userObject.pastPrograms[programListArray[0]].endDayUTS),
                 loading: false,
             })
         } else {
@@ -87,21 +96,106 @@ class PastProgramsPage extends Component {
 
         if (this.state.activeProgram != value) {
             this.setState({
-                activeProgram: value
+                activeProgram: value,
+                startDate: utsToDateString(this.state.allPrograms[value].startDayUTS),
+                endDate: utsToDateString(this.state.allPrograms[value].endDayUTS),
+
             })
         }
+    }
+
+    handleSelectBodyPart = (value) => {
+        this.setState({
+            currentBodyPart: value
+        })
+    }
+
+    generateLoadInfoTableData = (muscle) => {
+        var endDay = this.state.allPrograms[this.state.activeProgram].currentDayInProgram
+
+        // If for some reason the per ended the program on Day One Just return empty array.
+        if (endDay == 1) return []
+
+        var startChronicLoad = 0
+
+        for (var day = 1; day < endDay; day++) {
+            var dayChronicLoad = this.state.allPrograms[this.state.activeProgram][day]['loadingData'][muscle]['chronicEWMA']
+            if (startChronicLoad == 0 && dayChronicLoad != 0) {
+                startChronicLoad = dayChronicLoad
+                break
+            }
+        }
+
+        var endChronicLoad = this.state.allPrograms[this.state.activeProgram][endDay - 1]['loadingData'][muscle]['chronicEWMA']
+
+        return [
+            {
+                col1: 'Initial Chronic Load',
+                col2: startChronicLoad.toFixed(2)
+            },
+            {
+                col1: 'Final Chronic Load',
+                col2: endChronicLoad.toFixed(2)
+            },
+            {
+                col1: 'Net Increase',
+                col2: ((endChronicLoad - startChronicLoad).toFixed(2)).toString()
+            },
+            {
+                col1: 'Percentage Increase',
+                col2:
+                    (startChronicLoad == 0) ? '0.00' :
+                        (((endChronicLoad - startChronicLoad)
+                            / startChronicLoad * 100) - 100)
+                            .toFixed(2).toString()
+                        +
+                        '%'
+            },
+            {
+                col1: 'Average Increase Per Week',
+                col2:
+                    ((endChronicLoad - startChronicLoad) / 7).toFixed(2).toString()
+            }
+        ]
+    }
+
+    generateGeneralStatsTableData = () => {
+        var returnData = [
+            {
+                col1: 'Time Period',
+                col2: this.state.startDate + ' - ' + this.state.endDate
+            },
+            {
+                col1: 'Program Duration',
+                col2: this.state.durationOfProgram + ((this.state.durationOfProgram == 1) ? ' Week' : ' Weeks')
+
+            },
+            {
+                col1: 'Loading Scheme',
+                col2: loadingSchemeString(this.state.loadingScheme)
+            }
+        ]
+
+        return returnData
     }
 
     render() {
 
         const {
-            loadingScheme,
             activeProgram,
             hasPrograms,
             loading,
-            durationOfProgram,
             programList,
+            currentBodyPart,
+            bodyPartsList
+
         } = this.state
+
+        let loadInfoData = (!loading) ? this.generateLoadInfoTableData(currentBodyPart) : []
+
+        let generalStatsData = (!loading) ? this.generateGeneralStatsTableData() : []
+
+        console.log(loadInfoData)
         console.log(this.state)
         let loadingHTML =
             <Dimmer active>
@@ -114,13 +208,6 @@ class PastProgramsPage extends Component {
                     <div id='ppProgramHeader'>
                         {activeProgram}
                     </div>
-                    <div id='ppWeekHeader'>
-                        Program Duration: {durationOfProgram + ((durationOfProgram == 1) ? ' Week' : ' Weeks')}
-                    </div>
-                    <div id='ppSchemeHeader'>
-                        Loading Scheme: {loadingSchemeString(loadingScheme)}
-                    </div>
-
                     <div id='ppCurrentProgramHeader'>
                         <ProgramListDropdown
                             programList={programList}
@@ -128,6 +215,47 @@ class PastProgramsPage extends Component {
                             buttonHandler={this.handleSelectProgram}
                             headerText='Past Programs'
                         />
+
+                    </div>
+                </div>
+                <div className='rowContainer'>
+                    <div className='pageContainerLevel1 half-width' id='ppPageGeneralStatsTable'>
+                        <div className='centeredPageContainerLabel'>
+                            <InputLabel
+                                text='General Information'
+                                custID='ppGenInfoTableLabel'
+                            />
+                        </div>
+                        <GeneralInfoTable data={generalStatsData} />
+                    </div>
+                    <div className='pageContainerLevel1 half-width' id='ppPageLoadingStatsTable'>
+                        <div className='rowContainer'>
+                            <div id='ppPageBodyPartListContainer'>
+                                <BodyPartListGroup
+                                    currBodyPart={currentBodyPart}
+                                    bodyPartsList={bodyPartsList}
+                                    changeBodyPartHandler={this.handleSelectBodyPart}
+                                />
+                            </div>
+                            <div id='ppPageLoadInfoContainer'>
+                                {
+                                    (loadInfoData.length == 0) ?
+                                        <div id='ppNoLoadInfoString'>
+                                            No Load Information Was Found
+                                        </div>
+                                        :
+                                        <div>
+                                            <div className='centeredPageContainerLabel'>
+                                                <InputLabel
+                                                    text='Load Information'
+                                                    custID='ppLoadInfoTableLabel'
+                                                />
+                                            </div>
+                                            <LoadInfoTable data={loadInfoData} />
+                                        </div>
+                                }
+                            </div>
+                        </div>
 
                     </div>
                 </div>

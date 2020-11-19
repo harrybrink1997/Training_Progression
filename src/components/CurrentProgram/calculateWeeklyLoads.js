@@ -17,6 +17,7 @@ const calculateDailyLoads = (programData,
         processedData = dailyLoadCalcsWeightReps(currDayData, muscleGroups)
     }
 
+
     [{ type: 'acuteEWMA', period: acutePeriod },
     { type: 'chronicEWMA', period: chronicPeriod }]
         .forEach(avgType => {
@@ -135,6 +136,9 @@ const appendEWMA = (
     muscleGroups) => {
 
     console.log(currDayData)
+
+
+
     if (currentDayInProgram == 1) {
 
         for (var musc in currDayData) {
@@ -157,13 +161,13 @@ const appendEWMA = (
 
     } else {
         var startDay = currentDayInProgram - period + 1
-
+        console.log(startDay)
         var calculatedEWMA = {}
-
 
         for (var day = startDay; day < currentDayInProgram; day++) {
             muscleGroups.forEach(muscle => {
                 if (day == startDay) {
+                    console.log(programData)
                     calculatedEWMA[muscle] = programData[day]['loadingData'][muscle].dailyLoad
                 } else {
                     if (calculatedEWMA[muscle] == 0) {
@@ -178,13 +182,15 @@ const appendEWMA = (
                 }
             })
         }
+        console.log(calculatedEWMA)
+        console.log(currDayData)
 
         muscleGroups.forEach(muscle => {
             if (calculatedEWMA[muscle] == 0) {
-                currDayData[muscle][inputVariable] = programData[day]['loadingData'][muscle].dailyLoad
+                currDayData[muscle][inputVariable] = currDayData[muscle].dailyLoad
             } else {
                 currDayData[muscle][inputVariable] = calculateCurrentEWMA(
-                    programData[day]['loadingData'][muscle].dailyLoad,
+                    currDayData[muscle].dailyLoad,
                     period,
                     calculatedEWMA[muscle]
                 )

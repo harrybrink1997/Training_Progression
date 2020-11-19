@@ -5,6 +5,8 @@ import { Table, Accordion, Icon } from 'semantic-ui-react'
 import InputLabel from '../CustomComponents/DarkModeInput'
 import './css/currDayExTable.css'
 
+// Import Custom functions needed
+import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
 
 const CurrentWeekExercisesContainer = ({
     dailyExercises,
@@ -12,11 +14,6 @@ const CurrentWeekExercisesContainer = ({
     daysInWeekScope,
     daysViewHandler,
     openDaysUI }) => {
-
-    const handleAccordionChange = (event, data) => {
-        daysViewHandler(data)
-        console.log(data)
-    }
 
     return (
         <div className='exerciseTableContainer'>
@@ -27,7 +24,7 @@ const CurrentWeekExercisesContainer = ({
                         return (
                             <ExerciseTableContainer
                                 key={dayIndex}
-                                dayText={'Day ' + day}
+                                dayText={'Day ' + convertTotalDaysToUIDay(day)}
                                 tableData={dailyExercises[day]}
                                 tableScheme={loadingScheme}
                                 initVisib={true}

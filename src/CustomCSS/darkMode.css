@@ -167,6 +167,10 @@
 /*************************/
 /*************************/
 
+.ui.celled.table {
+    margin: 0 !important;
+}
+
 /* colours the header row of the table */
 .ui.celled.table th {
     background: #191919;
