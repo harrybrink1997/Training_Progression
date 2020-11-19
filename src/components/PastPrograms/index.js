@@ -76,7 +76,7 @@ class PastProgramsPage extends Component {
                 hasPrograms: true,
                 activeProgram: programListArray[0],
                 allPrograms: userObject.pastPrograms,
-                durationOfProgram: Math.ceil(userObject.pastPrograms[programListArray[0]].currentDayInProgram / 7),
+                durationOfProgram: Math.ceil((userObject.pastPrograms[programListArray[0]].currentDayInProgram - 1) / 7),
                 loadingScheme: userObject.pastPrograms[programListArray[0]].loading_scheme,
                 bodyPartsList: bodyPartsArray,
                 startDate: utsToDateString(userObject.pastPrograms[programListArray[0]].startDayUTS),
@@ -99,6 +99,7 @@ class PastProgramsPage extends Component {
                 activeProgram: value,
                 startDate: utsToDateString(this.state.allPrograms[value].startDayUTS),
                 endDate: utsToDateString(this.state.allPrograms[value].endDayUTS),
+                durationOfProgram: Math.ceil((this.state.allPrograms[value].currentDayInProgram - 1) / 7)
 
             })
         }
@@ -154,7 +155,7 @@ class PastProgramsPage extends Component {
             {
                 col1: 'Average Increase Per Week',
                 col2:
-                    ((endChronicLoad - startChronicLoad) / 7).toFixed(2).toString()
+                    ((endChronicLoad - startChronicLoad) / (endDay - 1) * 7).toFixed(2).toString()
             }
         ]
     }
@@ -247,7 +248,7 @@ class PastProgramsPage extends Component {
                                         <div>
                                             <div className='centeredPageContainerLabel'>
                                                 <InputLabel
-                                                    text='Load Information'
+                                                    text='Key Load Information'
                                                     custID='ppLoadInfoTableLabel'
                                                 />
                                             </div>

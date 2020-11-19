@@ -25,3 +25,16 @@
     box-shadow: 0 0 5px #BB86FC;
     border: 2px solid #BB86FC;
 }
+
+
+#cpModalGoalsLabelContainer {
+    padding-top: 20px;
+    padding-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+}
+
+.cpModalGoalInputChildContainer {
+    margin: 5px;
+    margin-top: 10px;
+}

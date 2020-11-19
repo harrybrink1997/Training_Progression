@@ -15,6 +15,8 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
     const [programName, setProgramName] = useState('')
     const [loadingScheme, setLoadingScheme] = useState('rpe_time')
     const [date, setDate] = useState(new Date())
+    const [numGoals, setNumGoals] = useState([])
+    const [goalList, setGoalList] = useState([])
 
     const generateTodaysDate = (inputDay) => {
 
@@ -26,7 +28,6 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
 
         return date
     }
-
 
     const changeProgramName = (event, { value }) => {
         setProgramName(value)
@@ -59,7 +60,30 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
         setAcutePeriod(7)
     }
 
+    const handleGoalNumUpdate = (increase) => {
+        if (increase) {
+            setNumGoals([...numGoals, numGoals.length])
+            setGoalList([...goalList, ''])
 
+        } else {
+
+            if (numGoals.length == 1) {
+                setNumGoals([])
+                setGoalList([])
+            } else {
+                setNumGoals(numGoals.slice(0, -1))
+                setGoalList(goalList.slice(0, -1))
+            }
+        }
+        console.log(goalList)
+    }
+
+    const updateGoalInput = (event, data) => {
+        console.log(data)
+        console.log(event.target.value)
+
+
+    }
 
     return (
         <Modal
@@ -164,6 +188,40 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                                 </Form.Field>
                             </Grid.Column>
                         </Grid>
+                        <Form.Field>
+                            <div id='cpModalGoalsLabelContainer'>
+                                <InputLabel
+                                    text='Program Goals &nbsp;'
+                                />
+                                <Icon
+                                    style={{ color: 'white' }}
+                                    name='minus square outline'
+                                    onClick={() => handleGoalNumUpdate(false)}
+                                />
+                                <Icon
+                                    style={{ color: 'white' }}
+                                    name='plus square outline'
+                                    onClick={() => handleGoalNumUpdate(true)}
+                                />
+                            </div>
+                            <div id='cpModalGoalsInputContainer'>
+                                {
+                                    numGoals.map((index) => {
+                                        return (
+                                            <div key={index} className='cpModalGoalInputChildContainer'>
+                                                <InputLabel text={'Goal ' + (parseInt(index) + 1).toString()} />
+                                                <Input
+                                                    value={goalList[index]}
+                                                    onChange={updateGoalInput}
+                                                    className='cpModalGoalInputTextArea'
+                                                />
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </div>
+
+                        </Form.Field>
                     </Container>
                 </Modal.Content>
                 <Modal.Actions>

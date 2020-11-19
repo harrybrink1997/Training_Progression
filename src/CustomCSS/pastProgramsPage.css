@@ -26,7 +26,6 @@
 
 #ppLoadInfoTableLabel {
     font-size: 20px;
-    margin-bottom: 0px;
 }
 
 #ppPageBodyPartListContainer {
@@ -44,4 +43,8 @@
     font-size: 20px;
     color: white;
     text-align: center;
+}
+
+#ppPageGeneralStatsTable {
+    padding: 20px;
 }

@@ -29,3 +29,26 @@ input::selection {
     background: #BB86FC;
     color: white;
 }
+
+/*colors all input text */
+textarea {
+    background: #393F44;
+    color: white;
+    height: 40px;
+    border-radius: 5px;
+    width: 100%;
+    outline: 0px;
+    border: none;
+}
+
+/*Colour of input focus */
+textarea:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+/*Colour of input focus text selection*/
+textarea::selection {
+    background: #BB86FC;
+    color: white;
+}
