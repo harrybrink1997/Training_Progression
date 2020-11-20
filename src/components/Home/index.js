@@ -84,9 +84,19 @@ class HomePage extends Component {
 
     }
 
-    handleCreateProgram = async (programName, acutePeriod, chronicPeriod, loadingScheme, date) => {
+    handleCreateProgram = async (programName, acutePeriod, chronicPeriod, loadingScheme, date, goalList) => {
 
         programName = programName.trim()
+
+        var goalListObject = {}
+        var index = 1
+        goalList.forEach(description => {
+            goalListObject[index] = {
+                description: description,
+                complete: false
+            }
+            index++
+        })
 
         if (this.checkIfProgramAlreadyExists(programName)) {
             alert('Program with name "' + programName + '" already exists in either your current or past programs.')
@@ -104,6 +114,7 @@ class HomePage extends Component {
                 chronicPeriod,
                 loadingScheme,
                 startTimestamp,
+                goalListObject
             )
 
             this.props.firebase.setActiveProgram(

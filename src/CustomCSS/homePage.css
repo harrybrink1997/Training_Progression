@@ -27,14 +27,18 @@
 }
 
 
-#cpModalGoalsLabelContainer {
+#hpModalGoalsLabelContainer {
     padding-top: 20px;
     padding-bottom: 10px;
     display: flex;
     flex-direction: row;
 }
 
-.cpModalGoalInputChildContainer {
+.hpModalGoalInputChildContainer {
     margin: 5px;
     margin-top: 10px;
+}
+
+.hpModalModifyNumGoalsBtn:hover {
+    /* box-shadow: 0 0 5px white; */
 }

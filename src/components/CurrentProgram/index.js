@@ -14,10 +14,12 @@ import { DeleteExerciseButton } from './currentProgramPageButtons'
 import { SelectColumnFilter } from './filterSearch'
 import { calculateDailyLoads, dailyLoadCalcsRpeTime, dailyLoadCalcsWeightReps } from './calculateWeeklyLoads'
 import CloseOffProgramModal from './closeOffProgramModal'
-import { ExerciseSpreadStatsTable, LoadingSpreadStatsTable } from './statsTable'
+import { GoalsTable, LoadingSpreadStatsTable } from './statsTable'
+import AddGoalsForm from '../CustomComponents/addGoalsForm'
 
 // Import Custom functions
 import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
+import InputLabel from '../CustomComponents/DarkModeInput';
 
 
 class CurrentProgramPage extends Component {
@@ -45,6 +47,9 @@ class CurrentProgramPage extends Component {
             openDaysUI: [false, false, false, false, false, false, false],
 
             currDaySafeLoadTableData: [],
+
+            // Goal Table Data
+            goalTableData: [],
 
             // Exercise List Data
             availExercisesCols: [],
@@ -117,6 +122,7 @@ class CurrentProgramPage extends Component {
                 daysInWeekScope: this.generateDaysInWeekScope(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram),
 
                 loading: false,
+                goalTableData: this.generateGoalTableData(userObject.currentPrograms[userObject.activeProgram]),
                 loadingScheme: userObject.currentPrograms[userObject.activeProgram].loading_scheme,
                 exerciseListPerDay: this.updatedDailyExerciseList(
                     userObject,
@@ -189,6 +195,28 @@ class CurrentProgramPage extends Component {
                 }
             ]
         )
+    }
+
+    generateGoalTableData = (programObject) => {
+        console.log(programObject)
+
+        if (programObject.goals != undefined) {
+            if (programObject.goals.length > 0) {
+                var tableData = []
+
+                for (var goal in programObject.goals) {
+                    tableData.push({
+                        goalNum: goal,
+                        description: programObject.goals[goal].description,
+                        progress: (programObject.goals[goal].complete) ? 'Complete' : 'In Progress'
+                    })
+                }
+                return tableData
+            } else {
+                return []
+            }
+        }
+        return []
     }
 
     generateDaysInWeekScope = (currentDayInProgram) => {
@@ -279,22 +307,6 @@ class CurrentProgramPage extends Component {
                         var renderObj = currWeekProgExer[programDaysInCurrWeek[dayIndex]][exercise]
                         renderObj.uid = exercise
                         renderObj.deleteButton =
-                            // <Segment.Group
-                            //     horizontal
-                            //     // basic="true"
-                            //     // compact
-                            //     className=''>
-                            //     <Segment textAlign='center'>
-                            //         {loadingScheme === 'rpe_time' ?
-                            //             <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-                            //             :
-                            //             <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-                            //         }
-                            //     </Segment>
-                            //     <Segment textAlign='center'>
-                            //         <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
-                            //     </Segment>
-                            // </Segment.Group>
                             <div className='currDayExBtnContainer'>
                                 {loadingScheme === 'rpe_time' ?
                                     <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
@@ -305,17 +317,6 @@ class CurrentProgramPage extends Component {
                                 <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
                             </div>
 
-                        // <Segment className='currDayExBtnContainer' compact textAlign='center'>
-                        //     {loadingScheme === 'rpe_time' ?
-                        //         <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-
-                        //         :
-                        //         <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-                        //     }
-                        //     <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
-
-                        // </Segment>
-
 
                         dailyExercises.push(renderObj)
                     }
@@ -323,44 +324,6 @@ class CurrentProgramPage extends Component {
             }
             exPerDayObj[programDaysInCurrWeek[dayIndex]] = dailyExercises
         }
-
-        // if (!(currWeek in userObject.currentPrograms[currProg])) {
-        //     for (var day in numDaysInWeek) {
-        //         exPerDayObj[numDaysInWeek[day]] = []
-        //     }
-        // } else {
-        //     var currWeekProgExer = userObject.currentPrograms[currProg][currWeek]
-
-        //     for (var day in numDaysInWeek) {
-        //         var dailyExercises = []
-
-        //         if (numDaysInWeek[day] in currWeekProgExer) {
-        //             for (var exercise in currWeekProgExer[numDaysInWeek[day]]) {
-
-        //                 var renderObj = currWeekProgExer[numDaysInWeek[day]][exercise]
-        //                 renderObj.uid = exercise
-        //                 renderObj.deleteButton =
-        //                     <Segment.Group horizontal basic compact>
-        //                         <Segment textAlign='center'>
-        //                             {loadingScheme === 'rpe_time' ?
-        //                                 <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-        //                                 :
-        //                                 <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-        //                             }
-        //                         </Segment>
-        //                         <Segment textAlign='center'>
-        //                             <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
-        //                         </Segment>
-        //                     </Segment.Group>
-
-
-        //                 dailyExercises.push(renderObj)
-        //             }
-        //         }
-        //         exPerDayObj[numDaysInWeek[day]] = dailyExercises
-        //     }
-        // }
-
         console.log(exPerDayObj)
         return exPerDayObj
     }
@@ -533,18 +496,6 @@ class CurrentProgramPage extends Component {
                     this.state.currentDayInProgram
                 )
             )
-
-            // USE FOR WEEK CALCULATION - TO BE REMOVED. 
-            // await this.props.firebase.progressToNextWeek(
-            //     this.props.firebase.auth.currentUser.uid,
-            //     this.state.activeProgram,
-            //     parseInt(this.state.currentWeekInProgram + 1)
-            // )
-            // await this.props.firebase.setCurrentDay(
-            //     this.props.firebase.auth.currentUser.uid,
-            //     this.state.activeProgram,
-            //     '1'
-            // )
         })
 
 
@@ -558,13 +509,6 @@ class CurrentProgramPage extends Component {
 
     // Updated with new ratio calcs format
     handleAddExerciseButton = async (exerciseObject) => {
-
-        // Redundant been replaced by: setCurrentDayUI()
-        // await this.props.firebase.setCurrentDay(
-        //     this.props.firebase.auth.currentUser.uid,
-        //     this.state.activeProgram,
-        //     exerciseObject.day
-        // )
 
         await this.props.firebase.setCurrentDayUI(
             this.props.firebase.auth.currentUser.uid,
@@ -593,16 +537,6 @@ class CurrentProgramPage extends Component {
                 primMusc: exerciseObject.primMusc
             }
         }
-
-        // TODO remove to be replaced.
-        // await this.props.firebase.createExerciseUpStreamRemove(
-        //     this.props.firebase.auth.currentUser.uid,
-        //     this.state.activeProgram,
-        //     'week' + this.state.currentWeekInProgram,
-        //     exerciseObject.day,
-        //     dataPayload,
-        //     exUidObject.uid
-        // )
 
         await this.props.firebase.createExerciseUpStream(
             this.props.firebase.auth.currentUser.uid,
@@ -678,6 +612,27 @@ class CurrentProgramPage extends Component {
         })
     }
 
+    handleAddGoalData = (goalList) => {
+        var goalListObject = {}
+        var index = this.state.goalTableData.length + 1
+        goalList.forEach(description => {
+            goalListObject[index] = {
+                description: description,
+                complete: false
+            }
+            index++
+        })
+
+        for (var goalNum in goalListObject) {
+            this.props.firebase.createGoalUpStream(
+                this.props.firebase.auth.currentUser.uid,
+                this.state.activeProgram,
+                goalNum,
+                goalListObject[goalNum]
+            )
+        }
+    }
+
     generateCurrDaySafeLoadData = (programData, muscles) => {
 
         var returnData = []
@@ -731,6 +686,7 @@ class CurrentProgramPage extends Component {
             availExercisesData,
             loadingScheme,
             currDaySafeLoadTableData,
+            goalTableData,
 
             // New state variables.
             currentDayInProgram,
@@ -772,7 +728,33 @@ class CurrentProgramPage extends Component {
                 </div>
                 <div className='pageRowContainer'>
                     <div className='pageContainerLevel1' id='cpExerciseSpreadTableContainer'>
-                        <ExerciseSpreadStatsTable data={[]} />
+                        {
+                            goalTableData.length > 0 &&
+                            <div>
+                                <GoalsTable data={goalTableData} />
+                                <div className='goalsPromptBtnContainer'>
+                                    <AddGoalsForm
+                                        buttonText='Create More Goals'
+                                        headerText='Create More Goals'
+                                        handleFormSubmit={this.handleAddGoalData}
+                                        currentGoalData={goalTableData} />
+                                </div>
+                            </div>
+                        }
+                        {
+                            goalTableData.length == 0 &&
+                            <div id='noGoalsPromptContainer'>
+                                <div id='noGoalsPromptLabelContainer'>
+                                    <InputLabel text='No Current Goal Data' custID='noGoalsPromptLabel' />
+                                </div>
+                                <div className='goalsPromptBtnContainer'>
+                                    <AddGoalsForm
+                                        buttonText='Create Goals'
+                                        headerText='Create Goals'
+                                        handleFormSubmit={this.handleAddGoalData} />
+                                </div>
+                            </div>
+                        }
                     </div>
                     <div className='pageContainerLevel1'
                         id='cpLoadingSpreadTableContainer'>

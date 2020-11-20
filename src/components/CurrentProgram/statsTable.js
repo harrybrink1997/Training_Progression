@@ -2,22 +2,26 @@ import React, { useState } from 'react'
 import { Icon, Table } from 'semantic-ui-react'
 import { useTable } from 'react-table'
 
-export const ExerciseSpreadStatsTable = ({ data }) => {
+export const GoalsTable = ({ data }) => {
 
     const columns = React.useMemo(
         () => [
             {
-                Header: 'Body Part',
-                accessor: 'bodyPart'
+                Header: 'Goal Number',
+                accessor: 'goalNum'
             },
             {
-                Header: 'Volume Percentage Current Week',
-                accessor: 'weekVol',
+                Header: 'Description',
+                accessor: 'description',
 
             },
             {
-                Header: 'Volume Percentage Program Overall',
-                accessor: 'progVol',
+                Header: 'Progress',
+                accessor: 'progress',
+            },
+            {
+                Header: '',
+                accessor: 'editBtn'
             }
         ],
         []
@@ -33,6 +37,7 @@ export const ExerciseSpreadStatsTable = ({ data }) => {
         columns,
         data,
     })
+
 
     return (
         <Table celled {...getTableProps()}>
@@ -75,6 +80,7 @@ export const ExerciseSpreadStatsTable = ({ data }) => {
                     })}
             </Table.Body>
         </Table>
+
     )
 
 }

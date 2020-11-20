@@ -54,3 +54,40 @@
 #availExerciseTableContainer {
     width: 49%;
 }
+
+#cpModalGoalsLabelContainer {
+    padding-top: 20px;
+    padding-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+}
+
+.cpModalGoalInputChildContainer {
+    margin: 5px;
+    margin-top: 10px;
+}
+
+.cpModalModifyNumGoalsBtn:hover {
+    /* box-shadow: 0 0 5px white; */
+}
+
+#noGoalsPromptContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+#noGoalsPromptLabel {
+    text-align: center;
+    font-size: 20px;
+    padding: 10px;
+}
+
+/* #noGoalsPromptLabelContainer {
+    margin-bottom: 10px;
+} */
+.goalsPromptBtnContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

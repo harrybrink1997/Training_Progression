@@ -102,7 +102,7 @@ const AvailableExercisesList = ({ columns, data }) => {
                     })}
                 </Table.Body>
             </Table>
-            <Container style={{ 'margin-top': '10px' }}>
+            <Container style={{ 'marginTop': '10px' }}>
                 <Grid divided='vertically'>
                     <Grid.Row colums={3}>
                         <Grid.Column width={6}>

@@ -61,7 +61,13 @@ class Firebase {
 
     exercises = () => this.db.ref('exercises')
 
-    createProgramUpstream = (uid, pName, acuteP, chronicP, lScheme, sUTS, daysOpenAccordUI) => {
+    createGoalUpStream = (uid, pName, goalNum, goal) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${pName}/goals/${goalNum}`)
+            .set(goal)
+    }
+
+    createProgramUpstream = (uid, pName, acuteP, chronicP, lScheme, sUTS, goalList) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${pName}`)
             .set({
@@ -71,7 +77,8 @@ class Firebase {
                 startDayUTS: sUTS,
                 currentDayInProgram: 1,
                 currentDayUTS: sUTS,
-                currentDayUI: 1
+                currentDayUI: 1,
+                goals: goalList
             })
     }
 
