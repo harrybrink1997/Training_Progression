@@ -4,7 +4,7 @@ import { Modal, Button, Form, Input, Container, Icon } from 'semantic-ui-react'
 
 import InputLabel from './DarkModeInput'
 
-const AddGoalsForm = ({ handleFormSubmit, buttonText, headerText, currentGoalData }) => {
+const AddGoalsForm = ({ handleFormSubmit, buttonText, headerText, currentGoalData, triggerElement }) => {
 
     const [show, setShow] = useState(false);
 
@@ -72,7 +72,7 @@ const AddGoalsForm = ({ handleFormSubmit, buttonText, headerText, currentGoalDat
             onClose={() => setShow(false)}
             onOpen={() => setShow(true)}
             open={show}
-            trigger={<Button className='lightPurpleButton-inverted'>{buttonText}</Button>}
+            trigger={triggerElement}
         >
             <Modal.Header>{headerText}</Modal.Header>
             <Form onSubmit={handleSubmit}>

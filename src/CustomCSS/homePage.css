@@ -33,6 +33,13 @@
     display: flex;
     flex-direction: row;
 }
+#hpModalSubGoalsLabelContainer {
+    padding-top: 20px;
+    padding-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    padding-left: 15px;
+}
 
 .hpModalGoalInputChildContainer {
     margin: 5px;
