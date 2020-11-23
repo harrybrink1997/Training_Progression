@@ -18,6 +18,7 @@ import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
 
 import 'semantic-ui-css/semantic.min.css';
+import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
 
 // CSS Modules to Include
 import '../CurrentProgram/css/currDayExTable.css'

@@ -1,32 +1,49 @@
 import React, { useState } from 'react'
 
-import InputLabel from '../CustomComponents/DarkModeInput'
+// Import off shelf components
 import { Icon, Input } from 'semantic-ui-react'
+import SemanticDatepicker from 'react-semantic-ui-datepickers';
+
+// Import custom components
+import InputLabel from '../CustomComponents/DarkModeInput'
+import GoalDifficultyDropdown from '../CustomComponents/goalDifficultyDropDown'
+
+// Import custom functions
+import datePickerToString from '../../constants/datePickerToString'
 
 class Goal {
-    constructor(uid, updateParentList) {
+    constructor(uid, updateParentList, currentGoalList) {
         this.description = ''
-        this.difficulty = ''
-        this.closeOffDate = ''
-        this.subGoals = []
+        this.difficulty = 'Easy'
+        this.closeOffDate = new Date()
+        this.subGoals = {}
         this.uid = uid
         this.updateParentList = updateParentList
+        this.currentGoalList = currentGoalList
+    }
+
+    setCurrentGoalList(list) {
+        this.currentGoalList = list
     }
 
     removeSubGoal() {
         console.log(this.subGoals)
-        if (this.subGoals.length == 1) {
-            this.subGoals = []
+        if (Object.keys(this.subGoals).length == 1) {
+            this.subGoals = {}
         } else {
-            this.subGoals = this.subGoals.slice(0, -1)
-            console.log(this.subGoals)
+            var lastSubGoalIndex = Object.keys(this.subGoals).length - 1
+            delete this.subGoals[lastSubGoalIndex]
         }
-        this.updateParentList(this, this.uid)
+        console.log(this.subGoals)
+        this.updateParentList(this, this.uid, this.currentGoalList)
     }
 
     addSubGoal() {
-        this.subGoals.push(new SubGoal(this.uid + '_' + this.subGoals.length))
-        this.updateParentList(this, this.uid)
+        var newSubGoalIndex = Object.keys(this.subGoals).length
+        this.subGoals[newSubGoalIndex] = new SubGoal((parseInt(this.uid) + 1) + '_' + (parseInt(newSubGoalIndex) + 1))
+        console.log(this.subGoals)
+
+        this.updateParentList(this, this.uid, this.currentGoalList)
     }
 
     setDescription(value) {
@@ -38,21 +55,32 @@ class Goal {
         this.difficulty = value
     }
 
+    getDate() {
+        return this.closeOffDate
+    }
+    setDate(value) {
+        this.closeOffDate = value
+    }
+
     getUID() {
         return this.uid
     }
 
     getFormattedGoalObject() {
         var returnObject = {
-            description: this.description,
-            difficulty: this.difficulty,
-            closeOffDate: this.closeOffDate
+            mainGoal: {
+                description: this.description,
+                difficulty: this.difficulty,
+                closeOffDate: datePickerToString(this.closeOffDate),
+                completed: false
+            },
+            subGoals: {}
         }
 
-        if (this.subGoals.length != 0) {
-            returnObject['subGoals'] = []
-            this.subGoals.forEach(subGoal => {
-                returnObject.push(subGoal.getFormattedGoalObject())
+        if (Object.keys(this.subGoals).length != 0) {
+            returnObject['subGoals'] = {}
+            Object.values(this.subGoals).forEach(subGoal => {
+                returnObject.subGoals[subGoal.getUID()] = subGoal.getFormattedGoalObject()
             })
         }
         return returnObject
@@ -61,7 +89,7 @@ class Goal {
     formHTML() {
         // return FormInput(this.goalUID, this.description, this.setDescription)
         return (
-            <div>
+            <div className='hpCPModalGoalContainer'>
                 <GoalFormInput
                     goalUID={this.goalUID}
                     initValue={this.description}
@@ -70,10 +98,10 @@ class Goal {
                     isSubGoal={false}
                     headerText='Goal Description'
                 />
-                { this.subGoals.length > 0 &&
-                    this.subGoals.map(goal => {
+                { Object.keys(this.subGoals).length > 0 &&
+                    Object.values(this.subGoals).map(value => {
                         return (
-                            <div key={goal.getUID()}>{goal.formHTML()}</div>
+                            <div key={value.getUID()}>{value.formHTML()}</div>
                         )
                     })
                 }
@@ -93,6 +121,15 @@ const GoalFormInput = ({ goalUID, initValue, goalObj, headerText, isSubGoal }) =
         goalObj.description = value
     }
 
+    const handleDateChange = (event, { value }) => {
+        goalObj.setDate(value)
+    }
+
+    const handleDifficultyChange = (value) => {
+        goalObj.setDifficulty(value)
+        console.log(value)
+    }
+
     const handleSubGoalNumUpdate = (increase) => {
         if (increase) {
             goalObj.addSubGoal()
@@ -101,15 +138,40 @@ const GoalFormInput = ({ goalUID, initValue, goalObj, headerText, isSubGoal }) =
         }
     }
 
+
     return (
-        <div>
-            <InputLabel text={headerText} />
-            <Input
-                id={goalUID}
-                value={description}
-                onChange={handleInputChange}
-                className='cpModalGoalInputTextArea'
-            />
+        <div className={'hpCPModalGoalContainer' + ((isSubGoal) ? ' subgoal' : '')}>
+            <div className='hpCPModalAttributesContainer'>
+                <div className='hpCPModalDescriptionContainer'>
+                    <InputLabel text={headerText} />
+                    <Input
+                        required
+                        id={goalUID}
+                        value={description}
+                        onChange={handleInputChange}
+                        className='cpModalGoalInputTextArea'
+                    />
+
+                </div>
+                <div className='hpCPModalDateContainer'>
+                    <InputLabel text='Target Finish Date' />
+                    <SemanticDatepicker
+                        className='yolo'
+                        today
+                        type='basic'
+                        onChange={handleDateChange}
+                        format='DD-MM-YYYY'
+                        value={goalObj.getDate()}
+                    />
+                </div>
+                <div className='hpCPModalDifficultyContainer'>
+                    <InputLabel text='Difficulty' />
+                    <GoalDifficultyDropdown
+                        buttonHandler={handleDifficultyChange}
+                    />
+                </div>
+            </div>
+
             {!isSubGoal &&
                 <div id='hpModalSubGoalsLabelContainer'>
                     <InputLabel
@@ -146,40 +208,15 @@ class SubGoal extends Goal {
                 isSubGoal={true} />
         )
     }
+
+    getFormattedGoalObject() {
+        return {
+            description: this.description,
+            difficulty: this.difficulty,
+            closeOffDate: datePickerToString(this.closeOffDate),
+            completed: false
+        }
+    }
 }
 
-
-// const GoalFieldForm = (goalIndex, updateGoalInput, goalObject) => {
-
-//     return (
-//         <div className='hpModalGoalInputChildContainer'>
-// <InputLabel text={'Goal Description'} />
-// <Input
-//     id={goalIndex}
-//     value={goalObject}
-//     onChange={updateGoalInput}
-//     className='cpModalGoalInputTextArea'
-// />
-// <div id='hpModalSubGoalsLabelContainer'>
-//     <InputLabel
-//         text='Add Sub Goals &nbsp;'
-//     />
-//     <Icon
-//         className='hpModalModifyNumSubGoalsBtn'
-//         style={{ color: 'white' }}
-//         name='minus square outline'
-//     // onClick={() => handleSubGoalNumUpdate(false)}
-//     />
-//     <Icon
-//         className='hpModalModifyNumSubGoalsBtn'
-//         style={{ color: 'white' }}
-//         name='plus square outline'
-//     // onClick={() => handleSubGoalNumUpdate(true)}
-//     />
-// </div>
-//         </div>
-//     )
-// }
-
-// export default GoalFieldForm
 export { Goal }

@@ -35,7 +35,7 @@
 }
 #hpModalSubGoalsLabelContainer {
     padding-top: 20px;
-    padding-bottom: 10px;
+    padding-bottom: 0px;
     display: flex;
     flex-direction: row;
     padding-left: 15px;
@@ -46,6 +46,49 @@
     margin-top: 10px;
 }
 
-.hpModalModifyNumGoalsBtn:hover {
-    /* box-shadow: 0 0 5px white; */
+.hpCPModalGoalContainer {
+    display: flex;
+    flex-direction: column;
+    background: #121212;
+    padding: 5px;
+    padding-top: 10px;
+    margin: 5px;
+    margin-top: 10px;
+    margin-bottom: 0px;
+    border-radius: 5px;
+}
+
+.hpCPModalGoalContainer.subgoal {
+    display: flex;
+    flex-direction: column;
+    padding-left: 15px;
+}
+
+.hpCPModalAttributesContainer {
+    display: flex;
+    flex-direction: row;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.hpCPModalDescriptionContainer {
+    width: 50%;
+}
+
+.hpCPModalDateContainer {
+    width: 25%;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.hpCPModalDifficultyContainer {
+    width: 25%;
+}
+
+.ui.icon.input.yolo {
+    width: inherit !important;
+}
+
+.hpCPModalDateContainer .field {
+    width: 100%;
 }

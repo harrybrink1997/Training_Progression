@@ -88,42 +88,38 @@ class HomePage extends Component {
 
         programName = programName.trim()
 
-        console.log(goalList)
+        if (this.checkIfProgramAlreadyExists(programName)) {
+            alert('Program with name "' + programName + '" already exists in either your current or past programs.')
+        } else {
 
-        // var goalListObject = {}
-        // var index = 1
-        // goalList.forEach(description => {
-        //     goalListObject[index] = {
-        //         description: description,
-        //         complete: false
-        //     }
-        //     index++
-        // })
+            var goalListObject = {}
+            var index = 1
+            Object.values(goalList).forEach(goal => {
+                goalListObject[index] = goal.getFormattedGoalObject()
+                index++
+            })
 
-        // if (this.checkIfProgramAlreadyExists(programName)) {
-        //     alert('Program with name "' + programName + '" already exists in either your current or past programs.')
-        // } else {
-        //     var dateConversion = date.split('-')
+            var dateConversion = date.split('-')
 
-        //     dateConversion = dateConversion[2] + '-' + dateConversion[1] + '-' + dateConversion[0]
+            dateConversion = dateConversion[2] + '-' + dateConversion[1] + '-' + dateConversion[0]
 
-        //     var startTimestamp = Math.floor(new Date(dateConversion).getTime())
+            var startTimestamp = Math.floor(new Date(dateConversion).getTime())
 
-        //     await this.props.firebase.createProgramUpstream(
-        //         this.state.userInformation.uid,
-        //         programName,
-        //         acutePeriod,
-        //         chronicPeriod,
-        //         loadingScheme,
-        //         startTimestamp,
-        //         goalListObject
-        //     )
+            await this.props.firebase.createProgramUpstream(
+                this.state.userInformation.uid,
+                programName,
+                acutePeriod,
+                chronicPeriod,
+                loadingScheme,
+                startTimestamp,
+                goalListObject
+            )
 
-        //     this.props.firebase.setActiveProgram(
-        //         this.state.userInformation.uid,
-        //         programName
-        //     )
-        // }
+            this.props.firebase.setActiveProgram(
+                this.state.userInformation.uid,
+                programName
+            )
+        }
     }
 
 

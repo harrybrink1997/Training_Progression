@@ -3,7 +3,6 @@ import './home.css'
 import { Modal, Button, Form, Input, Container, Popup, Icon, Label, Grid } from 'semantic-ui-react'
 
 import SemanticDatepicker from 'react-semantic-ui-datepickers';
-import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
 
 import InputLabel from '../CustomComponents/DarkModeInput'
 import AddGoalsForm from '../CustomComponents/addGoalsForm'
@@ -19,12 +18,7 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
     const [loadingScheme, setLoadingScheme] = useState('rpe_time')
     const [date, setDate] = useState(new Date())
 
-    const initState = () => {
-
-        console.log("initialising ...")
-        return []
-    }
-    const [goalList, setGoalList] = useState(() => initState())
+    const [goalList, setGoalList] = useState(() => { return {} })
 
     const generateTodaysDate = (inputDay) => {
 
@@ -70,63 +64,44 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
     }
 
     const handleGoalNumUpdate = (increase) => {
+        console.log("going in big update")
         if (increase) {
             var newGoalIndex = Object.keys(goalList).length
-            let newGoalList = goalList
+            let newGoalList = { ...goalList }
             newGoalList[newGoalIndex] = new Goal(newGoalIndex, updateGoalList)
-            // setGoalList([...goalList, new Goal(goalList.length, updateGoalList)])
+            setGoalList(newGoalList)
         } else {
 
             if (Object.keys(goalList).length == 1) {
-                // if (goalList.length == 1) {
-                setGoalList([])
+                console.log("minus length one")
+                setGoalList({})
             } else {
+                console.log("minus length +")
                 var lastGoalIndex = Object.keys(goalList).length - 1
-                let newGoalList = goalList
+                let newGoalList = { ...goalList }
                 delete newGoalList[lastGoalIndex]
                 setGoalList(newGoalList)
-                // setGoalList(goalList.slice(0, -1))
             }
         }
-        // console.log(goalList)
     }
 
-    const updateGoalList = (goalObject, index) => {
+    useEffect(() => {
+        Object.values(goalList).forEach(goal => {
+            goal.setCurrentGoalList(goalList)
+        })
 
-        console.log([...goalList])
-        let newGoalList = [...goalList]
-        console.log(newGoalList.length)
-        console.log(newGoalList)
-        console.log(newGoalList[index.toString()])
+    }, [goalList]);
+
+
+    const updateGoalList = (goalObject, index, currList) => {
+        console.log("going in sub update")
+        console.log(currList)
+        console.log(index)
+        let newGoalList = { ...currList }
         newGoalList[index] = goalObject
         console.log(newGoalList)
-        setGoalList([...newGoalList])
-
+        setGoalList(newGoalList)
     }
-
-    // const handleSubGoalNumUpdate = (increase) => {
-    //     if (increase) {
-    //         setGoalList([...goalList, ''])
-    //         setNumGoals([...numGoals, numGoals.length])
-
-    //     } else {
-
-    //         if (numGoals.length == 1) {
-    //             setGoalList([])
-    //             setNumGoals([])
-    //         } else {
-    //             setGoalList(goalList.slice(0, -1))
-    //             setNumGoals(numGoals.slice(0, -1))
-    //         }
-    //     }
-    //     console.log(goalList)
-    // }
-
-    // const updateGoalInput = (event, data) => {
-    //     let returnList = [...goalList]
-    //     returnList[event.target.id] = data.value
-    //     setGoalList(returnList)
-    // }
 
     return (
         <Modal
@@ -251,43 +226,11 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                             </div>
                             <div id='hpModalGoalsInputContainer'>
                                 {
-                                    goalList.map((goal) => {
+                                    Object.values(goalList).map((value, index) => {
                                         return (
-                                            <div key={goal.getUID()}>
-                                                {goal.formHTML()}
+                                            <div key={index}>
+                                                {value.formHTML()}
                                             </div>
-                                            // <GoalFieldForm
-                                            //     key={index}
-                                            //     updateGoalInput={updateGoalInput}
-                                            //     goalIndex={index}
-                                            //     goalObject={goalList[index]}
-                                            // />
-                                            // <div key={index} className='hpModalGoalInputChildContainer'>
-                                            //     <InputLabel text={'Goal ' + (parseInt(index) + 1).toString()} />
-                                            //     <Input
-                                            //         id={index}
-                                            //         value={goalList[index]}
-                                            //         onChange={updateGoalInput}
-                                            //         className='cpModalGoalInputTextArea'
-                                            //     />
-                                            //     <div id='hpModalSubGoalsLabelContainer'>
-                                            //         <InputLabel
-                                            //             text='Add Sub Goals &nbsp;'
-                                            //         />
-                                            //         <Icon
-                                            //             className='hpModalModifyNumSubGoalsBtn'
-                                            //             style={{ color: 'white' }}
-                                            //             name='minus square outline'
-                                            //         // onClick={() => handleSubGoalNumUpdate(false)}
-                                            //         />
-                                            //         <Icon
-                                            //             className='hpModalModifyNumSubGoalsBtn'
-                                            //             style={{ color: 'white' }}
-                                            //             name='plus square outline'
-                                            //         // onClick={() => handleSubGoalNumUpdate(true)}
-                                            //         />
-                                            //     </div>
-                                            // </div>
                                         )
                                     })
                                 }
@@ -305,7 +248,24 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
     );
 }
 
-const initialGoalListState = []
+// const initialGoalListState = []
 
+// const reducer = (state, action) => {
+//     switch (action.type) {
+//         case 'add':
+//             var newGoalIndex = Object.keys(state).length
+//             let newState = { ...state }
+//             newState[newGoalIndex] = action.item
+//             return newState
+//             newGoalList[newGoalIndex] = new Goal(newGoalIndex, updateGoalList)
+//         case 'remove':
+
+
+//         case 'update':
+
+//         default:
+//             throw new Error()
+//     }
+// }
 
 export default CreateProgramModal;
