@@ -72,7 +72,6 @@ export const GoalsTable = ({ data, expandedRows, expandedRowsHandler }) => {
 
 
     useEffect(() => {
-        console.log("expanded changed.")
         expandedRowsHandler(expanded)
     }, [expanded])
 

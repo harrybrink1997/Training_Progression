@@ -252,7 +252,11 @@ class CurrentProgramPage extends Component {
         var idComponents = id.split('_')
         console.log(idComponents)
         if (idComponents[0] == 'mg') {
-            path = 'Goal_' + idComponents[2]
+            if (idComponents[3] == 'deleteGoal') {
+                path = 'Goal_' + idComponents[2]
+            } else {
+                path = 'Goal_' + idComponents[2] + '/mainGoal'
+            }
         } else if (idComponents[0] == 'sg') {
             path = 'Goal_' + idComponents[1] + '/subGoals/' + idComponents[1] + '_' + idComponents[2]
 

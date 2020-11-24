@@ -28,7 +28,7 @@ const EditExerciseButton = ({ buttonHandler }) => {
 
 const DeleteGoalButton = ({ buttonHandler, uid }) => {
 
-    const id = uid + "_delGoalBtn"
+    const id = uid + "_deleteGoal"
 
     return (
         <Button circular icon='delete' className="deleteGoal" onClick={() => buttonHandler(id)} />
@@ -37,7 +37,7 @@ const DeleteGoalButton = ({ buttonHandler, uid }) => {
 
 const CompleteGoalButton = ({ buttonHandler, uid }) => {
 
-    const id = uid + "_completeGoalBtn"
+    const id = uid + "_completeGoal"
 
     return (
         <Button circular icon='check' className="completeGoal" onClick={() => buttonHandler(id)} />
