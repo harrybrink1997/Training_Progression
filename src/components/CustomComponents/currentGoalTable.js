@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Icon, Table } from 'semantic-ui-react'
 import { useTable, useExpanded } from 'react-table'
 
-export const GoalsTable = ({ data }) => {
+export const GoalsTable = ({ data, expandedRows, expandedRowsHandler }) => {
 
     const columns = React.useMemo(
         () => [
@@ -63,10 +63,18 @@ export const GoalsTable = ({ data }) => {
         {
             columns,
             data,
+            initialState: {
+                expanded: expandedRows
+            }
         },
         useExpanded
     )
 
+
+    useEffect(() => {
+        console.log("expanded changed.")
+        expandedRowsHandler(expanded)
+    }, [expanded])
 
     return (
         <Table celled {...getTableProps()}>

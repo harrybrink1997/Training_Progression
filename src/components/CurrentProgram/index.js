@@ -52,6 +52,7 @@ class CurrentProgramPage extends Component {
 
             // Goal Table Data
             goalTableData: [],
+            expandedRows: {},
 
             // Exercise List Data
             availExercisesCols: [],
@@ -147,6 +148,12 @@ class CurrentProgramPage extends Component {
                 loading: false
             })
         }
+    }
+
+    updateExpandedRows = (rows) => {
+        this.setState({
+            expandedRows: rows
+        })
     }
 
     // Updated with new ratio calcs format
@@ -754,7 +761,8 @@ class CurrentProgramPage extends Component {
             // New state variables.
             currentDayInProgram,
             daysInWeekScope,
-            openDaysUI
+            openDaysUI,
+            expandedRows
         } = this.state
 
         console.log(this.state)
@@ -794,7 +802,11 @@ class CurrentProgramPage extends Component {
                         {
                             goalTableData.length > 0 &&
                             <div>
-                                <GoalsTable data={goalTableData} />
+                                <GoalsTable
+                                    data={goalTableData}
+                                    expandedRowsHandler={this.updateExpandedRows}
+                                    expandedRows={expandedRows}
+                                />
                                 <div className='goalsPromptBtnContainer'>
                                     <AddGoalsForm
                                         buttonText='Create More Goals'
