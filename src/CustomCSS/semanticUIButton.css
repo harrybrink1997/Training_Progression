@@ -51,3 +51,11 @@
 .ui.circular.icon.button.deleteExerciseButton {
     background: #CF6679;
 }
+
+.ui.circular.icon.button.deleteGoal {
+    background: #CF6679;
+}
+
+.ui.circular.icon.button.completeGoal {
+    background: #8cfc86;
+}

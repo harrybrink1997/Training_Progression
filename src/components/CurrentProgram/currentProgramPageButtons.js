@@ -26,4 +26,22 @@ const EditExerciseButton = ({ buttonHandler }) => {
     )
 }
 
-export { DeleteExerciseButton, SubmitWeekButton, SaveProgramButton, EditExerciseButton };
+const DeleteGoalButton = ({ buttonHandler, uid }) => {
+
+    const id = uid + "_delGoalBtn"
+
+    return (
+        <Button circular icon='delete' className="deleteGoal" onClick={() => buttonHandler(id)} />
+    )
+}
+
+const CompleteGoalButton = ({ buttonHandler, uid }) => {
+
+    const id = uid + "_completeGoalBtn"
+
+    return (
+        <Button circular icon='check' className="completeGoal" onClick={() => buttonHandler(id)} />
+    )
+}
+
+export { DeleteExerciseButton, SubmitWeekButton, SaveProgramButton, EditExerciseButton, DeleteGoalButton, CompleteGoalButton };

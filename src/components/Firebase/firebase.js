@@ -67,6 +67,18 @@ class Firebase {
             .set(goal)
     }
 
+    completeGoalUpstream = (uid, pName, goalPath) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${pName}/goals/${goalPath}/completed`)
+            .set(true)
+    }
+
+    deleteGoalUpstream = (uid, pName, goalPath) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${pName}/goals/${goalPath}`)
+            .remove()
+    }
+
     createProgramUpstream = (uid, pName, acuteP, chronicP, lScheme, sUTS, goalList) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${pName}`)

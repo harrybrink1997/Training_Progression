@@ -95,7 +95,7 @@ class HomePage extends Component {
             var goalListObject = {}
             var index = 1
             Object.values(goalList).forEach(goal => {
-                goalListObject[index] = goal.getFormattedGoalObject()
+                goalListObject['Goal_' + index] = goal.getFormattedGoalObject()
                 index++
             })
 

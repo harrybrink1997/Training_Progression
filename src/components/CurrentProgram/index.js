@@ -10,12 +10,14 @@ import AvailableExercisesList from './availableExercisesList'
 import SubmitDayModal from './submitDayModal'
 import { AddExerciseModalWeightReps, AddExerciseModalRpeTime } from './addExerciseModal'
 import { EditExerciseModalWeightSets, EditExerciseModalRpeTime } from './editExerciseModal'
-import { DeleteExerciseButton } from './currentProgramPageButtons'
+import { DeleteExerciseButton, DeleteGoalButton, CompleteGoalButton } from './currentProgramPageButtons'
 import { SelectColumnFilter } from './filterSearch'
 import { calculateDailyLoads, dailyLoadCalcsRpeTime, dailyLoadCalcsWeightReps } from './calculateWeeklyLoads'
 import CloseOffProgramModal from './closeOffProgramModal'
-import { GoalsTable, LoadingSpreadStatsTable } from './statsTable'
+import { LoadingSpreadStatsTable } from './statsTable'
 import AddGoalsForm from '../CustomComponents/addGoalsForm'
+import GoalsTable from '../CustomComponents/currentGoalTable'
+import EditGoalModal from '../CustomComponents/editGoalModal'
 
 // Import Custom functions
 import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
@@ -197,20 +199,92 @@ class CurrentProgramPage extends Component {
         )
     }
 
+    generateSubGoalData = (subGoalList) => {
+        var returnArray = []
+        Object.keys(subGoalList).forEach(subGoalKey => {
+            var subGoal = subGoalList[subGoalKey]
+            returnArray.push({
+                description: subGoal.description,
+                progress: (subGoal.completed) ? 'Complete' : 'In Progress',
+                targetCloseDate: subGoal.closeOffDate,
+                difficulty: subGoal.difficulty,
+                btns: <div className='editGoalTableBtnContainer'>
+                    <CompleteGoalButton buttonHandler={this.handleCompleteGoalButton} uid={'sg_' + subGoalKey} />
+                    <EditGoalModal submitHandler={this.handleEditGoalSubmit} uid={'sg_' + subGoalKey} isSubGoal={true} />
+                    <DeleteGoalButton buttonHandler={this.handleDeleteGoalButton} uid={'sg_' + subGoalKey} />
+                </div>
+            })
+        })
+
+        return returnArray
+    }
+
+    handleDeleteGoalButton = async (id) => {
+        await this.props.firebase.deleteGoalUpstream(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram,
+            this.generateGoalPathFromID(id)
+        )
+    }
+
+    handleCompleteGoalButton = async (id) => {
+
+        await this.props.firebase.completeGoalUpstream(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram,
+            this.generateGoalPathFromID(id)
+        )
+    }
+
+    handleEditGoalSubmit = (goalData) => {
+        console.log('hey')
+    }
+
+    generateGoalPathFromID = (id) => {
+        var path = ''
+        var idComponents = id.split('_')
+        console.log(idComponents)
+        if (idComponents[0] == 'mg') {
+            path = 'Goal_' + idComponents[2]
+        } else if (idComponents[0] == 'sg') {
+            path = 'Goal_' + idComponents[1] + '/subGoals/' + idComponents[1] + '_' + idComponents[2]
+
+        }
+        return path
+    }
+
     generateGoalTableData = (programObject) => {
         console.log(programObject)
 
         if (programObject.goals != undefined) {
-            if (programObject.goals.length > 0) {
+            if (Object.keys(programObject.goals).length > 0) {
                 var tableData = []
 
-                for (var goal in programObject.goals) {
-                    tableData.push({
-                        goalNum: goal,
-                        description: programObject.goals[goal].description,
-                        progress: (programObject.goals[goal].complete) ? 'Complete' : 'In Progress'
-                    })
-                }
+                Object.keys(programObject.goals).forEach(goalKey => {
+                    var goal = programObject.goals[goalKey]
+                    if (goal.subGoals != undefined) {
+                        tableData.push({
+                            description: goal.mainGoal.description,
+                            progress: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
+                            subRows: this.generateSubGoalData(goal.subGoals),
+                            targetCloseDate: goal.mainGoal.closeOffDate,
+                            difficulty: goal.mainGoal.difficulty
+                        })
+                    } else {
+                        tableData.push({
+                            description: goal.mainGoal.description,
+                            progress: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
+                            targetCloseDate: goal.mainGoal.closeOffDate,
+                            difficulty: goal.mainGoal.difficulty,
+                            btns: <div className='editGoalTableBtnContainer'>
+                                <CompleteGoalButton buttonHandler={this.handleCompleteGoalButton} uid={'mg_' + goalKey} />
+                                <EditGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoal={false} />
+                                <DeleteGoalButton buttonHandler={this.handleDeleteGoalButton} uid={'mg_' + goalKey} />
+                            </div>
+
+                        })
+                    }
+                })
                 return tableData
             } else {
                 return []
@@ -258,17 +332,6 @@ class CurrentProgramPage extends Component {
                 primMusc: updateObject.primMusc
             }
         }
-
-        // TODO remove
-        // await this.props.firebase.pushExercisePropertiesUpstreamRemove(
-        //     this.props.firebase.auth.currentUser.uid,
-        //     this.state.activeProgram,
-        //     'week' + this.state.currentWeekInProgram,
-        //     day,
-        //     updateObject.exUid,
-        //     dataPayload
-        // )
-
         await this.props.firebase.pushExercisePropertiesUpstream(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
