@@ -18,6 +18,7 @@ import { LoadingSpreadStatsTable } from './statsTable'
 import AddGoalsForm from '../CustomComponents/addGoalsForm'
 import GoalsTable from '../CustomComponents/currentGoalTable'
 import EditGoalModal from '../CustomComponents/editGoalModal'
+import AddSubGoalModal from '../CustomComponents/addSubGoalsModal'
 
 // Import Custom functions
 import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
@@ -221,7 +222,7 @@ class CurrentProgramPage extends Component {
                     <CompleteGoalButton buttonHandler={this.handleCompleteGoalButton} uid={'sg_' + subGoalKey} currProgress={subGoal.completed} />
                     <EditGoalModal
                         submitHandler={this.handleEditGoalSubmit} uid={'sg_' + subGoalKey}
-                        isSubGoalBoolean={true}
+                        isSubGoal={true}
                         currentData={subGoal}
                     />
                     <DeleteGoalButton buttonHandler={this.handleDeleteGoalButton} uid={'sg_' + subGoalKey} />
@@ -328,8 +329,16 @@ class CurrentProgramPage extends Component {
         }
     }
 
-    handleEditGoalSubmit = (goalData) => {
-        console.log('hey')
+    handleEditGoalSubmit = (id, goalData) => {
+        console.log(this.generateGoalPathFromID(id))
+        console.log(goalData.getFormattedGoalObject())
+
+        this.props.firebase.modifyGoalUpstream(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram,
+            this.generateGoalPathFromID(id),
+            goalData.getFormattedGoalObject()
+        )
     }
 
     generateGoalPathFromID = (id) => {
@@ -365,9 +374,13 @@ class CurrentProgramPage extends Component {
                             completed: goal.mainGoal.completed,
                             subRows: this.generateSubGoalData(goal.subGoals),
                             goalUID: goalKey,
-                            btns: <EditGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoalBoolean={false} />,
                             targetCloseDate: goal.mainGoal.closeOffDate,
-                            difficulty: goal.mainGoal.difficulty
+                            difficulty: goal.mainGoal.difficulty,
+                            btns:
+                                <div className='editGoalTableBtnContainer'>
+                                    <AddSubGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
+                                    <EditGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
+                                </div>
                         })
                     } else {
                         tableData.push({
@@ -377,11 +390,13 @@ class CurrentProgramPage extends Component {
                             completed: goal.mainGoal.completed,
                             goalUID: goalKey,
                             difficulty: goal.mainGoal.difficulty,
-                            btns: <div className='editGoalTableBtnContainer'>
-                                <CompleteGoalButton buttonHandler={this.handleCompleteGoalButton} uid={'mg_' + goalKey} currProgress={goal.mainGoal.completed} />
-                                <EditGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoalBoolean={false} />
-                                <DeleteGoalButton buttonHandler={this.handleDeleteGoalButton} uid={'mg_' + goalKey} />
-                            </div>
+                            btns:
+                                <div className='editGoalTableBtnContainer'>
+                                    <AddSubGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
+                                    <CompleteGoalButton buttonHandler={this.handleCompleteGoalButton} uid={'mg_' + goalKey} currProgress={goal.mainGoal.completed} />
+                                    <EditGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
+                                    <DeleteGoalButton buttonHandler={this.handleDeleteGoalButton} uid={'mg_' + goalKey} />
+                                </div>
 
                         })
                     }

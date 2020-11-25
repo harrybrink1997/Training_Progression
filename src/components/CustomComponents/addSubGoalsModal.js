@@ -7,7 +7,7 @@ import { Goal, SubGoal } from '../CustomComponents/goalFieldForm'
 
 import convertDateStringToObject from '../../constants/convertDateStringToObject'
 
-const EditGoalModal = ({ submitHandler, uid, currentData, isSubGoal }) => {
+const AddSubGoalModal = ({ submitHandler, uid, currentData }) => {
 
     const [show, setShow] = useState(false);
     const goalUID = uid + '_editGoal'
@@ -16,10 +16,6 @@ const EditGoalModal = ({ submitHandler, uid, currentData, isSubGoal }) => {
         console.log(data)
         if (data != undefined) {
             let goal = new SubGoal(uid, undefined, undefined)
-            goal.setDate(convertDateStringToObject(data.closeOffDate, '.'))
-            goal.setDescription(data.description)
-            goal.setDifficulty(data.difficulty)
-            goal.setCompleted(data.completed)
             return goal
         }
         return false
@@ -30,8 +26,7 @@ const EditGoalModal = ({ submitHandler, uid, currentData, isSubGoal }) => {
     const handleSubmit = (event) => {
         event.preventDefault()
         setShow(false);
-
-        submitHandler(goalUID, goal)
+        submitHandler(goal)
 
     }
 
@@ -45,11 +40,11 @@ const EditGoalModal = ({ submitHandler, uid, currentData, isSubGoal }) => {
             trigger=
             {
                 <div className='editExBtnTrigger'>
-                    <Button circular icon='edit' />
+                    <Button circular icon='plus' className='addSubGoal' />
                 </div>
             }
         >
-            <Modal.Header>{'Edit ' + ((isSubGoal) ? 'Sub Goal' : 'Goal')}</Modal.Header>
+            <Modal.Header>Create Sub Goals</Modal.Header>
             <Form onSubmit={handleSubmit}>
                 <Modal.Content className='editModalContent'>
                     {
@@ -58,10 +53,10 @@ const EditGoalModal = ({ submitHandler, uid, currentData, isSubGoal }) => {
                 </Modal.Content>
                 <Modal.Actions className='editModalActions'>
                     <Button onClick={() => setShow(false)}>Close</Button>
-                    <Button type="submit">Edit</Button>
+                    <Button type="submit">Create Sub Goal</Button>
                 </Modal.Actions>
             </Form>
         </Modal>
     );
 }
-export default EditGoalModal
+export default AddSubGoalModal

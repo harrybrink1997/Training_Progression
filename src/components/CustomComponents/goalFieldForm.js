@@ -16,6 +16,7 @@ class Goal {
         this.description = ''
         this.difficulty = 'Easy'
         this.closeOffDate = new Date()
+        this.completed = false
         this.subGoals = {}
         this.uid = uid
         this.updateParentList = updateParentList
@@ -51,6 +52,10 @@ class Goal {
         this.description = value
     }
 
+    setCompleted(value) {
+        this.completed = value
+    }
+
     setDifficulty(value) {
         this.difficulty = value
     }
@@ -70,13 +75,17 @@ class Goal {
         return this.uid
     }
 
+    getDifficulty() {
+        return this.difficulty
+    }
+
     getFormattedGoalObject() {
         var returnObject = {
             mainGoal: {
                 description: this.description,
                 difficulty: this.difficulty,
                 closeOffDate: datePickerToString(this.closeOffDate),
-                completed: false
+                completed: this.completed
             },
             subGoals: {}
         }
@@ -170,6 +179,7 @@ const GoalFormInput = ({ goalUID, goalObj, headerText, isSubGoal }) => {
                     <InputLabel text='Difficulty' />
                     <GoalDifficultyDropdown
                         buttonHandler={handleDifficultyChange}
+                        initialValue={goalObj.getDifficulty()}
                     />
                 </div>
             </div>
@@ -216,7 +226,7 @@ class SubGoal extends Goal {
             description: this.description,
             difficulty: this.difficulty,
             closeOffDate: datePickerToString(this.closeOffDate),
-            completed: false
+            completed: this.completed
         }
     }
 }

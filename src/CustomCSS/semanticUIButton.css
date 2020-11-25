@@ -59,3 +59,7 @@
 .ui.circular.icon.button.completeGoal {
     background: #8cfc86;
 }
+
+.ui.circular.icon.button.addSubGoal {
+    background: #BB86FC;
+}

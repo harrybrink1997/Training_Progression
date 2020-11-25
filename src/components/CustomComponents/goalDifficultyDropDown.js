@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 
 import { Dropdown } from 'semantic-ui-react'
 
-const GoalDifficultyDropdown = ({ buttonHandler }) => {
+const GoalDifficultyDropdown = ({ buttonHandler, initialValue }) => {
 
-    const [value, setValue] = useState('Easy')
+    const [value, setValue] = useState(initialValue)
 
     const data = [
         {
