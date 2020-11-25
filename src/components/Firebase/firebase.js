@@ -67,10 +67,10 @@ class Firebase {
             .set(goal)
     }
 
-    completeGoalUpstream = (uid, pName, goalPath) => {
+    completeGoalUpstream = (uid, pName, goalPath, value) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${pName}/goals/${goalPath}/completed`)
-            .set(true)
+            .set(value)
     }
 
     deleteGoalUpstream = (uid, pName, goalPath) => {

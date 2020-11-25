@@ -35,12 +35,13 @@ const DeleteGoalButton = ({ buttonHandler, uid }) => {
     )
 }
 
-const CompleteGoalButton = ({ buttonHandler, uid }) => {
+const CompleteGoalButton = ({ buttonHandler, uid, currProgress }) => {
 
     const id = uid + "_completeGoal"
+    const goalProgress = currProgress
 
     return (
-        <Button circular icon='check' className="completeGoal" onClick={() => buttonHandler(id)} />
+        <Button circular icon='check' className="completeGoal" onClick={() => buttonHandler(id, goalProgress)} />
     )
 }
 

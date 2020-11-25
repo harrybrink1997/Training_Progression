@@ -212,12 +212,18 @@ class CurrentProgramPage extends Component {
             var subGoal = subGoalList[subGoalKey]
             returnArray.push({
                 description: subGoal.description,
-                progress: (subGoal.completed) ? 'Complete' : 'In Progress',
+                progressString: (subGoal.completed) ? 'Complete' : 'In Progress',
+                completed: subGoal.completed,
                 targetCloseDate: subGoal.closeOffDate,
+                goalUID: subGoalKey,
                 difficulty: subGoal.difficulty,
                 btns: <div className='editGoalTableBtnContainer'>
-                    <CompleteGoalButton buttonHandler={this.handleCompleteGoalButton} uid={'sg_' + subGoalKey} />
-                    <EditGoalModal submitHandler={this.handleEditGoalSubmit} uid={'sg_' + subGoalKey} isSubGoal={true} />
+                    <CompleteGoalButton buttonHandler={this.handleCompleteGoalButton} uid={'sg_' + subGoalKey} currProgress={subGoal.completed} />
+                    <EditGoalModal
+                        submitHandler={this.handleEditGoalSubmit} uid={'sg_' + subGoalKey}
+                        isSubGoalBoolean={true}
+                        currentData={subGoal}
+                    />
                     <DeleteGoalButton buttonHandler={this.handleDeleteGoalButton} uid={'sg_' + subGoalKey} />
                 </div>
             })
@@ -234,13 +240,92 @@ class CurrentProgramPage extends Component {
         )
     }
 
-    handleCompleteGoalButton = async (id) => {
+    generateGoalParentIDFromSubgoalID = (id) => {
+        var goalIDs = {}
+        var idComponents = id.split('_')
+        // return 'Goal_' + idComponents[1]
 
-        await this.props.firebase.completeGoalUpstream(
-            this.props.firebase.auth.currentUser.uid,
-            this.state.activeProgram,
-            this.generateGoalPathFromID(id)
-        )
+        if (idComponents[0] == 'mg') {
+            goalIDs['isSubGoal'] = false
+            goalIDs['mainGoal'] = 'Goal_' + idComponents[2]
+        } else if (idComponents[0] == 'sg') {
+            goalIDs['isSubGoal'] = true
+            goalIDs['mainGoal'] = 'Goal_' + idComponents[1]
+            goalIDs['subGoal'] = idComponents[1] + '_' + idComponents[2]
+        }
+        return goalIDs
+    }
+
+    handleCompleteGoalButton = async (id, currProgress) => {
+
+        console.log(currProgress)
+
+        var goalInfo = this.generateGoalParentIDFromSubgoalID(id)
+        var totalGoalInfo = this.state.goalTableData
+        // If the goal selected is a sub goal. Progress of main goal must be assessed as well.
+        // For each of the main goals find the correct parent goal, then check if all sub goals are completed. 
+        // If all subgoals are completed check the main goal as completed as well, else main goal remains incomplete.
+        if (goalInfo.isSubGoal) {
+            console.log("going in main if")
+            for (var mgIndex in totalGoalInfo) {
+                var mainGoal = totalGoalInfo[mgIndex]
+                if (mainGoal.goalUID == goalInfo.mainGoal) {
+                    console.log("going in sub if")
+                    this.props.firebase.completeGoalUpstream(
+                        this.props.firebase.auth.currentUser.uid,
+                        this.state.activeProgram,
+                        this.generateGoalPathFromID(id),
+                        !currProgress
+                    )
+
+                    // If the sub goal is going to false and the main goal is currently
+                    // completed then changed both to false. 
+                    if (!currProgress == false && mainGoal.completed == true) {
+                        await this.props.firebase.completeGoalUpstream(
+                            this.props.firebase.auth.currentUser.uid,
+                            this.state.activeProgram,
+                            goalInfo.mainGoal + '/mainGoal',
+                            false
+                        )
+                    } else if (!currProgress == true && mainGoal.completed == false) {
+
+                        var allSubGoalsCompleted = true
+
+                        // Iterate through all sub goals to check that all are completed.
+                        // Skip the current goal which is going to be changed. As this will updated with the
+                        // the main goal.
+                        for (var sgIndex in mainGoal.subRows) {
+                            var subGoal = mainGoal.subRows[sgIndex]
+                            if (!subGoal.completed && goalInfo.subGoal != subGoal.goalUID) {
+                                allSubGoalsCompleted = false
+                                break
+                            }
+                        }
+
+                        // If all the other goals are completed besides the current goal to be changed.
+                        // Change the main goal to completed. 
+                        if (allSubGoalsCompleted) {
+                            await this.props.firebase.completeGoalUpstream(
+                                this.props.firebase.auth.currentUser.uid,
+                                this.state.activeProgram,
+                                goalInfo.mainGoal + '/mainGoal',
+                                allSubGoalsCompleted
+                            )
+                        }
+
+                    }
+
+                    break
+                }
+            }
+        } else {
+            await this.props.firebase.completeGoalUpstream(
+                this.props.firebase.auth.currentUser.uid,
+                this.state.activeProgram,
+                this.generateGoalPathFromID(id),
+                !currProgress
+            )
+        }
     }
 
     handleEditGoalSubmit = (goalData) => {
@@ -276,20 +361,25 @@ class CurrentProgramPage extends Component {
                     if (goal.subGoals != undefined) {
                         tableData.push({
                             description: goal.mainGoal.description,
-                            progress: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
+                            progressString: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
+                            completed: goal.mainGoal.completed,
                             subRows: this.generateSubGoalData(goal.subGoals),
+                            goalUID: goalKey,
+                            btns: <EditGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoalBoolean={false} />,
                             targetCloseDate: goal.mainGoal.closeOffDate,
                             difficulty: goal.mainGoal.difficulty
                         })
                     } else {
                         tableData.push({
                             description: goal.mainGoal.description,
-                            progress: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
+                            progressString: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
                             targetCloseDate: goal.mainGoal.closeOffDate,
+                            completed: goal.mainGoal.completed,
+                            goalUID: goalKey,
                             difficulty: goal.mainGoal.difficulty,
                             btns: <div className='editGoalTableBtnContainer'>
-                                <CompleteGoalButton buttonHandler={this.handleCompleteGoalButton} uid={'mg_' + goalKey} />
-                                <EditGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoal={false} />
+                                <CompleteGoalButton buttonHandler={this.handleCompleteGoalButton} uid={'mg_' + goalKey} currProgress={goal.mainGoal.completed} />
+                                <EditGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoalBoolean={false} />
                                 <DeleteGoalButton buttonHandler={this.handleDeleteGoalButton} uid={'mg_' + goalKey} />
                             </div>
 

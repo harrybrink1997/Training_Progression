@@ -42,7 +42,7 @@ export const GoalsTable = ({ data, expandedRows, expandedRowsHandler }) => {
             },
             {
                 Header: 'Progress',
-                accessor: 'progress',
+                accessor: 'progressString',
             },
             {
                 Header: '',

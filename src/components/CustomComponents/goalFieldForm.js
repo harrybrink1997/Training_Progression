@@ -62,6 +62,10 @@ class Goal {
         this.closeOffDate = value
     }
 
+    getDescription() {
+        return this.description
+    }
+
     getUID() {
         return this.uid
     }
@@ -92,11 +96,9 @@ class Goal {
             <div className='hpCPModalGoalContainer'>
                 <GoalFormInput
                     goalUID={this.goalUID}
-                    initValue={this.description}
-                    updateGoalInput={this.setDescription}
                     goalObj={this}
-                    isSubGoal={false}
                     headerText='Goal Description'
+                    isSubGoal={false}
                 />
                 { Object.keys(this.subGoals).length > 0 &&
                     Object.values(this.subGoals).map(value => {
@@ -112,13 +114,13 @@ class Goal {
 
 }
 
-const GoalFormInput = ({ goalUID, initValue, goalObj, headerText, isSubGoal }) => {
+const GoalFormInput = ({ goalUID, goalObj, headerText, isSubGoal }) => {
 
-    const [description, setDescription] = useState(initValue)
+    const [description, setDescription] = useState(goalObj.getDescription())
 
     const handleInputChange = (event, { value }) => {
         setDescription(value)
-        goalObj.description = value
+        goalObj.setDescription(value)
     }
 
     const handleDateChange = (event, { value }) => {
@@ -156,7 +158,7 @@ const GoalFormInput = ({ goalUID, initValue, goalObj, headerText, isSubGoal }) =
                 <div className='hpCPModalDateContainer'>
                     <InputLabel text='Target Finish Date' />
                     <SemanticDatepicker
-                        className='yolo'
+                        className='goalDate'
                         today
                         type='basic'
                         onChange={handleDateChange}
@@ -219,4 +221,4 @@ class SubGoal extends Goal {
     }
 }
 
-export { Goal }
+export { Goal, SubGoal }
