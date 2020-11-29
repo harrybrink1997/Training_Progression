@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import { withAuthorisation } from '../Session';
-import { Grid, Loader, Dimmer, Header, Container, Segment } from 'semantic-ui-react'
+import { Loader, Dimmer, Header, Button } from 'semantic-ui-react'
 
 
 import CurrentProgramDropdown from './currentProgramsDropdown'
@@ -241,6 +241,31 @@ class CurrentProgramPage extends Component {
         )
     }
 
+    generateNewMainGoalUID = () => {
+        var currentMainGoalUIDs = []
+        var newMainGoalIndex = 1
+
+        this.state.goalTableData.forEach(mainGoal => {
+            currentMainGoalUIDs.push(mainGoal.goalUID)
+        })
+
+        var newGoalUIDFound = false
+        var newMainGoalUID = ''
+        while (!newGoalUIDFound) {
+            newMainGoalUID = 'Goal_' + newMainGoalIndex
+            if (currentMainGoalUIDs.includes(newMainGoalUID)) {
+                newMainGoalIndex++
+                continue
+            } else {
+                newGoalUIDFound = true
+                break
+            }
+
+        }
+
+        return newMainGoalIndex - 1
+
+    }
     generateGoalParentIDFromSubgoalID = (id) => {
         var goalIDs = {}
         var idComponents = id.split('_')
@@ -854,25 +879,14 @@ class CurrentProgramPage extends Component {
         })
     }
 
-    handleAddGoalData = (goalList) => {
-        var goalListObject = {}
-        var index = this.state.goalTableData.length + 1
-        goalList.forEach(description => {
-            goalListObject[index] = {
-                description: description,
-                complete: false
-            }
-            index++
-        })
+    handleAddGoalData = (goalData) => {
 
-        for (var goalNum in goalListObject) {
-            this.props.firebase.createGoalUpStream(
-                this.props.firebase.auth.currentUser.uid,
-                this.state.activeProgram,
-                goalNum,
-                goalListObject[goalNum]
-            )
-        }
+        this.props.firebase.createMainGoalUpstream(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram,
+            'Goal_' + (parseInt(goalData.getUID()) + 1),
+            goalData.getFormattedGoalObject()
+        )
     }
 
     generateCurrDaySafeLoadData = (programData, muscles) => {
@@ -984,7 +998,14 @@ class CurrentProgramPage extends Component {
                                         buttonText='Create More Goals'
                                         headerText='Create More Goals'
                                         handleFormSubmit={this.handleAddGoalData}
-                                        currentGoalData={goalTableData} />
+                                        newMainGoalUID={this.generateNewMainGoalUID()}
+                                        triggerElement={
+                                            <Button
+                                                className='lightPurpleButton-inverted'>
+                                                Add More Goals
+                                            </Button>
+                                        }
+                                    />
                                 </div>
                             </div>
                         }
@@ -998,7 +1019,16 @@ class CurrentProgramPage extends Component {
                                     <AddGoalsForm
                                         buttonText='Create Goals'
                                         headerText='Create Goals'
-                                        handleFormSubmit={this.handleAddGoalData} />
+                                        handleFormSubmit={this.handleAddGoalData}
+                                        newMainGoalUID={this.generateNewMainGoalUID()}
+                                        triggerElement={
+                                            <Button
+                                                className='lightPurpleButton-inverted'>
+                                                Create A Goal
+                                            </Button>
+                                        }
+
+                                    />
                                 </div>
                             </div>
                         }

@@ -94,12 +94,8 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
 
 
     const updateGoalList = (goalObject, index, currList) => {
-        console.log("going in sub update")
-        console.log(currList)
-        console.log(index)
         let newGoalList = { ...currList }
         newGoalList[index] = goalObject
-        console.log(newGoalList)
         setGoalList(newGoalList)
     }
 
