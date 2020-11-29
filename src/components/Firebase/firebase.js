@@ -73,6 +73,12 @@ class Firebase {
             .set(value)
     }
 
+    createSubGoalUpstream = (uid, pName, goalPath, value) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${pName}/goals/${goalPath}`)
+            .set(value)
+    }
+
     completeGoalUpstream = (uid, pName, goalPath, value) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${pName}/goals/${goalPath}/completed`)

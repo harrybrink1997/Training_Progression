@@ -341,6 +341,69 @@ class CurrentProgramPage extends Component {
         )
     }
 
+    handleCreateSubGoalSubmit = async (goalData, mainGoalID) => {
+        console.log("inside create subgoal")
+        console.log(goalData)
+        console.log(this.state.goalTableData)
+
+        var currentGoalData = this.state.goalTableData
+        var parentGoalUID = this.generateGoalParentIDFromSubgoalID(mainGoalID)
+
+        // Locate the correct parent goal to count the number of sub goals in the main goal.
+        for (var goalIndex in currentGoalData) {
+
+            console.log(currentGoalData[goalIndex].goalUID)
+            console.log(parentGoalUID.mainGoal)
+            if (currentGoalData[goalIndex].goalUID == parentGoalUID.mainGoal) {
+                console.log("finding the correct goal index.")
+                console.log(goalData.getFormattedGoalObject())
+                var newSubGoalUID = ''
+                // If the main goal does not have any sub goals just set the uid of the sub goal as 1.
+                if (currentGoalData[goalIndex].subRows == undefined) {
+                    var newSubGoalUID = parentGoalUID.mainGoal.split('_')[1] + '_' + '1'
+                    var insertionPath = parentGoalUID.mainGoal + '/subGoals/' + newSubGoalUID
+                    // Else just index through until you find a sub goal UID not accounted for. 
+                } else {
+
+                    var currentSubGoalUIDs = []
+                    // Strip out all the uid's all the subgoals. 
+
+                    currentGoalData[goalIndex].subRows.forEach(subGoal => {
+                        currentSubGoalUIDs.push(subGoal.goalUID)
+                    })
+
+                    var newIndexDetermined = false
+                    var newSubGoalIndex = 1
+                    while (!newIndexDetermined) {
+                        newSubGoalUID = parentGoalUID.mainGoal.split('_')[1] + '_' + newSubGoalIndex
+                        if (currentSubGoalUIDs.includes(newSubGoalUID)) {
+                            newSubGoalIndex++
+                            continue
+                        } else {
+                            newIndexDetermined = true
+                            break
+                        }
+                    }
+
+                    insertionPath = parentGoalUID.mainGoal + '/subGoals/' + newSubGoalUID
+                }
+
+                console.log(insertionPath)
+                await this.props.firebase.createSubGoalUpstream(
+                    this.props.firebase.auth.currentUser.uid,
+                    this.state.activeProgram,
+                    insertionPath,
+                    goalData.getFormattedGoalObject()
+                )
+
+
+                this.handleCompleteGoalButton('sg_' + newSubGoalUID, true)
+                break
+            }
+
+        }
+    }
+
     generateGoalPathFromID = (id) => {
         var path = ''
         var idComponents = id.split('_')
@@ -378,7 +441,7 @@ class CurrentProgramPage extends Component {
                             difficulty: goal.mainGoal.difficulty,
                             btns:
                                 <div className='editGoalTableBtnContainer'>
-                                    <AddSubGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
+                                    <AddSubGoalModal submitHandler={this.handleCreateSubGoalSubmit} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
                                     <EditGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
                                 </div>
                         })
@@ -392,7 +455,7 @@ class CurrentProgramPage extends Component {
                             difficulty: goal.mainGoal.difficulty,
                             btns:
                                 <div className='editGoalTableBtnContainer'>
-                                    <AddSubGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
+                                    <AddSubGoalModal submitHandler={this.handleCreateSubGoalSubmit} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
                                     <CompleteGoalButton buttonHandler={this.handleCompleteGoalButton} uid={'mg_' + goalKey} currProgress={goal.mainGoal.completed} />
                                     <EditGoalModal submitHandler={this.handleEditGoalSubmit} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
                                     <DeleteGoalButton buttonHandler={this.handleDeleteGoalButton} uid={'mg_' + goalKey} />

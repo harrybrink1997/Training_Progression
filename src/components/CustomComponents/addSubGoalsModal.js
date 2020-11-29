@@ -10,7 +10,7 @@ import convertDateStringToObject from '../../constants/convertDateStringToObject
 const AddSubGoalModal = ({ submitHandler, uid, currentData }) => {
 
     const [show, setShow] = useState(false);
-    const goalUID = uid + '_editGoal'
+    const mainGoalUID = uid + '_editGoal'
 
     const initialiseGoalData = (data) => {
         console.log(data)
@@ -26,7 +26,7 @@ const AddSubGoalModal = ({ submitHandler, uid, currentData }) => {
     const handleSubmit = (event) => {
         event.preventDefault()
         setShow(false);
-        submitHandler(goal)
+        submitHandler(goal, mainGoalUID)
 
     }
 
