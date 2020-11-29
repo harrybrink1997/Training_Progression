@@ -1,0 +1,63 @@
+.ui.celled.table {
+    margin: 0 !important;
+}
+
+/* colours the header row of the table */
+.ui.celled.table th {
+    background: #191919;
+    color: white;
+}
+
+/*colours teh table body background*/
+.ui.celled.table > tbody tr {
+    background: #333333;
+    color: white;
+}
+
+/*Colour of dropdown selection*/
+.ui.celled.table select {
+    color: rgb(168, 163, 163);
+    font-weight: 87%;
+    background: #191919;
+    border-color: #191919;
+}
+
+.ui.celled.table select:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+.ui.celled.table select:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+/*Colour of dropdown selection item*/
+.ui.celled.table option {
+    color: white;
+    font-weight: 87%;
+    background:#191919;
+}
+
+
+/*colors all input text */
+.ui.celled.table input {
+    color: white;
+}
+
+.ui.celled.table > tbody tr:hover {
+    background-color:  #3b0380;
+    opacity: 1;
+    color: white;
+}
+
+.ui.celled.table .invalidTableValues {
+    background: linear-gradient(#333333 90%,#CF6679);
+} 
+
+.ui.celled.table .validTableValues {
+    background: linear-gradient(#333333 90%,#8cfc86);
+} 
+
+.ui.celled.table .react-table-expandedChildRow {
+    background: #3F3F3F;
+}

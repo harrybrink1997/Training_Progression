@@ -33,6 +33,7 @@ import '../../CustomCSS/semanticUIMenu.css'
 import '../../CustomCSS/currentProgramsPage.css'
 import '../../CustomCSS/homePage.css'
 import '../../CustomCSS/pastProgramsPage.css'
+import '../../CustomCSS/semanticUITable.css'
 
 const App = () => (
     <Router>

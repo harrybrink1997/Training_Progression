@@ -89,57 +89,27 @@ export const GoalsTable = ({ data, expandedRows, expandedRowsHandler }) => {
             <Table.Body {...getTableBodyProps()}>
                 {rows.map((row, i) => {
                     prepareRow(row)
-                    return (
-                        <Table.Row {...row.getRowProps()}>
-                            {row.cells.map(cell => {
-                                return <Table.Cell {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
-                            })}
-                        </Table.Row>
-                    )
+                    console.log(row)
+                    if (row.depth == 1) {
+                        return (
+                            <Table.Row className='react-table-expandedChildRow' {...row.getRowProps()}>
+                                {row.cells.map(cell => {
+                                    return <Table.Cell {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
+                                })}
+                            </Table.Row>
+                        )
+                    } else {
+                        return (
+                            <Table.Row {...row.getRowProps()}>
+                                {row.cells.map(cell => {
+                                    return <Table.Cell {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
+                                })}
+                            </Table.Row>
+                        )
+                    }
                 })}
             </Table.Body>
         </Table>
-        // <Table celled {...getTableProps()}>
-        //     <Table.Header>
-        //         {// Loop over the header rows
-        //             headerGroups.map(headerGroup => (
-        //                 // Apply the header row props
-        //                 <Table.Row {...headerGroup.getHeaderGroupProps()}>
-        //                     {// Loop over the headers in each row
-        //                         headerGroup.headers.map(column => (
-        //                             // Apply the header cell props
-        //                             <Table.HeaderCell {...column.getHeaderProps()}>
-        //                                 {// Render the header
-        //                                     column.render('Header')}
-        //                             </Table.HeaderCell>
-        //                         ))}
-        //                 </Table.Row>
-        //             ))}
-        //     </Table.Header>
-        //     <Table.Body {...getTableBodyProps()}>
-        //         {// Loop over the table rows
-        //             rows.map(row => {
-        //                 // Prepare the row for display
-        //                 prepareRow(row)
-        //                 return (
-        //                     // Apply the row props
-        //                     <Table.Row {...row.getRowProps()}>
-        //                         {// Loop over the rows cells
-        //                             row.cells.map(cell => {
-        //                                 // Apply the cell props
-        //                                 return (
-        //                                     <Table.Cell {...cell.getCellProps()}>
-        //                                         {// Render the cell contents
-        //                                             cell.render('Cell')}
-        //                                     </Table.Cell>
-        //                                 )
-        //                             })}
-        //                     </Table.Row>
-        //                 )
-        //             })}
-        //     </Table.Body>
-        // </Table>
-
     )
 
 }
