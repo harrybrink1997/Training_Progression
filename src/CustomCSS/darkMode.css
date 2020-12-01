@@ -18,7 +18,7 @@
 
 /*colors all input text */
 .ui.mini.input input{
-    background: #393F44;
+    background: #333333;
     color: white;
 }
 
@@ -100,7 +100,7 @@
 .ui.small.modal.transition.visible.active input {
     color: white;
     font-weight: 87%;
-    background: #393F44;
+    background: #333333;
 }
 
 /*Colour of input focus in small modals*/
@@ -118,7 +118,7 @@
 
 /*colors all input text */
 .ui.small.modal.transition.visible.active textarea {
-    background: #393F44;
+    background: #333333;
     color: white;
     height: 40px;
     border-radius: 5px;
@@ -150,7 +150,7 @@
 .ui.fluid.selection.dropdown {
     color: white;
     font-weight: 87%;
-    background: #393F44;
+    background: #333333;
 }
 
 .ui.fluid.selection.dropdown:hover {
@@ -174,7 +174,7 @@
 .ui.fluid.selection.dropdown div {
     color: white;
     font-weight: 87%;
-    background: #393F44;
+    background: #333333;
 }
 
 .ui.fluid.selection.dropdown div:hover {
@@ -198,7 +198,7 @@
 .ui.fluid.selection.dropdown {
     color: white;
     font-weight: 87%;
-    background: #393F44;
+    background: #333333;
 }
 
 .ui.fluid.selection.dropdown:hover {
@@ -222,7 +222,7 @@
 .ui.fluid.selection.dropdown div {
     color: white;
     font-weight: 87%;
-    background: #393F44;
+    background: #333333;
 }
 
 .ui.fluid.selection.dropdown div:hover {
@@ -241,7 +241,7 @@
 .ui.selection.dropdown {
     color: white;
     font-weight: 87%;
-    background: #393F44;
+    background: #333333;
 }
 
 .ui.selection.dropdown:hover {
@@ -265,7 +265,7 @@
 .ui.selection.dropdown .item {
     color: white;
     font-weight: 87%;
-    background: #393F44;
+    background: #333333;
 }
 
 .ui.selection.dropdown .selected.item {
@@ -289,7 +289,7 @@
 .ui.dropdown {
     color: white;
     font-weight: 87%;
-    background: #393F44;
+    background: #333333;
     height: 35px;
     width: 175px;
     border-radius: 5px;
@@ -317,7 +317,7 @@
 .ui.dropdown div {
     color: white;
     font-weight: 87%;
-    background: #393F44;
+    background: #333333;
 }
 
 .ui.dropdown div:hover {
@@ -331,8 +331,8 @@
 }
 
 .recharts-default-tooltip {
-    background-color:  #393F44 !important;
-    border: 1px solid #393F44 !important;
+    background-color:  #333333 !important;
+    border: 1px solid #333333 !important;
     border-radius: 5px;
 }
 
@@ -342,6 +342,6 @@
 }
 
 .recharts-brush-slide {
-    fill: #393F44;
+    fill: #333333;
     fill-opacity: 1;
 }

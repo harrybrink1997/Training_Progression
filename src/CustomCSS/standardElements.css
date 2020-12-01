@@ -9,7 +9,7 @@ div {
 
 /*colors all input text */
 input {
-    background: #393F44;
+    background: #333333;
     color: white;
     height: 40px;
     border-radius: 5px;
@@ -32,7 +32,7 @@ input::selection {
 
 /*colors all input text */
 textarea {
-    background: #393F44;
+    background: #333333;
     color: white;
     height: 40px;
     border-radius: 5px;

@@ -3,7 +3,6 @@ import { useTable } from 'react-table'
 // import { Tabs, Tab, Pagination } from 'react-bootstrap'
 import { Table, Accordion, Icon } from 'semantic-ui-react'
 import InputLabel from '../CustomComponents/DarkModeInput'
-import './css/currDayExTable.css'
 
 // Import Custom functions needed
 import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
@@ -41,14 +40,6 @@ const CurrentWeekExercisesContainer = ({
                 })
             }
         </div >
-        // <Accordion
-        //     fluid
-        //     styled
-        //     defaultActiveIndex={[]}
-        //     exclusive={false}
-        //     panels={accordHTML}
-        //     onTitleClick={handleAccordionChange}
-        // />
     )
 }
 

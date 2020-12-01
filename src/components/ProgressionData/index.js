@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Popup, Icon, Header, Dimmer, Loader } from 'semantic-ui-react'
+import { Popup, Icon, Header, Dimmer, Loader, Progress, Statistic } from 'semantic-ui-react'
 
 import { withAuthorisation } from '../Session';
 import CurrentProgramDropdown from './currentProgramsDropdown'
@@ -7,6 +7,8 @@ import ProgressionPredictiveGraph from './progressionPredictiveGraph'
 import { ACWEGraph, RollChronicACWRGraph } from './ACWRGraph'
 import { BodyPartListGroup } from './bodyPartListGroup'
 import InputLabel from '../CustomComponents/DarkModeInput'
+import GoalsTableNoBtns from '../CustomComponents/goalTableNoBtns'
+import GoalProgressionPieChart from './goalProgressionPieChart'
 
 // Custom Function Importing
 import loadingSchemeString from '../../constants/loadingSchemeString'
@@ -28,7 +30,10 @@ class ProgressionDataPage extends Component {
                 totalData: [],
                 series: []
             },
-            ACWRGraphProps: {}
+            ACWRGraphProps: {},
+            goalTableData: [],
+            goalStatsData: {}
+
         }
     }
 
@@ -67,6 +72,8 @@ class ProgressionDataPage extends Component {
             // and current week and other parameters. 
             var bodyPartsArray = ['Chest', 'Back', 'Shoulders', 'Legs', 'Arms', 'Total']
 
+            var processedGoalData = this.generateGoalTableData(userObject.currentPrograms[userObject.activeProgram])
+
             this.setState({
                 programList: programListArray,
                 activeProgram: userObject.activeProgram,
@@ -84,6 +91,8 @@ class ProgressionDataPage extends Component {
                     bodyPartsArray
                 ),
                 loading: false,
+                goalTableData: processedGoalData.tableData,
+                goalStatsData: processedGoalData.statsData
             })
         } else {
             this.setState({
@@ -264,6 +273,130 @@ class ProgressionDataPage extends Component {
         }
     }
 
+
+    generateGoalTableData = (programObject) => {
+        console.log(programObject)
+
+        if (programObject.goals != undefined) {
+            if (Object.keys(programObject.goals).length > 0) {
+
+                var tableData = []
+                var goalStatsData = {
+                    numSubGoals: 0,
+                    numSubGoalsComplete: 0,
+                    numMainGoals: 0,
+                    numMainGoalsComplete: 0,
+                    numEasyGoalsComplete: 0,
+                    numMediumGoalsComplete: 0,
+                    numHardGoalsComplete: 0,
+                    numHardGoals: 0,
+                    numMediumGoals: 0,
+                    numEasyGoals: 0
+                }
+
+                Object.keys(programObject.goals).forEach(goalKey => {
+                    var goal = programObject.goals[goalKey]
+                    if (goal.subGoals != undefined) {
+
+                        var processedSubGoalData = this.generateSubGoalData(goal.subGoals)
+
+                        tableData.push({
+                            description: goal.mainGoal.description,
+                            progressString: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
+                            completed: goal.mainGoal.completed,
+                            subRows: processedSubGoalData.tableData,
+                            goalUID: goalKey,
+                            targetCloseDate: goal.mainGoal.closeOffDate,
+                            difficulty: goal.mainGoal.difficulty,
+                        })
+
+                        goalStatsData.numSubGoals += processedSubGoalData.statsData.numSubGoals
+
+                        goalStatsData.numSubGoalsComplete += processedSubGoalData.statsData.numSubGoalsComplete
+                    } else {
+                        tableData.push({
+                            description: goal.mainGoal.description,
+                            progressString: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
+                            targetCloseDate: goal.mainGoal.closeOffDate,
+                            completed: goal.mainGoal.completed,
+                            goalUID: goalKey,
+                            difficulty: goal.mainGoal.difficulty,
+                        })
+
+
+                    }
+                    goalStatsData.numMainGoals++
+                    goalStatsData['num' + goal.mainGoal.difficulty + 'Goals']++
+
+                    if (goal.mainGoal.completed) {
+                        goalStatsData.numMainGoalsComplete++
+                        goalStatsData['num' + goal.mainGoal.difficulty + 'GoalsComplete']++
+                    }
+                })
+                return {
+                    tableData: tableData,
+                    statsData: goalStatsData,
+                    chartData: this.generateGoalProgChartData(goalStatsData)
+
+                }
+            } else {
+                return {
+                    tabledata: [],
+                    statsData: {},
+                    chartData: []
+                }
+            }
+        }
+        return {
+            tabledata: [],
+            statsData: {},
+            chartData: []
+        }
+    }
+
+    generateSubGoalData = (subGoalList) => {
+        var returnArray = []
+        var subGoalStatsData = {
+            numSubGoals: 0,
+            numSubGoalsComplete: 0,
+            numEasyGoalsComplete: 0,
+            numMediumGoalsComplete: 0,
+            numHardGoalsComplete: 0,
+            numHardGoals: 0,
+            numMediumGoals: 0,
+            numEasyGoals: 0,
+        }
+
+        Object.keys(subGoalList).forEach(subGoalKey => {
+            var subGoal = subGoalList[subGoalKey]
+            returnArray.push({
+                description: subGoal.description,
+                progressString: (subGoal.completed) ? 'Complete' : 'In Progress',
+                completed: subGoal.completed,
+                targetCloseDate: subGoal.closeOffDate,
+                goalUID: subGoalKey,
+                difficulty: subGoal.difficulty,
+            })
+
+            subGoalStatsData.numSubGoals++
+            subGoalStatsData['num' + subGoal.difficulty + 'Goals']++
+
+            if (subGoal.completed) {
+                subGoalStatsData.numSubGoalsComplete++
+                subGoalStatsData['num' + subGoal.difficulty + 'GoalsComplete']++
+            }
+        })
+
+        return {
+            tableData: returnArray,
+            statsData: subGoalStatsData
+        }
+    }
+
+    generateGoalProgChartData = (goalStatsData) => {
+
+    }
+
     render() {
         const {
             hasPrograms,
@@ -275,11 +408,12 @@ class ProgressionDataPage extends Component {
             bodyPartsList,
             currentBodyPart,
             ACWRGraphProps,
-            rollingAverageGraphProps
+            rollingAverageGraphProps,
+            goalTableData,
+            goalStatsData
         } = this.state
 
-        console.log(currentBodyPart)
-
+        console.log(goalStatsData)
 
         let loadingHTML =
             <Dimmer active>
@@ -362,6 +496,61 @@ class ProgressionDataPage extends Component {
                         <ProgressionPredictiveGraph startLoad={this.generateCurrentAverageLoad(rollingAverageGraphProps.totalData[currentBodyPart])} />
                     </div>
                     <div className='pageContainerLevel1' id='pdBodyContainer3'>
+                        {
+                            goalTableData.length > 0 &&
+                            <div>
+                                <InputLabel text='Current Goal Progression' custID='ppGoalsPromptLabel' />
+                                <div id='ppGoalStatGrouping'>
+                                    <Statistic
+                                        inverted
+                                        size='tiny'
+                                        className='ppStatisticLevel1ImpLeft'
+                                    >
+                                        <Statistic.Value>
+                                            {goalStatsData.numSubGoalsComplete}
+                                        </Statistic.Value>
+                                        <Statistic.Label>
+                                            Sub Goals Completed
+                                        </Statistic.Label>
+                                    </Statistic>
+
+                                    <Statistic
+                                        inverted
+                                        className='statisticLevel0Imp'
+                                        size='small'
+                                    >
+                                        <Statistic.Value>
+                                            {goalStatsData.numSubGoalsComplete + goalStatsData.numSubGoalsComplete}
+                                        </Statistic.Value>
+                                        <Statistic.Label>
+                                            Total Goals Completed
+                                        </Statistic.Label>
+                                    </Statistic>
+
+                                    <Statistic
+                                        inverted
+                                        size='tiny'
+                                        className='ppStatisticLevel1ImpRight'
+                                    >
+                                        <Statistic.Value>
+                                            {goalStatsData.numMainGoalsComplete}
+                                        </Statistic.Value>
+                                        <Statistic.Label>
+                                            Main Goals Completed
+                                        </Statistic.Label>
+                                    </Statistic>
+                                </div>
+                                <GoalProgressionPieChart />
+                            </div>
+                        }
+                        {
+                            goalTableData.length == 0 &&
+                            <div id='noGoalsPromptContainer'>
+                                <div id='ppNoGoalsPromptLabelContainer'>
+                                    <InputLabel text='No Current Goal Data' custID='ppNoGoalsPromptLabel' />
+                                </div>
+                            </div>
+                        }
                     </div>
 
                 </div>

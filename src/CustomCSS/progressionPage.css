@@ -127,6 +127,25 @@
     flex-direction: row;
 }
 
-/* .pageContainerLevel1 {
-    border: 1px solid #BB86FC;
+#ppGoalsPromptLabel {
+    padding-top: 20px;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+}
+
+#ppNoGoalsPromptLabel {
+    padding-top: 20px;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+}
+
+/* #ppGoalStatGrouping {
+;
 } */
+
+#ppGoalStatGrouping > div {
+    width: 33%;
+    margin-left: 0;
+}

@@ -96,3 +96,27 @@
     display: flex;
     flex-direction: row;
 }
+
+.currDayExerciseBtnCol {
+    width: 150px;
+}
+
+.editExBtnTrigger {
+    padding-right: 10px;
+}
+
+.currDayExBtnContainer {
+    display: inline-flex;
+    width: fit-content;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.editGoalTableBtnContainer {
+    padding-top: 5px;
+    width: fit-content;
+    padding-bottom: 5px;
+    margin-left: none;
+    margin-right: none;
+}

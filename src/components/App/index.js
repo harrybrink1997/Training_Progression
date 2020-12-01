@@ -21,7 +21,6 @@ import 'semantic-ui-css/semantic.min.css';
 import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
 
 // CSS Modules to Include
-import '../CurrentProgram/css/currDayExTable.css'
 import '../../CustomCSS/editExerciseModal.css'
 import '../../CustomCSS/darkMode.css'
 import '../../CustomCSS/standardElements.css'
@@ -34,6 +33,7 @@ import '../../CustomCSS/currentProgramsPage.css'
 import '../../CustomCSS/homePage.css'
 import '../../CustomCSS/pastProgramsPage.css'
 import '../../CustomCSS/semanticUITable.css'
+import '../../CustomCSS/semanticUIStatistic.css'
 
 const App = () => (
     <Router>
