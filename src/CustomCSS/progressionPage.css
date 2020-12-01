@@ -149,3 +149,30 @@
     width: 33%;
     margin-left: 0;
 }
+
+#ppGoalPieChartContainer {
+    width: 50%;
+}
+
+#ppGoalBarChartContainer {
+    width: 50%;
+}
+
+#ppGoalChartsRow {
+    display: flex;
+    margin-top: 20px;
+    padding-top: 20px;
+    /* border-top: 1px solid #121212; */
+}
+
+#ppGoalPieChartLabel {
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+}
+
+#ppGoalBarChartLabel {
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+}

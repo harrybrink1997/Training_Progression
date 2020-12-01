@@ -9,6 +9,7 @@ import { BodyPartListGroup } from './bodyPartListGroup'
 import InputLabel from '../CustomComponents/DarkModeInput'
 import GoalsTableNoBtns from '../CustomComponents/goalTableNoBtns'
 import GoalProgressionPieChart from './goalProgressionPieChart'
+import GoalProgressionBarChart from './goalProgressionBarChart'
 
 // Custom Function Importing
 import loadingSchemeString from '../../constants/loadingSchemeString'
@@ -33,7 +34,6 @@ class ProgressionDataPage extends Component {
             ACWRGraphProps: {},
             goalTableData: [],
             goalStatsData: {}
-
         }
     }
 
@@ -92,7 +92,9 @@ class ProgressionDataPage extends Component {
                 ),
                 loading: false,
                 goalTableData: processedGoalData.tableData,
-                goalStatsData: processedGoalData.statsData
+                goalStatsData: processedGoalData.statsData,
+                goalProgPieChartData: processedGoalData.pieChartData,
+                goalProgBarChartData: processedGoalData.barChartData
             })
         } else {
             this.setState({
@@ -313,6 +315,13 @@ class ProgressionDataPage extends Component {
                         goalStatsData.numSubGoals += processedSubGoalData.statsData.numSubGoals
 
                         goalStatsData.numSubGoalsComplete += processedSubGoalData.statsData.numSubGoalsComplete
+
+                        goalStatsData.numEasyGoalsComplete += processedSubGoalData.statsData.numEasyGoalsComplete
+
+                        goalStatsData.numMediumGoalsComplete += processedSubGoalData.statsData.numMediumGoalsComplete
+
+                        goalStatsData.numHardGoalsComplete += processedSubGoalData.statsData.numHardGoalsComplete
+
                     } else {
                         tableData.push({
                             description: goal.mainGoal.description,
@@ -333,24 +342,35 @@ class ProgressionDataPage extends Component {
                         goalStatsData['num' + goal.mainGoal.difficulty + 'GoalsComplete']++
                     }
                 })
+
+                var formattedGoalChartData = this.generateGoalProgChartData(goalStatsData)
                 return {
                     tableData: tableData,
                     statsData: goalStatsData,
-                    chartData: this.generateGoalProgChartData(goalStatsData)
+                    pieChartData: formattedGoalChartData.pieChartData,
+                    barChartData: formattedGoalChartData.barChartData
 
                 }
             } else {
                 return {
                     tabledata: [],
                     statsData: {},
-                    chartData: []
+                    pieChartData: {
+                        data: [],
+                        colours: []
+                    },
+                    barChartData: []
                 }
             }
         }
         return {
             tabledata: [],
             statsData: {},
-            chartData: []
+            pieChartData: {
+                data: [],
+                colours: []
+            },
+            barChartData: []
         }
     }
 
@@ -369,6 +389,7 @@ class ProgressionDataPage extends Component {
 
         Object.keys(subGoalList).forEach(subGoalKey => {
             var subGoal = subGoalList[subGoalKey]
+            console.log(subGoal)
             returnArray.push({
                 description: subGoal.description,
                 progressString: (subGoal.completed) ? 'Complete' : 'In Progress',
@@ -383,10 +404,12 @@ class ProgressionDataPage extends Component {
 
             if (subGoal.completed) {
                 subGoalStatsData.numSubGoalsComplete++
+                console.log('num' + subGoal.difficulty + 'GoalsComplete')
                 subGoalStatsData['num' + subGoal.difficulty + 'GoalsComplete']++
             }
         })
 
+        console.log(subGoalStatsData)
         return {
             tableData: returnArray,
             statsData: subGoalStatsData
@@ -394,6 +417,45 @@ class ProgressionDataPage extends Component {
     }
 
     generateGoalProgChartData = (goalStatsData) => {
+
+        return {
+            pieChartData: {
+                colours: ['#8cfc86', '#fcf686', '#fc868c'],
+                data: [
+                    {
+                        name: 'Easy',
+                        value: goalStatsData.numEasyGoalsComplete
+                    },
+                    {
+                        name: 'Medium',
+                        value: goalStatsData.numMediumGoalsComplete
+                    },
+                    {
+                        name: 'Hard',
+                        value: goalStatsData.numHardGoalsComplete
+                    }
+                ]
+            },
+            barChartData: {
+                data: [
+                    {
+                        name: 'All Goals',
+                        Completed: goalStatsData.numSubGoalsComplete + goalStatsData.numMainGoalsComplete,
+                        Total: goalStatsData.numSubGoals + goalStatsData.numMainGoals
+                    },
+                    {
+                        name: 'Main Goals',
+                        Completed: goalStatsData.numSubGoalsComplete,
+                        Total: goalStatsData.numMainGoals
+                    },
+                    {
+                        name: 'Sub Goals',
+                        Completed: goalStatsData.numSubGoalsComplete,
+                        Total: goalStatsData.numSubGoals
+                    }
+                ]
+            }
+        }
 
     }
 
@@ -410,10 +472,12 @@ class ProgressionDataPage extends Component {
             ACWRGraphProps,
             rollingAverageGraphProps,
             goalTableData,
-            goalStatsData
+            goalStatsData,
+            goalProgPieChartData,
+            goalProgBarChartData
         } = this.state
 
-        console.log(goalStatsData)
+        console.log(goalProgBarChartData)
 
         let loadingHTML =
             <Dimmer active>
@@ -540,7 +604,30 @@ class ProgressionDataPage extends Component {
                                         </Statistic.Label>
                                     </Statistic>
                                 </div>
-                                <GoalProgressionPieChart />
+                                <div id='ppGoalChartsRow'>
+                                    <div id='ppGoalPieChartContainer'>
+
+                                        <InputLabel
+                                            custID='ppGoalPieChartLabel'
+                                            text='Goal Difficulty Spread'
+                                        />
+
+                                        <GoalProgressionPieChart
+                                            data={goalProgPieChartData.data}
+                                            chartColours={goalProgPieChartData.colours}
+                                        />
+                                    </div>
+                                    <div id='ppGoalBarChartContainer'>
+                                        <InputLabel
+                                            custID='ppGoalBarChartLabel'
+                                            text='Completion Statistics'
+                                        />
+
+                                        <GoalProgressionBarChart
+                                            data={goalProgBarChartData.data}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         }
                         {
