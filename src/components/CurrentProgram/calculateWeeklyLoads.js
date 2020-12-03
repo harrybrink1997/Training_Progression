@@ -3,57 +3,63 @@ const calculateDailyLoads = (programData,
     currentDayInProgram,
     scheme,
     acutePeriod,
-    chronicPeriod) => {
+    chronicPeriod,
+    muscleGroups) => {
 
-    console.log(programData)
+    // console.log(programData)
+    // console.log(muscleGroups)
 
-    var muscleGroups = ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Total']
+    // var muscleGroups = ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Total']
+
+
     var currDayData = programData[currentDayInProgram]
-    console.log(currDayData)
+    // console.log(currDayData)
 
     if (scheme === 'rpe_time') {
         var processedData = dailyLoadCalcsRpeTime(currDayData, muscleGroups)
+        console.log(processedData)
     } else {
         processedData = dailyLoadCalcsWeightReps(currDayData, muscleGroups)
     }
 
 
-    [{ type: 'acuteEWMA', period: acutePeriod },
-    { type: 'chronicEWMA', period: chronicPeriod }]
-        .forEach(avgType => {
-            console.log(processedData)
-            console.log(avgType)
-            processedData = appendEWMA(
-                programData,
-                processedData,
-                currentDayInProgram,
-                avgType.period,
-                avgType.type,
-                muscleGroups
-            )
-        })
+    // [{ type: 'acuteEWMA', period: acutePeriod },
+    // { type: 'chronicEWMA', period: chronicPeriod }]
+    //     .forEach(avgType => {
+    //         console.log(processedData)
+    //         console.log(avgType)
+    //         processedData = appendEWMA(
+    //             programData,
+    //             processedData,
+    //             currentDayInProgram,
+    //             avgType.period,
+    //             avgType.type,
+    //             muscleGroups
+    //         )
+    //     })
 
-    muscleGroups.forEach(muscle => {
-        if (processedData[muscle].acuteEWMA != 0 &&
-            processedData[muscle].chronicEWMA != 0) {
-            processedData[muscle].ACWR = parseFloat(processedData[muscle].acuteEWMA / processedData[muscle].chronicEWMA).toFixed(2)
-        } else {
-            processedData[muscle].ACWR = 0
-        }
-    })
+    // muscleGroups.forEach(muscle => {
+    //     if (processedData[muscle].acuteEWMA != 0 &&
+    //         processedData[muscle].chronicEWMA != 0) {
+    //         processedData[muscle].ACWR = parseFloat(processedData[muscle].acuteEWMA / processedData[muscle].chronicEWMA).toFixed(2)
+    //     } else {
+    //         processedData[muscle].ACWR = 0
+    //     }
+    // })
 
-    console.log(processedData)
-    return processedData
+    // console.log(processedData)
+    // return processedData
 }
 
 
 const dailyLoadCalcsRpeTime = (dayData, muscleGroups) => {
+
     var dayLoading = {
         Total: {
             dailyLoad: 0
         }
     }
-
+    console.log(dayData)
     for (var ex in dayData) {
         if (ex != 'loadingData') {
             var exData = dayData[ex]
@@ -61,27 +67,43 @@ const dailyLoadCalcsRpeTime = (dayData, muscleGroups) => {
             var load = exData.sets * exData.reps * exData.time * exData.rpe
             dayLoading['Total']['dailyLoad'] += load
 
-            for (var muscles in exData.primMusc) {
-                var muscle = exData.primMusc[muscles]
+            Object.keys(muscleGroups).forEach(key => {
+                var muscleList = muscleGroups[key]
 
-                if (muscle in dayLoading) {
-                    dayLoading[muscle].dailyLoad += load
-                } else {
-                    dayLoading[muscle] = {
-                        dailyLoad: load
+                // Add a new object for that muscle group in the 
+                // daily loading for the new muscle group. 
+                dayLoading[key] = {
+                    Total: {
+                        dailyLoad: 0
                     }
                 }
-            }
+
+                var groupTotalUpdated = false
+
+                muscleList.forEach(muscle => {
+                    if (exData.primMusc.includes(muscle)) {
+                        if (muscle in dayLoading[key]) {
+                            dayLoading[key][muscle].dailyLoad += load
+                        } else {
+                            dayLoading[key][muscle] = {
+                                dailyLoad: load
+                            }
+                            if (!groupTotalUpdated) {
+                                dayLoading[key].Total.dailyLoad += load
+                                groupTotalUpdated = true
+                            }
+                        }
+                    } else {
+                        dayLoading[key][muscle] = {
+                            dailyLoad: 0
+                        }
+                    }
+                })
+
+            })
+
         }
     }
-
-    muscleGroups.forEach(muscle => {
-        if (!(muscle in dayLoading)) {
-            dayLoading[muscle] = {
-                dailyLoad: 0
-            }
-        }
-    })
 
     return dayLoading
 

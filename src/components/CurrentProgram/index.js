@@ -23,6 +23,7 @@ import AddSubGoalModal from '../CustomComponents/addSubGoalsModal'
 // Import Custom functions
 import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
 import InputLabel from '../CustomComponents/DarkModeInput';
+import { orderUserExercisesBasedOnExUID } from '../../constants/orderingFunctions'
 
 
 class CurrentProgramPage extends Component {
@@ -568,6 +569,7 @@ class CurrentProgramPage extends Component {
             var dailyExercises = []
 
             if (programDaysInCurrWeek[dayIndex] in currWeekProgExer) {
+                console.log(currWeekProgExer)
                 for (var exercise in currWeekProgExer[programDaysInCurrWeek[dayIndex]]) {
 
                     if (exercise != 'loadingData') {
@@ -589,7 +591,9 @@ class CurrentProgramPage extends Component {
                     }
                 }
             }
-            exPerDayObj[programDaysInCurrWeek[dayIndex]] = dailyExercises
+            var sortedExerciseArray = orderUserExercisesBasedOnExUID(dailyExercises)
+            console.log(sortedExerciseArray)
+            exPerDayObj[programDaysInCurrWeek[dayIndex]] = sortedExerciseArray
         }
         console.log(exPerDayObj)
         return exPerDayObj
@@ -646,19 +650,27 @@ class CurrentProgramPage extends Component {
 
         // Check if not input for week
         if (insertionDay in programObject) {
-
+            console.log("going into correct place")
             var dayExercises = programObject[insertionDay]
-            var num = 0;
+            console.log(dayExercises)
+
+            var currMaxID = 0;
 
             for (var exercise in dayExercises) {
-                var exUID = exerciseName + '_' + this.state.currentWeekInProgram + '_' + insertionDay + '_' + num
-                if (exercise != exUID) {
-                    break
-                }
-                num++
-            }
+                var currExNameInProg = dayExercises[exercise].exercise.split(' ').join('_')
+                // Do a comparison on the exercise name.
+                console.log(currExNameInProg)
+                console.log(exerciseName)
+                if (exerciseName == currExNameInProg) {
 
-            return exUID
+                    // First iterate off the letter. 
+                    if (parseInt(exercise.split('_').slice(-1)[0]) > currMaxID) {
+                        currMaxID = exercise.split('_').slice(-1)[0]
+                    }
+                }
+            }
+            return exerciseName + '_' + this.state.currentWeekInProgram + '_' + insertionDay + '_' + (parseInt(currMaxID) + 1)
+
 
         }
 
@@ -700,77 +712,63 @@ class CurrentProgramPage extends Component {
             //     userObject['week' + userObject.currentWeek],
             //     userObject.loading_scheme
             // )
-            var processedDayData = calculateDailyLoads(
-                // userObject[userObject.currentDayInProgram],
-                userObject,
-                userObject.currentDayInProgram,
-                userObject.loading_scheme,
-                userObject.acutePeriod,
-                userObject.chronicPeriod
-            )
 
-            console.log(processedDayData)
+            await this.props.firebase.anatomy().once('value', snapshot => {
+                const anatomyObject = snapshot.val();
 
-            await this.props.firebase.pushDailyLoadingDataUpstream(
-                this.props.firebase.auth.currentUser.uid,
-                this.state.activeProgram,
-                userObject.currentDayInProgram,
-                processedDayData
-            )
+                // TODO REMOVE THIS COMMENTS WHEN YOU WANT LOADS TO BE CALCULATED AGAIN AND TESTING CAN RESUME. 
+                var processedDayData = calculateDailyLoads(
+                    // userObject[userObject.currentDayInProgram],
+                    userObject,
+                    userObject.currentDayInProgram,
+                    userObject.loading_scheme,
+                    userObject.acutePeriod,
+                    userObject.chronicPeriod,
+                    anatomyObject
+                )
+
+                // console.log(processedDayData)
+            });
 
 
-            //TODO REMOVE
-            // await this.props.firebase.pushWeekLoadingDataUpstream(
+
+
+            // await this.props.firebase.pushDailyLoadingDataUpstream(
             //     this.props.firebase.auth.currentUser.uid,
             //     this.state.activeProgram,
-            //     'week' + userObject.currentWeek,
-            //     processedData
+            //     userObject.currentDayInProgram,
+            //     processedDayData
             // )
-
-            // If the current week is greater then or equal to 4.
-            // Calculate the rolling monthly average.
-            // if (userObject.currentWeek >= 4) {
-            //     var rollingAverageData = calculateRollingMonthlyAverage(userObject, processedData)
-
-            //     await this.props.firebase.pushRollingAverageUpstream(
-            //         this.props.firebase.auth.currentUser.uid,
-            //         this.state.activeProgram,
-            //         rollingAverageData.weekID,
-            //         rollingAverageData.averageLoads
-            //     )
-            // }
-
-
         })
 
         // Updates the current week in the db and iterates 
         // to the next week and sets current day to 1.
-        this.setState({
-            loading: true
-        }, async () => {
+        // TODO REMOVE THIS COMENT WHEN FUNCTIONALITY BACK TO NORMAL 
+        // this.setState({
+        //     loading: true
+        // }, async () => {
 
-            //Updated the current week in the database. 
-            await this.props.firebase.progressToNextDay(
-                this.props.firebase.auth.currentUser.uid,
-                this.state.activeProgram,
-                parseInt(this.state.currentDayInProgram + 1)
-            )
+        //     //Updated the current week in the database. 
+        //     await this.props.firebase.progressToNextDay(
+        //         this.props.firebase.auth.currentUser.uid,
+        //         this.state.activeProgram,
+        //         parseInt(this.state.currentDayInProgram + 1)
+        //     )
 
-            await this.props.firebase.setCurrentDayUI(
-                this.props.firebase.auth.currentUser.uid,
-                this.state.activeProgram,
-                convertTotalDaysToUIDay(
-                    this.state.currentDayInProgram
-                )
-            )
-        })
+        //     await this.props.firebase.setCurrentDayUI(
+        //         this.props.firebase.auth.currentUser.uid,
+        //         this.state.activeProgram,
+        //         convertTotalDaysToUIDay(
+        //             this.state.currentDayInProgram
+        //         )
+        //     )
+        // })
 
 
     }
 
     // Updated with new ratio calcs format
     convertUIDayToTotalDays = (day) => {
-        console.log((parseInt((this.state.currentWeekInProgram - 1) * 7) + parseInt(day)).toString())
         return (parseInt((this.state.currentWeekInProgram - 1) * 7) + parseInt(day)).toString()
     }
 
@@ -784,6 +782,8 @@ class CurrentProgramPage extends Component {
         )
 
         var exUID = this.generateExerciseUID(exerciseObject.name, exerciseObject.day)
+
+        console.log(exUID)
 
         if (this.state.loadingScheme == 'rpe_time') {
             var dataPayload = {

@@ -61,6 +61,8 @@ class Firebase {
 
     exercises = () => this.db.ref('exercises')
 
+    anatomy = () => this.db.ref('anatomy')
+
     modifyGoalUpstream = (uid, pName, goalPath, value) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${pName}/goals/${goalPath}`)
