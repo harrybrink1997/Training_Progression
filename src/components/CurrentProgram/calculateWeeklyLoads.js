@@ -59,7 +59,16 @@ const dailyLoadCalcsRpeTime = (dayData, muscleGroups) => {
             dailyLoad: 0
         }
     }
-    console.log(dayData)
+
+
+    Object.keys(muscleGroups).forEach(group => {
+        dayLoading[group] = {
+            Total: {
+                dailyLoad: 0
+            }
+        }
+    })
+
     for (var ex in dayData) {
         if (ex != 'loadingData') {
             var exData = dayData[ex]
@@ -72,15 +81,11 @@ const dailyLoadCalcsRpeTime = (dayData, muscleGroups) => {
 
                 // Add a new object for that muscle group in the 
                 // daily loading for the new muscle group. 
-                dayLoading[key] = {
-                    Total: {
-                        dailyLoad: 0
-                    }
-                }
 
                 var groupTotalUpdated = false
 
                 muscleList.forEach(muscle => {
+                    // console.log(dayLoading)
                     if (exData.primMusc.includes(muscle)) {
                         if (muscle in dayLoading[key]) {
                             dayLoading[key][muscle].dailyLoad += load
@@ -88,10 +93,10 @@ const dailyLoadCalcsRpeTime = (dayData, muscleGroups) => {
                             dayLoading[key][muscle] = {
                                 dailyLoad: load
                             }
-                            if (!groupTotalUpdated) {
-                                dayLoading[key].Total.dailyLoad += load
-                                groupTotalUpdated = true
-                            }
+                        }
+                        if (!groupTotalUpdated) {
+                            dayLoading[key].Total.dailyLoad += load
+                            groupTotalUpdated = true
                         }
                     } else {
                         dayLoading[key][muscle] = {
