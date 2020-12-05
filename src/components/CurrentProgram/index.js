@@ -705,7 +705,7 @@ class CurrentProgramPage extends Component {
         await this.props.firebase.deleteExerciseUpStream(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
-            this.convertUIDayToTotalDays(day),
+            day,
             exUid
         )
     }
