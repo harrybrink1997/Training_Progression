@@ -12,7 +12,7 @@ import { AddExerciseModalWeightReps, AddExerciseModalRpeTime } from './addExerci
 import { EditExerciseModalWeightSets, EditExerciseModalRpeTime } from './editExerciseModal'
 import { DeleteExerciseButton, DeleteGoalButton, CompleteGoalButton } from './currentProgramPageButtons'
 import { SelectColumnFilter } from './filterSearch'
-import { calculateDailyLoads, dailyLoadCalcsRpeTime, dailyLoadCalcsWeightReps } from './calculateWeeklyLoads'
+import { calculateDailyLoads, dailyLoadCalcs } from './calculateWeeklyLoads'
 import CloseOffProgramModal from './closeOffProgramModal'
 import { LoadingSpreadStatsTable } from './statsTable'
 import AddGoalsForm from '../CustomComponents/addGoalsForm'
@@ -86,21 +86,27 @@ class CurrentProgramPage extends Component {
         // object updates in the database. 
         await this.props.firebase.getUserData(currUserUid).on('value', userData => {
             var userObject = userData.val();
-            if (!this.state.loading) {
-                this.setState({
-                    loading: true,
-                }, () => {
-                    console.log(userObject)
-                    // Format the user data based on whether or not user has current programs. 
-                    this.updateObjectState(userObject)
-                })
-            } else {
-                this.updateObjectState(userObject)
-            }
+
+            this.props.firebase.anatomy().once('value', async snapshot => {
+
+                const anatomyObject = snapshot.val();
+
+                if (!this.state.loading) {
+                    this.setState({
+                        loading: true,
+                    }, () => {
+                        console.log(userObject)
+                        // Format the user data based on whether or not user has current programs. 
+                        this.updateObjectState(userObject, anatomyObject)
+                    })
+                } else {
+                    this.updateObjectState(userObject, anatomyObject)
+                }
+            })
         })
     }
 
-    updateObjectState = (userObject) => {
+    updateObjectState = (userObject, anatomyObject) => {
         // Format the user data based on whether or not user has current programs. 
         if ('currentPrograms' in userObject) {
 
@@ -135,7 +141,7 @@ class CurrentProgramPage extends Component {
                 ),
                 currDaySafeLoadTableData: this.generateCurrDaySafeLoadData(
                     userObject.currentPrograms[userObject.activeProgram],
-                    ['Chest', 'Legs', 'Back', 'Shoulders', 'Arms', 'Total']
+                    anatomyObject
                 ),
                 availExercisesData: this.setAvailExerciseChartData(
                     this.state.exerciseList,
@@ -713,7 +719,7 @@ class CurrentProgramPage extends Component {
             //     userObject.loading_scheme
             // )
 
-            await this.props.firebase.anatomy().once('value', snapshot => {
+            await this.props.firebase.anatomy().once('value', async snapshot => {
                 const anatomyObject = snapshot.val();
 
                 // TODO REMOVE THIS COMMENTS WHEN YOU WANT LOADS TO BE CALCULATED AGAIN AND TESTING CAN RESUME. 
@@ -727,42 +733,39 @@ class CurrentProgramPage extends Component {
                     anatomyObject
                 )
 
-                // console.log(processedDayData)
+                await this.props.firebase.pushDailyLoadingDataUpstream(
+                    this.props.firebase.auth.currentUser.uid,
+                    this.state.activeProgram,
+                    userObject.currentDayInProgram,
+                    processedDayData
+                )
+
+                // TODO REMOVE THIS COMENT WHEN FUNCTIONALITY BACK TO NORMAL 
+                this.setState({
+                    loading: true
+                }, async () => {
+
+                    //Updated the current week in the database. 
+                    await this.props.firebase.progressToNextDay(
+                        this.props.firebase.auth.currentUser.uid,
+                        this.state.activeProgram,
+                        parseInt(this.state.currentDayInProgram + 1)
+                    )
+
+                    await this.props.firebase.setCurrentDayUI(
+                        this.props.firebase.auth.currentUser.uid,
+                        this.state.activeProgram,
+                        convertTotalDaysToUIDay(
+                            this.state.currentDayInProgram
+                        )
+                    )
+                })
             });
 
-
-
-
-            // await this.props.firebase.pushDailyLoadingDataUpstream(
-            //     this.props.firebase.auth.currentUser.uid,
-            //     this.state.activeProgram,
-            //     userObject.currentDayInProgram,
-            //     processedDayData
-            // )
         })
 
         // Updates the current week in the db and iterates 
         // to the next week and sets current day to 1.
-        // TODO REMOVE THIS COMENT WHEN FUNCTIONALITY BACK TO NORMAL 
-        // this.setState({
-        //     loading: true
-        // }, async () => {
-
-        //     //Updated the current week in the database. 
-        //     await this.props.firebase.progressToNextDay(
-        //         this.props.firebase.auth.currentUser.uid,
-        //         this.state.activeProgram,
-        //         parseInt(this.state.currentDayInProgram + 1)
-        //     )
-
-        //     await this.props.firebase.setCurrentDayUI(
-        //         this.props.firebase.auth.currentUser.uid,
-        //         this.state.activeProgram,
-        //         convertTotalDaysToUIDay(
-        //             this.state.currentDayInProgram
-        //         )
-        //     )
-        // })
 
 
     }
@@ -889,42 +892,69 @@ class CurrentProgramPage extends Component {
         )
     }
 
-    generateCurrDaySafeLoadData = (programData, muscles) => {
+    generateCurrDaySafeLoadData = (programData, anatomyObject) => {
 
         var returnData = []
 
         if (programData.currentDayInProgram !== 1) {
-            if (programData.loading_scheme == 'rpe_time') {
-                var currDayData = dailyLoadCalcsRpeTime(
-                    programData[programData.currentDayInProgram],
-                    muscles
-                )
+            var currDayData = dailyLoadCalcs(
+                programData[programData.currentDayInProgram],
+                anatomyObject,
+                programData.loading_scheme
+            )
 
-            } else {
-                currDayData = dailyLoadCalcsWeightReps(
-                    programData[programData.currentDayInProgram],
-                    muscles
-                )
-            }
+            Object.keys(anatomyObject).forEach(muscleGroup => {
 
-            muscles.forEach(muscle => {
-                var prevDayChronicLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscle]['chronicEWMA']
-                var prevDayAcuteLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscle]['acuteEWMA']
+                var prevDayChronicLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscleGroup]['Total']['chronicEWMA']
+                var prevDayAcuteLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscleGroup]['Total']['acuteEWMA']
                 var maxLoadData = 0;
                 (prevDayAcuteLoad * 1.1 > prevDayChronicLoad * 1.2) ? maxLoadData = prevDayAcuteLoad : maxLoadData = prevDayChronicLoad
-
+                console.log(currDayData)
                 if (maxLoadData !== 0 || prevDayChronicLoad !== 0) {
                     returnData.push({
-                        bodyPart: muscle,
-                        currDayLoad: currDayData[muscle].dailyLoad.toFixed(2),
+                        bodyPart: muscleGroup,
+                        currDayLoad: currDayData[muscleGroup]['Total'].dailyLoad.toFixed(2),
                         minSafeLoad: (prevDayChronicLoad * 0.8).toFixed(2),
                         maxSafeLoad: maxLoadData.toFixed(2),
-                        selector: 'the bois'
+                        subRows: this.generateSpecificMuscleSafeLoadData(
+                            programData,
+                            muscleGroup,
+                            currDayData,
+                            anatomyObject[muscleGroup]
+                        ),
+                        // selector: 'the bois'
                     })
                 }
             })
         }
+        console.log(returnData)
+        return returnData
 
+    }
+
+    generateSpecificMuscleSafeLoadData = (programData, muscleGroup, currDayData, specificMuscleData) => {
+
+        var returnData = []
+        console.log(programData)
+        console.log(specificMuscleData)
+
+        specificMuscleData.forEach(muscle => {
+            var prevDayChronicLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscleGroup][muscle]['chronicEWMA']
+            var prevDayAcuteLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscleGroup][muscle]['acuteEWMA']
+            var maxLoadData = 0;
+            (prevDayAcuteLoad * 1.1 > prevDayChronicLoad * 1.2) ? maxLoadData = prevDayAcuteLoad : maxLoadData = prevDayChronicLoad
+
+            if (maxLoadData !== 0 || prevDayChronicLoad !== 0) {
+                returnData.push({
+                    bodyPart: muscle,
+                    currDayLoad: currDayData[muscleGroup][muscle].dailyLoad.toFixed(2),
+                    minSafeLoad: (prevDayChronicLoad * 0.8).toFixed(2),
+                    maxSafeLoad: maxLoadData.toFixed(2),
+                    // selector: 'the bois'
+                })
+            }
+
+        })
 
         return returnData
     }
