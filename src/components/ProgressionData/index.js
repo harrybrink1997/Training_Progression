@@ -5,7 +5,7 @@ import { withAuthorisation } from '../Session';
 import CurrentProgramDropdown from './currentProgramsDropdown'
 import ProgressionPredictiveGraph from './progressionPredictiveGraph'
 import { ACWEGraph, RollChronicACWRGraph } from './ACWRGraph'
-import { BodyPartListGroup } from './bodyPartListGroup'
+import BodyPartListGroup from '../CustomComponents/bodyPartListGroup'
 import InputLabel from '../CustomComponents/DarkModeInput'
 import GoalsTableNoBtns from '../CustomComponents/goalTableNoBtns'
 import GoalProgressionPieChart from './goalProgressionPieChart'
@@ -25,7 +25,8 @@ class ProgressionDataPage extends Component {
             currentWeekInProgram: '',
             loadingScheme: '',
             hasPrograms: false,
-            currentBodyPart: 'Chest',
+            currentBodyPart: 'Overall_Total',
+            currMuscleGroupOpen: 'Arms',
             currentBodyPartAverageLoad: '',
             rollingAverageGraphProps: {
                 totalData: [],
@@ -45,21 +46,27 @@ class ProgressionDataPage extends Component {
         // object updates in the database. 
         await this.props.firebase.getUserData(currUserUid).on('value', userData => {
             var userObject = userData.val();
-            if (!this.state.loading) {
-                this.setState({
-                    loading: true
-                }, () => {
-                    console.log(userObject)
-                    // Format the user data based on whether or not user has current programs. 
-                    this.updateObjectState(userObject)
-                })
-            } else {
-                this.updateObjectState(userObject)
-            }
+            this.props.firebase.anatomy().once('value', async snapshot => {
+
+                const anatomyObject = snapshot.val();
+
+                if (!this.state.loading) {
+                    this.setState({
+                        loading: true
+                    }, () => {
+                        console.log(userObject)
+                        // Format the user data based on whether or not user has current programs. 
+                        this.updateObjectState(userObject, anatomyObject)
+                    })
+                } else {
+                    this.updateObjectState(userObject, anatomyObject)
+                }
+
+            })
         })
     }
 
-    updateObjectState = (userObject) => {
+    updateObjectState = (userObject, anatomyObject) => {
 
         if ('currentPrograms' in userObject) {
 
@@ -70,9 +77,10 @@ class ProgressionDataPage extends Component {
             })
             // Initially Sets the state for the current day
             // and current week and other parameters. 
-            var bodyPartsArray = ['Chest', 'Back', 'Shoulders', 'Legs', 'Arms', 'Total']
 
             var processedGoalData = this.generateGoalTableData(userObject.currentPrograms[userObject.activeProgram])
+
+            console.log(processedGoalData)
 
             this.setState({
                 programList: programListArray,
@@ -81,16 +89,17 @@ class ProgressionDataPage extends Component {
                 allPrograms: userObject.currentPrograms,
                 currentWeekInProgram: Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7),
                 loadingScheme: userObject.currentPrograms[userObject.activeProgram].loading_scheme,
-                bodyPartsList: bodyPartsArray,
+                // bodyPartsList: bodyPartsArray,
                 ACWRGraphProps: this.generateACWRGraphData(
                     userObject.currentPrograms[userObject.activeProgram],
-                    bodyPartsArray
+                    anatomyObject
                 ),
                 rollingAverageGraphProps: this.generateSafeLoadGraphProps(
                     userObject.currentPrograms[userObject.activeProgram],
-                    bodyPartsArray
+                    anatomyObject
                 ),
                 loading: false,
+                anatomyObject: anatomyObject,
                 goalTableData: processedGoalData.tableData,
                 goalStatsData: processedGoalData.statsData,
                 goalProgPieChartData: processedGoalData.pieChartData,
@@ -116,7 +125,7 @@ class ProgressionDataPage extends Component {
         return date
     }
 
-    generateACWRGraphData = (programData, muscles) => {
+    generateACWRGraphData = (programData, muscleGroups) => {
 
 
         var dataToGraph = {}
@@ -125,40 +134,97 @@ class ProgressionDataPage extends Component {
 
             var dateString = this.stripDateFromTSString(new Date((programData.startDayUTS + 86400000 * (day - 1))))
 
-            muscles.forEach(muscle => {
+            if (day == 1) {
+                dataToGraph['Overall_Total'] = []
+
+                var insertObj = {
+                    name: dateString
+                }
+                insertObj['Acute Load'] = programData[day]['loadingData']['Total'].acuteEWMA
+                insertObj['Chronic Load'] = programData[day]['loadingData']['Total'].chronicEWMA
+                insertObj['ACWR'] = programData[day]['loadingData']['Total'].ACWR
+
+                dataToGraph['Overall_Total'].push(insertObj)
+
+            } else {
+                insertObj = {
+                    name: dateString
+                }
+
+                insertObj['Acute Load'] = programData[day]['loadingData']['Total'].acuteEWMA
+                insertObj['Chronic Load'] = programData[day]['loadingData']['Total'].chronicEWMA
+                insertObj['ACWR'] = programData[day]['loadingData']['Total'].ACWR
+
+                dataToGraph['Overall_Total'].push(insertObj)
+            }
+
+
+            Object.keys(muscleGroups).forEach(muscleGroup => {
+
                 if (day == 1) {
-                    dataToGraph[muscle] = []
+                    dataToGraph[muscleGroup + '_Total'] = []
 
                     var insertObj = {
                         name: dateString
                     }
-                    insertObj['Acute Load'] = programData[day]['loadingData'][muscle].acuteEWMA
-                    insertObj['Chronic Load'] = programData[day]['loadingData'][muscle].chronicEWMA
-                    insertObj['ACWR'] = programData[day]['loadingData'][muscle].ACWR
+                    insertObj['Acute Load'] = programData[day]['loadingData'][muscleGroup]['Total'].acuteEWMA
+                    insertObj['Chronic Load'] = programData[day]['loadingData'][muscleGroup]['Total'].chronicEWMA
+                    insertObj['ACWR'] = programData[day]['loadingData'][muscleGroup]['Total'].ACWR
 
-                    dataToGraph[muscle].push(insertObj)
+                    dataToGraph[muscleGroup + '_Total'].push(insertObj)
 
                 } else {
                     insertObj = {
                         name: dateString
                     }
 
-                    insertObj['Acute Load'] = programData[day]['loadingData'][muscle].acuteEWMA
-                    insertObj['Chronic Load'] = programData[day]['loadingData'][muscle].chronicEWMA
-                    insertObj['ACWR'] = programData[day]['loadingData'][muscle].ACWR
+                    insertObj['Acute Load'] = programData[day]['loadingData'][muscleGroup]['Total'].acuteEWMA
+                    insertObj['Chronic Load'] = programData[day]['loadingData'][muscleGroup]['Total'].chronicEWMA
+                    insertObj['ACWR'] = programData[day]['loadingData']['Total'].ACWR
 
-                    dataToGraph[muscle].push(insertObj)
+                    dataToGraph[muscleGroup + '_Total'].push(insertObj)
                 }
+
+
+                muscleGroups[muscleGroup].forEach(muscle => {
+                    if (day == 1) {
+                        dataToGraph[muscle] = []
+
+                        var insertObj = {
+                            name: dateString
+                        }
+
+                        console.log(programData[day]['loadingData'])
+                        console.log(muscleGroup)
+                        console.log(muscle)
+                        insertObj['Acute Load'] = programData[day]['loadingData'][muscleGroup][muscle].acuteEWMA
+                        insertObj['Chronic Load'] = programData[day]['loadingData'][muscleGroup][muscle].chronicEWMA
+                        insertObj['ACWR'] = programData[day]['loadingData'][muscleGroup][muscle].ACWR
+
+                        dataToGraph[muscle].push(insertObj)
+
+                    } else {
+                        insertObj = {
+                            name: dateString
+                        }
+
+                        insertObj['Acute Load'] = programData[day]['loadingData'][muscleGroup][muscle].acuteEWMA
+                        insertObj['Chronic Load'] = programData[day]['loadingData'][muscleGroup][muscle].chronicEWMA
+                        insertObj['ACWR'] = programData[day]['loadingData'][muscleGroup][muscle].ACWR
+
+                        dataToGraph[muscle].push(insertObj)
+                    }
+
+
+                })
+
             })
-
-
-
         }
         return dataToGraph
 
     }
 
-    generateSafeLoadGraphProps = (programData, muscles) => {
+    generateSafeLoadGraphProps = (programData, muscleGroups) => {
 
         var ghostThresholds = [20]
 
@@ -178,13 +244,42 @@ class ProgressionDataPage extends Component {
 
             for (var day = 1; day < programData.currentDayInProgram; day++) {
 
+
+
                 var dateString = this.stripDateFromTSString(new Date((programData.startDayUTS + 86400000 * (day - 1))))
 
-                muscles.forEach(muscle => {
-                    var loadingVal = parseFloat(programData[day]['loadingData'][muscle].chronicEWMA)
+                var loadingVal = parseFloat(programData[day]['loadingData']['Total'].chronicEWMA)
+
+                if (day == 1) {
+                    dataToGraph['Overall_Total'] = []
+
+                    var insertObj = {
+                        name: dateString
+                    }
+                    insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                    insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+                    insertObj['Actual Loading'] = loadingVal
+
+                    dataToGraph['Overall_Total'].push(insertObj)
+
+                } else {
+                    insertObj = {
+                        name: dateString
+                    }
+
+                    insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                    insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+                    insertObj['Actual Loading'] = loadingVal
+
+                    dataToGraph['Overall_Total'].push(insertObj)
+                }
+
+                Object.keys(muscleGroups).forEach(muscleGroup => {
+
+                    var loadingVal = parseFloat(programData[day]['loadingData'][muscleGroup]['Total'].chronicEWMA)
 
                     if (day == 1) {
-                        dataToGraph[muscle] = []
+                        dataToGraph[muscleGroup + '_Total'] = []
 
                         var insertObj = {
                             name: dateString
@@ -193,7 +288,7 @@ class ProgressionDataPage extends Component {
                         insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
                         insertObj['Actual Loading'] = loadingVal
 
-                        dataToGraph[muscle].push(insertObj)
+                        dataToGraph[muscleGroup + '_Total'].push(insertObj)
 
                     } else {
                         insertObj = {
@@ -204,38 +299,42 @@ class ProgressionDataPage extends Component {
                         insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
                         insertObj['Actual Loading'] = loadingVal
 
-                        dataToGraph[muscle].push(insertObj)
+                        dataToGraph[muscleGroup + '_Total'].push(insertObj)
                     }
+
+
+
+                    muscleGroups[muscleGroup].forEach(muscle => {
+                        var loadingVal = parseFloat(programData[day]['loadingData'][muscleGroup][muscle].chronicEWMA)
+
+                        if (day == 1) {
+                            dataToGraph[muscle] = []
+
+                            var insertObj = {
+                                name: dateString
+                            }
+                            insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                            insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+                            insertObj['Actual Loading'] = loadingVal
+
+                            dataToGraph[muscle].push(insertObj)
+
+                        } else {
+                            insertObj = {
+                                name: dateString
+                            }
+
+                            insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                            insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+                            insertObj['Actual Loading'] = loadingVal
+
+                            dataToGraph[muscle].push(insertObj)
+                        }
+                    })
                 })
-
-
-
             }
             chartSeries.push(lowerSeries)
             chartSeries.push(upperSeries)
-            // for (var weeks in programData) {
-
-            //     for (var bodyPart in programData[weeks]) {
-
-            //         var loadingVal = parseFloat(programData[weeks][bodyPart])
-
-            //         var upperThreshold = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
-            //         var lowerThreshold = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
-
-            //         var weeksString = 'Weeks (' + weeks.split('_')[0] + '-' + weeks.split('_')[1] + ')'
-
-            //         var dataPointObj = {
-            //             name: weeksString
-            //         }
-
-            //         dataPointObj[upperSeries] = upperThreshold
-            //         dataPointObj[lowerSeries] = lowerThreshold
-            //         dataPointObj['Actual Loading'] = loadingVal
-
-            //         totalLoadingData[bodyPart].push(dataPointObj)
-            //     }
-            // }
-
         })
 
         console.log(dataToGraph)
@@ -364,7 +463,7 @@ class ProgressionDataPage extends Component {
             }
         }
         return {
-            tabledata: [],
+            tableData: [],
             statsData: {},
             pieChartData: {
                 data: [],
@@ -459,6 +558,13 @@ class ProgressionDataPage extends Component {
 
     }
 
+    handleOpenMuscleGroup = (value) => {
+        console.log(value)
+        this.setState({
+            currMuscleGroupOpen: value
+        })
+    }
+
     render() {
         const {
             hasPrograms,
@@ -467,17 +573,18 @@ class ProgressionDataPage extends Component {
             loading,
             currentWeekInProgram,
             loadingScheme,
-            bodyPartsList,
+            currMuscleGroupOpen,
             currentBodyPart,
             ACWRGraphProps,
             rollingAverageGraphProps,
             goalTableData,
             goalStatsData,
             goalProgPieChartData,
-            goalProgBarChartData
+            goalProgBarChartData,
+            anatomyObject
         } = this.state
 
-        console.log(goalProgBarChartData)
+        console.log(this.state)
 
         let loadingHTML =
             <Dimmer active>
@@ -514,9 +621,11 @@ class ProgressionDataPage extends Component {
                         className='pageContainerLevel2' id='pdSideBarContainer'
                     >
                         <BodyPartListGroup
-                            currBodyPart={currentBodyPart}
-                            bodyPartsList={bodyPartsList}
-                            changeBodyPartHandler={this.handleSelectBodyPart}
+                            activeMuscle={currentBodyPart}
+                            muscleGroups={anatomyObject}
+                            changeMuscleHandler={this.handleSelectBodyPart}
+                            activeMuscleGroup={currMuscleGroupOpen}
+                            openMuscleGroupHandler={this.handleOpenMuscleGroup}
                         />
                     </div>
 

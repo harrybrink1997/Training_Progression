@@ -29,3 +29,12 @@
     display: flex;
     justify-content: center;
 }
+
+
+#muscleListActiveMuscleLabel {
+    color:#BB86FC;
+}
+
+#muscleListActiveMuscleGroupLabel {
+    color: #868cfc;
+}
