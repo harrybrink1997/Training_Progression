@@ -524,6 +524,9 @@ class CurrentProgramPage extends Component {
 
         var day = updateObject.exUid.split('_').reverse()[1]
 
+        console.log(day)
+        console.log(updateObject.exUid)
+
         if (this.state.loadingScheme === 'rpe_time') {
             var dataPayload = {
                 exercise: updateObject.exercise,
@@ -543,10 +546,13 @@ class CurrentProgramPage extends Component {
                 primMusc: updateObject.primMusc
             }
         }
+        console.log("going in ")
+        console.log(dataPayload)
+        console.log(this.convertUIDayToTotalDays(day))
         await this.props.firebase.pushExercisePropertiesUpstream(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
-            this.convertUIDayToTotalDays(day),
+            day,
             updateObject.exUid,
             dataPayload
         )
