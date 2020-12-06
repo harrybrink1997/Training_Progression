@@ -345,3 +345,111 @@
     fill: #333333;
     fill-opacity: 1;
 }
+
+
+
+
+
+
+
+
+
+
+/*************************/
+/*************************/
+/******Small Carousel Modals*******/
+/*************************/
+/*************************/
+
+
+.ui.small.modal.transition.visible.active .content label {
+    color: white;
+    font-weight: 87%;
+}
+
+.ui.small.modal.transition.visible.active .ui.form {
+    margin: 10px;
+    color: white;
+    font-weight: 87%;
+}
+
+/*Background of a small modal*/
+.ui.small.modal.transition.visible.active .content {
+    background:#191919;
+}
+.ui.small.modal.transition.visible.active .actions {
+    background:#191919;
+}
+
+/*Background of a small modal header*/
+.ui.small.modal.transition.visible.active > .header {
+    background: #121212;
+    color: white;
+    font-weight: 87%;
+}
+
+/*Alignment of the buttons in a small modal*/
+.ui.small.modal.transition.visible.active 
+> .ui.form 
+> .actions {
+    margin: 10px;
+    margin-right: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/*Colour of submit buttons in small modals*/
+.ui.small.modal.transition.visible.active .ui.button.submitBtn {
+    color: #121212;
+    background: #BB86FC;
+}
+
+/*Colour of delete buttons in small modals*/
+.ui.small.modal.transition.visible.active .ui.button.deleteBtn {
+    color:  #121212;
+    background: #CF6679;
+}
+
+/*Colour of inputs in small modals*/
+.ui.small.modal.transition.visible.active input {
+    color: white;
+    font-weight: 87%;
+    background: #333333;
+}
+
+/*Colour of input focus in small modals*/
+.ui.small.modal.transition.visible.active input:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+/*Colour of input focus text selection in small modals*/
+.ui.small.modal.transition.visible.active input::selection {
+    background: #BB86FC;
+    color: white;
+}
+
+
+/*colors all input text */
+.ui.small.modal.transition.visible.active textarea {
+    background: #333333;
+    color: white;
+    height: 40px;
+    border-radius: 5px;
+    width: 100%;
+    outline: 0px;
+    border: none;
+
+}
+
+/*Colour of input focus */
+.ui.small.modal.transition.visible.active textarea:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+/*Colour of input focus text selection*/
+.ui.small.modal.transition.visible.active textarea::selection {
+    background: #BB86FC;
+    color: white;
+}

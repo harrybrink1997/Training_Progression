@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import { withAuthorisation } from '../Session';
 import CreateProgramModal from './createProgramModal'
 import DeleteProgramModal from './deleteProgramModal'
+import CreateExerciseModal from './createExerciseModal'
 
 class HomePage extends Component {
 
@@ -209,6 +210,7 @@ class HomePage extends Component {
                     currentProgramList={currentProgramList}
                     pastProgramList={pastProgramList}
                 />
+                <CreateExerciseModal />
             </div >
         )
     }
