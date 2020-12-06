@@ -32,7 +32,8 @@ class PastProgramsPage extends Component {
             durationOfProgram: '',
             loadingScheme: '',
             hasPrograms: false,
-            currentBodyPart: 'Chest',
+            currentBodyPart: 'Overall_Total',
+            currMuscleGroupOpen: 'Arms'
         }
     }
 
@@ -44,21 +45,25 @@ class PastProgramsPage extends Component {
         // object updates in the database. 
         await this.props.firebase.getUserData(currUserUid).on('value', userData => {
             var userObject = userData.val();
-            if (!this.state.loading) {
-                this.setState({
-                    loading: true
-                }, () => {
-                    console.log(userObject)
-                    // Format the user data based on whether or not user has current programs. 
-                    this.updateObjectState(userObject)
-                })
-            } else {
-                this.updateObjectState(userObject)
-            }
+            this.props.firebase.anatomy().once('value', async snapshot => {
+
+                const anatomyObject = snapshot.val();
+                if (!this.state.loading) {
+                    this.setState({
+                        loading: true
+                    }, () => {
+                        console.log(userObject)
+                        // Format the user data based on whether or not user has current programs. 
+                        this.updateObjectState(userObject, anatomyObject)
+                    })
+                } else {
+                    this.updateObjectState(userObject, anatomyObject)
+                }
+            })
         })
     }
 
-    updateObjectState = (userObject) => {
+    updateObjectState = (userObject, anatomyObject) => {
 
         if ('pastPrograms' in userObject) {
 
@@ -69,7 +74,7 @@ class PastProgramsPage extends Component {
             })
             // Initially Sets the state for the current day
             // and current week and other parameters. 
-            var bodyPartsArray = ['Chest', 'Back', 'Shoulders', 'Legs', 'Arms', 'Total']
+
             console.log(programListArray)
             this.setState({
                 programList: programListArray,
@@ -78,9 +83,10 @@ class PastProgramsPage extends Component {
                 allPrograms: userObject.pastPrograms,
                 durationOfProgram: Math.ceil((userObject.pastPrograms[programListArray[0]].currentDayInProgram - 1) / 7),
                 loadingScheme: userObject.pastPrograms[programListArray[0]].loading_scheme,
-                bodyPartsList: bodyPartsArray,
+                // bodyPartsList: bodyPartsArray,
                 startDate: utsToDateString(userObject.pastPrograms[programListArray[0]].startDayUTS),
                 endDate: utsToDateString(userObject.pastPrograms[programListArray[0]].endDayUTS),
+                anatomyObject: anatomyObject,
                 loading: false,
             })
         } else {
@@ -111,6 +117,17 @@ class PastProgramsPage extends Component {
         })
     }
 
+    getMuscleGroupFromSpecificMuscle = (muscle) => {
+        console.log(this.state.anatomyObject)
+        console.log(muscle)
+        for (var muscleGroup in this.state.anatomyObject) {
+            if (this.state.anatomyObject[muscleGroup].includes(muscle)) {
+                console.log(muscleGroup)
+                return muscleGroup
+            }
+        }
+    }
+
     generateLoadInfoTableData = (muscle) => {
         var endDay = this.state.allPrograms[this.state.activeProgram].currentDayInProgram
 
@@ -119,15 +136,49 @@ class PastProgramsPage extends Component {
 
         var startChronicLoad = 0
 
-        for (var day = 1; day < endDay; day++) {
-            var dayChronicLoad = this.state.allPrograms[this.state.activeProgram][day]['loadingData'][muscle]['chronicEWMA']
-            if (startChronicLoad == 0 && dayChronicLoad != 0) {
-                startChronicLoad = dayChronicLoad
-                break
+        console.log(muscleGroup)
+        console.log(muscle)
+
+        if (muscle == 'Overall_Total') {
+            for (var day = 1; day < endDay; day++) {
+
+                var dayChronicLoad = this.state.allPrograms[this.state.activeProgram][day]['loadingData']['Total']['chronicEWMA']
+                if (startChronicLoad == 0 && dayChronicLoad != 0) {
+                    startChronicLoad = dayChronicLoad
+                    break
+                }
             }
+
+            var endChronicLoad = this.state.allPrograms[this.state.activeProgram][endDay - 1]['loadingData']['Total']['chronicEWMA']
+        } else if (muscle.split('_').length == 2) {
+            var muscleGroup = muscle.split('_')[0]
+
+            for (var day = 1; day < endDay; day++) {
+
+                var dayChronicLoad = this.state.allPrograms[this.state.activeProgram][day]['loadingData'][muscleGroup]['Total']['chronicEWMA']
+                if (startChronicLoad == 0 && dayChronicLoad != 0) {
+                    startChronicLoad = dayChronicLoad
+                    break
+                }
+            }
+
+            var endChronicLoad = this.state.allPrograms[this.state.activeProgram][endDay - 1]['loadingData'][muscleGroup]['Total']['chronicEWMA']
+        } else {
+
+            var muscleGroup = this.getMuscleGroupFromSpecificMuscle(muscle)
+
+            for (var day = 1; day < endDay; day++) {
+
+                var dayChronicLoad = this.state.allPrograms[this.state.activeProgram][day]['loadingData'][muscleGroup][muscle]['chronicEWMA']
+                if (startChronicLoad == 0 && dayChronicLoad != 0) {
+                    startChronicLoad = dayChronicLoad
+                    break
+                }
+            }
+
+            var endChronicLoad = this.state.allPrograms[this.state.activeProgram][endDay - 1]['loadingData'][muscleGroup][muscle]['chronicEWMA']
         }
 
-        var endChronicLoad = this.state.allPrograms[this.state.activeProgram][endDay - 1]['loadingData'][muscle]['chronicEWMA']
 
         return [
             {
@@ -147,7 +198,7 @@ class PastProgramsPage extends Component {
                 col2:
                     (startChronicLoad == 0) ? '0.00' :
                         (((endChronicLoad - startChronicLoad)
-                            / startChronicLoad * 100) - 100)
+                            / startChronicLoad * 100))
                             .toFixed(2).toString()
                         +
                         '%'
@@ -180,6 +231,12 @@ class PastProgramsPage extends Component {
         return returnData
     }
 
+    handleOpenMuscleGroup = (value) => {
+        this.setState({
+            currMuscleGroupOpen: value
+        })
+    }
+
     render() {
 
         const {
@@ -188,11 +245,16 @@ class PastProgramsPage extends Component {
             loading,
             programList,
             currentBodyPart,
-            bodyPartsList
+            bodyPartsList,
+            anatomyObject,
+            currMuscleGroupOpen
 
         } = this.state
 
         let loadInfoData = (!loading) ? this.generateLoadInfoTableData(currentBodyPart) : []
+
+        console.log(currentBodyPart)
+        console.log(loadInfoData)
 
         let generalStatsData = (!loading) ? this.generateGeneralStatsTableData() : []
 
@@ -233,9 +295,11 @@ class PastProgramsPage extends Component {
                         <div className='rowContainer'>
                             <div id='ppPageBodyPartListContainer'>
                                 <BodyPartListGroup
-                                    currBodyPart={currentBodyPart}
-                                    bodyPartsList={bodyPartsList}
-                                    changeBodyPartHandler={this.handleSelectBodyPart}
+                                    activeMuscle={currentBodyPart}
+                                    muscleGroups={anatomyObject}
+                                    changeMuscleHandler={this.handleSelectBodyPart}
+                                    activeMuscleGroup={currMuscleGroupOpen}
+                                    openMuscleGroupHandler={this.handleOpenMuscleGroup}
                                 />
                             </div>
                             <div id='ppPageLoadInfoContainer'>

@@ -559,7 +559,6 @@ class ProgressionDataPage extends Component {
     }
 
     handleOpenMuscleGroup = (value) => {
-        console.log(value)
         this.setState({
             currMuscleGroupOpen: value
         })
