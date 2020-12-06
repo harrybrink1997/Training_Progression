@@ -13,7 +13,6 @@ const AddSubGoalModal = ({ submitHandler, uid, currentData }) => {
     const mainGoalUID = uid + '_editGoal'
 
     const initialiseGoalData = (data) => {
-        console.log(data)
         if (data != undefined) {
             let goal = new SubGoal(uid, undefined, undefined)
             return goal

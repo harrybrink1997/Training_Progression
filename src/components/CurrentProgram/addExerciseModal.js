@@ -44,7 +44,6 @@ const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc }) => 
 
     const handleRepsUpdate = (event) => {
         event.preventDefault()
-        console.log(event.target.value.slice(-1))
         if (event.target.value.slice(-1) >= '0' && event.target.value.slice(-1) <= '9') {
             setReps(event.target.value)
         } else if (event.target.value == '') {
@@ -54,7 +53,6 @@ const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc }) => 
 
     const handleSetsUpdate = (event) => {
         event.preventDefault()
-        console.log(event.target.value.slice(-1))
         if (event.target.value.slice(-1) >= '0' && event.target.value.slice(-1) <= '9') {
             setSets(event.target.value)
         } else if (event.target.value == '') {
@@ -63,7 +61,6 @@ const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc }) => 
     }
 
     const handleInsertDay = (day) => {
-        console.log(day)
         setDayInsert(day)
     }
 
@@ -160,7 +157,6 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) 
 
     const handleRepsUpdate = (event) => {
         event.preventDefault()
-        console.log(event.target.value.slice(-1))
         if (event.target.value.slice(-1) >= '0' && event.target.value.slice(-1) <= '9') {
             setReps(event.target.value)
         } else if (event.target.value == '') {
@@ -170,7 +166,6 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) 
 
     const handleSetsUpdate = (event) => {
         event.preventDefault()
-        console.log(event.target.value.slice(-1))
         if (event.target.value.slice(-1) >= '0' && event.target.value.slice(-1) <= '9') {
             setSets(event.target.value)
         } else if (event.target.value == '') {
@@ -188,7 +183,6 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) 
     }
 
     const handleInsertDay = (day) => {
-        console.log(day)
         setDayInsert(day)
     }
 
@@ -302,7 +296,6 @@ const DayDropdown = ({ buttonHandler, currDay }) => {
 
     const handleClick = (event, { value }) => {
         event.preventDefault()
-        console.log(value)
         setCurrentDay(value)
         buttonHandler(value)
     }

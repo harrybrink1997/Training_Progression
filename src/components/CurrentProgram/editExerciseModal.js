@@ -29,7 +29,6 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
     }
 
     const handleRPEUpdate = (value) => {
-        console.log(value)
         setRpe(value)
     }
 
@@ -44,7 +43,6 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
 
     const handleRepsUpdate = (event) => {
         event.preventDefault()
-        console.log(event.target.value.slice(-1))
         if (event.target.value.slice(-1) >= '0' && event.target.value.slice(-1) <= '9') {
             setReps(event.target.value)
         } else if (event.target.value == '') {
@@ -54,7 +52,6 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
 
     const handleSetsUpdate = (event) => {
         event.preventDefault()
-        console.log(event.target.value.slice(-1))
         if (event.target.value.slice(-1) >= '0' && event.target.value.slice(-1) <= '9') {
             setSets(event.target.value)
         } else if (event.target.value == '') {

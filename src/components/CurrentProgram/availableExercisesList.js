@@ -69,7 +69,6 @@ const AvailableExercisesList = ({ columns, data }) => {
         usePagination,
     )
 
-    console.log(headerGroups)
     return (
         <>
             <Table celled {...getTableProps()}>
@@ -162,7 +161,6 @@ const PagenationDropdown = ({ buttonHandler }) => {
     }
 
     const handleChange = (event, { value }) => {
-        console.log(value)
         setActiveSize(value)
         buttonHandler(Number(value))
     }

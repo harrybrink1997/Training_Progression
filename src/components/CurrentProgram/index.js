@@ -45,7 +45,7 @@ class CurrentProgramPage extends Component {
             // New state variables.
             currentDayInProgram: '',
             currentDayUTS: '',
-            currentDayUI: '',
+            currentDayUI: '1',
             currentWeekInProgram: '',
             daysInWeekScope: [],
             openDaysUI: [false, false, false, false, false, false, false],
@@ -84,18 +84,18 @@ class CurrentProgramPage extends Component {
         var currUserUid = this.props.firebase.auth.currentUser.uid
         // Creates reference to the current user object in the database. Function will be run each time the user
         // object updates in the database. 
-        await this.props.firebase.getUserData(currUserUid).on('value', userData => {
+        await this.props.firebase.getUserData(currUserUid).on('value', async userData => {
             var userObject = userData.val();
+            console.log("re")
+            await this.props.firebase.anatomy().once('value', async snapshot => {
 
-            this.props.firebase.anatomy().once('value', async snapshot => {
-
+                console.log("going innnnn")
                 const anatomyObject = snapshot.val();
 
                 if (!this.state.loading) {
                     this.setState({
                         loading: true,
                     }, () => {
-                        console.log(userObject)
                         // Format the user data based on whether or not user has current programs. 
                         this.updateObjectState(userObject, anatomyObject)
                     })
@@ -108,9 +108,7 @@ class CurrentProgramPage extends Component {
 
     updateObjectState = (userObject, anatomyObject) => {
         // Format the user data based on whether or not user has current programs. 
-        if ('currentPrograms' in userObject) {
-
-            console.log(userObject)
+        if ('currentPrograms' in userObject && userObject.activeProgram != '') {
 
             var programListArray = []
 
@@ -153,7 +151,8 @@ class CurrentProgramPage extends Component {
             this.setState({
                 programList: ['No Current Programs'],
                 activeProgram: '',
-                loading: false
+                loading: false,
+                hasPrograms: false
             })
         }
     }
@@ -291,19 +290,15 @@ class CurrentProgramPage extends Component {
 
     handleCompleteGoalButton = async (id, currProgress) => {
 
-        console.log(currProgress)
-
         var goalInfo = this.generateGoalParentIDFromSubgoalID(id)
         var totalGoalInfo = this.state.goalTableData
         // If the goal selected is a sub goal. Progress of main goal must be assessed as well.
         // For each of the main goals find the correct parent goal, then check if all sub goals are completed. 
         // If all subgoals are completed check the main goal as completed as well, else main goal remains incomplete.
         if (goalInfo.isSubGoal) {
-            console.log("going in main if")
             for (var mgIndex in totalGoalInfo) {
                 var mainGoal = totalGoalInfo[mgIndex]
                 if (mainGoal.goalUID == goalInfo.mainGoal) {
-                    console.log("going in sub if")
                     this.props.firebase.completeGoalUpstream(
                         this.props.firebase.auth.currentUser.uid,
                         this.state.activeProgram,
@@ -362,8 +357,6 @@ class CurrentProgramPage extends Component {
     }
 
     handleEditGoalSubmit = (id, goalData) => {
-        console.log(this.generateGoalPathFromID(id))
-        console.log(goalData.getFormattedGoalObject())
 
         this.props.firebase.modifyGoalUpstream(
             this.props.firebase.auth.currentUser.uid,
@@ -374,9 +367,6 @@ class CurrentProgramPage extends Component {
     }
 
     handleCreateSubGoalSubmit = async (goalData, mainGoalID) => {
-        console.log("inside create subgoal")
-        console.log(goalData)
-        console.log(this.state.goalTableData)
 
         var currentGoalData = this.state.goalTableData
         var parentGoalUID = this.generateGoalParentIDFromSubgoalID(mainGoalID)
@@ -384,11 +374,7 @@ class CurrentProgramPage extends Component {
         // Locate the correct parent goal to count the number of sub goals in the main goal.
         for (var goalIndex in currentGoalData) {
 
-            console.log(currentGoalData[goalIndex].goalUID)
-            console.log(parentGoalUID.mainGoal)
             if (currentGoalData[goalIndex].goalUID == parentGoalUID.mainGoal) {
-                console.log("finding the correct goal index.")
-                console.log(goalData.getFormattedGoalObject())
                 var newSubGoalUID = ''
                 // If the main goal does not have any sub goals just set the uid of the sub goal as 1.
                 if (currentGoalData[goalIndex].subRows == undefined) {
@@ -420,7 +406,6 @@ class CurrentProgramPage extends Component {
                     insertionPath = parentGoalUID.mainGoal + '/subGoals/' + newSubGoalUID
                 }
 
-                console.log(insertionPath)
                 await this.props.firebase.createSubGoalUpstream(
                     this.props.firebase.auth.currentUser.uid,
                     this.state.activeProgram,
@@ -439,7 +424,6 @@ class CurrentProgramPage extends Component {
     generateGoalPathFromID = (id) => {
         var path = ''
         var idComponents = id.split('_')
-        console.log(idComponents)
         if (idComponents[0] == 'mg') {
             if (idComponents[3] == 'deleteGoal') {
                 path = 'Goal_' + idComponents[2]
@@ -454,7 +438,6 @@ class CurrentProgramPage extends Component {
     }
 
     generateGoalTableData = (programObject) => {
-        console.log(programObject)
 
         if (programObject.goals != undefined) {
             if (Object.keys(programObject.goals).length > 0) {
@@ -524,9 +507,6 @@ class CurrentProgramPage extends Component {
 
         var day = updateObject.exUid.split('_').reverse()[1]
 
-        console.log(day)
-        console.log(updateObject.exUid)
-
         if (this.state.loadingScheme === 'rpe_time') {
             var dataPayload = {
                 exercise: updateObject.exercise,
@@ -546,9 +526,7 @@ class CurrentProgramPage extends Component {
                 primMusc: updateObject.primMusc
             }
         }
-        console.log("going in ")
-        console.log(dataPayload)
-        console.log(this.convertUIDayToTotalDays(day))
+
         await this.props.firebase.pushExercisePropertiesUpstream(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
@@ -581,7 +559,6 @@ class CurrentProgramPage extends Component {
             var dailyExercises = []
 
             if (programDaysInCurrWeek[dayIndex] in currWeekProgExer) {
-                console.log(currWeekProgExer)
                 for (var exercise in currWeekProgExer[programDaysInCurrWeek[dayIndex]]) {
 
                     if (exercise != 'loadingData') {
@@ -604,10 +581,8 @@ class CurrentProgramPage extends Component {
                 }
             }
             var sortedExerciseArray = orderUserExercisesBasedOnExUID(dailyExercises)
-            console.log(sortedExerciseArray)
             exPerDayObj[programDaysInCurrWeek[dayIndex]] = sortedExerciseArray
         }
-        console.log(exPerDayObj)
         return exPerDayObj
     }
 
@@ -620,8 +595,6 @@ class CurrentProgramPage extends Component {
 
     // Handles the pagination day change
     handleChangeDayPage = (currentDay) => {
-        console.log("Inside correct function")
-        console.log(currentDay)
         this.props.firebase.setCurrentDay(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
@@ -662,17 +635,16 @@ class CurrentProgramPage extends Component {
 
         // Check if not input for week
         if (insertionDay in programObject) {
-            console.log("going into correct place")
             var dayExercises = programObject[insertionDay]
-            console.log(dayExercises)
 
-            var currMaxID = 0;
+
+            var currMaxID = -1;
 
             for (var exercise in dayExercises) {
+
                 var currExNameInProg = dayExercises[exercise].exercise.split(' ').join('_')
                 // Do a comparison on the exercise name.
-                console.log(currExNameInProg)
-                console.log(exerciseName)
+
                 if (exerciseName == currExNameInProg) {
 
                     // First iterate off the letter. 
@@ -698,10 +670,6 @@ class CurrentProgramPage extends Component {
         //Single db call to delete the data. Using set with uid generated by function above.
         var day = exUid.split('_').reverse()[1]
 
-        console.log(day)
-        console.log(this.convertUIDayToTotalDays(day))
-        console.log(exUid)
-
         await this.props.firebase.deleteExerciseUpStream(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
@@ -718,12 +686,6 @@ class CurrentProgramPage extends Component {
             this.state.activeProgram
         ).once('value', async userData => {
             var userObject = userData.val();
-            // Calculate the weekly load per exercise based
-            // on the loading scheme specified at creation of program.
-            // var processedData = calculateWeeklyLoads(
-            //     userObject['week' + userObject.currentWeek],
-            //     userObject.loading_scheme
-            // )
 
             await this.props.firebase.anatomy().once('value', async snapshot => {
                 const anatomyObject = snapshot.val();
@@ -784,15 +746,7 @@ class CurrentProgramPage extends Component {
     // Updated with new ratio calcs format
     handleAddExerciseButton = async (exerciseObject) => {
 
-        await this.props.firebase.setCurrentDayUI(
-            this.props.firebase.auth.currentUser.uid,
-            this.state.activeProgram,
-            exerciseObject.day
-        )
-
         var exUID = this.generateExerciseUID(exerciseObject.name, exerciseObject.day)
-
-        console.log(exUID)
 
         if (this.state.loadingScheme == 'rpe_time') {
             var dataPayload = {
@@ -813,7 +767,6 @@ class CurrentProgramPage extends Component {
                 primMusc: exerciseObject.primMusc
             }
         }
-
         await this.props.firebase.createExerciseUpStream(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
@@ -821,6 +774,10 @@ class CurrentProgramPage extends Component {
             dataPayload,
             exUID
         )
+
+        this.setState({
+            currentDayUI: exerciseObject.day
+        })
 
 
     }
@@ -844,17 +801,7 @@ class CurrentProgramPage extends Component {
             this.state.activeProgram
         ).once('value', async data => {
             var programData = data.val()
-            console.log(programData)
 
-            // Update active program to the first in the list that isn't current program. Else set to none- this will allow user to switch programs and delete can then run. 
-
-
-            await this.props.firebase.setActiveProgram(
-                this.props.firebase.auth.currentUser.uid,
-                newProgram
-            )
-
-            var endTimestamp = Math.floor(new Date().getTime())
 
             // Transfer program to past program first to ensure correct transfer
             await this.props.firebase.transferProgramToRecordsUpstream(
@@ -863,11 +810,21 @@ class CurrentProgramPage extends Component {
                 programData
             )
 
+            var endTimestamp = Math.floor(new Date().getTime())
+
+
             // Set an end timestamp date for the program.
             await this.props.firebase.appendEndDateUpstream(
                 this.props.firebase.auth.currentUser.uid,
                 programToCloseOff,
                 endTimestamp
+            )
+
+
+            // Update active program to the first in the list that isn't current program. Else set to none- this will allow user to switch programs and delete can then run. 
+            await this.props.firebase.setActiveProgram(
+                this.props.firebase.auth.currentUser.uid,
+                newProgram
             )
 
             // Delete program out of current programs afterwards.
@@ -880,7 +837,6 @@ class CurrentProgramPage extends Component {
     }
 
     handleChangeDaysOpenView = (day) => {
-        console.log(day)
         var newArray = this.state.openDaysUI
         newArray[day] = !newArray[day]
         this.setState({
@@ -915,7 +871,6 @@ class CurrentProgramPage extends Component {
                 var prevDayAcuteLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscleGroup]['Total']['acuteEWMA']
                 var maxLoadData = 0;
                 (prevDayAcuteLoad * 1.1 > prevDayChronicLoad * 1.2) ? maxLoadData = prevDayAcuteLoad : maxLoadData = prevDayChronicLoad
-                console.log(currDayData)
                 if (maxLoadData !== 0 || prevDayChronicLoad !== 0) {
                     returnData.push({
                         bodyPart: muscleGroup,
@@ -933,7 +888,6 @@ class CurrentProgramPage extends Component {
                 }
             })
         }
-        console.log(returnData)
         return returnData
 
     }
@@ -941,8 +895,6 @@ class CurrentProgramPage extends Component {
     generateSpecificMuscleSafeLoadData = (programData, muscleGroup, currDayData, specificMuscleData) => {
 
         var returnData = []
-        console.log(programData)
-        console.log(specificMuscleData)
 
         specificMuscleData.forEach(muscle => {
             var prevDayChronicLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscleGroup][muscle]['chronicEWMA']
@@ -987,7 +939,6 @@ class CurrentProgramPage extends Component {
             expandedRows
         } = this.state
 
-        console.log(this.state)
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />

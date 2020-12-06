@@ -83,7 +83,6 @@ class PastProgramsPage extends Component {
                 allPrograms: userObject.pastPrograms,
                 durationOfProgram: Math.ceil((userObject.pastPrograms[programListArray[0]].currentDayInProgram - 1) / 7),
                 loadingScheme: userObject.pastPrograms[programListArray[0]].loading_scheme,
-                // bodyPartsList: bodyPartsArray,
                 startDate: utsToDateString(userObject.pastPrograms[programListArray[0]].startDayUTS),
                 endDate: utsToDateString(userObject.pastPrograms[programListArray[0]].endDayUTS),
                 anatomyObject: anatomyObject,
@@ -245,7 +244,6 @@ class PastProgramsPage extends Component {
             loading,
             programList,
             currentBodyPart,
-            bodyPartsList,
             anatomyObject,
             currMuscleGroupOpen
 

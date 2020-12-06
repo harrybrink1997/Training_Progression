@@ -13,7 +13,6 @@ const EditGoalModal = ({ submitHandler, uid, currentData, isSubGoal }) => {
     const goalUID = uid + '_editGoal'
 
     const initialiseGoalData = (data) => {
-        console.log(data)
         if (data != undefined) {
             let goal = new SubGoal(uid, undefined, undefined)
             goal.setDate(convertDateStringToObject(data.closeOffDate, '.'))

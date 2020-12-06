@@ -28,27 +28,23 @@ class Goal {
     }
 
     removeSubGoal() {
-        console.log(this.subGoals)
         if (Object.keys(this.subGoals).length == 1) {
             this.subGoals = {}
         } else {
             var lastSubGoalIndex = Object.keys(this.subGoals).length - 1
             delete this.subGoals[lastSubGoalIndex]
         }
-        console.log(this.subGoals)
         this.updateParentList(this, this.uid, this.currentGoalList)
     }
 
     addSubGoal() {
         var newSubGoalIndex = Object.keys(this.subGoals).length
         this.subGoals[newSubGoalIndex] = new SubGoal((parseInt(this.uid) + 1) + '_' + (parseInt(newSubGoalIndex) + 1))
-        console.log(this.subGoals)
 
         this.updateParentList(this, this.uid, this.currentGoalList)
     }
 
     setDescription(value) {
-        console.log(this.description)
         this.description = value
     }
 
@@ -138,7 +134,6 @@ const GoalFormInput = ({ goalUID, goalObj, headerText, isSubGoal }) => {
 
     const handleDifficultyChange = (value) => {
         goalObj.setDifficulty(value)
-        console.log(value)
     }
 
     const handleSubGoalNumUpdate = (increase) => {

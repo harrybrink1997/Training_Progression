@@ -89,7 +89,6 @@ export const GoalsTable = ({ data, expandedRows, expandedRowsHandler }) => {
             <Table.Body {...getTableBodyProps()}>
                 {rows.map((row, i) => {
                     prepareRow(row)
-                    console.log(row)
                     if (row.depth == 1) {
                         return (
                             <Table.Row className='react-table-expandedChildRow' {...row.getRowProps()}>
