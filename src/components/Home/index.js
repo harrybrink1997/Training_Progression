@@ -5,6 +5,8 @@ import CreateProgramModal from './createProgramModal'
 import DeleteProgramModal from './deleteProgramModal'
 import CreateExerciseModal from './createExerciseModal'
 
+import { Dimmer, Loader, Statistic } from 'semantic-ui-react'
+
 class HomePage extends Component {
 
     constructor(props) {
@@ -14,6 +16,7 @@ class HomePage extends Component {
             userInformation: {},
             currentProgramList: [],
             pastProgramList: [],
+            greeting: '',
             loading: true
         }
     }
@@ -56,6 +59,7 @@ class HomePage extends Component {
                     uid: currUserUid,
                     data: userObject
                 },
+                greeting: this.getCurrentGreeting(userObject),
                 currentProgramList: currentProgramList,
                 pastProgramList: pastProgramList,
                 loading: false
@@ -187,11 +191,6 @@ class HomePage extends Component {
     }
 
     handleCreateExercise = async (exName, primMusc, secMusc, exDiff) => {
-        console.log(exName)
-        console.log(primMusc)
-        console.log(secMusc)
-        console.log(exDiff)
-
         var exData = {
             experience: exDiff,
             primary: primMusc,
@@ -255,29 +254,91 @@ class HomePage extends Component {
         this.props.firebase.createProgramUpstream().off();
     }
 
+    getCurrentGreeting = (userInformation) => {
+        var currTime = new Date().toLocaleTimeString()
+        var name = userInformation.username.split(" ")[0]
+        if (parseInt(currTime.split(":")[0]) < 12) {
+            return "Good Morning" + " " + name
+        } else {
+            console.log(currTime)
+            if (parseInt(currTime.split(":")[0]) < 17) {
+                return "Good Afternoon" + " " + name
+            } else {
+                return "Good Evening" + " " + name
+            }
+        }
+
+    }
 
     render() {
 
         const {
             pastProgramList,
             currentProgramList,
-            userInformation
+            userInformation,
+            loading,
+            greeting
         } = this.state
+
+        let loadingHTML =
+            <Dimmer active>
+                <Loader inline='centered' content='Loading...' />
+            </Dimmer>
+
+        let nonLoadingHTML =
+            <div>
+                <div className="pageContainerLevel1">
+                    <div id='mainContainerHeaderDiv'>
+                        <div id='mainHeaderText'>
+                            {
+                                greeting
+                            }
+                        </div>
+                    </div>
+                    <div id='hpStatHeaderContainer'>
+                        <Statistic className='hpStatHeaderSC1' inverted size='tiny'>
+                            <Statistic.Value>22</Statistic.Value>
+                            <Statistic.Label>Faves</Statistic.Label>
+                        </Statistic>
+                        <Statistic className='hpStatHeaderSC2' inverted size='tiny'>
+                            <Statistic.Value>22</Statistic.Value>
+                            <Statistic.Label>Number of Programs</Statistic.Label>
+                        </Statistic>
+                        <Statistic className='hpStatHeaderSC3' inverted size='tiny'>
+                            <Statistic.Value>22</Statistic.Value>
+                            <Statistic.Label>Faves</Statistic.Label>
+                        </Statistic>
+                    </div>
+                </div>
+                <div>
+                    <div className='pageContainerLevel1 half-width'>
+
+
+                        <CreateProgramModal handleFormSubmit={this.handleCreateProgram} />
+                        <DeleteProgramModal
+                            handleFormSubmit={this.handleDeleteProgram}
+                            currentProgramList={currentProgramList}
+                            pastProgramList={pastProgramList}
+                        />
+                        <CreateExerciseModal
+                            handleFormSubmit={this.handleCreateExercise}
+                        />
+
+                    </div>
+                    <div className='pageContainerLevel1 half-width'>
+
+                    </div>
+                </div>
+            </div>
+
+
 
         console.log(userInformation)
         return (
-
-            < div >
-                <CreateProgramModal handleFormSubmit={this.handleCreateProgram} />
-                <DeleteProgramModal
-                    handleFormSubmit={this.handleDeleteProgram}
-                    currentProgramList={currentProgramList}
-                    pastProgramList={pastProgramList}
-                />
-                <CreateExerciseModal
-                    handleFormSubmit={this.handleCreateExercise}
-                />
-            </div >
+            <div>
+                {loading && loadingHTML}
+                {!loading && nonLoadingHTML}
+            </div>
         )
     }
 

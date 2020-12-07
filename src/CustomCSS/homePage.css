@@ -92,3 +92,41 @@
 .hpCPModalDateContainer .field {
     width: 100%;
 }
+
+
+#mainContainerHeaderDiv {
+
+}
+
+#mainHeaderText {
+    margin-top: 50px;
+    margin-bottom: 50px;
+    font-size: 40px;
+    text-align: center;
+}
+
+#hpStatHeaderContainer {
+    display: flex;
+}
+
+#hpStatHeaderContainer > div {
+    width: 33%;
+    text-align: center;
+}
+
+#hpStatHeaderContainer > div .value {
+    width: 100%;
+}
+#hpStatHeaderContainer > div .label {
+    width: 100%;
+}
+
+.ui.tiny.inverted.statistic.hpStatHeaderSC1 > div {
+    text-align: right;
+}
+.ui.tiny.inverted.statistic.hpStatHeaderSC3 > div {
+    text-align: left;
+}
+
+
+

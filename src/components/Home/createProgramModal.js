@@ -17,7 +17,7 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
     const [programName, setProgramName] = useState('')
     const [loadingScheme, setLoadingScheme] = useState('rpe_time')
     const [date, setDate] = useState(new Date())
-
+    const [pageNum, setPageNum] = useState(1)
     const [goalList, setGoalList] = useState(() => { return {} })
 
     const generateTodaysDate = (inputDay) => {
@@ -106,7 +106,7 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
             onClose={() => setShow(false)}
             onOpen={() => setShow(true)}
             open={show}
-            trigger={<Button>Create A Program</Button>}
+            trigger={<Button className='lightPurpleButton'>Create Program</Button>}
         >
             <Modal.Header>Create A Program</Modal.Header>
             <Form onSubmit={handleSubmit}>

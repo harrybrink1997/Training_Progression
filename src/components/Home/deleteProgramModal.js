@@ -37,7 +37,7 @@ const DeleteProgramModal = ({ handleFormSubmit, currentProgramList, pastProgramL
             onClose={() => setShow(false)}
             onOpen={() => setShow(true)}
             open={show}
-            trigger={<Button>Delete Programs</Button>}
+            trigger={<Button className='lightPurpleButton-inverted'>Delete Program</Button>}
         >
             <Modal.Header >Delete Programs</Modal.Header>
             <Form onSubmit={handleSubmit}>
