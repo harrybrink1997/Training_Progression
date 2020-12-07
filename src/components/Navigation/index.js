@@ -8,16 +8,13 @@ import { useLocation } from 'react-router-dom'
 import { Menu } from 'semantic-ui-react'
 
 
-const Navigation = ({ currentPage, changePageHandler }) => (
+const Navigation = () => (
     <AuthUserContext.Consumer>
         {authUser =>
             authUser ?
-                <NavigationAuth
-                    currentPage={currentPage}
-                    changePageHandler={changePageHandler}
-                />
+                <NavigationAuth />
                 :
-                <NavigationNotAuth currentPage={currentPage} />}
+                <NavigationNotAuth />}
     </AuthUserContext.Consumer>
 )
 
@@ -87,7 +84,7 @@ const NavigationAuth = () => {
     )
 }
 
-const NavigationNotAuth = ({ currentPage }) => (
+const NavigationNotAuth = () => (
     <Menu className="not-auth-nav-bar">
         <Menu.Item as='a' href={ROUTES.SIGN_IN}>
             Safety Graph
