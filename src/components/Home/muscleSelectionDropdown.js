@@ -3,7 +3,7 @@ import { withFirebase } from '../Firebase/context'
 
 import { Dropdown, Header } from 'semantic-ui-react'
 
-const MuscleSelectionDropdown = ({ selectHandler, headerString }) => {
+const MuscleSelectionDropdown = ({ selectHandler, headerString, value }) => {
 
     const muscleGroups = {
         Legs: ['Quadraceps', "Hamstrings", "Gluteal Muscles"],
@@ -16,14 +16,15 @@ const MuscleSelectionDropdown = ({ selectHandler, headerString }) => {
 
         Object.keys(muscleGroups).forEach(muscleGroup => {
             inputData.push({
+                key: muscleGroup,
                 text: muscleGroup,
                 value: muscleGroup,
                 content: <Dropdown.Header content={muscleGroup}></Dropdown.Header>,
                 disabled: true
             })
-            inputData.push({
-                content: <Dropdown.Divider />
-            })
+            // inputData.push({
+            //     content: <Dropdown.Divider />
+            // })
 
             muscleGroups[muscleGroup].forEach(muscle => {
                 inputData.push({
@@ -41,14 +42,14 @@ const MuscleSelectionDropdown = ({ selectHandler, headerString }) => {
 
     const [dropdownData] = useState(generateDropData())
 
-    const handleProgramSelect = (event, { value }) => {
+    const handleMuscleSelect = (event, { value }) => {
         event.preventDefault()
-        // selectHandler(programType, value)
+        selectHandler(value)
     }
 
     return (
 
-        <Dropdown placeholder={headerString} fluid multiple selection options={dropdownData} onChange={handleProgramSelect} />
+        <Dropdown placeholder={headerString} fluid multiple selection options={dropdownData} onChange={handleMuscleSelect} value={value} />
 
     )
 }

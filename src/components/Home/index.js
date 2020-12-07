@@ -186,6 +186,70 @@ class HomePage extends Component {
 
     }
 
+    handleCreateExercise = async (exName, primMusc, secMusc, exDiff) => {
+        console.log(exName)
+        console.log(primMusc)
+        console.log(secMusc)
+        console.log(exDiff)
+
+        var exData = {
+            experience: exDiff,
+            primary: primMusc,
+            secondary: secMusc
+        }
+
+        // trim white space first. 
+        exName = exName.trim()
+
+        if (exName.split(' ').length > 0) {
+            var nameArr = exName.split(' ')
+            exName = []
+            nameArr.forEach(word => {
+                exName.push(word.charAt(0).toUpperCase() + word.slice(1))
+            })
+
+            console.log(exName)
+            exName = exName.join('_')
+        } else {
+            exName = exName.charAt(0).toUpperCase() + exName.slice(1);
+        }
+
+        await this.props.firebase.localExerciseData(
+            this.state.userInformation.uid
+        ).once('value', snapshot => {
+
+            const localExerciseObject = snapshot.val();
+
+            this.props.firebase.exercises().once('value', snapshot => {
+                const exerciseObject = snapshot.val();
+
+                if (Object.keys(exerciseObject).includes(exName)) {
+                    alert("Exercise Already Exists In The Main Exercise Storage")
+                } else {
+                    if (localExerciseObject != undefined) {
+                        if (Object.keys(localExerciseObject).length > 10) {
+                            alert("You have reached your limit of custom exercises")
+                        } else if (Object.keys(localExerciseObject).includes(exName)) {
+                            alert("Exercise Already Exists In Your Local Storage")
+                        } else {
+                            this.props.firebase.createNewExerciseReferenceUpstream(
+                                this.state.userInformation.uid,
+                                exName,
+                                exData
+                            )
+                        }
+                    } else {
+                        this.props.firebase.createNewExerciseReferenceUpstream(
+                            this.state.userInformation.uid,
+                            exName,
+                            exData
+                        )
+                    }
+                }
+            })
+        })
+    }
+
     componentWillUnmount() {
         this.props.firebase.getUserData().off();
         this.props.firebase.createProgramUpstream().off();
@@ -210,7 +274,9 @@ class HomePage extends Component {
                     currentProgramList={currentProgramList}
                     pastProgramList={pastProgramList}
                 />
-                <CreateExerciseModal />
+                <CreateExerciseModal
+                    handleFormSubmit={this.handleCreateExercise}
+                />
             </div >
         )
     }

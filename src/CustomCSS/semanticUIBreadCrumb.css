@@ -1,11 +1,14 @@
 .ui.breadcrumb a {
     color: white;
 }
+.ui.breadcrumb a:hover {
+    color: white;
+}
 
 .ui.breadcrumb .divider{
     color: white;
 }
 
 .ui.breadcrumb .active.section{
-    color: red;
+    color: #868cfc;
 }

@@ -63,6 +63,9 @@ class Firebase {
 
     anatomy = () => this.db.ref('anatomy')
 
+    localExerciseData = (uid) => this.db.ref(`users/${uid}/localExercises`)
+
+
     modifyGoalUpstream = (uid, pName, goalPath, value) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${pName}/goals/${goalPath}`)
@@ -141,6 +144,13 @@ class Firebase {
         return this.db
             .ref(`users/${uid}/currentPrograms/${progName}/${day}/${exUid}`)
             .set(exercise)
+    }
+
+
+    createNewExerciseReferenceUpstream = (uid, exName, exData) => {
+        return this.db
+            .ref(`users/${uid}/localExercises/${exName}`)
+            .set(exData)
     }
 
     pushExercisePropertiesUpstreamRemove = (uid, progName, week, day, exUid, value) => {

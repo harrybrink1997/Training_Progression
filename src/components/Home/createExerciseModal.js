@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Modal, Button, Form, Container, Input, Breadcrumb } from 'semantic-ui-react'
 import MuscleSelectionDropdown from './muscleSelectionDropdown'
+import ExerciseDifficultyDropdown from '../CustomComponents/exerciseDifficultyDropdown'
 
 
 const CreateExerciseModal = ({ handleFormSubmit }) => {
@@ -8,13 +9,9 @@ const CreateExerciseModal = ({ handleFormSubmit }) => {
     const [show, setShow] = useState(false);
 
     const [exName, setExName] = useState('')
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        setShow(false);
-
-        // handleFormSubmit(selectedCurrPrograms, selectedPastPrograms)
-    }
+    const [primMusc, setPrimMusc] = useState([])
+    const [secMusc, setSecMusc] = useState([])
+    const [exDiff, setExDiff] = useState('')
 
     const [pageNum, setPageNum] = useState(1)
 
@@ -31,11 +28,48 @@ const CreateExerciseModal = ({ handleFormSubmit }) => {
 
     const handlePrimMusclesSubmit = (event) => {
         event.preventDefault()
-        setPageNum(prevNum => prevNum + 1)
+        if (primMusc.length != 0) {
+            setPageNum(prevNum => prevNum + 1)
+        }
+    }
+
+    const handlePrimMusclesChange = (value) => {
+        setPrimMusc(value)
+    }
+
+    const handleSecMusclesChange = (value) => {
+        setSecMusc(value)
+    }
+
+    const handleExDiffChange = (value) => {
+        console.log(value)
+        setExDiff(value)
     }
 
     const changeExName = (event, { value }) => {
-        setExName(value)
+        if (value !== '_') {
+            setExName(value)
+        }
+    }
+
+    const handleSecMusclesSubmit = (event) => {
+        event.preventDefault()
+        if (primMusc.length != 0) {
+            setPageNum(prevNum => prevNum + 1)
+        }
+    }
+
+
+    const handeExDiffSubmit = (event) => {
+        event.preventDefault();
+        setShow(false);
+        handleFormSubmit(exName, primMusc, secMusc, exDiff)
+
+        setPageNum(1)
+        setExName('')
+        setPrimMusc([])
+        setSecMusc([])
+        setExDiff('')
     }
 
     return (
@@ -92,7 +126,7 @@ const CreateExerciseModal = ({ handleFormSubmit }) => {
                     }
                     {
                         pageNum == 4 &&
-                        <Breadcrumb.Section link active>Exercise Difficulty</Breadcrumb.Section>
+                        <Breadcrumb.Section link active>Experience Level</Breadcrumb.Section>
                     }
                 </Breadcrumb>
                 <Container>
@@ -107,30 +141,63 @@ const CreateExerciseModal = ({ handleFormSubmit }) => {
                                     required
                                 />
                             </Form.Field>
+                            {
+                                exName != '' ?
+                                    < Button className='submitBtn' type="submit">Next</Button>
+                                    :
+                                    <></>
+                            }
                         </Form>
                     }
                     {
                         pageNum == 2 &&
                         <Form onSubmit={handlePrimMusclesSubmit}>
-                            <MuscleSelectionDropdown headerString='Select Primary Muscles' />
+                            <MuscleSelectionDropdown
+                                headerString='Select Primary Muscles'
+                                selectHandler={handlePrimMusclesChange}
+                                value={primMusc}
+                            />
+                            {
+                                (primMusc.length != 0) ?
+                                    < Button className='submitBtn' type="submit">Next</Button>
+                                    :
+                                    <></>
+                            }
                         </Form>
                     }
                     {
                         pageNum == 3 &&
-                        <MuscleSelectionDropdown headerString='Select Secondary Muscles' />
+                        <Form onSubmit={handleSecMusclesSubmit}>
+                            <MuscleSelectionDropdown
+                                headerString='Select Secondary Muscles'
+                                selectHandler={handleSecMusclesChange}
+                                value={secMusc}
+                            />
+                            {
+                                (secMusc.length != 0) ?
+                                    < Button className='submitBtn' type="submit">Next</Button>
+                                    :
+                                    <></>
+                            }
+                        </Form>
+                    }
+                    {
+                        pageNum == 4 &&
+                        <Form onSubmit={handeExDiffSubmit}>
+                            <ExerciseDifficultyDropdown
+                                value={exDiff}
+                                buttonHandler={handleExDiffChange}
+                            />
+                            {
+                                exDiff != '' ?
+                                    < Button className='submitBtn' type="submit">Create Exercise</Button>
+                                    :
+                                    <></>
+                            }
+                        </Form>
                     }
                 </Container>
             </Modal.Content>
-            <Modal.Actions>
-                {
-                    pageNum >= 1 && pageNum != 4 &&
-                    < Button className='submitBtn'>Next</Button>
-                }
-                {
-                    pageNum == 4 &&
-                    <Button className='submitBtn' type="submit">Submit</Button>
-                }
-            </Modal.Actions>
         </Modal >
     );
 }
