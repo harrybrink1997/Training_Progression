@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import Navigation from '../Navigation';
@@ -33,32 +33,42 @@ import '../../CustomCSS/semanticUIBreadCrumb.css'
 import '../../CustomCSS/currentProgramsPage.css'
 import '../../CustomCSS/homePage.css'
 import '../../CustomCSS/pastProgramsPage.css'
-import '../../CustomCSS/semanticUITable.css'
 import '../../CustomCSS/semanticUIStatistic.css'
+import '../../CustomCSS/semanticUITable.css'
+import '../../CustomCSS/semanticUINavBar.css'
 
-const App = () => (
-    <Router>
-        <div>
-            <Navigation />
+const App = () => {
 
-            <hr />
+    const [currentPage, setC] = useState('LANDING')
 
-            <Route exact path={ROUTES.LANDING} component={LandingPage} />
-            <Route path={ROUTES.SIGN_UP} component={SignUpPage} />
-            <Route path={ROUTES.SIGN_IN} component={SignInPage} />
-            <Route
-                path={ROUTES.PASSWORD_FORGET}
-                component={PasswordForgetPage}
-            />
-            <Route path={ROUTES.HOME} component={HomePage} />
-            <Route path={ROUTES.ACCOUNT} component={AccountPage} />
-            <Route path={ROUTES.ADMIN} component={AdminPage} />
-            <Route path={ROUTES.SAFETY_GRAPH} component={SafetyGraphPage} />
-            <Route path={ROUTES.PROG_DATA} component={ProgressionDataPage} />
-            <Route path={ROUTES.CURRENT_PROGRAMS} component={CurrentProgramPage} />
-            <Route path={ROUTES.PAST_PROGRAMS} component={PastProgramPage} />
-        </div>
-    </Router>
-);
+    const handleChangePage = (value) => {
+
+    }
+
+    return (
+        < Router >
+            <div>
+                <Navigation
+                    currentPage={currentPage}
+                    changePageHandler={handleChangePage}
+                />
+                <Route exact path={ROUTES.LANDING} component={LandingPage} />
+                <Route path={ROUTES.SIGN_UP} component={SignUpPage} />
+                <Route path={ROUTES.SIGN_IN} component={SignInPage} />
+                <Route
+                    path={ROUTES.PASSWORD_FORGET}
+                    component={PasswordForgetPage}
+                />
+                <Route path={ROUTES.HOME} component={HomePage} />
+                <Route path={ROUTES.ACCOUNT} component={AccountPage} />
+                <Route path={ROUTES.ADMIN} component={AdminPage} />
+                <Route path={ROUTES.SAFETY_GRAPH} component={SafetyGraphPage} />
+                <Route path={ROUTES.PROG_DATA} component={ProgressionDataPage} />
+                <Route path={ROUTES.CURRENT_PROGRAMS} component={CurrentProgramPage} />
+                <Route path={ROUTES.PAST_PROGRAMS} component={PastProgramPage} />
+            </div>
+        </Router >
+    )
+};
 
 export default withAuthentication(App);
