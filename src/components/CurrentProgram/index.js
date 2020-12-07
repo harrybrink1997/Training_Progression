@@ -68,17 +68,39 @@ class CurrentProgramPage extends Component {
         // Get the data for available exercises. 
         await this.props.firebase.exercises().once('value', snapshot => {
             const exerciseObject = snapshot.val();
-            const exerciseList = Object.keys(exerciseObject).map(key => ({
-                uid: key,
-                primary: exerciseObject[key].primary,
-                secondary: exerciseObject[key].secondary,
-                experience: exerciseObject[key].experience,
-                name: this.underscoreToSpaced(key)
-            }));
-            this.setState({
-                exerciseList: exerciseList,
-                availExercisesCols: this.setAvailExerciseCols(),
-            });
+
+            this.props.firebase.localExerciseData(
+                this.props.firebase.auth.currentUser.uid
+            ).once('value', snapshot => {
+                const localExerciseObject = snapshot.val();
+
+
+                const exerciseList = Object.keys(exerciseObject).map(key => ({
+                    uid: key,
+                    primary: exerciseObject[key].primary,
+                    secondary: exerciseObject[key].secondary,
+                    experience: exerciseObject[key].experience,
+                    name: this.underscoreToSpaced(key)
+                }));
+
+                if (localExerciseObject != undefined) {
+                    var localExerciseList = Object.keys(localExerciseObject).map(key => ({
+                        uid: key,
+                        primary: localExerciseObject[key].primary,
+                        secondary: localExerciseObject[key].secondary,
+                        experience: localExerciseObject[key].experience,
+                        name: this.underscoreToSpaced(key)
+                    }));
+                } else {
+                    localExerciseList = []
+                }
+
+                this.setState({
+                    exerciseList: exerciseList.concat(localExerciseList),
+                    availExercisesCols: this.setAvailExerciseCols(),
+                });
+
+            })
         });
 
         var currUserUid = this.props.firebase.auth.currentUser.uid

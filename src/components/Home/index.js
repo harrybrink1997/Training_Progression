@@ -227,8 +227,8 @@ class HomePage extends Component {
                     alert("Exercise Already Exists In The Main Exercise Storage")
                 } else {
                     if (localExerciseObject != undefined) {
-                        if (Object.keys(localExerciseObject).length > 10) {
-                            alert("You have reached your limit of custom exercises")
+                        if (Object.keys(localExerciseObject).length > 5) {
+                            alert("You have reached your limit of custom exercises, you cannot create anymore.")
                         } else if (Object.keys(localExerciseObject).includes(exName)) {
                             alert("Exercise Already Exists In Your Local Storage")
                         } else {
