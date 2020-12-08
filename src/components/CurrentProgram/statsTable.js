@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Icon, Table } from 'semantic-ui-react'
 import { useTable, useExpanded } from 'react-table'
 
@@ -47,30 +47,6 @@ export const LoadingSpreadStatsTable = ({ data }) => {
         ],
         []
     )
-
-
-    // const columns = React.useMemo(
-    //     () => [
-    //         {
-    //             Header: 'Body Part',
-    //             accessor: 'bodyPart'
-    //         },
-    //         {
-    //             Header: 'Load',
-    //             accessor: 'currDayLoad',
-
-    //         },
-    //         {
-    //             Header: 'Minimum Safe Load ',
-    //             accessor: 'minSafeLoad',
-    //         },
-    //         {
-    //             Header: 'Maximum Safe Load',
-    //             accessor: 'maxSafeLoad',
-    //         }
-    //     ],
-    //     []
-    // )
 
     const {
         getTableProps,
@@ -147,6 +123,7 @@ export const LoadingSpreadStatsTable = ({ data }) => {
                     })}
             </Table.Body>
         </Table>
+
     )
 
 }

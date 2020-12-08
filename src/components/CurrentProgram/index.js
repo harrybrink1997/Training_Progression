@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import { withAuthorisation } from '../Session';
-import { Loader, Dimmer, Header, Button } from 'semantic-ui-react'
+import { Loader, Dimmer, Header, Button, Icon } from 'semantic-ui-react'
 
 
 import CurrentProgramDropdown from './currentProgramsDropdown'
@@ -52,7 +52,8 @@ class CurrentProgramPage extends Component {
             openDaysUI: [false, false, false, false, false, false, false],
             prevWeeksData: {},
             currDaySafeLoadTableData: [],
-
+            goalsTableVisible: true,
+            safeLoadTableVisible: true,
             // Goal Table Data
             goalTableData: [],
             expandedRows: {},
@@ -1027,6 +1028,8 @@ class CurrentProgramPage extends Component {
             currDaySafeLoadTableData,
             goalTableData,
             prevWeeksData,
+            safeLoadTableVisible,
+            goalsTableVisible,
 
             // New state variables.
             currentDayInProgram,
@@ -1070,8 +1073,19 @@ class CurrentProgramPage extends Component {
                 </div>
                 <div className='pageRowContainer'>
                     <div className='pageContainerLevel1' id='cpExerciseSpreadTableContainer'>
+                        <div onClick={() => this.setState({ goalsTableVisible: !goalsTableVisible })}>
+                            {
+                                goalsTableVisible &&
+                                <Icon name='toggle on' />
+                            }
+                            {
+                                !goalsTableVisible &&
+                                <Icon name='toggle off' />
+
+                            }
+                        </div>
                         {
-                            goalTableData.length > 0 &&
+                            goalTableData.length > 0 && goalsTableVisible &&
                             <div>
                                 <GoalsTable
                                     data={goalTableData}
@@ -1120,7 +1134,21 @@ class CurrentProgramPage extends Component {
                     </div>
                     <div className='pageContainerLevel1'
                         id='cpLoadingSpreadTableContainer'>
-                        <LoadingSpreadStatsTable data={currDaySafeLoadTableData} />
+                        <div onClick={() => this.setState({ safeLoadTableVisible: !safeLoadTableVisible })}>
+                            {
+                                safeLoadTableVisible &&
+                                <Icon style={{ fontSize: '20px' }} name='toggle on' />
+                            }
+                            {
+                                !safeLoadTableVisible &&
+                                <Icon style={{ fontSize: '20px' }} name='toggle off' />
+
+                            }
+                        </div>
+                        {
+                            safeLoadTableVisible &&
+                            <LoadingSpreadStatsTable data={currDaySafeLoadTableData} />
+                        }
                     </div>
                 </div>
                 <div className='pageRowContainer'>
