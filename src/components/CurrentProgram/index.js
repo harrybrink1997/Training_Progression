@@ -324,22 +324,16 @@ class CurrentProgramPage extends Component {
             for (var mgIndex in totalGoalInfo) {
                 var mainGoal = totalGoalInfo[mgIndex]
                 if (mainGoal.goalUID == goalInfo.mainGoal) {
-                    this.props.firebase.completeGoalUpstream(
-                        this.props.firebase.auth.currentUser.uid,
-                        this.state.activeProgram,
-                        this.generateGoalPathFromID(id),
-                        !currProgress
-                    )
+                    var updateObject = {}
+                    // Completes the specific goal that was click on the screen.
+                    updateObject[this.generateGoalPathFromID(id) + '/completed'] = !currProgress
 
-                    // If the sub goal is going to false and the main goal is currently
+                    // If the sub goal is going to be false and the main goal is currently
                     // completed then changed both to false. 
                     if (!currProgress == false && mainGoal.completed == true) {
-                        await this.props.firebase.completeGoalUpstream(
-                            this.props.firebase.auth.currentUser.uid,
-                            this.state.activeProgram,
-                            goalInfo.mainGoal + '/mainGoal',
-                            false
-                        )
+                        updateObject[goalInfo.mainGoal + '/mainGoal/completed'] = false
+
+
                     } else if (!currProgress == true && mainGoal.completed == false) {
 
                         var allSubGoalsCompleted = true
@@ -358,15 +352,17 @@ class CurrentProgramPage extends Component {
                         // If all the other goals are completed besides the current goal to be changed.
                         // Change the main goal to completed. 
                         if (allSubGoalsCompleted) {
-                            await this.props.firebase.completeGoalUpstream(
-                                this.props.firebase.auth.currentUser.uid,
-                                this.state.activeProgram,
-                                goalInfo.mainGoal + '/mainGoal',
-                                allSubGoalsCompleted
-                            )
+                            updateObject[goalInfo.mainGoal + '/mainGoal/completed'] = true
                         }
 
                     }
+
+                    console.log(updateObject)
+                    await this.props.firebase.updateGoalStatusesUpstream(
+                        this.props.firebase.auth.currentUser.uid,
+                        this.state.activeProgram,
+                        updateObject
+                    )
 
                     break
                 }

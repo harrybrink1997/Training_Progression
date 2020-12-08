@@ -90,6 +90,12 @@ class Firebase {
             .set(value)
     }
 
+    updateGoalStatusesUpstream = (uid, pName, goalInfo) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${pName}/goals`)
+            .update(goalInfo)
+    }
+
     deleteGoalUpstream = (uid, pName, goalPath) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${pName}/goals/${goalPath}`)
