@@ -1,0 +1,20 @@
+.ui.pagination.pointing.secondary.menu .item {
+    color: white;
+    border: none;
+    outline: none;
+}
+
+.ui.pagination.pointing.secondary.menu .active.item {
+    color: #BB86FC;
+    border: none;
+    outline: none;
+}
+
+.ui.pagination.pointing.secondary.menu .active.item:hover {
+    color: #BB86FC;
+    background: transparent
+} 
+.ui.pagination.pointing.secondary.menu .item:hover {
+    color: white;
+    background: #131313;
+}

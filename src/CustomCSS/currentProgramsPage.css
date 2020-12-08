@@ -120,3 +120,20 @@
     margin-left: none;
     margin-right: none;
 }
+
+#cpPrevExModalPagContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+ #cpPrevExModalDayContainer {
+     padding-top: 10px;
+     padding-bottom: 10px;
+ }
+
+#cpViewPrevWeeksBtnContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

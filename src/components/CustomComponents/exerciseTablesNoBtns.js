@@ -4,46 +4,8 @@ import { useTable } from 'react-table'
 import { Table, Accordion, Icon } from 'semantic-ui-react'
 import InputLabel from '../CustomComponents/DarkModeInput'
 
-// Import Custom functions needed
-import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
 
-const CurrentWeekExercisesContainer = ({
-    dailyExercises,
-    loadingScheme,
-    daysInWeekScope,
-    daysViewHandler,
-    openDaysUI }) => {
-
-    return (
-        <div className='exerciseTableContainer'>
-            {
-                [0, 1, 2, 3, 4, 5, 6].map(dayIndex => {
-                    var day = daysInWeekScope[dayIndex]
-                    if (dailyExercises[day].length > 0) {
-                        return (
-                            <ExerciseTableContainer
-                                key={dayIndex}
-                                dayText={'Day ' + convertTotalDaysToUIDay(day)}
-                                tableData={dailyExercises[day]}
-                                tableScheme={loadingScheme}
-                                initVisib={true}
-                                defaultOpen={openDaysUI[dayIndex]}
-                                clickHandler={daysViewHandler}
-                                dayIndex={dayIndex}
-                            />
-                        )
-                    } else {
-                        return (
-                            <></>
-                        )
-                    }
-                })
-            }
-        </div >
-    )
-}
-
-const ExerciseTableContainer = ({ dayText, tableData, tableScheme, initVisib, defaultOpen, clickHandler, dayIndex }) => {
+const ExerciseTableContainerNoBtns = ({ dayText, tableData, tableScheme, defaultOpen, dayIndex }) => {
 
     const [tableVisible, setTableVisible] = useState(defaultOpen)
 
@@ -52,7 +14,6 @@ const ExerciseTableContainer = ({ dayText, tableData, tableScheme, initVisib, de
     const iconString = tableVisible ? 'caret down' : 'caret right'
 
     const handleOpenClose = (event) => {
-        clickHandler(containerIndex)
         setTableVisible(!tableVisible)
     }
 
@@ -114,11 +75,6 @@ const ExerciseTableDayViewRpeTime = ({ data, handleTableUpdate }) => {
                 Header: 'RPE',
                 accessor: 'rpe',
             },
-            {
-                Header: '',
-                accessor: 'deleteButton',
-            }
-
         ],
         []
     )
@@ -239,12 +195,6 @@ const ExerciseTableDayViewWeightReps = ({ data, handleTableUpdate }) => {
                 Header: 'Time',
                 accessor: 'time',
             },
-            {
-                // Header: 'Delete',
-                Header: '',
-                accessor: 'deleteButton'
-            }
-
 
         ],
         []
@@ -326,6 +276,4 @@ const ExerciseTableDayViewWeightReps = ({ data, handleTableUpdate }) => {
 
 }
 
-
-export default CurrentWeekExercisesContainer;
-export { ExerciseTableContainer }
+export default ExerciseTableContainerNoBtns

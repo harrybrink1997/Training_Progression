@@ -146,6 +146,12 @@ class Firebase {
             .set(exercise)
     }
 
+    createBulkExercisesUpstream = (uid, progName, days) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}`)
+            .update(days)
+    }
+
 
     createNewExerciseReferenceUpstream = (uid, exName, exData) => {
         return this.db

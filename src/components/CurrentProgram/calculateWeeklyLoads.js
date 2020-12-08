@@ -8,6 +8,7 @@ const calculateDailyLoads = (programData,
 
     var currDayData = programData[currentDayInProgram]
 
+
     var processedData = dailyLoadCalcs(currDayData, muscleGroups, scheme)
     // console.log(processedData)
 
@@ -63,6 +64,12 @@ const dailyLoadCalcs = (dayData, muscleGroups, scheme) => {
         }
     }
 
+    if (dayData == undefined ||
+        (Object.keys(dayData).length == 1
+            && dayData.loadingData != undefined)
+    ) {
+        dayData = {}
+    }
 
     Object.keys(muscleGroups).forEach(group => {
         dayLoading[group] = {
@@ -71,58 +78,80 @@ const dailyLoadCalcs = (dayData, muscleGroups, scheme) => {
             }
         }
     })
+    // Account for the fact that the day is empty and no exercises
+    // have been created
+    if (Object.keys(dayData).length == 0) {
 
-    for (var ex in dayData) {
-        if (ex != 'loadingData') {
-            var exData = dayData[ex]
-
-            if (scheme == 'rpe_time') {
-                var load = exData.sets * exData.reps * exData.time * exData.rpe
-            } else {
-                load = exData.sets * exData.reps * exData.weight
+        Object.keys(muscleGroups).forEach(key => {
+            var muscleList = muscleGroups[key]
+            dayLoading[key]['Total'] = {
+                dailyLoad: 0
             }
 
-            dayLoading['Total']['dailyLoad'] += load
-
-            Object.keys(muscleGroups).forEach(key => {
-                var muscleList = muscleGroups[key]
-
-                // Add a new object for that muscle group in the 
-                // daily loading for the new muscle group. 
-
-                var groupTotalUpdated = false
-
-                muscleList.forEach(muscle => {
-
-                    if (exData.primMusc.includes(muscle)) {
-                        if (muscle in dayLoading[key]) {
-                            dayLoading[key][muscle].dailyLoad += load
-                        } else {
-                            dayLoading[key][muscle] = {
-                                dailyLoad: load
-                            }
-                        }
-                        if (!groupTotalUpdated) {
-                            dayLoading[key].Total.dailyLoad += load
-                            groupTotalUpdated = true
-                        }
-                    } else {
-                        // Check if the muscle group load has already been
-                        // calculated from a previous exercise. 
-                        // IF it hasnt then just set the load to zero. 
-                        // If it does already exist 
-                        if (dayLoading[key][muscle] == undefined) {
-                            dayLoading[key][muscle] = {
-                                dailyLoad: 0
-                            }
-                        }
-                    }
-                })
+            muscleList.forEach(muscle => {
+                dayLoading[key][muscle] = {
+                    dailyLoad: 0
+                }
 
             })
 
+        })
+
+    } else {
+        for (var ex in dayData) {
+            if (ex != 'loadingData') {
+                var exData = dayData[ex]
+
+                if (scheme == 'rpe_time') {
+                    var load = exData.sets * exData.reps * exData.time * exData.rpe
+                } else {
+                    load = exData.sets * exData.reps * exData.weight
+                }
+
+                dayLoading['Total']['dailyLoad'] += load
+
+                Object.keys(muscleGroups).forEach(key => {
+                    var muscleList = muscleGroups[key]
+
+                    // Add a new object for that muscle group in the 
+                    // daily loading for the new muscle group. 
+
+                    var groupTotalUpdated = false
+
+                    muscleList.forEach(muscle => {
+
+                        if (exData.primMusc.includes(muscle)) {
+                            if (muscle in dayLoading[key]) {
+                                dayLoading[key][muscle].dailyLoad += load
+                            } else {
+                                dayLoading[key][muscle] = {
+                                    dailyLoad: load
+                                }
+                            }
+                            if (!groupTotalUpdated) {
+                                dayLoading[key].Total.dailyLoad += load
+                                groupTotalUpdated = true
+                            }
+                        } else {
+                            // Check if the muscle group load has already been
+                            // calculated from a previous exercise. 
+                            // IF it hasnt then just set the load to zero. 
+                            // If it does already exist 
+                            if (dayLoading[key][muscle] == undefined) {
+                                dayLoading[key][muscle] = {
+                                    dailyLoad: 0
+                                }
+                            }
+                        }
+                    })
+
+                })
+
+            }
         }
     }
+
+
 
     return dayLoading
 

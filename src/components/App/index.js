@@ -36,6 +36,7 @@ import '../../CustomCSS/pastProgramsPage.css'
 import '../../CustomCSS/semanticUIStatistic.css'
 import '../../CustomCSS/semanticUITable.css'
 import '../../CustomCSS/semanticUINavBar.css'
+import '../../CustomCSS/semanticUIPagination.css'
 
 const App = () => {
 
