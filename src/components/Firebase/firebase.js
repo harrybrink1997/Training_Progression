@@ -225,6 +225,12 @@ class Firebase {
             .set(val)
     }
 
+    pushPastProgramNotesUpstream = (uid, progName, val) => {
+        return this.db
+            .ref(`users/${uid}/pastPrograms/${progName}/notes`)
+            .set(val)
+    }
+
     // TODO REMOVE
     progressToNextWeek = (uid, progName, val) => {
         return this.db

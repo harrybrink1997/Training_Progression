@@ -24,6 +24,10 @@
     font-size: 20px;
 }
 
+#ppProgNotesLabel {
+    font-size: 20px;
+}
+
 #ppLoadInfoTableLabel {
     font-size: 20px;
 }
@@ -47,4 +51,20 @@
 
 #ppPageGeneralStatsTable {
     padding: 20px;
+}
+
+#ppProgramNotesTextArea {
+    width: 100%;
+    resize: none;
+    min-height: 200px;
+}
+
+#ppProgramNotesBtnContainer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#ppProgramNotesBtnContainer > button {
+    margin-top: 5px;
+    margin-right: 0px !important;
 }

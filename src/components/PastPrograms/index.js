@@ -13,6 +13,7 @@ import { GeneralInfoTable } from './generalInfoTable'
 import LoadInfoTable from './loadInfoTable'
 import InputLabel from '../CustomComponents/DarkModeInput'
 import BodyPartListGroup from '../CustomComponents/bodyPartListGroup'
+import FinalProgramNotes from './finalProgramNotes'
 
 // Import Custom Functions
 import loadingSchemeString from '../../constants/loadingSchemeString'
@@ -33,7 +34,8 @@ class PastProgramsPage extends Component {
             loadingScheme: '',
             hasPrograms: false,
             currentBodyPart: 'Overall_Total',
-            currMuscleGroupOpen: 'Arms'
+            currMuscleGroupOpen: 'Arms',
+            programNotes: ''
         }
     }
 
@@ -86,6 +88,7 @@ class PastProgramsPage extends Component {
                 startDate: utsToDateString(userObject.pastPrograms[programListArray[0]].startDayUTS),
                 endDate: utsToDateString(userObject.pastPrograms[programListArray[0]].endDayUTS),
                 anatomyObject: anatomyObject,
+                programNotes: userObject.pastPrograms[programListArray[0]].notes,
                 loading: false,
             })
         } else {
@@ -236,6 +239,14 @@ class PastProgramsPage extends Component {
         })
     }
 
+    handleSaveProgramNotes = (value) => {
+        this.props.firebase.pushPastProgramNotesUpstream(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram,
+            value
+        )
+    }
+
     render() {
 
         const {
@@ -245,7 +256,8 @@ class PastProgramsPage extends Component {
             programList,
             currentBodyPart,
             anatomyObject,
-            currMuscleGroupOpen
+            currMuscleGroupOpen,
+            programNotes
 
         } = this.state
 
@@ -321,6 +333,28 @@ class PastProgramsPage extends Component {
                         </div>
 
                     </div>
+                </div>
+                <div className='rowContainer'>
+                    <div className='pageContainerLevel1 half-width' id='ppPageGeneralStatsTable'>
+                        <div className='centeredPageContainerLabel'>
+                            <InputLabel
+                                text='Program Notes'
+                                custID='ppProgNotesLabel'
+                            />
+                        </div>
+                        <FinalProgramNotes
+                            initialText={programNotes}
+                            submitHandler={this.handleSaveProgramNotes}
+                        />
+
+
+                    </div>
+
+
+
+
+
+                    <div className='pageContainerLevel1 half-width' id='ppPageGeneralStatsTable'></div>
                 </div>
             </div>
 
