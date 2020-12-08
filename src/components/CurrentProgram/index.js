@@ -589,17 +589,21 @@ class CurrentProgramPage extends Component {
                         var renderObj = currWeekProgExer[programDaysInCurrWeek[dayIndex]][exercise]
                         renderObj.uid = exercise
                         renderObj.deleteButton =
-                            <div className='currDayExBtnContainer'>
-                                {loadingScheme === 'rpe_time' ?
-                                    <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-
+                            (this.shouldRenderExerciseButtons(
+                                exercise,
+                                userObject.currentPrograms[userObject.activeProgram].currentDayInProgram
+                            )) ? (loadingScheme === 'rpe_time') ?
+                                    <div className='currDayExBtnContainer'>
+                                        <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+                                        <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
+                                    </div>
                                     :
-                                    <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-                                }
-                                <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
-                            </div>
-
-
+                                    <div className='currDayExBtnContainer'>
+                                        <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+                                        <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
+                                    </div>
+                                :
+                                <></>
                         dailyExercises.push(renderObj)
                     }
                 }
@@ -608,6 +612,17 @@ class CurrentProgramPage extends Component {
             exPerDayObj[programDaysInCurrWeek[dayIndex]] = sortedExerciseArray
         }
         return exPerDayObj
+    }
+
+    shouldRenderExerciseButtons = (uid, currDay) => {
+        console.log("going in")
+        console.log(uid.split("_").reverse()[1])
+        console.log(this.state.currentDayInProgram)
+        if (uid.split("_").reverse()[1] < currDay) {
+            console.log(uid)
+            return false
+        }
+        return true
     }
 
     // Updated with new ratio calcs format
