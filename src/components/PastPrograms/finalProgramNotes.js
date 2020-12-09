@@ -1,20 +1,28 @@
-import React, { useState } from 'react'
+import { compositionDependencies } from 'mathjs'
+import React, { useEffect, useState } from 'react'
 import { Button, TextArea } from 'semantic-ui-react'
 
 
 const FinalProgramNotes = ({ submitHandler, initialText }) => {
+    const text = initialText
+    const [textField, setTextField] = useState(initialText)
 
-    const [text, setText] = useState(initialText)
+    useEffect(() => {
+        setTextField(text)
+        // console.log(textField)
+    }, [text])
+
 
     const handleSave = () => {
-        submitHandler(text)
+        console.log(textField)
+        submitHandler(textField)
     }
 
     return (
         <div>
-            <textarea id='ppProgramNotesTextArea'
-                value={text}
-                onChange={(e) => setText(e.target.value)}
+            <TextArea id='ppProgramNotesTextArea'
+                value={textField}
+                onChange={(e, { value }) => setTextField(value)}
                 placeholder='What went well? What are you proud of? What can you improve on in the next program?'
             />
             <div id='ppProgramNotesBtnContainer'>

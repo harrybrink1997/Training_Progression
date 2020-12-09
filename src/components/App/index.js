@@ -40,12 +40,6 @@ import '../../CustomCSS/semanticUIPagination.css'
 
 const App = () => {
 
-    const [currentPage, setC] = useState('LANDING')
-
-    const handleChangePage = (value) => {
-
-    }
-
     return (
         < Router >
             <div>

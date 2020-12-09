@@ -128,5 +128,25 @@
     text-align: left;
 }
 
+#hpBtnContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+#hpLeftBtnContainer {
+    width: 33%;
+    display: flex;
+    justify-content: flex-end;
+}
+#hpMidBtnContainer {
+    width: 33%;
+    display: flex;
+    justify-content: center;
+}
+#hpRightBtnContainer {
+    width: 33%;
+    display: flex;
+    justify-content: flex-start;
+}
 
 

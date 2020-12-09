@@ -18,6 +18,7 @@ import FinalProgramNotes from './finalProgramNotes'
 // Import Custom Functions
 import loadingSchemeString from '../../constants/loadingSchemeString'
 import utsToDateString from '../../constants/utsToDateString'
+import { compositionDependencies } from 'mathjs';
 
 
 
@@ -45,7 +46,7 @@ class PastProgramsPage extends Component {
         var currUserUid = this.props.firebase.auth.currentUser.uid
         // Creates a reference to the current user object in the database. Function will be run each time the user
         // object updates in the database. 
-        await this.props.firebase.getUserData(currUserUid).on('value', userData => {
+        await this.props.firebase.getUserData(currUserUid).once('value', userData => {
             var userObject = userData.val();
             this.props.firebase.anatomy().once('value', async snapshot => {
 
@@ -102,12 +103,15 @@ class PastProgramsPage extends Component {
 
     handleSelectProgram = (event, { value }) => {
 
+        console.log(this.state.allPrograms[value].notes)
+
         if (this.state.activeProgram != value) {
             this.setState({
                 activeProgram: value,
                 startDate: utsToDateString(this.state.allPrograms[value].startDayUTS),
                 endDate: utsToDateString(this.state.allPrograms[value].endDayUTS),
-                durationOfProgram: Math.ceil((this.state.allPrograms[value].currentDayInProgram - 1) / 7)
+                durationOfProgram: Math.ceil((this.state.allPrograms[value].currentDayInProgram - 1) / 7),
+                programNotes: (this.state.allPrograms[value].notes != undefined) ? this.state.allPrograms[value].notes : ''
 
             })
         }
@@ -240,6 +244,13 @@ class PastProgramsPage extends Component {
     }
 
     handleSaveProgramNotes = (value) => {
+
+        var allPrograms = this.state.allPrograms
+        allPrograms[this.state.activeProgram].notes = value
+
+        this.setState({
+            allPrograms: allPrograms
+        })
         this.props.firebase.pushPastProgramNotesUpstream(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
@@ -263,8 +274,7 @@ class PastProgramsPage extends Component {
 
         let loadInfoData = (!loading) ? this.generateLoadInfoTableData(currentBodyPart) : []
 
-        console.log(currentBodyPart)
-        console.log(loadInfoData)
+        console.log(programNotes)
 
         let generalStatsData = (!loading) ? this.generateGeneralStatsTableData() : []
 

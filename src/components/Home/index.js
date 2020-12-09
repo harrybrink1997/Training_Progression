@@ -180,7 +180,6 @@ class HomePage extends Component {
     }
 
     handleDeleteProgram = (currentPrograms, pastPrograms) => {
-        console.log("deleted")
         this.setState({
             loading: true
         }, async () => {
@@ -294,8 +293,27 @@ class HomePage extends Component {
                                 greeting
                             }
                         </div>
+                        <div id='hpBtnContainer' >
+                            <div id='hpLeftBtnContainer'>
+                                <DeleteProgramModal
+                                    handleFormSubmit={this.handleDeleteProgram}
+                                    currentProgramList={currentProgramList}
+                                    pastProgramList={pastProgramList}
+                                />
+                            </div>
+                            <div id='hpMidBtnContainer'>
+                                <CreateProgramModal handleFormSubmit={this.handleCreateProgram} />
+
+                            </div>
+                            <div id='hpRightBtnContainer'>
+                                <CreateExerciseModal
+                                    handleFormSubmit={this.handleCreateExercise}
+                                />
+                            </div>
+
+                        </div>
                     </div>
-                    <div id='hpStatHeaderContainer'>
+                    {/* <div id='hpStatHeaderContainer'>
                         <Statistic className='hpStatHeaderSC1' inverted size='tiny'>
                             <Statistic.Value>22</Statistic.Value>
                             <Statistic.Label>Faves</Statistic.Label>
@@ -308,26 +326,7 @@ class HomePage extends Component {
                             <Statistic.Value>22</Statistic.Value>
                             <Statistic.Label>Faves</Statistic.Label>
                         </Statistic>
-                    </div>
-                </div>
-                <div>
-                    <div className='pageContainerLevel1 half-width'>
-
-
-                        <CreateProgramModal handleFormSubmit={this.handleCreateProgram} />
-                        <DeleteProgramModal
-                            handleFormSubmit={this.handleDeleteProgram}
-                            currentProgramList={currentProgramList}
-                            pastProgramList={pastProgramList}
-                        />
-                        <CreateExerciseModal
-                            handleFormSubmit={this.handleCreateExercise}
-                        />
-
-                    </div>
-                    <div className='pageContainerLevel1 half-width'>
-
-                    </div>
+                    </div> */}
                 </div>
             </div>
 

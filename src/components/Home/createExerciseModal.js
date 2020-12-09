@@ -79,7 +79,7 @@ const CreateExerciseModal = ({ handleFormSubmit }) => {
             onClose={() => setShow(false)}
             onOpen={() => setShow(true)}
             open={show}
-            trigger={<Button>Create Exercise</Button>}
+            trigger={<Button className='lightPurpleButton-inverted'>Create Exercise</Button>}
         >
             <Modal.Header >Create Your Own Exercise</Modal.Header>
             <Modal.Content>
@@ -139,6 +139,7 @@ const CreateExerciseModal = ({ handleFormSubmit }) => {
                                     value={exName}
                                     onChange={changeExName}
                                     required
+                                    autoFocus
                                 />
                             </Form.Field>
                             {
