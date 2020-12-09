@@ -37,6 +37,7 @@ import '../../CustomCSS/semanticUIStatistic.css'
 import '../../CustomCSS/semanticUITable.css'
 import '../../CustomCSS/semanticUINavBar.css'
 import '../../CustomCSS/semanticUIPagination.css'
+import '../../CustomCSS/semanticUIDropdown.css'
 
 const App = () => {
 

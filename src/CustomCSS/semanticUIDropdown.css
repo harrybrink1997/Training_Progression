@@ -1,0 +1,228 @@
+/*
+.ui.fluid.selection.dropdown {
+    color: white;
+    font-weight: 87%;
+    background: #333333;
+}
+
+.ui.fluid.selection.dropdown:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.active.visible.fluid.selection.dropdown {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    color: white;
+    font-weight: 87%;
+}
+
+.ui.fluid.selection.dropdown:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.fluid.selection.dropdown div {
+    color: white;
+    font-weight: 87%;
+    background: #333333;
+}
+
+.ui.fluid.selection.dropdown div:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    background: #BB86FC;
+}
+.ui.fluid.selection.dropdown {
+    color: white;
+    font-weight: 87%;
+    background: #333333;
+}
+
+.ui.fluid.selection.dropdown:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.active.visible.fluid.selection.dropdown {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    color: white;
+    font-weight: 87%;
+}
+
+.ui.fluid.selection.dropdown:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.fluid.selection.dropdown div {
+    color: white;
+    font-weight: 87%;
+    background: #333333;
+}
+
+.ui.fluid.selection.dropdown div:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    background: #BB86FC;
+}
+
+.ui.selection.dropdown {
+    color: white;
+    font-weight: 87%;
+    background: #333333;
+}
+
+.ui.selection.dropdown:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.active.visible.selection.dropdown {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    color: white;
+    font-weight: 87%;
+}
+
+.ui.selection.dropdown:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.selection.dropdown .item {
+    color: white;
+    font-weight: 87%;
+    background: #333333;
+}
+
+.ui.selection.dropdown .selected.item {
+    color: white;
+    font-weight: 87%;
+    background: #868cfc;
+}
+
+.ui.selection.dropdown div:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    background: #BB86FC;
+}
+
+.ui.dropdown {
+    color: white;
+    font-weight: 87%;
+    background: #333333;
+    height: 35px;
+    width: 175px;
+    border-radius: 5px;
+    padding: auto;
+}
+
+.ui.dropdown:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.active.visible.dropdown {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    color: white;
+    font-weight: 87%;
+}
+
+.ui.dropdown:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.dropdown div {
+    color: white;
+    font-weight: 87%;
+    background: #333333;
+}
+
+.ui.dropdown div:hover {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+    background: #BB86FC;
+}
+
+
+.ui.active.visible.fluid.multiple.selection.dropdown .disabled.item {
+    background: #131313;
+}
+.ui.active.visible.fluid.multiple.selection.dropdown .header.text {
+    background: #131313;
+    color: white;
+}
+.ui.active.visible.fluid.multiple.selection.dropdown .header.text:hover {
+    background: #131313;
+    color: white;
+    box-shadow: none;
+}
+
+*/
+
+
+/* .ui.fluid.multiple.selection.dropdown .item {
+    background: #333333;
+    color: white;
+    border: none;
+}
+
+.ui.fluid.multiple.selection.dropdown .item:hover {
+    background: #3b0380;
+    color: white;
+} */
+
+/* The following css is for selections. */ 
+
+.ui.fluid.selection.dropdown {
+    background: #333333;
+    color: white;
+    border: none;  
+}
+
+.ui.fluid.selection.dropdown > .divider.text {
+    color: white;
+}
+
+.ui.fluid.selection.dropdown:focus {
+    color: white;
+    border: none;  
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.fluid.selection.dropdown .item {
+    background: #333333;
+    color: white;
+    border: none;
+}
+
+.ui.fluid.multiple.selection.dropdown > a {
+    background: #333333;
+    color: white;
+    border: 1px solid #BB86FC;
+}
+
+.ui.fluid.selection.dropdown .item:hover {
+    background: #3b0380;
+    color: white;
+}
+
+.ui.fluid.selection.dropdown .visible.menu.transition {
+    background: #333333;
+    border: none;
+}
+
+.ui.fluid.selection.dropdown .disabled.item {
+    background: #191919;
+    border: none;
+    opacity: 1;
+}
+
+.ui.fluid.selection.dropdown .disabled.item > .header.text {
+    color: #BB86FC;
+}

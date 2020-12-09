@@ -28,6 +28,7 @@ const CurrentProgramsDropdown = ({ programList, activeProgram, buttonHandler }) 
 
         <Dropdown
             selection
+            fluid
             text='Current Programs'
             onChange={buttonHandler}
             options={dropDownData}

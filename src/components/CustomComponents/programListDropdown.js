@@ -27,6 +27,7 @@ const ProgramListDropdown = ({ programList, activeProgram, buttonHandler, header
 
         <Dropdown
             selection
+            fluid
             text={headerText}
             onChange={buttonHandler}
             options={dropDownData}

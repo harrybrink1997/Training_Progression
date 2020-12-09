@@ -17,6 +17,7 @@ class HomePage extends Component {
             currentProgramList: [],
             pastProgramList: [],
             greeting: '',
+            anatomyObject: {},
             loading: true
         }
     }
@@ -29,40 +30,44 @@ class HomePage extends Component {
         this.props.firebase.getUserData(currUserUid).on('value', userData => {
 
             const userObject = userData.val();
-            console.log(userObject)
-            // Make the list of current programs.
 
-            if ('currentPrograms' in userObject) {
-                var currentProgramList = []
+            this.props.firebase.anatomy().once('value', async snapshot => {
 
-                for (var program in userObject.currentPrograms) {
-                    currentProgramList.push(program)
+                const anatomyObject = snapshot.val();
+
+                if ('currentPrograms' in userObject) {
+                    var currentProgramList = []
+
+                    for (var program in userObject.currentPrograms) {
+                        currentProgramList.push(program)
+                    }
+                } else {
+                    currentProgramList = false
                 }
-            } else {
-                currentProgramList = false
-            }
 
-            // Make the list of past programs.
-            if ('pastPrograms' in userObject) {
-                var pastProgramList = []
+                // Make the list of past programs.
+                if ('pastPrograms' in userObject) {
+                    var pastProgramList = []
 
-                for (program in userObject.pastPrograms) {
-                    pastProgramList.push(program)
+                    for (program in userObject.pastPrograms) {
+                        pastProgramList.push(program)
+                    }
+                } else {
+                    pastProgramList = false
                 }
-            } else {
-                pastProgramList = false
-            }
 
 
-            this.setState({
-                userInformation: {
-                    uid: currUserUid,
-                    data: userObject
-                },
-                greeting: this.getCurrentGreeting(userObject),
-                currentProgramList: currentProgramList,
-                pastProgramList: pastProgramList,
-                loading: false
+                this.setState({
+                    userInformation: {
+                        uid: currUserUid,
+                        data: userObject
+                    },
+                    greeting: this.getCurrentGreeting(userObject),
+                    currentProgramList: currentProgramList,
+                    pastProgramList: pastProgramList,
+                    anatomyObject: anatomyObject,
+                    loading: false
+                })
             })
         });
     }
@@ -276,7 +281,8 @@ class HomePage extends Component {
             currentProgramList,
             userInformation,
             loading,
-            greeting
+            greeting,
+            anatomyObject
         } = this.state
 
         let loadingHTML =
@@ -308,6 +314,7 @@ class HomePage extends Component {
                             <div id='hpRightBtnContainer'>
                                 <CreateExerciseModal
                                     handleFormSubmit={this.handleCreateExercise}
+                                    anatomyObject={anatomyObject}
                                 />
                             </div>
 

@@ -4,7 +4,7 @@ import MuscleSelectionDropdown from './muscleSelectionDropdown'
 import ExerciseDifficultyDropdown from '../CustomComponents/exerciseDifficultyDropdown'
 
 
-const CreateExerciseModal = ({ handleFormSubmit }) => {
+const CreateExerciseModal = ({ handleFormSubmit, anatomyObject }) => {
 
     const [show, setShow] = useState(false);
 
@@ -114,9 +114,9 @@ const CreateExerciseModal = ({ handleFormSubmit }) => {
                     {
                         (pageNum >= 3) ? (pageNum == 3)
                             ?
-                            <Breadcrumb.Section link active>Primary Muscles</Breadcrumb.Section>
+                            <Breadcrumb.Section link active>Secondary Muscles</Breadcrumb.Section>
                             :
-                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 3)}>Primary Muscles</Breadcrumb.Section>
+                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 3)}>Secondary Muscles</Breadcrumb.Section>
                             :
                             <></>
                     }
@@ -157,6 +157,7 @@ const CreateExerciseModal = ({ handleFormSubmit }) => {
                                 headerString='Select Primary Muscles'
                                 selectHandler={handlePrimMusclesChange}
                                 value={primMusc}
+                                muscleGroups={anatomyObject}
                             />
                             {
                                 (primMusc.length != 0) ?
@@ -173,6 +174,8 @@ const CreateExerciseModal = ({ handleFormSubmit }) => {
                                 headerString='Select Secondary Muscles'
                                 selectHandler={handleSecMusclesChange}
                                 value={secMusc}
+                                muscleGroups={anatomyObject}
+
                             />
                             {
                                 (secMusc.length != 0) ?

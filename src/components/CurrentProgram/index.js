@@ -1028,6 +1028,9 @@ class CurrentProgramPage extends Component {
             expandedRows
         } = this.state
 
+
+        console.log(prevWeeksData)
+
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
@@ -1064,11 +1067,11 @@ class CurrentProgramPage extends Component {
                         <div onClick={() => this.setState({ goalsTableVisible: !goalsTableVisible })}>
                             {
                                 goalsTableVisible &&
-                                <Icon name='toggle on' />
+                                <Icon name='toggle on' style={{ fontSize: '20px' }} />
                             }
                             {
                                 !goalsTableVisible &&
-                                <Icon name='toggle off' />
+                                <Icon name='toggle off' style={{ fontSize: '20px' }} />
 
                             }
                         </div>
@@ -1098,6 +1101,7 @@ class CurrentProgramPage extends Component {
                         }
                         {
                             goalTableData.length == 0 &&
+                            goalsTableVisible &&
                             <div id='noGoalsPromptContainer'>
                                 <div id='noGoalsPromptLabelContainer'>
                                     <InputLabel text='No Current Goal Data' custID='noGoalsPromptLabel' />

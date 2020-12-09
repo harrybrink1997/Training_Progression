@@ -27,7 +27,6 @@ const ViewPrevWeeksDataModal = ({ handleFormSubmit, data, defaultWeek, progSchem
 
     const generateTableData = (dayData) => {
         var tableData = []
-
         if (scheme == 'rpe_time') {
             Object.values(dayData).forEach(exercise => {
                 tableData.push({
@@ -50,6 +49,7 @@ const ViewPrevWeeksDataModal = ({ handleFormSubmit, data, defaultWeek, progSchem
             })
         }
         return tableData
+
     }
 
     return (
@@ -59,7 +59,11 @@ const ViewPrevWeeksDataModal = ({ handleFormSubmit, data, defaultWeek, progSchem
             onClose={() => setShow(false)}
             onOpen={() => setShow(true)}
             open={show}
-            trigger={<Button className='lightPurpleButton-inverted'>View Previous Week Data</Button>}
+            trigger=
+            {
+                currWeek != 0 &&
+                <Button className='lightPurpleButton-inverted'>View Previous Week Data</Button>
+            }
         >
             <Modal.Header>Weekly Historical Exercise Data</Modal.Header>
 
@@ -83,22 +87,26 @@ const ViewPrevWeeksDataModal = ({ handleFormSubmit, data, defaultWeek, progSchem
                         />
                     </div>
                     {
-                        Object.keys(historicalData[currWeek]).map(day => {
-                            if (Object.keys(historicalData[currWeek][day]).length != 0) {
-                                return (
-                                    <div id='cpPrevExModalDayContainer'>
-                                        <ExerciseTableContainerNoBtns
-                                            key={day}
-                                            dayText={'Day ' + day}
-                                            tableScheme={scheme}
-                                            tableData={generateTableData(historicalData[currWeek][day])}
-                                            defaultOpen={false}
-                                            dayIndex={day}
-                                        />
-                                    </div>
-                                )
-                            }
-                        })
+                        (historicalData[currWeek] != undefined) ?
+                            Object.keys(historicalData[currWeek]).map(day => {
+                                if (Object.keys(historicalData[currWeek][day]).length != 0) {
+                                    return (
+                                        <div id='cpPrevExModalDayContainer'>
+                                            <ExerciseTableContainerNoBtns
+                                                key={day}
+                                                dayText={'Day ' + day}
+                                                tableScheme={scheme}
+                                                tableData={generateTableData(historicalData[currWeek][day])}
+                                                defaultOpen={false}
+                                                dayIndex={day}
+                                            />
+                                        </div>
+                                    )
+                                }
+                            })
+                            :
+                            <></>
+
                     }
                 </Modal.Content>
                 <Modal.Actions>

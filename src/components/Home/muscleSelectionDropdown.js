@@ -3,12 +3,7 @@ import { withFirebase } from '../Firebase/context'
 
 import { Dropdown, Header } from 'semantic-ui-react'
 
-const MuscleSelectionDropdown = ({ selectHandler, headerString, value }) => {
-
-    const muscleGroups = {
-        Legs: ['Quadraceps', "Hamstrings", "Gluteal Muscles"],
-        Shoulders: ['Front Deltoid', 'Mid Deltoid', 'Rear Deltoid']
-    }
+const MuscleSelectionDropdown = ({ selectHandler, headerString, value, muscleGroups }) => {
 
 
     const generateDropData = () => {
