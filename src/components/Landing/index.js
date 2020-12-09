@@ -1,17 +1,25 @@
 import React, { Component } from 'react'
 import { Button, Header } from 'semantic-ui-react'
+import { withRouter } from 'react-router-dom'
 
 class LandingPage extends Component {
+
+    handleSignInButton = () => {
+        this.props.history.push('/signin')
+
+    }
 
     render() {
 
         return (
-            <LandingPageCTAContainer />
+            <LandingPageCTAContainer
+                handleSignInButton={this.handleSignInButton} />
         )
     }
 }
 
-const LandingPageCTAContainer = () => {
+const LandingPageCTAContainer = ({ handleSignInButton }) => {
+
     return (
         <div className="pageContainerLevel1">
             <div id='CTAContainerHeaderDiv'>
@@ -26,8 +34,10 @@ const LandingPageCTAContainer = () => {
             <div id='CTAContainerButtonDiv'>
                 <div id='lpSignUpBtn'>
                     <Button
-                        className='purpleButton'>
-                        Sign Up
+                        className='purpleButton'
+                        onClick={handleSignInButton}
+                    >
+                        Sign In
                     </Button>
                 </div>
                 <div id='lpLearnMoreBtn'>
@@ -41,4 +51,4 @@ const LandingPageCTAContainer = () => {
     )
 }
 
-export default LandingPage;
+export default withRouter(LandingPage);
