@@ -1,90 +1,80 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 
-import { SignUpLink } from '../SignUp';
 import { PasswordForgetLink } from '../PasswordForget';
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
+import { Form, Dimmer, Loader, Input } from 'semantic-ui-react'
 
-const SignInPage = () => (
-    <div>
-        <h1>SignIn</h1>
-        <SignInForm />
-        <PasswordForgetLink />
-        <SignUpLink />
-    </div>
-);
+import LoginForm from './loginForm'
+import SignUpLink from '../SignUp/signUpLink'
+import InputLabel from '../CustomComponents/DarkModeInput';
 
-const INITIAL_STATE = {
-    email: '',
-    password: '',
-    error: null,
-};
-
-class SignInFormBase extends Component {
+class SignInPage extends Component {
     constructor(props) {
         super(props);
 
-        this.state = { ...INITIAL_STATE };
+        this.state = {
+            loginError: null
+        };
     }
 
-    onSubmit = event => {
-        const { email, password } = this.state;
+    handleClickSignUp = () => {
+        this.props.history.push(ROUTES.SIGN_UP)
+    }
 
+    handleSubmitSignIn = (email, password) => {
         this.props.firebase
             .doSignInWithEmailAndPassword(email, password)
             .then(() => {
-                this.setState({ ...INITIAL_STATE });
                 this.props.history.push(ROUTES.HOME);
             })
             .catch(error => {
-                this.setState({ error });
+                this.setState({
+                    loginError: error
+                });
             });
 
-        event.preventDefault();
-    };
-
-    onChange = event => {
-        this.setState({ [event.target.name]: event.target.value });
-    };
+    }
 
     render() {
-        const { email, password, error } = this.state;
+        const {
+            loginError,
+            loading
+        } = this.state;
 
-        const isInvalid = password === '' || email === '';
+        let loadingHTML =
+            <Dimmer active>
+                <Loader inline='centered' content='Loading...' />
+            </Dimmer>
+
+        let nonLoadingHTML =
+            <div id='signInPageMainContainer'>
+                <div id='signInEmailMainContainer' className='pageContainerLevel1'>
+                    <InputLabel
+                        text='Member Sign In'
+                        custID='signInPageMainLabel'
+                    />
+                    <LoginForm
+                        submitLoginHandler={this.handleSubmitSignIn}
+                    />
+                    <div id='signInEmailFooterMessagesContainer'>
+                        {loginError && <p>{loginError.message}</p>}
+                        <SignUpLink
+                            signUpdirectHandler={this.handleClickSignUp}
+                        />
+                    </div>
+                </div>
+            </div>
 
         return (
-            <form onSubmit={this.onSubmit}>
-                <input
-                    name="email"
-                    value={email}
-                    onChange={this.onChange}
-                    type="text"
-                    placeholder="Email Address"
-                />
-                <input
-                    name="password"
-                    value={password}
-                    onChange={this.onChange}
-                    type="password"
-                    placeholder="Password"
-                />
-                <button disabled={isInvalid} type="submit">
-                    Sign In
-        </button>
-
-                {error && <p>{error.message}</p>}
-            </form>
-        );
+            <div>
+                {loading && loadingHTML}
+                {!loading && nonLoadingHTML}
+            </div>
+        )
     }
 }
 
-const SignInForm = compose(
-    withRouter,
-    withFirebase,
-)(SignInFormBase);
-
-export default SignInPage;
-
-export { SignInForm };
+export default withFirebase(SignInPage);

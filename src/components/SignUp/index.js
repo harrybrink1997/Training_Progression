@@ -36,12 +36,12 @@ class SignUpFormBase extends Component {
             .doCreateUserWithEmailAndPassword(email, passwordOne)
             .then(authUser => {
                 // Create a user in your Firebase realtime database
-                return this.props.firebase
-                    .user(authUser.user.uid)
-                    .set({
-                        username,
-                        email,
-                    });
+                return this.props.firebase.createUserUpstream(
+                    authUser.user.uid,
+                    {
+                        username: username,
+                        email: email,
+                    })
             })
             .then(() => {
                 this.setState({ ...INITIAL_STATE });
@@ -113,16 +113,4 @@ const SignUpForm = compose(
     withFirebase
 )(SignUpFormBase);
 
-
-const SignUpLink = () => (
-    <p>
-        Don't have an account?
-        <Link to={ROUTES.SIGN_UP}>
-            Sign Up
-        </Link>
-    </p>
-);
-
 export default SignUpPage;
-
-export { SignUpForm, SignUpLink }

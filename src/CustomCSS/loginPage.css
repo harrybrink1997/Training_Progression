@@ -1,0 +1,67 @@
+#signInEmailMainContainer {
+    width: 40%;
+}
+
+#signInPageMainContainer {
+    display: flex;
+    justify-content: center;
+}
+
+
+#signInPageMainContainer input {
+    background: #333333;
+    color: white;
+    height: 40px;
+    border-radius: 5px;
+    width: 100%;
+    outline: 0px;
+    border: none;
+}
+
+
+#signInPageMainContainer input:focus {
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+#signInPageMainContainer input::selection {
+    background: #BB86FC;
+    color: white;
+}
+
+
+#signUpEmailContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+
+#loginBtnContainer > button {
+    width: 20%;
+}
+
+#loginBtnContainer {
+    display: flex;
+    justify-content: center;
+}
+
+#signInEmailFooterMessagesContainer {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 5px;
+}
+
+#signInEmailFooterMessagesContainer > p {
+    color: #CF6679;
+    margin-bottom: 0;
+}
+
+#signInPageMainLabel {
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

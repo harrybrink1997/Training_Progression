@@ -7,7 +7,6 @@ import { useLocation } from 'react-router-dom'
 
 import { Menu } from 'semantic-ui-react'
 
-
 const Navigation = () => (
     <AuthUserContext.Consumer>
         {authUser =>

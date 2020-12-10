@@ -52,3 +52,13 @@ textarea::selection {
     background: #BB86FC;
     color: white;
 }
+
+a {
+    color: #BB86FC;
+    cursor: pointer;
+}
+
+a:hover {
+    cursor: pointer;
+    color: #9f54fb;
+}

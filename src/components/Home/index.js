@@ -26,9 +26,8 @@ class HomePage extends Component {
         this.setState({ loading: true });
 
         var currUserUid = this.props.firebase.auth.currentUser.uid
-
         this.props.firebase.getUserData(currUserUid).on('value', userData => {
-
+            console.log("GOING IN ")
             const userObject = userData.val();
 
             this.props.firebase.anatomy().once('value', async snapshot => {
@@ -255,7 +254,6 @@ class HomePage extends Component {
 
     componentWillUnmount() {
         this.props.firebase.getUserData().off();
-        this.props.firebase.createProgramUpstream().off();
     }
 
     getCurrentGreeting = (userInformation) => {

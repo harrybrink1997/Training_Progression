@@ -51,6 +51,12 @@ class Firebase {
     // USER API
     getUserData = (uid) => this.db.ref(`users/${uid}`);
 
+    createUserUpstream = (uid, userInfo) => {
+        return this.db
+            .ref(`users/${uid}`)
+            .set(userInfo)
+    }
+
     getProgramData = (uid, programName) => {
         return this.db.ref(`users/${uid}/currentPrograms/${programName}`)
     }
