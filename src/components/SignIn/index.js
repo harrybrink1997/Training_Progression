@@ -9,6 +9,7 @@ import { Form, Dimmer, Loader, Input } from 'semantic-ui-react'
 
 import LoginForm from './loginForm'
 import SignUpLink from '../SignUp/signUpLink'
+import ForgetPasswordLink from '../PasswordForget/passwordForgetLink'
 import InputLabel from '../CustomComponents/DarkModeInput';
 
 class SignInPage extends Component {
@@ -22,6 +23,10 @@ class SignInPage extends Component {
 
     handleClickSignUp = () => {
         this.props.history.push(ROUTES.SIGN_UP)
+    }
+
+    handleClickForgetPassword = () => {
+        this.props.history.push(ROUTES.PASSWORD_FORGET)
     }
 
     handleSubmitSignIn = (email, password) => {
@@ -63,6 +68,9 @@ class SignInPage extends Component {
                         {loginError && <p>{loginError.message}</p>}
                         <SignUpLink
                             signUpdirectHandler={this.handleClickSignUp}
+                        />
+                        <ForgetPasswordLink
+                            passwordForgetdirectHandler={this.handleClickForgetPassword}
                         />
                     </div>
                 </div>

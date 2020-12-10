@@ -51,11 +51,12 @@
     flex-direction: column;
     text-align: center;
     padding: 5px;
+    padding-top: 10px;
 }
 
 #signInEmailFooterMessagesContainer > p {
     color: #CF6679;
-    margin-bottom: 0;
+    margin-bottom: 10px;
 }
 
 #signInPageMainLabel {
@@ -64,4 +65,11 @@
     text-align: center;
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+
+#passwordForgetContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 }

@@ -1,79 +1,90 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-
 import { withFirebase } from '../Firebase';
-import * as ROUTES from '../../constants/routes';
 
-const PasswordForgetPage = () => (
-    <div>
-        <h1>PasswordForget</h1>
-        <PasswordForgetForm />
-    </div>
-);
+import PasswordForgetForm from './passwordForgetForm'
+import InputLabel from '../CustomComponents/DarkModeInput'
+import { Button } from 'semantic-ui-react'
 
-const INITIAL_STATE = {
-    email: '',
-    error: null,
-};
 
-class PasswordForgetFormBase extends Component {
+class PasswordForgetPage extends Component {
     constructor(props) {
         super(props);
 
-        this.state = { ...INITIAL_STATE };
+        this.state = {
+            emailAddressInputError: null,
+            emailSent: false,
+            emailSending: false
+        };
     }
 
-    onSubmit = event => {
-        const { email } = this.state;
+    handlePasswordForgetSubmit = (email) => {
+        this.setState({
+            emailAddressInputError: null,
+            emailSending: true
+        }, async () => {
 
-        this.props.firebase
-            .doPasswordReset(email)
-            .then(() => {
-                this.setState({ ...INITIAL_STATE });
-            })
-            .catch(error => {
-                this.setState({ error });
-            });
-
-        event.preventDefault();
-    };
-
-    onChange = event => {
-        this.setState({ [event.target.name]: event.target.value });
-    };
+            this.props.firebase
+                .doPasswordReset(email)
+                .then(() => {
+                    this.setState({
+                        emailSending: false,
+                        emailSent: true
+                    })
+                })
+                .catch(error => {
+                    this.setState({
+                        emailAddressInputError: error,
+                        emailSending: false
+                    });
+                });
+        })
+    }
 
     render() {
-        const { email, error } = this.state;
-
-        const isInvalid = email === '';
+        const {
+            emailAddressInputError,
+            emailSent,
+            emailSending
+        } = this.state
 
         return (
-            <form onSubmit={this.onSubmit}>
-                <input
-                    name="email"
-                    value={this.state.email}
-                    onChange={this.onChange}
-                    type="text"
-                    placeholder="Email Address"
-                />
-                <button disabled={isInvalid} type="submit">
-                    Reset My Password
-        </button>
+            <div id='signInPageMainContainer'>
+                <div id='signInEmailMainContainer' className='pageContainerLevel1'>
+                    <InputLabel
+                        text='Password Reset'
+                        custID='signInPageMainLabel'
+                    />
+                    <PasswordForgetForm
+                        buttonIcon={
+                            emailSending ?
+                                <Button
+                                    loading
+                                    className='lightPurpleButton'
+                                >
+                                    Loading
+                                </Button>
+                                :
+                                < Button
+                                    className='lightPurpleButton'
+                                    type="submit">
+                                    Reset Password
+                                </Button>
 
-                {error && <p>{error.message}</p>}
-            </form>
-        );
+                        }
+                        submitPasswordForgetHandler={this.handlePasswordForgetSubmit}
+                    />
+                    <div id='signInEmailFooterMessagesContainer'>
+                        {emailAddressInputError && <p>{emailAddressInputError.message}</p>}
+                        {emailSent &&
+                            <div>Email has been sent!</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        )
     }
 }
 
-const PasswordForgetLink = () => (
-    <p>
-        <Link to={ROUTES.PASSWORD_FORGET}>Forgot Password?</Link>
-    </p>
-);
 
-export default PasswordForgetPage;
 
-const PasswordForgetForm = withFirebase(PasswordForgetFormBase);
-
-export { PasswordForgetForm, PasswordForgetLink };
+export default withFirebase(PasswordForgetPage)
