@@ -13,6 +13,7 @@ import SafetyGraphPage from '../SafetyGraph'
 import ProgressionDataPage from '../ProgressionData'
 import CurrentProgramPage from '../CurrentProgram'
 import PastProgramPage from '../PastPrograms'
+import LearnMorePage from '../LearnMore'
 
 import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
@@ -26,6 +27,7 @@ import '../../CustomCSS/darkMode.css'
 import '../../CustomCSS/standardElements.css'
 import '../../CustomCSS/landingPage.css'
 import '../../CustomCSS/loginPage.css'
+import '../../CustomCSS/learnMorePage.css'
 import '../../CustomCSS/semanticUIButton.css'
 import '../../CustomCSS/nonPageSpecific.css'
 import '../../CustomCSS/progressionPage.css'
@@ -60,6 +62,7 @@ const App = () => {
                 <Route path={ROUTES.PROG_DATA} component={ProgressionDataPage} />
                 <Route path={ROUTES.CURRENT_PROGRAMS} component={CurrentProgramPage} />
                 <Route path={ROUTES.PAST_PROGRAMS} component={PastProgramPage} />
+                <Route path={ROUTES.LEARN_MORE} component={LearnMorePage} />
             </div>
         </Router >
     )

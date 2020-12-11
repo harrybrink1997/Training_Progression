@@ -1,0 +1,43 @@
+#learnMorePageHeader {
+    text-align: center;
+    font-size: 40px;
+    font-weight: 600;
+    padding-top: 40px;
+    padding-bottom: 60px;
+}
+
+#learnMorePageHeaderExplanation {
+    text-align: center;
+    font-size: 20px;
+}
+
+#learnMorePageHeaderContainer {
+    display: block;
+}
+
+#learnMorePageHeaderIcons {
+    display: flex;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+#learnMorePageHeaderIcons > div {
+    width: 60%;
+}
+
+.learnMorePageInfoHeader {
+    text-align: center;
+    font-size: 25px;
+    font-weight: 600;
+}
+
+.learnMorePageInfoHeaderContainer {
+    padding-top: 20px;
+}
+
+.learnMorePageInfoSubHeader {
+    text-align: center;
+    color: #BB86FC;
+    font-size: 20px;
+    font-weight: 600;
+}

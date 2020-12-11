@@ -25,6 +25,11 @@
     width: 50%;
 }
 
+
+.pageContainerLevel2.half-width {
+    width: 50%;
+}
+
 .centeredPageContainerLabel {
     display: flex;
     justify-content: center;
@@ -37,4 +42,10 @@
 
 #muscleListActiveMuscleGroupLabel {
     color: #868cfc;
+}
+
+.paragraphDiv {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font-size: 15px;
 }

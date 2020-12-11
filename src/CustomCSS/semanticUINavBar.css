@@ -22,3 +22,28 @@
 .ui.auth-nav-bar.menu .item:hover {
     color: white;
 }
+
+.ui.not-auth-nav-bar.menu {
+    background: #333333;
+    /* background: #191919; */
+    border: none;
+    box-shadow: none;
+    margin: none;
+}
+
+.ui.not-auth-nav-bar.menu .item {
+    color: white;
+}
+
+.ui.not-auth-nav-bar.menu .active.item {
+    color: #868cfc;
+    /* background: #3b0380; */
+}
+.ui.not-auth-nav-bar.menu .active.item:hover {
+    color: #868cfc;
+    /* background: #3b0380; */
+}
+
+.ui.not-auth-nav-bar.menu .item:hover {
+    color: white;
+}

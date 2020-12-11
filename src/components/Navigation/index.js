@@ -26,7 +26,9 @@ const NavigationAuth = () => {
             <Menu.Item
                 as='a'
                 href={ROUTES.LANDING}
-            ></Menu.Item>
+            >
+                Landing Page
+            </Menu.Item>
             <Menu.Item
                 as='a'
                 href={ROUTES.PROG_DATA}
@@ -85,8 +87,11 @@ const NavigationAuth = () => {
 
 const NavigationNotAuth = () => (
     <Menu className="not-auth-nav-bar">
-        <Menu.Item as='a' href={ROUTES.SIGN_IN}>
-            Safety Graph
+        <Menu.Item
+            as='a'
+            href={ROUTES.LANDING}
+        >
+            Landing Page
         </Menu.Item>
     </Menu>
 )

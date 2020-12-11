@@ -1,24 +1,31 @@
 import React, { Component } from 'react'
 import { Button, Header } from 'semantic-ui-react'
 import { withRouter } from 'react-router-dom'
+import * as ROUTES from '../../constants/routes'
 
 class LandingPage extends Component {
 
     handleSignInButton = () => {
-        this.props.history.push('/signin')
+        this.props.history.push(ROUTES.SIGN_IN)
 
+    }
+
+    handleLearnMoreButton = () => {
+        this.props.history.push(ROUTES.LEARN_MORE)
     }
 
     render() {
 
         return (
             <LandingPageCTAContainer
-                handleSignInButton={this.handleSignInButton} />
+                handleSignInButton={this.handleSignInButton}
+                handleLearnMoreButton={this.handleLearnMoreButton}
+            />
         )
     }
 }
 
-const LandingPageCTAContainer = ({ handleSignInButton }) => {
+const LandingPageCTAContainer = ({ handleSignInButton, handleLearnMoreButton }) => {
 
     return (
         <div className="pageContainerLevel1">
@@ -42,7 +49,9 @@ const LandingPageCTAContainer = ({ handleSignInButton }) => {
                 </div>
                 <div id='lpLearnMoreBtn'>
                     <Button
-                        className='lightPurpleButton-inverted'>
+                        className='lightPurpleButton-inverted'
+                        onClick={handleLearnMoreButton}
+                    >
                         Learn More
                     </Button>
                 </div>
