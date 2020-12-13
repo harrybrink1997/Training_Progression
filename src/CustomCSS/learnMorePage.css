@@ -43,6 +43,14 @@
     font-weight: 600;
 }
 
+.learnMorePageInfoSubSubHeader {
+    margin-top: 4px;
+    text-align: center;
+    color: #BB86FC;
+    font-size: 16px;
+    font-weight: 600;
+}
+
 #lmpPurposeHeader {
     color: #BB86FC;
     font-size: large;

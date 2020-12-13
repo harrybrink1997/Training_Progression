@@ -70,7 +70,7 @@ const LandingPageCTAContainer = ({ handleSignInButton }) => {
             <div className="pageContainerLevel1">
                 <div className='learnMorePageInfoHeaderContainer'>
                     <div className='learnMorePageInfoHeader'>
-                        At a High Level
+                        A High Level Overview
                     </div>
                 </div>
                 <HighLevelRecap />
@@ -98,6 +98,15 @@ const LandingPageCTAContainer = ({ handleSignInButton }) => {
                     </div>
                 </div>
                 <DeepDiveAnalogy />
+                <div className="pageContainerLevel2">
+                    <div className='learnMorePageInfoSubHeader'>
+                        Load Calculations
+                    </div>
+                    <div className='learnMorePageInfoSubSubHeader'>
+                        (A bit more Math)
+                    </div>
+                    <LoadCalculationsStart />
+                </div>
             </div>
         </div >
     )
@@ -112,6 +121,15 @@ const LightPurpleText = ({ text, fontSize, fontWeight }) => {
 }
 
 
+const LoadCalculationsStart = () => (
+    <div className='paragraphDiv'>
+        The following section contains involved mathematics, however, details how the acute and chronic load components are calculated. A worked example will be demonstrated after.
+
+        <br /><br />
+
+
+    </div>
+)
 const DeepDiveRecap = () => (
     <div className='paragraphDiv'>
 
