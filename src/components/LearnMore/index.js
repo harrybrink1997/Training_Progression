@@ -123,11 +123,28 @@ const LightPurpleText = ({ text, fontSize, fontWeight }) => {
 
 const LoadCalculationsStart = () => (
     <div className='paragraphDiv'>
-        The following section contains involved mathematics, however, details how the acute and chronic load components are calculated. A worked example will be demonstrated after.
+        The following section contains involved mathematics, however, details on how the acute and chronic load components are calculated is deconstructed. A worked example will be demonstrated after.
 
         <br /><br />
 
+        Currently there are two accepted techniques for calculating Chronic and Acute Workload. Rolling Average (RA) and Exponentially Weighted Moving Average (EWMA). Corvus Strength implements EWMA as it has demonstrated higher sensitivity in predicitive models.
 
+        <br /><br />
+
+        EWMA is an averaging algorithm which gives higher priority to events that have more recently occured. In terms of Corvus Strength, this means training completed a day ago has a greater impact on your current fitness levels then training completed 3 weeks ago.
+
+        <br /><br />
+
+        The following equation below shows the EWMA algorithm used to calculate the Acute/Chronic Workload for day n in a program.
+        <Image src={require('./summation.png')} size='big' centered />
+        Where:
+        <ul>
+            <li>n - Number of days</li>
+            <li>a<sub>n</sub> - Acute/Chronic Load for day n</li>
+            <li>&alpha; - Decay Constant</li>
+            <li>T - Acute/Chronic Timeframe</li>
+            <li>L<sub>j</sub> - Net Daily Load for day j</li>
+        </ul>
     </div>
 )
 const DeepDiveRecap = () => (
