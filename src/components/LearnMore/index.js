@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Icon, Statistic, StatisticGroup } from 'semantic-ui-react'
+import { Icon, Statistic, StatisticGroup, Image } from 'semantic-ui-react'
 import { withRouter } from 'react-router-dom'
 
 import InputLabel from '../CustomComponents/DarkModeInput'
@@ -82,6 +82,7 @@ const LandingPageCTAContainer = ({ handleSignInButton }) => {
                     </div>
                 </div>
                 <DeepDiveRecap />
+                <Image src={require("./ACWR_equation.png")} size='medium' centered />
                 <div className='rowContainer'>
                     <div className='pageContainerLevel2 half-width'>
                         <div className='learnMorePageInfoSubHeader'>
@@ -98,7 +99,7 @@ const LandingPageCTAContainer = ({ handleSignInButton }) => {
                 </div>
                 <DeepDiveAnalogy />
             </div>
-        </div>
+        </div >
     )
 }
 
