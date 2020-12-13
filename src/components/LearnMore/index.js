@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { Icon, Statistic, StatisticGroup } from 'semantic-ui-react'
 import { withRouter } from 'react-router-dom'
 
+import InputLabel from '../CustomComponents/DarkModeInput'
+
 class LearnMorePage extends Component {
     render() {
 
@@ -19,7 +21,7 @@ const LandingPageCTAContainer = ({ handleSignInButton }) => {
             <div className="pageContainerLevel1">
                 <div id='learnMorePageHeaderContainer'>
                     <div id='learnMorePageHeader'>
-                        What Is Corvus?
+                        What Is Corvus Strength?
                 </div>
                     <div id='learnMorePageHeaderIcons'>
                         <div>
@@ -72,6 +74,14 @@ const LandingPageCTAContainer = ({ handleSignInButton }) => {
                     </div>
                 </div>
                 <HighLevelRecap />
+            </div>
+            <div className="pageContainerLevel1">
+                <div className='learnMorePageInfoHeaderContainer'>
+                    <div className='learnMorePageInfoHeader'>
+                        A Deep Dive
+                    </div>
+                </div>
+                <DeepDiveRecap />
                 <div className='rowContainer'>
                     <div className='pageContainerLevel2 half-width'>
                         <div className='learnMorePageInfoSubHeader'>
@@ -100,16 +110,34 @@ const LightPurpleText = ({ text, fontSize, fontWeight }) => {
 }
 
 
+const DeepDiveRecap = () => (
+    <div className='paragraphDiv'>
+
+        The main scientific principle which encompasses Corvus Strength is the theory of Acute Chronic Workload Ratio (ACWR). ACWR is the ratio between the training you've
+        <br /><br />
+
+    </div>
+)
+
+
 const HighLevelRecap = () => (
     <div className='paragraphDiv'>
-        Corvus is a cloud based platform which aims to provide every user with an accessible means in which to track their own training and reduce their exposure to injury. Corvus is based around the scientific principle of Acute Chronic Workload Ratio (ACWR). This value is comprised of two parts: your acute workload and your chronic workload.
+
+        Corvus Strength is a cloud based platform which aims to provide every user with an accessible means in which to track their own training and reduce their exposure to injury. At a high level Corvus Strength uses the training you've accomplished over a long period of time (generally a month) and the training you've most recently undertaken (generally a week) to predict safe training loads for your future sessions.
+        <br /><br />
+
+        Our predicitive model accounts for both the physical and mental components of training. Physical loads are tracked through (sets, reps, weight, etc...) whilst mental loads and tracked through the rate of perceived exertion (RPE).
+
+        <br /><br />
+
+        Corvus Strength gives you the ability to track specific muscle groups or aggregate each muscle group and consider your body holistically.
 
     </div>
 )
 
 const AcuteWorkLoadInfo = () => (
     <div className='paragraphDiv'>
-        Corvus is a cloud based platform which aims to provide every user with an accessible means in which to track their own training and reduce their exposure to injury. Corvus is based around the scientific principle of Acute Chronic Workload Ratio (ACWR). This value is comprised of two parts: your acute workload and your chronic workload.
+        Corvus is based around the scientific principle of Acute Chronic Workload Ratio (ACWR). This value is comprised of two parts: your acute workload and your chronic workload.
 
     </div>
 )

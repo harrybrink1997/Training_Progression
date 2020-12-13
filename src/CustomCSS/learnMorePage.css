@@ -33,6 +33,7 @@
 
 .learnMorePageInfoHeaderContainer {
     padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 .learnMorePageInfoSubHeader {
@@ -40,4 +41,11 @@
     color: #BB86FC;
     font-size: 20px;
     font-weight: 600;
+}
+
+#lmpPurposeHeader {
+    color: #BB86FC;
+    font-size: large;
+    font-weight: 600;
+    padding-bottom: 0px;
 }
