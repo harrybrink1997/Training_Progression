@@ -96,6 +96,7 @@ const LandingPageCTAContainer = ({ handleSignInButton }) => {
                         <ChronicWorkLoadInfo />
                     </div>
                 </div>
+                <DeepDiveAnalogy />
             </div>
         </div>
     )
@@ -113,8 +114,7 @@ const LightPurpleText = ({ text, fontSize, fontWeight }) => {
 const DeepDiveRecap = () => (
     <div className='paragraphDiv'>
 
-        The main scientific principle which encompasses Corvus Strength is the theory of Acute Chronic Workload Ratio (ACWR). ACWR is the ratio between the training you've
-        <br /><br />
+        The main scientific principle which encompasses Corvus Strength is the theory of Acute Chronic Workload Ratio (ACWR). ACWR is the ratio between two key components: Acute Workload and Chronic Workload.
 
     </div>
 )
@@ -137,14 +137,23 @@ const HighLevelRecap = () => (
 
 const AcuteWorkLoadInfo = () => (
     <div className='paragraphDiv'>
-        Corvus is based around the scientific principle of Acute Chronic Workload Ratio (ACWR). This value is comprised of two parts: your acute workload and your chronic workload.
+        Acute Workload is the training load you have accumlated over a recent period of time (generally a single week). It is representative of your fatigue and is the main predictor of injury in our model.
 
     </div>
 )
 const ChronicWorkLoadInfo = () => (
     <div className='paragraphDiv'>
-        Corvus is a cloud based platform which aims to provide every user with an accessible means in which to track their own training and reduce their exposure to injury. Corvus is based around the scientific principle of Acute Chronic Workload Ratio (ACWR). This value is comprised of two parts: your acute workload and your chronic workload.
+        Chronic Workload is the training load you have accumlated over a long period of time (generally a month). It is representative of your body's current readiness to undertake new training loads.
+    </div>
+)
 
+const DeepDiveAnalogy = () => (
+    <div className='paragraphDiv'>
+        Through monitoring this ratio, we are able to predict future training loads which minimise the chance of injury, whilst maximising the progression in training. Maintaining an ACWR between approximately 0.8 and 1.2 has been determined to be the 'sweet spot' (reference).
+
+        <br /><br />
+
+        Understanding the above concept is essential to understanding how the predictive model works and the role of each loading component. The ACWR is analogous to how a tree grows. The water a tree receives is the acute load and the tree's root system is the chronic load. At its infancy, the tree has a small root system. Dousing the tree with too much water may cause the tree to drown (injury). Not enough water will cause the tree to shrivel (injury). Providing the tree with the correct amount of water will allow the root system to grow. This growth over time (increase in chronic workload) allows to the root system to intake larger amounts of water (acute workload) without drowing, which corresponds to more root growth. This process is cyclic and will continue whilst the correct amount of water is given to the tree.
     </div>
 )
 export default withRouter(LearnMorePage);
