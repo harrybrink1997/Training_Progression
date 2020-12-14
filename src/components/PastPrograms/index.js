@@ -18,7 +18,8 @@ import FinalProgramNotes from './finalProgramNotes'
 // Import Custom Functions
 import loadingSchemeString from '../../constants/loadingSchemeString'
 import utsToDateString from '../../constants/utsToDateString'
-import { compositionDependencies } from 'mathjs';
+import ExerciseHistoryModal from './viewPrevWeeksDataModal'
+import GoalHistoryModal from './goalHistoryModal'
 
 
 
@@ -36,7 +37,11 @@ class PastProgramsPage extends Component {
             hasPrograms: false,
             currentBodyPart: 'Overall_Total',
             currMuscleGroupOpen: 'Arms',
-            programNotes: ''
+            programNotes: '',
+            prevWeeksData: {},
+            currentWeekInProgram: 1,
+            goalStatsData: {},
+            goalTableData: []
         }
     }
 
@@ -79,6 +84,9 @@ class PastProgramsPage extends Component {
             // and current week and other parameters. 
 
             console.log(programListArray)
+
+            var processedGoalData = this.generateGoalTableData(userObject.pastPrograms[programListArray[0]])
+
             this.setState({
                 programList: programListArray,
                 hasPrograms: true,
@@ -91,6 +99,11 @@ class PastProgramsPage extends Component {
                 anatomyObject: anatomyObject,
                 programNotes: userObject.pastPrograms[programListArray[0]].notes,
                 loading: false,
+                prevWeeksData: this.generatePrevWeeksData(userObject),
+                currentDayInProgram: userObject.pastPrograms[programListArray[0]].currentWeekInProgram,
+                goalTableData: processedGoalData.tableData,
+                goalStatsData: processedGoalData.statsData,
+                goalProgPieChartData: processedGoalData.pieChartData
             })
         } else {
             this.setState({
@@ -258,6 +271,217 @@ class PastProgramsPage extends Component {
         )
     }
 
+    generatePrevWeeksData = (userObject) => {
+        var currWeek = Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7)
+
+        var dataObject = {}
+
+        if (currWeek == 1) {
+            return {}
+        } else {
+            for (var prevWeekNum = 1; prevWeekNum < currWeek; prevWeekNum++) {
+                dataObject[prevWeekNum] = {}
+
+                for (var day = 1; day < 8; day++) {
+
+                    var dayInProgram = (prevWeekNum - 1) * 7 + day
+                    var dayObject = {}
+                    Object.keys(userObject.currentPrograms[userObject.activeProgram][dayInProgram]).forEach(exercise => {
+                        if (exercise != 'loadingData') {
+                            dayObject[exercise] = userObject.currentPrograms[userObject.activeProgram][dayInProgram][exercise]
+                        }
+                    })
+
+                    dataObject[prevWeekNum][day] = dayObject
+                }
+            }
+        }
+        return dataObject
+    }
+
+    generateGoalTableData = (programObject) => {
+        console.log(programObject)
+
+        if (programObject.goals != undefined) {
+            if (Object.keys(programObject.goals).length > 0) {
+
+                var tableData = []
+                var goalStatsData = {
+                    numSubGoals: 0,
+                    numSubGoalsComplete: 0,
+                    numMainGoals: 0,
+                    numMainGoalsComplete: 0,
+                    numEasyGoalsComplete: 0,
+                    numMediumGoalsComplete: 0,
+                    numHardGoalsComplete: 0,
+                    numHardGoals: 0,
+                    numMediumGoals: 0,
+                    numEasyGoals: 0
+                }
+
+                Object.keys(programObject.goals).forEach(goalKey => {
+                    var goal = programObject.goals[goalKey]
+                    if (goal.subGoals != undefined) {
+
+                        var processedSubGoalData = this.generateSubGoalData(goal.subGoals)
+
+                        tableData.push({
+                            description: goal.mainGoal.description,
+                            progressString: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
+                            completed: goal.mainGoal.completed,
+                            subRows: processedSubGoalData.tableData,
+                            goalUID: goalKey,
+                            targetCloseDate: goal.mainGoal.closeOffDate,
+                            difficulty: goal.mainGoal.difficulty,
+                        })
+
+                        goalStatsData.numSubGoals += processedSubGoalData.statsData.numSubGoals
+
+                        goalStatsData.numSubGoalsComplete += processedSubGoalData.statsData.numSubGoalsComplete
+
+                        goalStatsData.numEasyGoalsComplete += processedSubGoalData.statsData.numEasyGoalsComplete
+
+                        goalStatsData.numMediumGoalsComplete += processedSubGoalData.statsData.numMediumGoalsComplete
+
+                        goalStatsData.numHardGoalsComplete += processedSubGoalData.statsData.numHardGoalsComplete
+
+                    } else {
+                        tableData.push({
+                            description: goal.mainGoal.description,
+                            progressString: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
+                            targetCloseDate: goal.mainGoal.closeOffDate,
+                            completed: goal.mainGoal.completed,
+                            goalUID: goalKey,
+                            difficulty: goal.mainGoal.difficulty,
+                        })
+
+
+                    }
+                    goalStatsData.numMainGoals++
+                    goalStatsData['num' + goal.mainGoal.difficulty + 'Goals']++
+
+                    if (goal.mainGoal.completed) {
+                        goalStatsData.numMainGoalsComplete++
+                        goalStatsData['num' + goal.mainGoal.difficulty + 'GoalsComplete']++
+                    }
+                })
+
+                var formattedGoalChartData = this.generateGoalProgChartData(goalStatsData)
+                return {
+                    tableData: tableData,
+                    statsData: goalStatsData,
+                    pieChartData: formattedGoalChartData.pieChartData,
+                    barChartData: formattedGoalChartData.barChartData
+
+                }
+            } else {
+                return {
+                    tabledata: [],
+                    statsData: {},
+                    pieChartData: {
+                        data: [],
+                        colours: []
+                    },
+                    barChartData: []
+                }
+            }
+        }
+        return {
+            tableData: [],
+            statsData: {},
+            pieChartData: {
+                data: [],
+                colours: []
+            },
+            barChartData: []
+        }
+    }
+
+    generateSubGoalData = (subGoalList) => {
+        var returnArray = []
+        var subGoalStatsData = {
+            numSubGoals: 0,
+            numSubGoalsComplete: 0,
+            numEasyGoalsComplete: 0,
+            numMediumGoalsComplete: 0,
+            numHardGoalsComplete: 0,
+            numHardGoals: 0,
+            numMediumGoals: 0,
+            numEasyGoals: 0,
+        }
+
+        Object.keys(subGoalList).forEach(subGoalKey => {
+            var subGoal = subGoalList[subGoalKey]
+            console.log(subGoal)
+            returnArray.push({
+                description: subGoal.description,
+                progressString: (subGoal.completed) ? 'Complete' : 'In Progress',
+                completed: subGoal.completed,
+                targetCloseDate: subGoal.closeOffDate,
+                goalUID: subGoalKey,
+                difficulty: subGoal.difficulty,
+            })
+
+            subGoalStatsData.numSubGoals++
+            subGoalStatsData['num' + subGoal.difficulty + 'Goals']++
+
+            if (subGoal.completed) {
+                subGoalStatsData.numSubGoalsComplete++
+                console.log('num' + subGoal.difficulty + 'GoalsComplete')
+                subGoalStatsData['num' + subGoal.difficulty + 'GoalsComplete']++
+            }
+        })
+
+        console.log(subGoalStatsData)
+        return {
+            tableData: returnArray,
+            statsData: subGoalStatsData
+        }
+    }
+
+    generateGoalProgChartData = (goalStatsData) => {
+
+        return {
+            pieChartData: {
+                colours: ['#8cfc86', '#fcf686', '#fc868c'],
+                data: [
+                    {
+                        name: 'Easy',
+                        value: goalStatsData.numEasyGoalsComplete
+                    },
+                    {
+                        name: 'Medium',
+                        value: goalStatsData.numMediumGoalsComplete
+                    },
+                    {
+                        name: 'Hard',
+                        value: goalStatsData.numHardGoalsComplete
+                    }
+                ]
+            },
+            barChartData: {
+                data: [
+                    {
+                        name: 'All Goals',
+                        Completed: goalStatsData.numSubGoalsComplete + goalStatsData.numMainGoalsComplete,
+                        Total: goalStatsData.numSubGoals + goalStatsData.numMainGoals
+                    },
+                    {
+                        name: 'Main Goals',
+                        Completed: goalStatsData.numSubGoalsComplete,
+                        Total: goalStatsData.numMainGoals
+                    },
+                    {
+                        name: 'Sub Goals',
+                        Completed: goalStatsData.numSubGoalsComplete,
+                        Total: goalStatsData.numSubGoals
+                    }
+                ]
+            }
+        }
+
+    }
+
     render() {
 
         const {
@@ -268,9 +492,19 @@ class PastProgramsPage extends Component {
             currentBodyPart,
             anatomyObject,
             currMuscleGroupOpen,
-            programNotes
+            programNotes,
+            prevWeeksData,
+            currentWeekInProgram,
+            loadingScheme,
+            goalTableData,
+            goalStatsData,
+            goalProgPieChartData
 
         } = this.state
+
+        console.log(goalTableData)
+        console.log(goalStatsData)
+        console.log(goalProgPieChartData)
 
         let loadInfoData = (!loading) ? this.generateLoadInfoTableData(currentBodyPart) : []
 
@@ -359,12 +593,30 @@ class PastProgramsPage extends Component {
 
 
                     </div>
-
-
-
-
-
-                    <div className='pageContainerLevel1 half-width' id='ppPageGeneralStatsTable'></div>
+                    <div className='pageContainerLevel1 half-width' id='ppPageExHistTable'>
+                        <div className='centeredPageContainerLabel'>
+                            <InputLabel
+                                text='Historical Data'
+                                custID='ppExHistoryLabel'
+                            />
+                        </div>
+                        <div className='rowContainer'>
+                            <div className='half-width centred-info'>
+                                <GoalHistoryModal
+                                    goalTableData={goalTableData}
+                                    goalStatsData={goalStatsData}
+                                    goalProgPieChartData={goalProgPieChartData}
+                                />
+                            </div>
+                            <div className='half-width centred-info'>
+                                <ExerciseHistoryModal
+                                    data={prevWeeksData}
+                                    defaultWeek={currentWeekInProgram}
+                                    progScheme={loadingScheme}
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

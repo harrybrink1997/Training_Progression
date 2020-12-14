@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Modal, Button, Form, Pagination } from 'semantic-ui-react'
-import { ExerciseTableContainer } from './currentWeekExercisesContainer'
 import ExerciseTableContainerNoBtns from '../CustomComponents/exerciseTablesNoBtns'
 import InputLabel from '../CustomComponents/DarkModeInput'
 const ViewPrevWeeksDataModal = ({ handleFormSubmit, data, defaultWeek, progScheme }) => {
@@ -25,7 +24,7 @@ const ViewPrevWeeksDataModal = ({ handleFormSubmit, data, defaultWeek, progSchem
         setCurrWeek(data.activePage)
     }
 
-    const generateTableData = (dayData) => {
+    const generateHistoricalTableData = (dayData) => {
         var tableData = []
         if (scheme == 'rpe_time') {
             Object.values(dayData).forEach(exercise => {
@@ -96,7 +95,7 @@ const ViewPrevWeeksDataModal = ({ handleFormSubmit, data, defaultWeek, progSchem
                                                 key={day}
                                                 dayText={'Day ' + day}
                                                 tableScheme={scheme}
-                                                tableData={generateTableData(historicalData[currWeek][day])}
+                                                tableData={generateHistoricalTableData(historicalData[currWeek][day])}
                                                 defaultOpen={false}
                                                 dayIndex={day}
                                             />

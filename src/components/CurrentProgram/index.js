@@ -1028,6 +1028,7 @@ class CurrentProgramPage extends Component {
             expandedRows
         } = this.state
 
+        console.log(goalTableData)
 
         console.log(prevWeeksData)
 

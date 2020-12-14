@@ -59,7 +59,7 @@ const GoalProgressionPieChart = ({ data, chartColours }) => {
     }
 
     return (
-        <ResponsiveContainer width='100%' height={400}>
+        <ResponsiveContainer width='100%' height={300}>
             <PieChart margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                 <Pie
                     activeIndex={activeIndex}

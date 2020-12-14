@@ -80,8 +80,6 @@ class ProgressionDataPage extends Component {
 
             var processedGoalData = this.generateGoalTableData(userObject.currentPrograms[userObject.activeProgram])
 
-            console.log(processedGoalData)
-
             this.setState({
                 programList: programListArray,
                 activeProgram: userObject.activeProgram,
