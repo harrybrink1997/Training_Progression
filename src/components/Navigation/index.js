@@ -50,13 +50,13 @@ const NavigationAuth = () => {
             >
                 Home
             </Menu.Item>
-            <Menu.Item
+            {/* <Menu.Item
                 as='a'
                 href={ROUTES.ADMIN}
                 active={useLocation().pathname == '/admin'}
             >
                 Admin
-            </Menu.Item>
+            </Menu.Item> */}
             <Menu.Item
                 as='a'
                 href={ROUTES.ACCOUNT}

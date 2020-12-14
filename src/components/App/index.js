@@ -57,7 +57,7 @@ const App = () => {
                 />
                 <Route path={ROUTES.HOME} component={HomePage} />
                 <Route path={ROUTES.ACCOUNT} component={AccountPage} />
-                <Route path={ROUTES.ADMIN} component={AdminPage} />
+                {/* <Route path={ROUTES.ADMIN} component={AdminPage} /> */}
                 <Route path={ROUTES.SAFETY_GRAPH} component={SafetyGraphPage} />
                 <Route path={ROUTES.PROG_DATA} component={ProgressionDataPage} />
                 <Route path={ROUTES.CURRENT_PROGRAMS} component={CurrentProgramPage} />
