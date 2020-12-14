@@ -1,69 +1,74 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 
-import { withFirebase } from '../Firebase';
+import { withAuthorisation } from '../Session';
+import PasswordChangeForm from './passwordChangeForm'
 
-const INITIAL_STATE = {
-    passwordOne: '',
-    passwordTwo: '',
-    error: null,
-};
+import InputLabel from '../CustomComponents/DarkModeInput'
 
-class PasswordChangeForm extends Component {
+class PasswordChangePage extends Component {
+
     constructor(props) {
-        super(props);
+        super(props)
 
-        this.state = { ...INITIAL_STATE };
+        this.state = {
+            passwordChangeError: null,
+            submitProcessing: false,
+            passwordChanged: false
+        }
     }
 
-    onSubmit = event => {
-        const { passwordOne } = this.state;
+    handleSubmitPasswordChange = (password) => {
+        console.log(password)
 
+        this.setState({
+            submitProcessing: true
+        })
         this.props.firebase
-            .doPasswordUpdate(passwordOne)
+            .doPasswordUpdate(password)
             .then(() => {
-                this.setState({ ...INITIAL_STATE });
+                this.setState({
+                    passwordChanged: true,
+                    submitProcessing: false
+                });
             })
             .catch(error => {
-                this.setState({ error });
+                this.setState({
+                    passwordChangeError: error,
+                    submitProcessing: false
+                });
             });
 
-        event.preventDefault();
-    };
 
-    onChange = event => {
-        this.setState({ [event.target.name]: event.target.value });
-    };
+    }
 
     render() {
-        const { passwordOne, passwordTwo, error } = this.state;
+        const {
+            passwordChangeError,
+            submitProcessing,
+            passwordChanged
+        } = this.state;
 
-        const isInvalid =
-            passwordOne !== passwordTwo || passwordOne === '';
 
         return (
-            <form onSubmit={this.onSubmit}>
-                <input
-                    name="passwordOne"
-                    value={passwordOne}
-                    onChange={this.onChange}
-                    type="password"
-                    placeholder="New Password"
-                />
-                <input
-                    name="passwordTwo"
-                    value={passwordTwo}
-                    onChange={this.onChange}
-                    type="password"
-                    placeholder="Confirm New Password"
-                />
-                <button disabled={isInvalid} type="submit">
-                    Reset My Password
-        </button>
-
-                {error && <p>{error.message}</p>}
-            </form>
-        );
+            <div id='signInPageMainContainer'>
+                <div id='signInEmailMainContainer' className='pageContainerLevel1'>
+                    <InputLabel
+                        text='Password Change'
+                        custID='signInPageMainLabel'
+                    />
+                    <PasswordChangeForm
+                        submitPasswordChangeHandler={this.handleSubmitPasswordChange}
+                        submitProcessing={submitProcessing}
+                    />
+                    <div id='signInEmailFooterMessagesContainer'>
+                        {passwordChangeError && <p>{passwordChangeError.message}</p>}
+                        {passwordChanged && <div>Password Changed!</div>}
+                    </div>
+                </div>
+            </div>
+        )
     }
 }
 
-export default withFirebase(PasswordChangeForm);
+const condition = authUser => !!authUser;
+export default withAuthorisation(condition)(PasswordChangePage)

@@ -14,6 +14,7 @@ import ProgressionDataPage from '../ProgressionData'
 import CurrentProgramPage from '../CurrentProgram'
 import PastProgramPage from '../PastPrograms'
 import LearnMorePage from '../LearnMore'
+import PasswordChangePage from '../PasswordChange'
 
 import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
@@ -29,13 +30,15 @@ import '../../CustomCSS/landingPage.css'
 import '../../CustomCSS/loginPage.css'
 import '../../CustomCSS/learnMorePage.css'
 import '../../CustomCSS/semanticUIButton.css'
+import '../../CustomCSS/semanticUICards.css'
 import '../../CustomCSS/nonPageSpecific.css'
 import '../../CustomCSS/progressionPage.css'
 import '../../CustomCSS/semanticUIMenu.css'
 import '../../CustomCSS/semanticUIBreadCrumb.css'
 import '../../CustomCSS/currentProgramsPage.css'
-import '../../CustomCSS/homePage.css'
 import '../../CustomCSS/pastProgramsPage.css'
+import '../../CustomCSS/homePage.css'
+import '../../CustomCSS/accountPage.css'
 import '../../CustomCSS/semanticUIStatistic.css'
 import '../../CustomCSS/semanticUITable.css'
 import '../../CustomCSS/semanticUINavBar.css'
@@ -63,6 +66,7 @@ const App = () => {
                 <Route path={ROUTES.CURRENT_PROGRAMS} component={CurrentProgramPage} />
                 <Route path={ROUTES.PAST_PROGRAMS} component={PastProgramPage} />
                 <Route path={ROUTES.LEARN_MORE} component={LearnMorePage} />
+                <Route path={ROUTES.PASSWORD_CHANGE} component={PasswordChangePage} />
             </div>
         </Router >
     )

@@ -1,0 +1,21 @@
+#accpUsernameHeader {
+    text-align: center;
+    font-weight: 600;
+    font-size: 30px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+#accpUserDetailsHeader {
+    text-align: center;
+    font-weight: 500;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+#cardContainer {
+    padding-right: 50px;
+    padding-left: 50px;
+    padding-top: 80px;
+}

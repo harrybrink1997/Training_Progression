@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import './home.css'
 import { Modal, Button, Form, Input, Container, Popup, Icon, Label, Grid, Breadcrumb } from 'semantic-ui-react'
 
 import SemanticDatepicker from 'react-semantic-ui-datepickers';

@@ -1,0 +1,26 @@
+.ui.cards .ui.card {
+    background: #333333;
+    width: 150px;
+    /* color: white; */
+}
+
+.ui.cards .ui.card .content.iconContent {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    height: 100px;
+}
+
+.ui.cards .ui.card .content div {
+    color: white;
+}
+
+.ui.cards .ui.card .content {
+    border-top: solid 1px white;
+}
+
+.ui.cards .ui.card:hover {
+    background: #191919;
+    /* color: white; */
+}
