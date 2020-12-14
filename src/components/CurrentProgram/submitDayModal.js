@@ -10,6 +10,7 @@ const SubmitDayModal = ({ handleFormSubmit }) => {
     }
 
     const handleSubmit = (event) => {
+        console.log("goingin ")
         event.preventDefault()
         setShow(false);
         handleFormSubmit()

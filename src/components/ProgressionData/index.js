@@ -347,11 +347,10 @@ class ProgressionDataPage extends Component {
     }
 
     handleSelectProgram = (event, { value }) => {
-
         if (this.state.activeProgram != value) {
             this.props.firebase.setActiveProgram(
                 this.props.firebase.auth.currentUser.uid,
-                event.target.value
+                value
             )
         }
     }
