@@ -145,6 +145,21 @@ const LoadCalculationsStart = () => (
             <li>T - Acute/Chronic Timeframe</li>
             <li>L<sub>j</sub> - Net Daily Load for day j</li>
         </ul>
+
+        As seen above, the decay constant (&alpha;) provides the 'weighting' in the EWMA function. The decay constant is a function of the Acute/Chronic timeframe and is initialised at the start of a program.
+
+        <br /><br />
+
+        Corvus Strength implements the EWMA algorithm with a sliding window approach. To illustrate this concept, assume an Acute Timeframe of 7 days. The daily Acute Workloads will be calculated as follows:
+
+        <ul>
+            <li>Day 3: Days 1-3 inclusive.</li>
+            <li>Day 7: Days 1-7 inclusive.</li>
+            <li>Day 8: Days 2-8 inclusive.</li>
+        </ul>
+
+        The main limitation of this model is the predictive accuracy prior to a complete chronic training cycle. This is a result of the limited raw data collected before a full chronic cycle has elasped.
+
     </div>
 )
 const DeepDiveRecap = () => (
@@ -159,7 +174,7 @@ const DeepDiveRecap = () => (
 const HighLevelRecap = () => (
     <div className='paragraphDiv'>
 
-        Corvus Strength is a cloud based platform which aims to provide every user with an accessible means in which to track their own training and reduce their exposure to injury. At a high level Corvus Strength uses the training you've accomplished over a long period of time (generally a month) and the training you've most recently undertaken (generally a week) to predict safe training loads for your future sessions.
+        Corvus Strength is a cloud based platform which aims to provide every user with an accessible means in which to track their own training and reduce their risk of injury. At a high level Corvus Strength uses the training you've accomplished over a long period of time (generally a month) and the training you've most recently undertaken (generally a week) to predict safe training loads for your future sessions.
         <br /><br />
 
         Our predicitive model accounts for both the physical and mental components of training. Physical loads are tracked through (sets, reps, weight, etc...) whilst mental loads and tracked through the rate of perceived exertion (RPE).
