@@ -7,12 +7,12 @@ const OnBoarding = ({ run }) => {
         <div>
             <ReactJoyride
                 steps={steps}
-                run={run}
+                run={true}
                 styles={style}
                 continuous={true}
-                displayOverlay={true}
                 showProgress={true}
                 showSkipButton={true}
+                disableOverlayClose={true}
             />
         </div>
     )
@@ -23,6 +23,9 @@ const style = {
         backgroundColor: '#333333',
         arrowColor: '#333333',
         primaryColor: '#BB86FC',
+    },
+    buttonClose: {
+        display: 'none',
     }
 }
 
