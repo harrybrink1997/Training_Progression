@@ -20,6 +20,7 @@ import DeleteAccountPage from '../DeleteAccount'
 
 import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
+import { useLocation } from 'react-router-dom'
 
 import 'semantic-ui-css/semantic.min.css';
 import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
@@ -53,7 +54,7 @@ const App = () => {
     return (
         < Router >
             <div>
-                <Navigation />
+                {/* <Navigation /> */}
                 <Route exact path={ROUTES.LANDING} component={LandingPage} />
                 <Route path={ROUTES.SIGN_UP} component={SignUpPage} />
                 <Route path={ROUTES.SIGN_IN} component={SignInPage} />

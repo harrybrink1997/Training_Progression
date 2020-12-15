@@ -32,6 +32,7 @@ class SignInPage extends Component {
 
     handleSubmitSignIn = (email, password) => {
         this.setState({
+            loginError: null,
             signInProcessing: true
         }, () => {
             this.props.firebase

@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Button, Header } from 'semantic-ui-react'
 import { withRouter } from 'react-router-dom'
 import * as ROUTES from '../../constants/routes'
+import Navigation from '../Navigation';
 
 class LandingPage extends Component {
 
@@ -28,35 +29,42 @@ class LandingPage extends Component {
 const LandingPageCTAContainer = ({ handleSignInButton, handleLearnMoreButton }) => {
 
     return (
-        <div className="pageContainerLevel1">
-            <div id='CTAContainerHeaderDiv'>
-                <div id='CTA4THeader'>
-                    Train, Track, Triumph, Together
+        <div id='mountainPicture'>
+            <Navigation />
+            <div id='landingPageHeaderContainer'>
+                <div id='CTAContainerHeaderDiv'>
+                    <div id='corvusStrengthHeader'>
+                        Corvus Strength
+                    </div>
+                    <div id='CTA4THeader'>
+                        Train, Track, Triumph, Together
+                    </div>
+                    <div id='CTAImpactStatement'>
+                        Scientifically Based, Cloud Platform to Manage Training Load and Help Reduce Injury.
+                    </div>
                 </div>
-                <div id='CTAImpactStatement'>
-                    Scientifically Based, Cloud Platform to Manage Training Load and Help Reduce Injury.
-                </div>
-            </div>
 
-            <div id='CTAContainerButtonDiv'>
-                <div id='lpSignUpBtn'>
-                    <Button
-                        className='purpleButton'
-                        onClick={handleSignInButton}
-                    >
-                        Sign In
+                <div id='CTAContainerButtonDiv'>
+                    <div id='lpSignUpBtn'>
+                        <Button
+                            className='purpleButton'
+                            onClick={handleSignInButton}
+                        >
+                            Sign In
                     </Button>
-                </div>
-                <div id='lpLearnMoreBtn'>
-                    <Button
-                        className='lightPurpleButton-inverted'
-                        onClick={handleLearnMoreButton}
-                    >
-                        Learn More
+                    </div>
+                    <div id='lpLearnMoreBtn'>
+                        <Button
+                            className='lightPurpleButton-inverted'
+                            onClick={handleLearnMoreButton}
+                        >
+                            Learn More
                     </Button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </div >
+
     )
 }
 

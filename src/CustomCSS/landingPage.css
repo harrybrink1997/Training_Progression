@@ -1,9 +1,26 @@
-#CTA4THeader {
+
+#corvusStrengthHeader {
     font-size: 60px;
     color: white;
     text-align: center;
     padding: 30px;
     padding-bottom: 60px;
+    padding-top: 40px;
+    font-weight: 600;
+}
+
+#landingPageHeaderContainer {
+    width: 100%;
+    position: absolute;
+    top: 85px;
+}
+
+#CTA4THeader {
+    font-size: 45px;
+    color: white;
+    text-align: center;
+    padding: 30px;
+    padding-bottom: 40px;
     padding-top: 40px;
     font-weight: 600;
 }
@@ -18,7 +35,7 @@
 #CTAContainerButtonDiv {
     display: flex;
     justify-content: center;
-    padding: 15px;
+    padding: 25px;
 }
 
 #lpSignUpBtn {
@@ -27,4 +44,15 @@
 
 #lpLearnMoreBtn {
     padding: 10px;
+}
+
+#mountainPicture {
+    background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url("../components/Landing/images/crow3.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }

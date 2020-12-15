@@ -1,6 +1,4 @@
 import React, { Component } from 'react'
-import { Link, withRouter } from 'react-router-dom'
-import { compose } from 'recompose'
 
 import { withFirebase } from '../Firebase'
 import * as ROUTES from '../../constants/routes'
@@ -13,7 +11,8 @@ class SignUpPage extends Component {
         super(props);
 
         this.state = {
-            signUpError: null
+            signUpError: null,
+            signUpProcessing: false
         };
     }
 
@@ -25,32 +24,38 @@ class SignUpPage extends Component {
         console.log(username)
         console.log(password)
         console.log(email)
-        this.props.firebase
-            .doCreateUserWithEmailAndPassword(email, password)
-            .then(authUser => {
-                // Create a user in your Firebase realtime database
-                return this.props.firebase.createUserUpstream(
-                    authUser.user.uid,
-                    {
-                        username: username,
-                        email: email,
-                    })
-            })
-            .then(() => {
-                this.props.history.push(ROUTES.HOME);
-            })
-            .catch(error => {
-                this.setState({
-                    signUpError: error
+        this.setState({
+            signUpProcessing: true
+        }, () => {
+            this.props.firebase
+                .doCreateUserWithEmailAndPassword(email, password)
+                .then(authUser => {
+                    // Create a user in your Firebase realtime database
+                    return this.props.firebase.createUserUpstream(
+                        authUser.user.uid,
+                        {
+                            username: username,
+                            email: email,
+                        })
+                })
+                .then(() => {
+                    this.props.history.push(ROUTES.HOME);
+                })
+                .catch(error => {
+                    this.setState({
+                        signUpError: error,
+                        signUpProcessing: false
+                    });
                 });
-            });
+        })
 
 
     }
 
     render() {
         const {
-            signUpError
+            signUpError,
+            signUpProcessing
         } = this.state;
 
 
@@ -63,6 +68,7 @@ class SignUpPage extends Component {
                     />
                     <SignUpForm
                         submitSignUpHandler={this.handleSubmitSignUp}
+                        signUpProcessing={signUpProcessing}
                     />
                     <div id='signInEmailFooterMessagesContainer'>
                         {signUpError && <p>{signUpError.message}</p>}
