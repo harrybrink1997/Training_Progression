@@ -1,9 +1,13 @@
 .ui.auth-nav-bar.menu {
-    background: #333333;
+    /* background: #333333; */
+    background: transparent;
     /* background: #191919; */
     border: none;
     box-shadow: none;
-    margin: none;
+    height: 75px;
+    width: 100%;
+    position: absolute;
+    top: 0px;
 }
 
 .ui.auth-nav-bar.menu .item {
