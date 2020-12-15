@@ -1,7 +1,7 @@
 import React, { Component, useState } from 'react';
 
 import { withAuthorisation } from '../Session';
-import PasswordChangeForm from './passwordChangeForm'
+import EmailChangeForm from './emailChangeForm'
 
 import InputLabel from '../CustomComponents/DarkModeInput'
 
@@ -11,29 +11,36 @@ class EmailChangePage extends Component {
         super(props)
 
         this.state = {
-            passwordChangeError: null,
+            emailChangeError: null,
             submitProcessing: false,
-            passwordChanged: false
+            emailChanged: false
         }
     }
 
-    handleSubmitPasswordChange = (password) => {
-        console.log(password)
+    handleSubmitEmailChange = (email) => {
+        console.log(email)
 
         this.setState({
             submitProcessing: true
         })
         this.props.firebase
-            .doPasswordUpdate(password)
+            .doEmailUpdate(email)
+            .then(() => {
+                this.props.firebase.updateEmailInDatabase(
+                    this.props.firebase.auth.currentUser.uid,
+                    email
+                )
+            })
             .then(() => {
                 this.setState({
-                    passwordChanged: true,
+                    emailChanged: true,
+                    emailChangeError: null,
                     submitProcessing: false
                 });
             })
             .catch(error => {
                 this.setState({
-                    passwordChangeError: error,
+                    emailChangeError: error,
                     submitProcessing: false
                 });
             });
@@ -43,9 +50,9 @@ class EmailChangePage extends Component {
 
     render() {
         const {
-            passwordChangeError,
+            emailChangeError,
             submitProcessing,
-            passwordChanged
+            emailChanged
         } = this.state;
 
 
@@ -53,16 +60,16 @@ class EmailChangePage extends Component {
             <div id='signInPageMainContainer'>
                 <div id='signInEmailMainContainer' className='pageContainerLevel1'>
                     <InputLabel
-                        text='Password Change'
+                        text='Email Change'
                         custID='signInPageMainLabel'
                     />
-                    <PasswordChangeForm
-                        submitPasswordChangeHandler={this.handleSubmitPasswordChange}
+                    <EmailChangeForm
+                        submitEmailChangeHandler={this.handleSubmitEmailChange}
                         submitProcessing={submitProcessing}
                     />
                     <div id='signInEmailFooterMessagesContainer'>
-                        {passwordChangeError && <p>{passwordChangeError.message}</p>}
-                        {passwordChanged && <div>Password Changed!</div>}
+                        {emailChangeError && <p>{emailChangeError.message}</p>}
+                        {emailChanged && <div>Email Changed!</div>}
                     </div>
                 </div>
             </div>

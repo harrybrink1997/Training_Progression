@@ -15,6 +15,7 @@ import CurrentProgramPage from '../CurrentProgram'
 import PastProgramPage from '../PastPrograms'
 import LearnMorePage from '../LearnMore'
 import PasswordChangePage from '../PasswordChange'
+import EmailChangePage from '../EmailChange'
 
 import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
@@ -67,6 +68,7 @@ const App = () => {
                 <Route path={ROUTES.PAST_PROGRAMS} component={PastProgramPage} />
                 <Route path={ROUTES.LEARN_MORE} component={LearnMorePage} />
                 <Route path={ROUTES.PASSWORD_CHANGE} component={PasswordChangePage} />
+                <Route path={ROUTES.EMAIL_CHANGE} component={EmailChangePage} />
             </div>
         </Router >
     )

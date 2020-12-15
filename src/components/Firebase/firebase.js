@@ -48,6 +48,16 @@ class Firebase {
         return this.auth.currentUser.updatePassword(password)
     }
 
+    doEmailUpdate = (email) => {
+        return this.auth.currentUser.updateEmail(email)
+    }
+
+    updateEmailInDatabase = (uid, email) => {
+        return this.db
+            .ref(`users/${uid}/email`)
+            .set(email)
+    }
+
     // USER API
     getUserData = (uid) => this.db.ref(`users/${uid}`);
 

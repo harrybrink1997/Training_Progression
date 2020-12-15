@@ -51,6 +51,9 @@ class AccountPage extends Component {
     handleChangePasswordRedirect = () => {
         this.props.history.push(ROUTES.PASSWORD_CHANGE)
     }
+    handleChangeEmailRedirect = () => {
+        this.props.history.push(ROUTES.EMAIL_CHANGE)
+    }
 
     render() {
 
@@ -77,13 +80,21 @@ class AccountPage extends Component {
                 </div>
                 <div>
                     <div id='cardContainer'>
-                        <Card.Group itemsPerRow={5}>
+                        <Card.Group >
                             <Card onClick={() => { this.handleChangePasswordRedirect() }}>
                                 <Card.Content className='iconContent'>
                                     <Icon name='shield alternate' size='huge' />
                                 </Card.Content>
                                 <Card.Content>
                                     <Card.Header textAlign='center'>Password Change</Card.Header>
+                                </Card.Content>
+                            </Card>
+                            <Card onClick={() => { this.handleChangeEmailRedirect() }}>
+                                <Card.Content className='iconContent'>
+                                    <Icon name='mail' size='huge' />
+                                </Card.Content>
+                                <Card.Content>
+                                    <Card.Header textAlign='center'>Email <br /> Change</Card.Header>
                                 </Card.Content>
                             </Card>
                         </Card.Group>
