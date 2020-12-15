@@ -11,7 +11,7 @@ const INITIAL_STATE = {
 };
 
 
-const LoginForm = ({ submitLoginHandler }) => {
+const LoginForm = ({ submitLoginHandler, signInProcessing }) => {
 
     const [email, setEmail] = useState(INITIAL_STATE.email)
     const [password, setPassword] = useState(INITIAL_STATE.password)
@@ -47,11 +47,22 @@ const LoginForm = ({ submitLoginHandler }) => {
             {
                 email != '' && password != '' &&
                 <div id='loginBtnContainer'>
-                    < Button
-                        className='lightPurpleButton'
-                        type="submit">
-                        Sign In
-                    </Button>
+                    {
+                        signInProcessing ?
+                            < Button
+                                loading
+                                className='lightPurpleButton'
+                                type="submit">
+                                Sign In
+                            </Button>
+                            :
+                            < Button
+                                className='lightPurpleButton'
+                                type="submit">
+                                Sign In
+                            </Button>
+
+                    }
                 </div>
             }
         </Form >

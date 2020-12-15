@@ -17,7 +17,8 @@ class SignInPage extends Component {
         super(props);
 
         this.state = {
-            loginError: null
+            loginError: null,
+            signInProcessing: false
         };
     }
 
@@ -30,23 +31,29 @@ class SignInPage extends Component {
     }
 
     handleSubmitSignIn = (email, password) => {
-        this.props.firebase
-            .doSignInWithEmailAndPassword(email, password)
-            .then(() => {
-                this.props.history.push(ROUTES.HOME);
-            })
-            .catch(error => {
-                this.setState({
-                    loginError: error
+        this.setState({
+            signInProcessing: true
+        }, () => {
+            this.props.firebase
+                .doSignInWithEmailAndPassword(email, password)
+                .then(() => {
+                    this.props.history.push(ROUTES.HOME);
+                })
+                .catch(error => {
+                    this.setState({
+                        loginError: error,
+                        signInProcessing: false
+                    });
                 });
-            });
+        })
 
     }
 
     render() {
         const {
             loginError,
-            loading
+            loading,
+            signInProcessing
         } = this.state;
 
         let loadingHTML =
@@ -63,6 +70,7 @@ class SignInPage extends Component {
                     />
                     <LoginForm
                         submitLoginHandler={this.handleSubmitSignIn}
+                        signInProcessing={signInProcessing}
                     />
                     <div id='signInEmailFooterMessagesContainer'>
                         {loginError && <p>{loginError.message}</p>}
