@@ -51,9 +51,10 @@ class AccountPage extends Component {
     handleChangePasswordRedirect = () => {
         this.props.history.push(ROUTES.PASSWORD_CHANGE)
     }
-    handleChangeEmailRedirect = () => {
-        this.props.history.push(ROUTES.EMAIL_CHANGE)
+    handleDeleteAccountRedirect = () => {
+        this.props.history.push(ROUTES.DELETE_ACCOUNT)
     }
+
 
     render() {
 
@@ -95,6 +96,14 @@ class AccountPage extends Component {
                                 </Card.Content>
                                 <Card.Content>
                                     <Card.Header textAlign='center'>Email <br /> Change</Card.Header>
+                                </Card.Content>
+                            </Card>
+                            <Card onClick={() => { this.handleDeleteAccountRedirect() }}>
+                                <Card.Content className='iconContent'>
+                                    <Icon name='user delete' size='huge' />
+                                </Card.Content>
+                                <Card.Content>
+                                    <Card.Header textAlign='center'>Delete <br /> Account</Card.Header>
                                 </Card.Content>
                             </Card>
                         </Card.Group>

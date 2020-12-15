@@ -52,6 +52,16 @@ class Firebase {
         return this.auth.currentUser.updateEmail(email)
     }
 
+    doDeleteAuthentication = () => {
+        return this.auth.currentUser.delete()
+    }
+
+    deleteUserInDatabase = (uid) => {
+        return this.db
+            .ref(`users/${uid}`)
+            .remove()
+    }
+
     updateEmailInDatabase = (uid, email) => {
         return this.db
             .ref(`users/${uid}/email`)

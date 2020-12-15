@@ -16,6 +16,7 @@ import PastProgramPage from '../PastPrograms'
 import LearnMorePage from '../LearnMore'
 import PasswordChangePage from '../PasswordChange'
 import EmailChangePage from '../EmailChange'
+import DeleteAccountPage from '../DeleteAccount'
 
 import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
@@ -39,6 +40,7 @@ import '../../CustomCSS/semanticUIBreadCrumb.css'
 import '../../CustomCSS/currentProgramsPage.css'
 import '../../CustomCSS/pastProgramsPage.css'
 import '../../CustomCSS/homePage.css'
+import '../../CustomCSS/deleteAccountPage.css'
 import '../../CustomCSS/accountPage.css'
 import '../../CustomCSS/semanticUIStatistic.css'
 import '../../CustomCSS/semanticUITable.css'
@@ -69,6 +71,7 @@ const App = () => {
                 <Route path={ROUTES.LEARN_MORE} component={LearnMorePage} />
                 <Route path={ROUTES.PASSWORD_CHANGE} component={PasswordChangePage} />
                 <Route path={ROUTES.EMAIL_CHANGE} component={EmailChangePage} />
+                <Route path={ROUTES.DELETE_ACCOUNT} component={DeleteAccountPage} />
             </div>
         </Router >
     )
