@@ -20,6 +20,7 @@ import GoalsTable from '../CustomComponents/currentGoalTable'
 import EditGoalModal from '../CustomComponents/editGoalModal'
 import AddSubGoalModal from '../CustomComponents/addSubGoalsModal'
 import ViewPrevWeeksDataModal from './viewPrevWeeksDataModal'
+import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 
 // Import Custom functions
 import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
@@ -1038,7 +1039,7 @@ class CurrentProgramPage extends Component {
             </Dimmer>
         let noCurrentProgramsHTML = <Header as='h1'>Create A Program Before Accessing This Page</Header>
         let hasCurrentProgramsHTML =
-            <div>
+            <NonLandingPageWrapper>
                 <div className='pageContainerLevel1'
                     id='cpPageContainer1'>
                     <div id='cpProgramHeader'>
@@ -1170,7 +1171,7 @@ class CurrentProgramPage extends Component {
                         />
                     </div>
                 </div>
-            </div>
+            </NonLandingPageWrapper>
         return (
             <div>
                 {loading && loadingHTML}

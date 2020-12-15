@@ -11,6 +11,7 @@ import LoginForm from './loginForm'
 import SignUpLink from '../SignUp/signUpLink'
 import ForgetPasswordLink from '../PasswordForget/passwordForgetLink'
 import InputLabel from '../CustomComponents/DarkModeInput';
+import Navigation from '../Navigation'
 
 class SignInPage extends Component {
     constructor(props) {
@@ -63,24 +64,27 @@ class SignInPage extends Component {
             </Dimmer>
 
         let nonLoadingHTML =
-            <div id='signInPageMainContainer'>
-                <div id='signInEmailMainContainer' className='pageContainerLevel1'>
-                    <InputLabel
-                        text='Member Sign In'
-                        custID='signInPageMainLabel'
-                    />
-                    <LoginForm
-                        submitLoginHandler={this.handleSubmitSignIn}
-                        signInProcessing={signInProcessing}
-                    />
-                    <div id='signInEmailFooterMessagesContainer'>
-                        {loginError && <p>{loginError.message}</p>}
-                        <SignUpLink
-                            signUpdirectHandler={this.handleClickSignUp}
+            <div>
+                <Navigation />
+                <div id='signInPageMainContainer'>
+                    <div id='signInEmailMainContainer' className='pageContainerLevel1'>
+                        <InputLabel
+                            text='Member Sign In'
+                            custID='signInPageMainLabel'
                         />
-                        <ForgetPasswordLink
-                            passwordForgetdirectHandler={this.handleClickForgetPassword}
+                        <LoginForm
+                            submitLoginHandler={this.handleSubmitSignIn}
+                            signInProcessing={signInProcessing}
                         />
+                        <div id='signInEmailFooterMessagesContainer'>
+                            {loginError && <p>{loginError.message}</p>}
+                            <SignUpLink
+                                signUpdirectHandler={this.handleClickSignUp}
+                            />
+                            <ForgetPasswordLink
+                                passwordForgetdirectHandler={this.handleClickForgetPassword}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

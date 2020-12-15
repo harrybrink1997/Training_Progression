@@ -3,11 +3,22 @@ import { Button, Header } from 'semantic-ui-react'
 import { withRouter } from 'react-router-dom'
 import * as ROUTES from '../../constants/routes'
 import Navigation from '../Navigation';
+import { withFirebase } from '../Firebase';
+import { withAuthentication } from '../Session';
 
 class LandingPage extends Component {
 
+    constructor(props) {
+        super(props)
+    }
+
     handleSignInButton = () => {
-        this.props.history.push(ROUTES.SIGN_IN)
+
+        if (this.props.firebase.isAuthenticatedUser == undefined) {
+            this.props.history.push(ROUTES.SIGN_IN)
+        } else {
+            this.props.history.push(ROUTES.HOME)
+        }
 
     }
 
@@ -30,7 +41,7 @@ const LandingPageCTAContainer = ({ handleSignInButton, handleLearnMoreButton }) 
 
     return (
         <div id='mountainPicture'>
-            <Navigation />
+            <Navigation custClass='landingPageNav' />
             <div id='landingPageHeaderContainer'>
                 <div id='CTAContainerHeaderDiv'>
                     <div id='corvusStrengthHeader'>
@@ -68,4 +79,4 @@ const LandingPageCTAContainer = ({ handleSignInButton, handleLearnMoreButton }) 
     )
 }
 
-export default withRouter(LandingPage);
+export default withFirebase(LandingPage);

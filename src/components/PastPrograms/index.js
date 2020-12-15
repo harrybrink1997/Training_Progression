@@ -20,6 +20,7 @@ import loadingSchemeString from '../../constants/loadingSchemeString'
 import utsToDateString from '../../constants/utsToDateString'
 import ExerciseHistoryModal from './viewPrevWeeksDataModal'
 import GoalHistoryModal from './goalHistoryModal'
+import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 
 
 
@@ -520,7 +521,7 @@ class PastProgramsPage extends Component {
             </Dimmer>
         let noCurrentProgramsHTML = <Header as='h1'>No Past Programs to Show... <br /> Close off a program before this becomes usable. </Header>
         let hasCurrentProgramsHTML =
-            <div>
+            <NonLandingPageWrapper>
                 <div className='pageContainerLevel1'>
                     <div id='ppProgramHeader'>
                         {activeProgram}
@@ -618,7 +619,7 @@ class PastProgramsPage extends Component {
                         </div>
                     </div>
                 </div>
-            </div>
+            </NonLandingPageWrapper>
 
 
         return (

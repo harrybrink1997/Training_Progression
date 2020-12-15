@@ -7,43 +7,53 @@ import { useLocation } from 'react-router-dom'
 
 import { Menu } from 'semantic-ui-react'
 
-const Navigation = () => (
-    <AuthUserContext.Consumer>
-        {authUser =>
-            authUser ?
-                <NavigationAuth />
-                :
-                <NavigationNotAuth />
-        }
-    </AuthUserContext.Consumer>
-)
+const Navigation = ({ custClass }) => {
+
+    return (
+        <AuthUserContext.Consumer>
+            {authUser =>
+                authUser ?
+                    <NavigationAuth
+                        custClass={
+                            custClass != undefined ?
+                                custClass
+                                :
+                                ''
+                        }
+
+                    />
+                    :
+                    <NavigationNotAuth custClass={
+                        custClass != undefined ?
+                            custClass
+                            :
+                            ''
+                    }
+                    />
+            }
+        </AuthUserContext.Consumer>
+    )
+}
 
 
-const NavigationAuth = () => {
+const NavigationAuth = ({ custClass }) => {
 
 
     return (
-        < Menu className="auth-nav-bar" >
+        < Menu className={"auth-nav-bar" + " " + custClass} >
             <Menu.Item
                 as='a'
                 href={ROUTES.LANDING}
             >
                 Landing Page
             </Menu.Item>
-            <Menu.Item
-                as='a'
-                href={ROUTES.PROG_DATA}
-                active={useLocation().pathname == '/progression'}
-            >
-                Progression Data
-            </Menu.Item>
-            <Menu.Item
+            {/* <Menu.Item
                 as='a'
                 href={ROUTES.SAFETY_GRAPH}
                 active={useLocation().pathname == '/safety-graph'}
             >
                 Safety Graph
-            </Menu.Item>
+            </Menu.Item> */}
             <Menu.Item
                 as='a'
                 href={ROUTES.HOME}
@@ -74,28 +84,37 @@ const NavigationAuth = () => {
             </Menu.Item>
             <Menu.Item
                 as='a'
+                href={ROUTES.PROG_DATA}
+                active={useLocation().pathname == '/progression'}
+            >
+                Progression Data
+            </Menu.Item>
+            <Menu.Item
+                as='a'
                 href={ROUTES.PAST_PROGRAMS}
                 active={useLocation().pathname == '/past-programs'}
             >
                 Past Programs
             </Menu.Item>
-            <Menu.Item>
+            <Menu.Item className='signOutButton' position='right'>
                 <SignOutButton />
             </Menu.Item>
         </Menu >
     )
 }
 
-const NavigationNotAuth = () => (
-    <Menu className="not-auth-nav-bar">
-        <Menu.Item
-            as='a'
-            href={ROUTES.LANDING}
-        >
-            Landing Page
+const NavigationNotAuth = ({ custClass }) => {
+    return (
+        <Menu className={"not-auth-nav-bar" + " " + custClass}>
+            <Menu.Item
+                as='a'
+                href={ROUTES.LANDING}
+            >
+                Landing Page
         </Menu.Item>
-    </Menu>
-)
+        </Menu>
+    )
+}
 
 export default Navigation;
 

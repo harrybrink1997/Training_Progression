@@ -7,9 +7,9 @@ import ProgressionPredictiveGraph from './progressionPredictiveGraph'
 import { ACWEGraph, RollChronicACWRGraph } from './ACWRGraph'
 import BodyPartListGroup from '../CustomComponents/bodyPartListGroup'
 import InputLabel from '../CustomComponents/DarkModeInput'
-import GoalsTableNoBtns from '../CustomComponents/goalTableNoBtns'
 import GoalProgressionPieChart from './goalProgressionPieChart'
 import GoalProgressionBarChart from './goalProgressionBarChart'
+import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 
 // Custom Function Importing
 import loadingSchemeString from '../../constants/loadingSchemeString'
@@ -588,7 +588,7 @@ class ProgressionDataPage extends Component {
             </Dimmer>
         let noCurrentProgramsHTML = <Header as='h1'>Create A Program Before Accessing This Page</Header>
         let hasCurrentProgramsHTML =
-            <div>
+            <NonLandingPageWrapper>
                 <div className='pageContainerLevel1'>
                     <div id='pdProgramHeader'>
                         Progression Data - {activeProgram}
@@ -746,7 +746,7 @@ class ProgressionDataPage extends Component {
                     </div>
 
                 </div>
-            </div>
+            </NonLandingPageWrapper>
 
 
         return (

@@ -5,6 +5,8 @@ import CreateProgramModal from './createProgramModal'
 import DeleteProgramModal from './deleteProgramModal'
 import CreateExerciseModal from './createExerciseModal'
 
+import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
+
 import { Dimmer, Loader, Statistic } from 'semantic-ui-react'
 
 class HomePage extends Component {
@@ -289,7 +291,7 @@ class HomePage extends Component {
             </Dimmer>
 
         let nonLoadingHTML =
-            <div>
+            <NonLandingPageWrapper>
                 <div className="pageContainerLevel1">
                     <div id='mainContainerHeaderDiv'>
                         <div id='mainHeaderText'>
@@ -318,22 +320,8 @@ class HomePage extends Component {
 
                         </div>
                     </div>
-                    {/* <div id='hpStatHeaderContainer'>
-                        <Statistic className='hpStatHeaderSC1' inverted size='tiny'>
-                            <Statistic.Value>22</Statistic.Value>
-                            <Statistic.Label>Faves</Statistic.Label>
-                        </Statistic>
-                        <Statistic className='hpStatHeaderSC2' inverted size='tiny'>
-                            <Statistic.Value>22</Statistic.Value>
-                            <Statistic.Label>Number of Programs</Statistic.Label>
-                        </Statistic>
-                        <Statistic className='hpStatHeaderSC3' inverted size='tiny'>
-                            <Statistic.Value>22</Statistic.Value>
-                            <Statistic.Label>Faves</Statistic.Label>
-                        </Statistic>
-                    </div> */}
                 </div>
-            </div>
+            </NonLandingPageWrapper>
 
 
 

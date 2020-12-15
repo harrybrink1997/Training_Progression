@@ -1,4 +1,4 @@
-.ui.auth-nav-bar.menu {
+.ui.auth-nav-bar.menu.landingPageNav {
     /* background: #333333; */
     background: transparent;
     /* background: #191919; */
@@ -8,6 +8,16 @@
     width: 100%;
     position: absolute;
     top: 0px;
+}
+
+.ui.auth-nav-bar.menu {
+    background: #333333;
+    /* background: transparent; */
+    /* background: #191919; */
+    border: none;
+    box-shadow: none;
+    height: 75px;
+    width: 100%;
 }
 
 .ui.auth-nav-bar.menu .item {
@@ -25,7 +35,7 @@
     color: white;
 }
 
-.ui.not-auth-nav-bar.menu {
+.ui.not-auth-nav-bar.menu.landingPageNav {
     /* background: #333333; */
     background: transparent;
     /* background: #191919; */
@@ -35,6 +45,16 @@
     width: 100%;
     position: absolute;
     top: 0px;
+}
+
+.ui.not-auth-nav-bar.menu {
+    background: #333333;
+    /* background: transparent; */
+    /* background: #191919; */
+    border: none;
+    box-shadow: none;
+    height: 75px;
+    width: 100%;
 }
 
 .ui.not-auth-nav-bar.menu .item {

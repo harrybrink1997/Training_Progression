@@ -27,6 +27,10 @@ class Firebase {
         this.db = app.database();
     }
 
+    isAuthenticatedUser = () => {
+        return this.auth.currentUser
+    }
+
     // AUTHENTICATION API
     doCreateUserWithEmailAndPassword = (email, password) => {
         return this.auth.createUserWithEmailAndPassword(email, password);

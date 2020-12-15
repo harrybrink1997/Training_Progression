@@ -5,6 +5,7 @@ import PasswordChangeForm from '../PasswordChange';
 import { withAuthorisation } from '../Session';
 import { Dimmer, Loader, Card, Icon, Image } from 'semantic-ui-react'
 import * as ROUTES from '../../constants/routes'
+import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 
 class AccountPage extends Component {
 
@@ -70,7 +71,7 @@ class AccountPage extends Component {
             </Dimmer>
 
         let nonLoadingHTML =
-            <div>
+            <NonLandingPageWrapper>
                 <div className='pageContainerLevel1'>
                     <div id='accpUsernameHeader'>
                         {username}
@@ -109,7 +110,7 @@ class AccountPage extends Component {
                         </Card.Group>
                     </div>
                 </div>
-            </div>
+            </NonLandingPageWrapper>
 
         return (
             <div>
