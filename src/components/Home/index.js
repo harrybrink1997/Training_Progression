@@ -7,6 +7,8 @@ import CreateExerciseModal from './createExerciseModal'
 
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 
+import OnBoarding from './onBoarding'
+
 import { Dimmer, Loader, Statistic } from 'semantic-ui-react'
 
 class HomePage extends Component {
@@ -20,7 +22,8 @@ class HomePage extends Component {
             pastProgramList: [],
             greeting: '',
             anatomyObject: {},
-            loading: true
+            loading: true,
+            firstTimeUser: false
         }
     }
 
@@ -58,6 +61,7 @@ class HomePage extends Component {
                 }
 
 
+
                 this.setState({
                     userInformation: {
                         uid: currUserUid,
@@ -67,10 +71,24 @@ class HomePage extends Component {
                     currentProgramList: currentProgramList,
                     pastProgramList: pastProgramList,
                     anatomyObject: anatomyObject,
-                    loading: false
+                    firstTimeUser: this.determineFirstTimeLogin(this.props.firebase.auth.currentUser.metadata),
+                    loading: false,
                 })
             })
         });
+    }
+
+    determineFirstTimeLogin = (metadata) => {
+        var creationTime = metadata.creationTime
+        var loginTime = metadata.lastSignInTime
+        console.log(loginTime)
+        console.log(creationTime)
+
+        if (loginTime === creationTime) {
+            return true
+        } else {
+            return false
+        }
     }
 
     checkIfProgramAlreadyExists(newProgram) {
@@ -282,8 +300,16 @@ class HomePage extends Component {
             userInformation,
             loading,
             greeting,
-            anatomyObject
+            anatomyObject,
+            firstTimeUser
         } = this.state
+
+
+        if (firstTimeUser) {
+            console.log("first time user")
+        } else {
+            console.log("not first time user")
+        }
 
         let loadingHTML =
             <Dimmer active>
@@ -293,6 +319,9 @@ class HomePage extends Component {
         let nonLoadingHTML =
             <NonLandingPageWrapper>
                 <div className="pageContainerLevel1">
+                    <OnBoarding
+                        run={firstTimeUser}
+                    />
                     <div id='mainContainerHeaderDiv'>
                         <div id='mainHeaderText'>
                             {

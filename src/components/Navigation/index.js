@@ -5,7 +5,7 @@ import SignOutButton from '../SignOut'
 import * as ROUTES from '../../constants/routes'
 import { useLocation } from 'react-router-dom'
 
-import { Menu } from 'semantic-ui-react'
+import { Button, Menu } from 'semantic-ui-react'
 
 const Navigation = ({ custClass }) => {
 
@@ -97,6 +97,7 @@ const NavigationAuth = ({ custClass }) => {
                 Past Programs
             </Menu.Item>
             <Menu.Item className='signOutButton' position='right'>
+                {/* <Button>hello</Button> */}
                 <SignOutButton />
             </Menu.Item>
         </Menu >
