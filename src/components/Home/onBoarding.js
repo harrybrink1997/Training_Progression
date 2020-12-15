@@ -7,7 +7,7 @@ const OnBoarding = ({ run }) => {
         <div>
             <ReactJoyride
                 steps={steps}
-                run={true}
+                run={run}
                 styles={style}
                 continuous={true}
                 showProgress={true}
