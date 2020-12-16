@@ -61,6 +61,7 @@ const ExerciseHistoryModal = ({ data, defaultWeek, progScheme }) => {
             <Modal.Header>Program Exercise History</Modal.Header>
 
             <Modal.Content>
+
                 <div id='cpPrevExModalPagContainer'>
                     <Pagination
                         firstItem={null}

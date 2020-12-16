@@ -100,7 +100,7 @@ class PastProgramsPage extends Component {
                 anatomyObject: anatomyObject,
                 programNotes: userObject.pastPrograms[programListArray[0]].notes,
                 loading: false,
-                prevWeeksData: this.generatePrevWeeksData(userObject),
+                prevWeeksData: this.generatePrevWeeksData(userObject.pastPrograms[programListArray[0]]),
                 currentDayInProgram: userObject.pastPrograms[programListArray[0]].currentWeekInProgram,
                 goalTableData: processedGoalData.tableData,
                 goalStatsData: processedGoalData.statsData,
@@ -120,13 +120,19 @@ class PastProgramsPage extends Component {
         console.log(this.state.allPrograms[value].notes)
 
         if (this.state.activeProgram != value) {
+
+            var processedGoalData = this.generateGoalTableData(this.state.allPrograms[value])
+
             this.setState({
                 activeProgram: value,
                 startDate: utsToDateString(this.state.allPrograms[value].startDayUTS),
                 endDate: utsToDateString(this.state.allPrograms[value].endDayUTS),
                 durationOfProgram: Math.ceil((this.state.allPrograms[value].currentDayInProgram - 1) / 7),
-                programNotes: (this.state.allPrograms[value].notes != undefined) ? this.state.allPrograms[value].notes : ''
-
+                programNotes: (this.state.allPrograms[value].notes != undefined) ? this.state.allPrograms[value].notes : '',
+                prevWeeksData: this.generatePrevWeeksData(this.state.allPrograms[value]),
+                goalTableData: processedGoalData.tableData,
+                goalStatsData: processedGoalData.statsData,
+                goalProgPieChartData: processedGoalData.pieChartData
             })
         }
     }
@@ -272,31 +278,31 @@ class PastProgramsPage extends Component {
         )
     }
 
-    generatePrevWeeksData = (userObject) => {
-        var currWeek = Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7)
+    generatePrevWeeksData = (programData) => {
+        var currWeek = Math.ceil(programData.currentDayInProgram / 7)
+        console.log(programData)
 
         var dataObject = {}
+        console.log(currWeek)
+        for (var prevWeekNum = 1; prevWeekNum <= currWeek; prevWeekNum++) {
+            dataObject[prevWeekNum] = {}
 
-        if (currWeek == 1) {
-            return {}
-        } else {
-            for (var prevWeekNum = 1; prevWeekNum < currWeek; prevWeekNum++) {
-                dataObject[prevWeekNum] = {}
+            for (var day = 1; day < 8; day++) {
 
-                for (var day = 1; day < 8; day++) {
-
-                    var dayInProgram = (prevWeekNum - 1) * 7 + day
-                    var dayObject = {}
-                    Object.keys(userObject.currentPrograms[userObject.activeProgram][dayInProgram]).forEach(exercise => {
+                var dayInProgram = (prevWeekNum - 1) * 7 + day
+                var dayObject = {}
+                if (programData[dayInProgram] != undefined) {
+                    Object.keys(programData[dayInProgram]).forEach(exercise => {
                         if (exercise != 'loadingData') {
-                            dayObject[exercise] = userObject.currentPrograms[userObject.activeProgram][dayInProgram][exercise]
+                            dayObject[exercise] = programData[dayInProgram][exercise]
                         }
                     })
-
-                    dataObject[prevWeekNum][day] = dayObject
                 }
+
+                dataObject[prevWeekNum][day] = dayObject
             }
         }
+        console.log(dataObject)
         return dataObject
     }
 
@@ -503,10 +509,6 @@ class PastProgramsPage extends Component {
 
         } = this.state
 
-        console.log(goalTableData)
-        console.log(goalStatsData)
-        console.log(goalProgPieChartData)
-
         let loadInfoData = (!loading) ? this.generateLoadInfoTableData(currentBodyPart) : []
 
         console.log(programNotes)
@@ -610,7 +612,7 @@ class PastProgramsPage extends Component {
                                 />
                             </div>
                             <div className='half-width centred-info'>
-                                <ExerciseHistoryModal
+                                < ExerciseHistoryModal
                                     data={prevWeeksData}
                                     defaultWeek={currentWeekInProgram}
                                     progScheme={loadingScheme}
