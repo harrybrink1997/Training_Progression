@@ -601,7 +601,7 @@ class PastProgramsPage extends Component {
                                 custID='ppExHistoryLabel'
                             />
                         </div>
-                        <div className='rowContainer'>
+                        <div id='ppPageExGoalHistBtnContainer' className='rowContainer'>
                             <div className='half-width centred-info'>
                                 <GoalHistoryModal
                                     goalTableData={goalTableData}
