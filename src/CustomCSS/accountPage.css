@@ -24,3 +24,9 @@
     font-size: 60px;
     font-weight: 800;
 }
+
+#cardContainer > div > div {
+    width: 20%;
+    display: flex;
+    justify-content: center;
+}

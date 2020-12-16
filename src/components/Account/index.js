@@ -83,30 +83,38 @@ class AccountPage extends Component {
                 <div>
                     <div id='cardContainer'>
                         <Card.Group >
-                            <Card onClick={() => { this.handleChangePasswordRedirect() }}>
-                                <Card.Content className='iconContent'>
-                                    <Icon name='shield alternate' size='huge' />
-                                </Card.Content>
-                                <Card.Content>
-                                    <Card.Header textAlign='center'>Password Change</Card.Header>
-                                </Card.Content>
-                            </Card>
-                            <Card onClick={() => { this.handleChangeEmailRedirect() }}>
-                                <Card.Content className='iconContent'>
-                                    <Icon name='mail' size='huge' />
-                                </Card.Content>
-                                <Card.Content>
-                                    <Card.Header textAlign='center'>Email <br /> Change</Card.Header>
-                                </Card.Content>
-                            </Card>
-                            <Card onClick={() => { this.handleDeleteAccountRedirect() }}>
-                                <Card.Content className='iconContent'>
-                                    <Icon name='user delete' size='huge' />
-                                </Card.Content>
-                                <Card.Content>
-                                    <Card.Header textAlign='center'>Delete <br /> Account</Card.Header>
-                                </Card.Content>
-                            </Card>
+                            <div>
+
+                                <Card onClick={() => { this.handleChangePasswordRedirect() }}>
+                                    <Card.Content className='iconContent'>
+                                        <Icon name='shield alternate' size='huge' />
+                                    </Card.Content>
+                                    <Card.Content>
+                                        <Card.Header textAlign='center'>Password Change</Card.Header>
+                                    </Card.Content>
+                                </Card>
+                            </div>
+                            <div>
+                                <Card onClick={() => { this.handleChangeEmailRedirect() }}>
+                                    <Card.Content className='iconContent'>
+                                        <Icon name='mail' size='huge' />
+                                    </Card.Content>
+                                    <Card.Content>
+                                        <Card.Header textAlign='center'>Email <br /> Change</Card.Header>
+                                    </Card.Content>
+                                </Card>
+
+                            </div>
+                            <div>
+                                <Card onClick={() => { this.handleDeleteAccountRedirect() }}>
+                                    <Card.Content className='iconContent'>
+                                        <Icon name='user delete' size='huge' />
+                                    </Card.Content>
+                                    <Card.Content>
+                                        <Card.Header textAlign='center'>Delete <br /> Account</Card.Header>
+                                    </Card.Content>
+                                </Card>
+                            </div>
                         </Card.Group>
                     </div>
                 </div>
