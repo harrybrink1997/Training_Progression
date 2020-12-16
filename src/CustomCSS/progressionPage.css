@@ -176,13 +176,16 @@
     justify-content: center;
 }
 
-.label-top {
+
+
+.recharts-layer.recharts-pie .label-top {
     transform: translateY(-20px);
 }
 
-.label {
+.recharts-layer.recharts-pie  .label {
     transform: translateY(-10px);
 }
-.label-bottom {
+
+.recharts-layer.recharts-pie  .label-bottom {
     transform: translateY(10px);
 }
