@@ -210,8 +210,10 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                                     <InputLabel
                                         text='Acute Workload Timeframe (Measured in Days) &nbsp;'
                                         toolTip={<Popup
+                                            basic
                                             trigger={<Icon name='question circle outline' />}
-                                            content='(Recommended 7)'
+                                            header='Recommended 7'
+                                            content='This number will determine your acute workload timeframe. This should be modified based on training cycle.'
                                             position='right center'
                                         />}
                                     />
@@ -228,8 +230,10 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                                     <InputLabel
                                         text='Chronic Workload Timeframe (Measured in Days) &nbsp;'
                                         toolTip={<Popup
+                                            basic
                                             trigger={<Icon name='question circle outline' />}
-                                            content='(Recommended 28)'
+                                            header='Recommended 28'
+                                            content='This number will determine your chronic workload timeframe. This should be modified based on training cycle.'
                                             position='right center'
                                         />}
                                     />
@@ -251,8 +255,9 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                                 <InputLabel
                                     text='Selected A Loading Scheme &nbsp;'
                                     toolTip={<Popup
+                                        basic
                                         trigger={<Icon name='question circle outline' />}
-                                        content='This is the loading scheme tooltip'
+                                        content='This will determine your loading scheme for the program. Choose RPE/Time if tracking on weight is not required. Otherwise choose Weight/Repetions.'
                                         position='right center'
                                     />}
                                 />
@@ -314,12 +319,7 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                         <Form onSubmit={handleSubmit}>
                             <Form.Field>
                                 <InputLabel
-                                    text='Select Starting Date &nbsp;'
-                                    toolTip={<Popup
-                                        trigger={<Icon name='question circle outline' />}
-                                        content='This is the date tooltip'
-                                        position='right center'
-                                    />}
+                                    text='Select Starting Date'
                                 />
                                 <SemanticDatepicker
                                     today
