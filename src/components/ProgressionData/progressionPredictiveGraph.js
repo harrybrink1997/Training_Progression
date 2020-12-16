@@ -3,10 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, ReferenceLine, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import randomColour from '../../constants/colours'
 
-import { Form, Button, Popup, Icon } from 'semantic-ui-react'
+import { Button, Popup, Icon } from 'semantic-ui-react'
 import InputLabel from '../CustomComponents/DarkModeInput'
 
-const ProgressionPredictiveGraph = ({ startLoad }) => {
+const ProgressionPredictiveGraph = ({ startLoad, currWeek }) => {
+
+    const [startWeek, setStartWeek] = useState(currWeek)
 
     const [safetyChartThreshold, setSafetyChartThreshold] = useState(
         localStorage.getItem('targetLoad') || ''
@@ -88,15 +90,13 @@ const ProgressionPredictiveGraph = ({ startLoad }) => {
         if (!validateInputData()) {
             return
         }
-
-        // console.log(validatePercentString())
-        var weekNum = 0;
+        var weekNum = startWeek;
         var currWeekLoad = {}
         var returnData = []
         var percentages_arr = processPercentString()
         var graphSeries = []
 
-        var data_obj = { name: 'Week 0' }
+        var data_obj = { name: 'Week ' + startWeek }
 
         // Sets the initial state point on graph and fills in the series names. 
         percentages_arr.forEach(percVal => {

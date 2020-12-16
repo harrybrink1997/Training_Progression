@@ -576,8 +576,7 @@ class ProgressionDataPage extends Component {
             anatomyObject
         } = this.state
 
-        console.log(this.state)
-
+        console.log(currentWeekInProgram)
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
@@ -660,7 +659,10 @@ class ProgressionDataPage extends Component {
                 </div>
                 <div id='plPageSecondRowContainer'>
                     <div className='pageContainerLevel1' id='pdBodyContainer2'>
-                        <ProgressionPredictiveGraph startLoad={this.generateCurrentAverageLoad(rollingAverageGraphProps.totalData[currentBodyPart])} />
+                        <ProgressionPredictiveGraph
+                            startLoad={this.generateCurrentAverageLoad(rollingAverageGraphProps.totalData[currentBodyPart])}
+                            currWeek={currentWeekInProgram}
+                        />
                     </div>
                     <div className='pageContainerLevel1' id='pdBodyContainer3'>
                         {

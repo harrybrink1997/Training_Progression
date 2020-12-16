@@ -67,7 +67,7 @@ const RollChronicACWRGraph = ({ graphData, graphSeries }) => {
                         <XAxis
                             dataKey="name"
                             tick={{ fill: 'white' }}
-                            padding={{ left: 110, right: 110 }}
+                        // padding={{ left: 110, right: 110 }}
                         />
                         <YAxis label={{ dx: -30, value: "Load", angle: -90 }} tick={{ fill: 'white' }}
                         />
