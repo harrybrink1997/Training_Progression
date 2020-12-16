@@ -4,7 +4,7 @@
 const randomColour = () => {
     var colours = {
         blue1: "#00bbff",
-        blue2: "#0000ff",
+        // blue2: "#0000ff",
         green1: "#00ff00",
         greenyellow1: "#adff2f",
         yellow1: "#ffff4d",

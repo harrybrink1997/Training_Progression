@@ -101,7 +101,7 @@ const ProgressionPredictiveGraph = ({ startLoad }) => {
         // Sets the initial state point on graph and fills in the series names. 
         percentages_arr.forEach(percVal => {
             graphSeries.push('Hypothetical - ' + percVal + '%')
-            data_obj['Hypothetical - ' + percVal + '%'] = parseFloat(startLoad)
+            data_obj['Hypothetical - ' + percVal + '%'] = parseFloat(startLoad.toFixed(2))
             currWeekLoad[percVal] = startLoad
         })
 
@@ -117,10 +117,11 @@ const ProgressionPredictiveGraph = ({ startLoad }) => {
                     data_obj['Hypothetical - ' + percVal + '%'] = null
                 } else {
                     currWeekLoad[percVal] = currWeekLoad[percVal] * ((percVal / 100) + 1)
-                    data_obj['Hypothetical - ' + percVal + '%'] = currWeekLoad[percVal]
+                    data_obj['Hypothetical - ' + percVal + '%'] = parseFloat(currWeekLoad[percVal].toFixed(2))
                 }
             })
 
+            console.log(data_obj)
             returnData.push(data_obj)
 
         }
