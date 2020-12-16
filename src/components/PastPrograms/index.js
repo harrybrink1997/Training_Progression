@@ -302,8 +302,25 @@ class PastProgramsPage extends Component {
                 dataObject[prevWeekNum][day] = dayObject
             }
         }
-        console.log(dataObject)
-        return dataObject
+
+        // Check if the object is actually empty and there is no data.
+        var hasData = false
+
+        for (var weeks in dataObject) {
+            var week = dataObject[weeks]
+            for (var day in week) {
+                if (Object.keys(week[day]).length > 0) {
+                    hasData = true
+                    break
+                }
+            }
+        }
+
+        if (hasData) {
+            return dataObject
+        } else {
+            return {}
+        }
     }
 
     generateGoalTableData = (programObject) => {

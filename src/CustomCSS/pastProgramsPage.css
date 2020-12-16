@@ -82,3 +82,14 @@
 #ppPageExGoalHistBtnContainer {
 padding-top: 80px;
 }
+
+#ppNoExPromptLabel {
+    text-align: center;
+    font-size: 15px;
+    padding-top: 20px;
+}
+
+#ppExHistoryLabel {
+    font-size: 20px;
+    padding-top: 15px;
+}

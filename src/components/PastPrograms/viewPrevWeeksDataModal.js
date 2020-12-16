@@ -61,24 +61,35 @@ const ExerciseHistoryModal = ({ data, defaultWeek, progScheme }) => {
             <Modal.Header>Program Exercise History</Modal.Header>
 
             <Modal.Content>
+                {
+                    Object.keys(historicalData).length > 0 ?
+                        <div>
+                            <div id='cpPrevExModalPagContainer'>
+                                <Pagination
+                                    firstItem={null}
+                                    lastItem={null}
+                                    pointing
+                                    secondary
+                                    defaultActivePage={defaultWeek}
+                                    totalPages={Object.keys(data).length}
+                                    onPageChange={handlePageChange}
+                                />
 
-                <div id='cpPrevExModalPagContainer'>
-                    <Pagination
-                        firstItem={null}
-                        lastItem={null}
-                        pointing
-                        secondary
-                        defaultActivePage={defaultWeek}
-                        totalPages={Object.keys(data).length}
-                        onPageChange={handlePageChange}
-                    />
+                            </div>
+                            <div>
+                                <InputLabel
+                                    text={'Week ' + currWeek}
+                                />
+                            </div>
+                        </div>
+                        :
+                        <div id='noExPromptContainer'>
+                            <div id='ppNoExPromptLabelContainer'>
+                                <InputLabel text='No Historical Exercise Data' custID='ppNoExPromptLabel' />
+                            </div>
+                        </div>
+                }
 
-                </div>
-                <div>
-                    <InputLabel
-                        text={'Week ' + currWeek}
-                    />
-                </div>
                 {
                     (historicalData[currWeek] != undefined) ?
                         Object.keys(historicalData[currWeek]).map(day => {
