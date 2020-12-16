@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { PieChart, Pie, Sector, Cell, ResponsiveContainer, Tooltip } from 'recharts'
+import { PieChart, Pie, Sector, Cell, ResponsiveContainer, Label } from 'recharts'
 
 // const data = [{ name: 'Group A', value: 400 }, { name: 'Group B', value: 300 },
 // { name: 'Group C', value: 300 }, { name: 'Group D', value: 200 }];
@@ -21,7 +21,18 @@ const renderActiveShape = (props) => {
 
     return (
         <g>
-            <text x={cx} y={cy} dy={8} textAnchor="middle" fill='white'>{payload.name}</text>
+            {/* <text scaleToFit={true} x={cx} y={cy} dy={8} textAnchor="middle" fill='white' className="recharts-text recharts-label">
+                <tspan>
+                    {payload.name}
+                </tspan>
+                <tspan>
+                    {`${value} Completed`}
+                </tspan>
+            </text> */}
+            {/* <Label width={30} position='center'
+            content={}
+            >
+            </Label> */}
             <Sector
                 cx={cx}
                 cy={cy}
@@ -40,27 +51,51 @@ const renderActiveShape = (props) => {
                 outerRadius={outerRadius + 10}
                 fill={fill}
             />
-            <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
+            {/* <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
             <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-            <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="white">{`${value} Completed`}</text>
-            <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
-                {`(Rate ${(percent * 100).toFixed(2)}%)`}
-            </text>
+                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="white">{`${value} Completed`}</text>
+                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
+                    {`${(percent * 100).toFixed(2)}%`}
+                </text> */}
         </g>
     );
 };
+
+const CustomPieChartLabel = () => {
+
+}
 
 const GoalProgressionPieChart = ({ data, chartColours }) => {
 
     const [activeIndex, setActiveIndex] = useState(0)
 
+    const initialisePercentage = (d) => {
+
+        var targetVal = d[0].value
+        var totalVal = 0
+        Object.values(d).forEach(type => {
+            totalVal += type.value
+        })
+
+        return targetVal / totalVal
+
+    }
+
+    const [name, setName] = useState(data[0].name)
+    const [percent, setPercent] = useState(initialisePercentage(data))
+    const [value, setValue] = useState(data[0].value)
+
     const onPieEnter = (data, index) => {
         setActiveIndex(index)
+        setPercent(data.percent)
+        setName(data.name)
+        setValue(data.value)
+        console.log(data)
     }
 
     return (
         <ResponsiveContainer width='100%' height={300}>
-            <PieChart margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+            <PieChart margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
                 <Pie
                     activeIndex={activeIndex}
                     activeShape={renderActiveShape}
@@ -71,6 +106,15 @@ const GoalProgressionPieChart = ({ data, chartColours }) => {
                     onMouseEnter={onPieEnter}
                     dataKey='value'
                 >
+                    <Label
+                        value={name} position="centerBottom" className='label-top' fontSize='27px'
+                    />
+                    <Label
+                        value={value + ' Completed'} position="centerTop" className='label'
+                    />
+                    <Label
+                        value={`${(percent * 100).toFixed(2)}%`} position="centerTop" className='label-bottom'
+                    />
                     {
                         data.map((entry, index) => <Cell key={index} fill={chartColours[index]} />)
                     }
