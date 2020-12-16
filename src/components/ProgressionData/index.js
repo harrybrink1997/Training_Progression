@@ -138,8 +138,8 @@ class ProgressionDataPage extends Component {
                 var insertObj = {
                     name: dateString
                 }
-                insertObj['Acute Load'] = programData[day]['loadingData']['Total'].acuteEWMA
-                insertObj['Chronic Load'] = programData[day]['loadingData']['Total'].chronicEWMA
+                insertObj['Acute Load'] = parseFloat(programData[day]['loadingData']['Total'].acuteEWMA.toFixed(2))
+                insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData']['Total'].chronicEWMA.toFixed(2))
                 insertObj['ACWR'] = programData[day]['loadingData']['Total'].ACWR
 
                 dataToGraph['Overall_Total'].push(insertObj)
@@ -149,8 +149,8 @@ class ProgressionDataPage extends Component {
                     name: dateString
                 }
 
-                insertObj['Acute Load'] = programData[day]['loadingData']['Total'].acuteEWMA
-                insertObj['Chronic Load'] = programData[day]['loadingData']['Total'].chronicEWMA
+                insertObj['Acute Load'] = parseFloat(programData[day]['loadingData']['Total'].acuteEWMA.toFixed(2))
+                insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData']['Total'].chronicEWMA.toFixed(2))
                 insertObj['ACWR'] = programData[day]['loadingData']['Total'].ACWR
 
                 dataToGraph['Overall_Total'].push(insertObj)
@@ -165,8 +165,8 @@ class ProgressionDataPage extends Component {
                     var insertObj = {
                         name: dateString
                     }
-                    insertObj['Acute Load'] = programData[day]['loadingData'][muscleGroup]['Total'].acuteEWMA
-                    insertObj['Chronic Load'] = programData[day]['loadingData'][muscleGroup]['Total'].chronicEWMA
+                    insertObj['Acute Load'] = parseFloat(programData[day]['loadingData'][muscleGroup]['Total'].acuteEWMA.toFixed(2))
+                    insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData'][muscleGroup]['Total'].chronicEWMA.toFixed(2))
                     insertObj['ACWR'] = programData[day]['loadingData'][muscleGroup]['Total'].ACWR
 
                     dataToGraph[muscleGroup + '_Total'].push(insertObj)
@@ -176,8 +176,8 @@ class ProgressionDataPage extends Component {
                         name: dateString
                     }
 
-                    insertObj['Acute Load'] = programData[day]['loadingData'][muscleGroup]['Total'].acuteEWMA
-                    insertObj['Chronic Load'] = programData[day]['loadingData'][muscleGroup]['Total'].chronicEWMA
+                    insertObj['Acute Load'] = parseFloat(programData[day]['loadingData'][muscleGroup]['Total'].acuteEWMA.toFixed(2))
+                    insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData'][muscleGroup]['Total'].chronicEWMA.toFixed(2))
                     insertObj['ACWR'] = programData[day]['loadingData']['Total'].ACWR
 
                     dataToGraph[muscleGroup + '_Total'].push(insertObj)
@@ -191,12 +191,8 @@ class ProgressionDataPage extends Component {
                         var insertObj = {
                             name: dateString
                         }
-
-                        console.log(programData[day]['loadingData'])
-                        console.log(muscleGroup)
-                        console.log(muscle)
-                        insertObj['Acute Load'] = programData[day]['loadingData'][muscleGroup][muscle].acuteEWMA
-                        insertObj['Chronic Load'] = programData[day]['loadingData'][muscleGroup][muscle].chronicEWMA
+                        insertObj['Acute Load'] = parseFloat(programData[day]['loadingData'][muscleGroup][muscle].acuteEWMA.toFixed(2))
+                        insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData'][muscleGroup][muscle].chronicEWMA.toFixed(2))
                         insertObj['ACWR'] = programData[day]['loadingData'][muscleGroup][muscle].ACWR
 
                         dataToGraph[muscle].push(insertObj)
@@ -206,8 +202,8 @@ class ProgressionDataPage extends Component {
                             name: dateString
                         }
 
-                        insertObj['Acute Load'] = programData[day]['loadingData'][muscleGroup][muscle].acuteEWMA
-                        insertObj['Chronic Load'] = programData[day]['loadingData'][muscleGroup][muscle].chronicEWMA
+                        insertObj['Acute Load'] = parseFloat(programData[day]['loadingData'][muscleGroup][muscle].acuteEWMA.toFixed(2))
+                        insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData'][muscleGroup][muscle].chronicEWMA.toFixed(2))
                         insertObj['ACWR'] = programData[day]['loadingData'][muscleGroup][muscle].ACWR
 
                         dataToGraph[muscle].push(insertObj)
@@ -256,7 +252,7 @@ class ProgressionDataPage extends Component {
                     }
                     insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
                     insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
-                    insertObj['Actual Loading'] = loadingVal
+                    insertObj['Actual Loading'] = parseFloat(loadingVal.toFixed(2))
 
                     dataToGraph['Overall_Total'].push(insertObj)
 
@@ -267,7 +263,7 @@ class ProgressionDataPage extends Component {
 
                     insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
                     insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
-                    insertObj['Actual Loading'] = loadingVal
+                    insertObj['Actual Loading'] = parseFloat(loadingVal.toFixed(2))
 
                     dataToGraph['Overall_Total'].push(insertObj)
                 }
@@ -284,7 +280,7 @@ class ProgressionDataPage extends Component {
                         }
                         insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
                         insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
-                        insertObj['Actual Loading'] = loadingVal
+                        insertObj['Actual Loading'] = parseFloat(loadingVal.toFixed(2))
 
                         dataToGraph[muscleGroup + '_Total'].push(insertObj)
 
@@ -295,7 +291,7 @@ class ProgressionDataPage extends Component {
 
                         insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
                         insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
-                        insertObj['Actual Loading'] = loadingVal
+                        insertObj['Actual Loading'] = parseFloat(loadingVal.toFixed(2))
 
                         dataToGraph[muscleGroup + '_Total'].push(insertObj)
                     }
@@ -313,7 +309,7 @@ class ProgressionDataPage extends Component {
                             }
                             insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
                             insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
-                            insertObj['Actual Loading'] = loadingVal
+                            insertObj['Actual Loading'] = parseFloat(loadingVal.toFixed(2))
 
                             dataToGraph[muscle].push(insertObj)
 
@@ -324,7 +320,7 @@ class ProgressionDataPage extends Component {
 
                             insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
                             insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
-                            insertObj['Actual Loading'] = loadingVal
+                            insertObj['Actual Loading'] = parseFloat(loadingVal.toFixed(2))
 
                             dataToGraph[muscle].push(insertObj)
                         }
