@@ -689,7 +689,7 @@ class ProgressionDataPage extends Component {
                                         size='small'
                                     >
                                         <Statistic.Value>
-                                            {goalStatsData.numSubGoalsComplete + goalStatsData.numSubGoalsComplete}
+                                            {goalStatsData.numSubGoalsComplete + goalStatsData.numMainGoalsComplete}
                                         </Statistic.Value>
                                         <Statistic.Label>
                                             Total Goals Completed
