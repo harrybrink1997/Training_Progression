@@ -48,6 +48,7 @@ import '../../CustomCSS/semanticUITable.css'
 import '../../CustomCSS/semanticUINavBar.css'
 import '../../CustomCSS/semanticUIPagination.css'
 import '../../CustomCSS/semanticUIDropdown.css'
+import '../../CustomCSS/semanticUIPopUp.css'
 import '../../CustomCSS/joyride.css'
 
 const App = () => {

@@ -140,8 +140,9 @@ const ProgressionPredictiveGraph = ({ startLoad }) => {
                             <InputLabel
                                 text='Target Load &nbsp;'
                                 toolTip={<Popup
+                                    basic
                                     trigger={<Icon name='question circle outline' />}
-                                    content='Work bitch'
+                                    content='Choose a load that you want to achieve. This should be higher then your most recent training session.'
                                     position='right center'
                                 />}
                             />
@@ -158,8 +159,9 @@ const ProgressionPredictiveGraph = ({ startLoad }) => {
                             <InputLabel
                                 text='Percentages &nbsp;'
                                 toolTip={<Popup
+                                    basic
                                     trigger={<Icon name='question circle outline' />}
-                                    content='Work bitch'
+                                    content='Choose weekly percentage increases of load. This will determine how fast you reach your goal.'
                                     position='right center'
                                 />}
                             />
@@ -185,8 +187,9 @@ const ProgressionPredictiveGraph = ({ startLoad }) => {
                     custID='progPredictiveGraphLabel'
                     text='Theoretical Load Projection &nbsp;'
                     toolTip={<Popup
+                        basic
                         trigger={<Icon name='question circle outline' />}
-                        content='Work bitch'
+                        content='Shows a theoretical weekly loading progression of your most recent training session based on percentage increases.'
                         position='right center'
                     />}
                 />

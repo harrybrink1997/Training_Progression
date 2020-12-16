@@ -634,8 +634,9 @@ class ProgressionDataPage extends Component {
                                 custID='rollChronicGraphLabel'
                                 text='Rolling Safe Loading Threshold &nbsp;'
                                 toolTip={<Popup
+                                    basic
                                     trigger={<Icon name='question circle outline' />}
-                                    content='Work bitch'
+                                    content='Historical representation of your actual loading with upper and lower safe training thresholds based on ACWR.'
                                     position='right center'
                                 />}
                             />
@@ -649,9 +650,10 @@ class ProgressionDataPage extends Component {
                                 custID='ACWRGraphLabel'
                                 text='Rolling Acute Chronic Workload Ratio & Subcomponents &nbsp;'
                                 toolTip={<Popup
+                                    basic
                                     trigger={<Icon name='question circle outline' />}
-                                    content='Work bitch'
-                                    position='right center'
+                                    content='Historical representation of your Acute Load, Chronic Load and ACWR.'
+                                    position='bottom center'
                                 />}
                             />
                             <ACWEGraph ACWRData={ACWRGraphProps[currentBodyPart]} />
