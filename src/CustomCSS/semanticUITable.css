@@ -26,6 +26,11 @@
     box-shadow: 0 0 5px #BB86FC;
     border: 1px solid #BB86FC;
 }
+
+.ui.celled.table select:focus option:hover {
+    outline: red !important;
+}
+
 .ui.celled.table select:focus {
     box-shadow: 0 0 5px #BB86FC;
     border: 1px solid #BB86FC;

@@ -137,3 +137,60 @@
     margin-top: 10px;
     margin-bottom: 50px;
 }
+
+
+#availExerciseTableDropdown {
+    width: 125px;
+    margin-bottom: 3px;
+}
+.ui.fluid.selection.dropdown.availExerciseTableDropdown {
+    background: transparent ;
+    color: white;
+    border: none;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.ui.fluid.selection.dropdown.availExerciseTableDropdown > .divider.text {
+    opacity: 0.6;
+    font-weight: 200 !important;
+}
+
+.ui.fluid.selection.dropdown.availExerciseTableDropdown > .divider.text {
+    color: white;
+}
+
+.ui.fluid.selection.dropdown.availExerciseTableDropdown:focus {
+    color: white;
+    border: none;  
+    box-shadow: 0 0 5px #BB86FC;
+    border: 1px solid #BB86FC;
+}
+
+.ui.fluid.selection.dropdown.availExerciseTableDropdown .item {
+    background: #3F3F3F;
+    color: white;
+    border: none;
+    font-size: 13px;
+}
+
+.ui.fluid.selection.dropdown.availExerciseTableDropdown .item:hover {
+    background: #3b0380;
+    color: white;
+}
+
+.ui.fluid.selection.dropdown.availExerciseTableDropdown .visible.menu.transition {
+    background: ;
+    border: none;
+}
+
+.ui.fluid.selection.dropdown.availExerciseTableDropdown .disabled.item {
+    background: #191919;
+    border: none;
+    opacity: 1;
+}
+
+.ui.fluid.selection.dropdown .disabled.item > .header.text {
+    color: #BB86FC;
+}
+

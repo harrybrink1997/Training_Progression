@@ -66,7 +66,11 @@ const ExerciseTableContainer = ({ dayText, tableData, tableScheme, initVisib, de
                 />
             </div>
             {
-                tableVisible && <LoadingSchemeExTable data={tableData} scheme={tableScheme} />
+                tableVisible &&
+                <LoadingSchemeExTable
+                    data={tableData}
+                    scheme={tableScheme}
+                />
             }
         </div >
     )

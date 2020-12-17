@@ -3,7 +3,7 @@ import { useAsyncDebounce } from 'react-table'
 // A great library for fuzzy filtering/sorting items
 import { matchSorter } from 'match-sorter'
 
-import { Input } from 'semantic-ui-react'
+import { Input, Dropdown } from 'semantic-ui-react'
 
 // Define a default UI for filtering
 function GlobalFilter({
@@ -68,21 +68,50 @@ function SelectColumnFilter({
         return [...options.values()]
     }, [id, preFilteredRows])
 
+    var dropDownData = []
+    dropDownData.push({
+        key: 'All',
+        value: 'All',
+        text: 'All'
+    })
+
+    options.forEach(option => {
+        dropDownData.push({
+            key: option,
+            value: option,
+            text: option
+        })
+    })
+
     // Render a multi-select box
     return (
-        <select
-            value={filterValue}
-            onChange={e => {
-                setFilter(e.target.value || undefined)
-            }}
-        >
-            <option value="">All</option>
-            {options.map((option, i) => (
-                <option key={i} value={option}>
-                    {option}
-                </option>
-            ))}
-        </select>
+        <div id='availExerciseTableDropdown'>
+            <Dropdown
+                selection
+                fluid
+                className='availExerciseTableDropdown'
+                text={filterValue}
+                value={filterValue}
+                options={dropDownData}
+                defaultValue={dropDownData[0].text}
+                onChange={(e, { value }) => {
+                    setFilter(value || undefined)
+                }}
+            />
+        </div>
+        // <select
+        //     value={filterValue}
+        // onChange={e => {
+        //     setFilter(e.target.value || undefined)
+        // }}
+        // >
+        //     <option value="">All</option>
+        //     {options.map((option, i) => (
+        //         <option key={i} value={option}>
+        //             {option}
+        //         </option>
+        //     ))}
+        // </select>
     )
 }
 

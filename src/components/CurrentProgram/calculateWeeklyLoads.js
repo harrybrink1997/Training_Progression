@@ -10,7 +10,6 @@ const calculateDailyLoads = (programData,
 
 
     var processedData = dailyLoadCalcs(currDayData, muscleGroups, scheme)
-    // console.log(processedData)
 
     const averageArray = [
         { type: 'acuteEWMA', period: acutePeriod },
@@ -29,7 +28,6 @@ const calculateDailyLoads = (programData,
         )
     })
 
-    console.log(processedData)
 
     Object.keys(processedData).forEach(muscleGroup => {
         if (muscleGroup == 'Total') {
@@ -51,7 +49,6 @@ const calculateDailyLoads = (programData,
         }
     })
 
-    console.log(processedData)
     return processedData
 }
 
@@ -165,7 +162,6 @@ const appendEWMA = (
     inputVariable,
     muscleGroups) => {
 
-    console.log(currDayData)
 
 
 
@@ -177,7 +173,6 @@ const appendEWMA = (
 
             } else {
                 Object.keys(currDayData[muscleGroup]).forEach(muscle => {
-                    console.log(muscleGroup[muscle])
                     currDayData[muscleGroup][muscle][inputVariable] = currDayData[muscleGroup][muscle].dailyLoad
                 })
             }
@@ -191,11 +186,8 @@ const appendEWMA = (
             if (muscleGroup == 'Total') {
 
                 if (prevDayData[muscleGroup][inputVariable] == 0) {
-                    console.log("going into wrong calcs")
-                    console.log(prevDayData)
                     currDayData[muscleGroup][inputVariable] = currDayData[muscleGroup].dailyLoad
                 } else {
-                    console.log("going into right calcs")
                     currDayData[muscleGroup][inputVariable] = calculateCurrentEWMA(
                         currDayData[muscleGroup].dailyLoad,
                         period,
@@ -219,7 +211,6 @@ const appendEWMA = (
             }
         })
     } else {
-        console.log("going into correct place")
         var startDay = currentDayInProgram - period + 1
         var calculatedEWMA = {}
 
@@ -262,7 +253,6 @@ const appendEWMA = (
             })
 
         }
-        console.log(calculatedEWMA)
         Object.keys(currDayData).forEach(muscleGroup => {
 
             if (muscleGroup == 'Total') {
@@ -278,9 +268,6 @@ const appendEWMA = (
             } else {
                 Object.keys(currDayData[muscleGroup]).forEach(muscle => {
 
-                    console.log(currDayData)
-                    console.log(muscle)
-                    console.log(muscleGroup)
                     if (calculatedEWMA[muscleGroup][muscle] == 0) {
                         currDayData[muscleGroup][muscle][inputVariable] = currDayData[muscleGroup][muscle].dailyLoad
                     } else {
