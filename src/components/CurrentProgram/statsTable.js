@@ -88,37 +88,75 @@ export const LoadingSpreadStatsTable = ({ data }) => {
                         prepareRow(row)
                         if (row.values.currDayLoad > row.values.maxSafeLoad ||
                             row.values.currDayLoad < row.values.minSafeLoad) {
-                            return (
-                                // Apply the row props
-                                <Table.Row className='invalidTableValues' {...row.getRowProps()}>
-                                    {// Loop over the rows cells
-                                        row.cells.map(cell => {
-                                            // Apply the cell props
-                                            return (
-                                                <Table.Cell {...cell.getCellProps()}>
-                                                    {// Render the cell contents
-                                                        cell.render('Cell')}
-                                                </Table.Cell>
-                                            )
-                                        })}
-                                </Table.Row>
-                            )
+
+                            if (row.depth == 1) {
+                                return (
+                                    // Apply the row props
+                                    <Table.Row className='invalidTableValues react-table-expandedChildRow' {...row.getRowProps()}>
+                                        {// Loop over the rows cells
+                                            row.cells.map(cell => {
+                                                // Apply the cell props
+                                                return (
+                                                    <Table.Cell {...cell.getCellProps()}>
+                                                        {// Render the cell contents
+                                                            cell.render('Cell')}
+                                                    </Table.Cell>
+                                                )
+                                            })}
+                                    </Table.Row>
+                                )
+                            } else {
+                                return (
+                                    // Apply the row props
+                                    <Table.Row className='invalidTableValues' {...row.getRowProps()}>
+                                        {// Loop over the rows cells
+                                            row.cells.map(cell => {
+                                                // Apply the cell props
+                                                return (
+                                                    <Table.Cell {...cell.getCellProps()}>
+                                                        {// Render the cell contents
+                                                            cell.render('Cell')}
+                                                    </Table.Cell>
+                                                )
+                                            })}
+                                    </Table.Row>
+                                )
+                            }
                         } else {
-                            return (
-                                // Apply the row props
-                                <Table.Row className='validTableValues' {...row.getRowProps()}>
-                                    {// Loop over the rows cells
-                                        row.cells.map(cell => {
-                                            // Apply the cell props
-                                            return (
-                                                <Table.Cell {...cell.getCellProps()}>
-                                                    {// Render the cell contents
-                                                        cell.render('Cell')}
-                                                </Table.Cell>
-                                            )
-                                        })}
-                                </Table.Row>
-                            )
+                            if (row.depth == 1) {
+                                return (
+                                    // Apply the row props
+                                    <Table.Row className='validTableValues react-table-expandedChildRow' {...row.getRowProps()}>
+                                        {// Loop over the rows cells
+                                            row.cells.map(cell => {
+                                                // Apply the cell props
+                                                return (
+                                                    <Table.Cell {...cell.getCellProps()}>
+                                                        {// Render the cell contents
+                                                            cell.render('Cell')}
+                                                    </Table.Cell>
+                                                )
+                                            })}
+                                    </Table.Row>
+                                )
+                            } else {
+                                return (
+                                    // Apply the row props
+                                    <Table.Row className='validTableValues' {...row.getRowProps()}>
+                                        {// Loop over the rows cells
+                                            row.cells.map(cell => {
+                                                // Apply the cell props
+                                                return (
+                                                    <Table.Cell {...cell.getCellProps()}>
+                                                        {// Render the cell contents
+                                                            cell.render('Cell')}
+                                                    </Table.Cell>
+                                                )
+                                            })}
+                                    </Table.Row>
+                                )
+                            }
+
                         }
                     })}
             </Table.Body>

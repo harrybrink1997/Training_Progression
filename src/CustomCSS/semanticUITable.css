@@ -52,10 +52,18 @@
 
 .ui.celled.table .invalidTableValues {
     background: linear-gradient(#333333 90%,#CF6679);
+}
+
+.ui.celled.table .invalidTableValues.react-table-expandedChildRow {
+    background: linear-gradient(#3F3F3F 90%,#CF6679);
 } 
 
 .ui.celled.table .validTableValues {
     background: linear-gradient(#333333 90%,#8cfc86);
+}
+
+.ui.celled.table .validTableValues.react-table-expandedChildRow {
+    background: linear-gradient(#3F3F3F 90%,#8cfc86);
 } 
 
 .ui.celled.table .react-table-expandedChildRow {
