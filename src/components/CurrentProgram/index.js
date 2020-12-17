@@ -61,7 +61,9 @@ class CurrentProgramPage extends Component {
 
             // Exercise List Data
             availExercisesCols: [],
-            availExercisesData: []
+            availExercisesData: [],
+            // TODO - if not want delete
+            submitDataProcessing: false
         }
     }
 
@@ -169,7 +171,9 @@ class CurrentProgramPage extends Component {
                     this.state.currentDayUI,
                     userObject.currentPrograms[userObject.activeProgram].loading_scheme
                 ),
-                prevWeeksData: this.generatePrevWeeksData(userObject)
+                prevWeeksData: this.generatePrevWeeksData(userObject),
+                // TODO - if not want delete
+                submitDataProcessing: false
             })
         } else {
             this.setState({
@@ -386,7 +390,6 @@ class CurrentProgramPage extends Component {
     }
 
     handleCreateSubGoalSubmit = async (goalData, mainGoalID) => {
-        console.log("correct place to edit lol.")
         var currentGoalData = this.state.goalTableData
         var parentGoalUID = this.generateGoalParentIDFromSubgoalID(mainGoalID)
 
@@ -715,37 +718,44 @@ class CurrentProgramPage extends Component {
     handleSubmitButton = async () => {
         // Get the current exercise data for the given week.
         // And for the current active program. 
-        await this.props.firebase.getProgramData(
-            this.props.firebase.auth.currentUser.uid,
-            this.state.activeProgram
-        ).once('value', async userData => {
-            var userObject = userData.val();
+        console.log("going in submit handler")
+        this.setState({
+            // TODO - if not want delete
+            submitDataProcessing: true,
+            // loading: true
+        }, async () => {
 
-            await this.props.firebase.anatomy().once('value', async snapshot => {
-                const anatomyObject = snapshot.val();
+            await this.props.firebase.getProgramData(
+                this.props.firebase.auth.currentUser.uid,
+                this.state.activeProgram
+            ).once('value', async userData => {
+                var userObject = userData.val();
 
-                // TODO REMOVE THIS COMMENTS WHEN YOU WANT LOADS TO BE CALCULATED AGAIN AND TESTING CAN RESUME. 
-                var processedDayData = calculateDailyLoads(
-                    // userObject[userObject.currentDayInProgram],
-                    userObject,
-                    userObject.currentDayInProgram,
-                    userObject.loading_scheme,
-                    userObject.acutePeriod,
-                    userObject.chronicPeriod,
-                    anatomyObject
-                )
+                await this.props.firebase.anatomy().once('value', async snapshot => {
+                    const anatomyObject = snapshot.val();
 
-                await this.props.firebase.pushDailyLoadingDataUpstream(
-                    this.props.firebase.auth.currentUser.uid,
-                    this.state.activeProgram,
-                    userObject.currentDayInProgram,
-                    processedDayData
-                )
+                    // TODO REMOVE THIS COMMENTS WHEN YOU WANT LOADS TO BE CALCULATED AGAIN AND TESTING CAN RESUME. 
+                    var processedDayData = calculateDailyLoads(
+                        // userObject[userObject.currentDayInProgram],
+                        userObject,
+                        userObject.currentDayInProgram,
+                        userObject.loading_scheme,
+                        userObject.acutePeriod,
+                        userObject.chronicPeriod,
+                        anatomyObject
+                    )
 
-                // TODO REMOVE THIS COMENT WHEN FUNCTIONALITY BACK TO NORMAL 
-                this.setState({
-                    loading: true
-                }, async () => {
+                    await this.props.firebase.pushDailyLoadingDataUpstream(
+                        this.props.firebase.auth.currentUser.uid,
+                        this.state.activeProgram,
+                        userObject.currentDayInProgram,
+                        processedDayData
+                    )
+
+                    // TODO REMOVE THIS COMENT WHEN FUNCTIONALITY BACK TO NORMAL 
+                    // this.setState({
+                    //     loading: true
+                    // }, async () => {
 
                     //Updated the current week in the database. 
                     await this.props.firebase.progressToNextDay(
@@ -761,9 +771,10 @@ class CurrentProgramPage extends Component {
                             this.state.currentDayInProgram
                         )
                     )
-                })
-            });
+                    // })
+                });
 
+            })
         })
 
         // Updates the current week in the db and iterates 
@@ -1026,12 +1037,9 @@ class CurrentProgramPage extends Component {
             currentDayInProgram,
             daysInWeekScope,
             openDaysUI,
-            expandedRows
+            expandedRows,
+            submitDataProcessing
         } = this.state
-
-        console.log(goalTableData)
-
-        console.log(prevWeeksData)
 
         let loadingHTML =
             <Dimmer active>
@@ -1050,7 +1058,11 @@ class CurrentProgramPage extends Component {
                     </div>
                     <div id='cpButtonsHeader'>
                         <div id='submitDayBtnContainer'>
-                            <SubmitDayModal handleFormSubmit={this.handleSubmitButton} />
+                            <SubmitDayModal
+                                handleFormSubmit={this.handleSubmitButton}
+                                // TODO - if not want delete
+                                submitDataProcessing={submitDataProcessing}
+                            />
                         </div>
                         <div id='programsDropdownContainer'>
                             <CurrentProgramDropdown

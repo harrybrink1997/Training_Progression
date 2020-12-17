@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Modal, Button, Form } from 'semantic-ui-react'
 
-const SubmitDayModal = ({ handleFormSubmit }) => {
+const SubmitDayModal = ({ handleFormSubmit, submitDataProcessing }) => {
 
     const [show, setShow] = useState(false);
 
@@ -24,7 +24,14 @@ const SubmitDayModal = ({ handleFormSubmit }) => {
             onClose={() => setShow(false)}
             onOpen={() => setShow(true)}
             open={show}
-            trigger={<Button className='closeOffPeriod'>Submit Day</Button>}
+            trigger=
+            {
+                submitDataProcessing ?
+                    <Button loading className='closeOffPeriod'>Submit Day</Button>
+                    :
+                    <Button className='closeOffPeriod'>Submit Day</Button>
+
+            }
         >
             <Modal.Header>Submit Day</Modal.Header>
 
