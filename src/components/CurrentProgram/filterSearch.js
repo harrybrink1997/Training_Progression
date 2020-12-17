@@ -95,23 +95,13 @@ function SelectColumnFilter({
                 options={dropDownData}
                 defaultValue={dropDownData[0].text}
                 onChange={(e, { value }) => {
-                    setFilter(value || undefined)
+                    (value == 'All') ?
+                        setFilter("" || undefined)
+                        : setFilter(value || undefined)
+
                 }}
             />
         </div>
-        // <select
-        //     value={filterValue}
-        // onChange={e => {
-        //     setFilter(e.target.value || undefined)
-        // }}
-        // >
-        //     <option value="">All</option>
-        //     {options.map((option, i) => (
-        //         <option key={i} value={option}>
-        //             {option}
-        //         </option>
-        //     ))}
-        // </select>
     )
 }
 
