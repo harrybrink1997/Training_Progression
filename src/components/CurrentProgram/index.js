@@ -116,7 +116,6 @@ class CurrentProgramPage extends Component {
             await this.props.firebase.anatomy().once('value', async snapshot => {
 
                 const anatomyObject = snapshot.val();
-
                 if (!this.state.loading) {
                     this.setState({
                         loading: true,
@@ -142,6 +141,9 @@ class CurrentProgramPage extends Component {
             })
             // Initially Sets the state for the current day
             // and current week and other parameters. 
+            console.log("inside update object state")
+            console.log(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram)
+            console.log("outside update object state")
             this.setState({
                 programList: programListArray,
                 activeProgram: userObject.activeProgram,
@@ -152,7 +154,6 @@ class CurrentProgramPage extends Component {
 
                 currentDayInProgram: userObject.currentPrograms[userObject.activeProgram].currentDayInProgram, // Sets the current day in program.
                 currentDayUTS: userObject.currentPrograms[userObject.activeProgram].currentDayUTS, // Gets unix timestamp for current day
-                currentDayUI: userObject.currentPrograms[userObject.activeProgram].currentDayUI, // Gets current day on UI - used for planning week.
                 daysInWeekScope: this.generateDaysInWeekScope(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram),
 
                 loading: false,
@@ -719,11 +720,8 @@ class CurrentProgramPage extends Component {
     handleSubmitButton = async () => {
         // Get the current exercise data for the given week.
         // And for the current active program. 
-        console.log("going in submit handler")
         this.setState({
-            // TODO - if not want delete
             submitDataProcessing: true,
-            // loading: true
         }, async () => {
 
             await this.props.firebase.getProgramData(
@@ -744,36 +742,28 @@ class CurrentProgramPage extends Component {
                         anatomyObject
                     )
 
-                    console.log(processedDayData)
+                    // Submit day in one update statement.
+                    var loadPath =
+                        userObject.currentDayInProgram
+                        + '/'
+                        + 'loadingData'
 
-                    await this.props.firebase.pushDailyLoadingDataUpstream(
-                        this.props.firebase.auth.currentUser.uid,
-                        this.state.activeProgram,
-                        userObject.currentDayInProgram,
-                        processedDayData
-                    )
-                    await this.props.firebase.progressToNextDay(
-                        this.props.firebase.auth.currentUser.uid,
-                        this.state.activeProgram,
-                        parseInt(this.state.currentDayInProgram + 1)
-                    )
+                    var currDay = 'currentDayInProgram'
 
-                    await this.props.firebase.setCurrentDayUI(
+
+                    var payLoad = {}
+                    payLoad[loadPath] = processedDayData
+                    payLoad[currDay] = parseInt(this.state.currentDayInProgram + 1)
+
+                    await this.props.firebase.handleSubmitDayUpstream(
                         this.props.firebase.auth.currentUser.uid,
                         this.state.activeProgram,
-                        convertTotalDaysToUIDay(
-                            this.state.currentDayInProgram
-                        )
+                        payLoad
                     )
                 });
 
             })
         })
-
-        // Updates the current week in the db and iterates 
-        // to the next week and sets current day to 1.
-
-
     }
 
     // Updated with new ratio calcs format
@@ -1002,6 +992,7 @@ class CurrentProgramPage extends Component {
             })
 
         })
+        console.log(insertData)
         this.props.firebase.createBulkExercisesUpstream(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
@@ -1034,6 +1025,8 @@ class CurrentProgramPage extends Component {
             expandedRows,
             submitDataProcessing
         } = this.state
+
+        console.log(currentDayInProgram)
 
         let loadingHTML =
             <Dimmer active>

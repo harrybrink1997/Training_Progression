@@ -200,7 +200,7 @@ const ChronicWorkLoadInfo = () => (
 
 const DeepDiveAnalogy = () => (
     <div className='paragraphDiv'>
-        Through monitoring this ratio, we are able to predict future training loads which minimise the chance of injury, whilst maximising the progression in training. Maintaining an ACWR between approximately 0.8 and 1.2 has been determined to be the 'sweet spot' (reference).
+        Through monitoring this ratio, we are able to predict future training loads which minimise the chance of injury, whilst maximising the progression in training. Maintaining an ACWR between approximately 0.8 and 1.2 has been determined to be the 'sweet spot'.
 
         <br /><br />
 

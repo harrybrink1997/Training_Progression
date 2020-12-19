@@ -142,7 +142,6 @@ class Firebase {
                 startDayUTS: sUTS,
                 currentDayInProgram: 1,
                 currentDayUTS: sUTS,
-                currentDayUI: 1,
                 goals: goalList
             })
     }
@@ -186,6 +185,12 @@ class Firebase {
         return this.db
             .ref(`users/${uid}/currentPrograms/${progName}`)
             .update(days)
+    }
+
+    handleSubmitDayUpstream = (uid, progName, submitInfo) => {
+        return this.db
+            .ref(`users/${uid}/currentPrograms/${progName}`)
+            .update(submitInfo)
     }
 
 
