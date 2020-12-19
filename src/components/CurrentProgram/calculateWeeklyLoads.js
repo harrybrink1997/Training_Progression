@@ -102,7 +102,7 @@ const dailyLoadCalcs = (dayData, muscleGroups, scheme) => {
                 if (scheme == 'rpe_time') {
                     var load = exData.sets * exData.reps * exData.time * exData.rpe
                 } else {
-                    load = exData.sets * exData.reps * exData.weight
+                    load = exData.sets * exData.reps * exData.weight * exData.rpe
                 }
 
                 dayLoading['Total']['dailyLoad'] += load
@@ -161,9 +161,6 @@ const appendEWMA = (
     period,
     inputVariable,
     muscleGroups) => {
-
-
-
 
     if (currentDayInProgram == 1) {
 

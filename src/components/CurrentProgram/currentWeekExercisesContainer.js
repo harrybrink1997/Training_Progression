@@ -240,11 +240,14 @@ const ExerciseTableDayViewWeightReps = ({ data, handleTableUpdate }) => {
                 accessor: 'weight',
             },
             {
+                Header: 'RPE',
+                accessor: 'rpe',
+            },
+            {
                 Header: 'Time',
                 accessor: 'time',
             },
             {
-                // Header: 'Delete',
                 Header: '',
                 accessor: 'deleteButton'
             }

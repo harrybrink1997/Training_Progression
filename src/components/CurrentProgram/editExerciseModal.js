@@ -123,6 +123,7 @@ const EditExerciseModalWeightSets = ({ submitHandler, exUid, currentData }) => {
 
     const [show, setShow] = useState(false);
     const [time, setTime] = useState(currentData.time)
+    const [rpe, setRpe] = useState(currentData.rpe)
     const [reps, setReps] = useState(currentData.reps)
     const [sets, setSets] = useState(currentData.sets)
     const [weight, setWeight] = useState(currentData.weight)
@@ -136,6 +137,7 @@ const EditExerciseModalWeightSets = ({ submitHandler, exUid, currentData }) => {
             exUid: exUid,
             sets: sets,
             time: time,
+            rpe: rpe,
             reps: reps,
             weight: weight,
             primMusc: currentData.primMusc
@@ -143,6 +145,10 @@ const EditExerciseModalWeightSets = ({ submitHandler, exUid, currentData }) => {
 
         submitHandler(exerciseObj)
 
+    }
+
+    const handleRPEUpdate = (value) => {
+        setRpe(value)
     }
 
     const handleTimeUpdate = (event) => {
@@ -230,11 +236,17 @@ const EditExerciseModalWeightSets = ({ submitHandler, exUid, currentData }) => {
                                 onChange={handleTimeUpdate}
                             />
                         </Grid.Column>
+                        <Grid.Column>
+                            <InputLabel text='RPE' />
+                            <RPEDropdown
+                                buttonHandler={handleRPEUpdate}
+                                exerRpe={rpe} />
+                        </Grid.Column>
                     </Grid>
                 </Modal.Content>
                 <Modal.Actions className='editModalActions'>
                     <Button onClick={() => setShow(false)}>Close</Button>
-                    <Button type="submit">Edit</Button>
+                    <Button className='lightPurpleButton' type="submit">Edit</Button>
                 </Modal.Actions>
             </Form>
         </Modal>

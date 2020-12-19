@@ -202,7 +202,7 @@ class CurrentProgramPage extends Component {
                 expLevel: exercise.experience,
                 addExerciseBtn: (loadingScheme === 'rpe_time') ?
                     <AddExerciseModalRpeTime submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
-                    : <AddExerciseModalWeightReps submitHandler={this.handleAddExerciseButton} name={exercise.uid} primMusc={exercise.primary} />
+                    : <AddExerciseModalWeightReps submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
             })
         })
         return tableData
@@ -548,6 +548,7 @@ class CurrentProgramPage extends Component {
                 exercise: updateObject.exercise,
                 time: updateObject.time,
                 sets: updateObject.sets,
+                rpe: updateObject.rpe,
                 weight: updateObject.weight,
                 reps: updateObject.reps,
                 primMusc: updateObject.primMusc
@@ -734,9 +735,7 @@ class CurrentProgramPage extends Component {
                 await this.props.firebase.anatomy().once('value', async snapshot => {
                     const anatomyObject = snapshot.val();
 
-                    // TODO REMOVE THIS COMMENTS WHEN YOU WANT LOADS TO BE CALCULATED AGAIN AND TESTING CAN RESUME. 
                     var processedDayData = calculateDailyLoads(
-                        // userObject[userObject.currentDayInProgram],
                         userObject,
                         userObject.currentDayInProgram,
                         userObject.loading_scheme,
@@ -745,19 +744,14 @@ class CurrentProgramPage extends Component {
                         anatomyObject
                     )
 
+                    console.log(processedDayData)
+
                     await this.props.firebase.pushDailyLoadingDataUpstream(
                         this.props.firebase.auth.currentUser.uid,
                         this.state.activeProgram,
                         userObject.currentDayInProgram,
                         processedDayData
                     )
-
-                    // TODO REMOVE THIS COMENT WHEN FUNCTIONALITY BACK TO NORMAL 
-                    // this.setState({
-                    //     loading: true
-                    // }, async () => {
-
-                    //Updated the current week in the database. 
                     await this.props.firebase.progressToNextDay(
                         this.props.firebase.auth.currentUser.uid,
                         this.state.activeProgram,
@@ -771,7 +765,6 @@ class CurrentProgramPage extends Component {
                             this.state.currentDayInProgram
                         )
                     )
-                    // })
                 });
 
             })
@@ -808,6 +801,7 @@ class CurrentProgramPage extends Component {
                 sets: exerciseObject.sets,
                 time: exerciseObject.time,
                 reps: exerciseObject.reps,
+                rpe: exerciseObject.rpe,
                 weight: exerciseObject.weight,
                 primMusc: exerciseObject.primMusc
             }

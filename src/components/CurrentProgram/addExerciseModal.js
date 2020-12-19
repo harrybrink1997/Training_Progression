@@ -124,6 +124,7 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) 
 
     const [show, setShow] = useState(false);
     const [time, setTime] = useState('')
+    const [rpe, setRpe] = useState('')
     const [reps, setReps] = useState('')
     const [weight, setWeight] = useState('')
     const [sets, setSets] = useState('')
@@ -138,12 +139,18 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) 
             day: dayInsert,
             time: time,
             reps: reps,
+            rpe: rpe,
             weight: weight,
             sets: sets,
             primMusc: primMusc
         }
         submitHandler(exerciseObj)
 
+    }
+
+
+    const handleRPEUpdate = (value) => {
+        setRpe(value)
     }
 
     const handleTimeUpdate = (event) => {
@@ -226,6 +233,10 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc }) 
                                 value={time}
                                 onChange={handleTimeUpdate}
                             />
+                        </Grid.Column>
+                        <Grid.Column>
+                            <InputLabel text='RPE' />
+                            <RPEDropdown buttonHandler={handleRPEUpdate} />
                         </Grid.Column>
                         <Grid.Column>
                             <InputLabel text='Day' />
