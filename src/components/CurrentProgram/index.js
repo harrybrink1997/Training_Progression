@@ -141,9 +141,6 @@ class CurrentProgramPage extends Component {
             })
             // Initially Sets the state for the current day
             // and current week and other parameters. 
-            console.log("inside update object state")
-            console.log(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram)
-            console.log("outside update object state")
             this.setState({
                 programList: programListArray,
                 activeProgram: userObject.activeProgram,
@@ -170,7 +167,8 @@ class CurrentProgramPage extends Component {
                 availExercisesData: this.setAvailExerciseChartData(
                     this.state.exerciseList,
                     this.state.currentDayUI,
-                    userObject.currentPrograms[userObject.activeProgram].loading_scheme
+                    userObject.currentPrograms[userObject.activeProgram].loading_scheme,
+                    convertTotalDaysToUIDay(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram)
                 ),
                 prevWeeksData: this.generatePrevWeeksData(userObject),
                 // TODO - if not want delete
@@ -193,7 +191,7 @@ class CurrentProgramPage extends Component {
     }
 
     // Updated with new ratio calcs format
-    setAvailExerciseChartData = (exerciseList, currDay, loadingScheme) => {
+    setAvailExerciseChartData = (exerciseList, currDay, loadingScheme, currDayInProg) => {
         var tableData = []
         exerciseList.forEach(exercise => {
             tableData.push({
@@ -202,8 +200,9 @@ class CurrentProgramPage extends Component {
                 secMusc: exercise.secondary.join(', '),
                 expLevel: exercise.experience,
                 addExerciseBtn: (loadingScheme === 'rpe_time') ?
-                    <AddExerciseModalRpeTime submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
-                    : <AddExerciseModalWeightReps submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} />
+                    <AddExerciseModalRpeTime submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} currDayInProg={currDayInProg}
+                    />
+                    : <AddExerciseModalWeightReps submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} currDayInProg={currDayInProg} />
             })
         })
         return tableData
@@ -992,7 +991,6 @@ class CurrentProgramPage extends Component {
             })
 
         })
-        console.log(insertData)
         this.props.firebase.createBulkExercisesUpstream(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
@@ -1026,7 +1024,6 @@ class CurrentProgramPage extends Component {
             submitDataProcessing
         } = this.state
 
-        console.log(currentDayInProgram)
 
         let loadingHTML =
             <Dimmer active>
