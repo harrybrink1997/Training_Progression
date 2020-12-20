@@ -21,7 +21,7 @@ import EditGoalModal from '../CustomComponents/editGoalModal'
 import AddSubGoalModal from '../CustomComponents/addSubGoalsModal'
 import ViewPrevWeeksDataModal from './viewPrevWeeksDataModal'
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
-
+import ConfirmNullExerciseData from './confirmNullExerciseData'
 // Import Custom functions
 import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
 import InputLabel from '../CustomComponents/DarkModeInput';
@@ -63,7 +63,8 @@ class CurrentProgramPage extends Component {
             availExercisesCols: [],
             availExercisesData: [],
             // TODO - if not want delete
-            submitDataProcessing: false
+            submitDataProcessing: false,
+            nullExerciseData: false
         }
     }
 
@@ -716,13 +717,54 @@ class CurrentProgramPage extends Component {
         )
     }
 
-    handleSubmitButton = async () => {
-        // Get the current exercise data for the given week.
-        // And for the current active program. 
-        this.setState({
-            submitDataProcessing: true,
-        }, async () => {
+    checkNullExerciseData = (data, scheme) => {
 
+        var exData = {
+            allValid: true,
+            exercisesToCheck: []
+        }
+
+        Object.values(data).forEach(exercise => {
+            if (scheme === 'rpe_time') {
+                for (var stat in exercise) {
+                    if (exercise[stat] === '' || exercise[stat] === undefined) {
+                        if (exData.allValid) {
+                            exData.allValid = false
+                        }
+                        exData.exercisesToCheck.push({
+                            rpe: exercise.rpe,
+                            sets: exercise.sets,
+                            reps: exercise.reps,
+                            exercise: exercise.exercise
+                        })
+                    }
+                }
+            } else {
+                for (var stat in exercise) {
+                    if (stat !== 'time') {
+                        if (exercise[stat] === '' || exercise[stat] === undefined) {
+                            if (exData.allValid) {
+                                exData.allValid = false
+                            }
+                            exData.exercisesToCheck.push({
+                                rpe: exercise.rpe,
+                                weight: exercise.weight,
+                                sets: exercise.sets,
+                                reps: exercise.reps,
+                                exercise: exercise.exercise
+                            })
+                        }
+                    }
+                }
+            }
+        })
+
+        return exData
+    }
+
+    handleNullCheckProceed = async (proceed) => {
+        console.log(proceed)
+        if (proceed) {
             await this.props.firebase.getProgramData(
                 this.props.firebase.auth.currentUser.uid,
                 this.state.activeProgram
@@ -759,6 +801,86 @@ class CurrentProgramPage extends Component {
                         this.state.activeProgram,
                         payLoad
                     )
+
+                    this.setState({
+                        nullExerciseData: {
+                            hasNullData: false,
+                            nullTableData: []
+                        },
+                        submitDataProcessing: false
+                    })
+                })
+
+            })
+        } else {
+            this.setState({
+                nullExerciseData: {
+                    hasNullData: false,
+                    nullTableData: []
+                },
+                submitDataProcessing: false
+            })
+        }
+    }
+
+    handleSubmitButton = async () => {
+        // Get the current exercise data for the given week.
+        // And for the current active program. 
+        this.setState({
+            submitDataProcessing: true,
+        }, async () => {
+
+            await this.props.firebase.getProgramData(
+                this.props.firebase.auth.currentUser.uid,
+                this.state.activeProgram
+            ).once('value', async userData => {
+                var userObject = userData.val();
+
+                await this.props.firebase.anatomy().once('value', async snapshot => {
+                    const anatomyObject = snapshot.val();
+
+                    var dataCheck = this.checkNullExerciseData(
+                        userObject[userObject.currentDayInProgram],
+                        userObject.loading_scheme
+                    )
+
+                    if (dataCheck.allValid) {
+                        var processedDayData = calculateDailyLoads(
+                            userObject,
+                            userObject.currentDayInProgram,
+                            userObject.loading_scheme,
+                            userObject.acutePeriod,
+                            userObject.chronicPeriod,
+                            anatomyObject
+                        )
+
+                        // Submit day in one update statement.
+                        var loadPath =
+                            userObject.currentDayInProgram
+                            + '/'
+                            + 'loadingData'
+
+                        var currDay = 'currentDayInProgram'
+
+
+                        var payLoad = {}
+                        payLoad[loadPath] = processedDayData
+                        payLoad[currDay] = parseInt(this.state.currentDayInProgram + 1)
+
+                        await this.props.firebase.handleSubmitDayUpstream(
+                            this.props.firebase.auth.currentUser.uid,
+                            this.state.activeProgram,
+                            payLoad
+                        )
+                    } else {
+                        console.log(dataCheck)
+                        this.setState({
+                            nullExerciseData: {
+                                hasNullData: true,
+                                nullTableData: dataCheck
+                            }
+                        })
+                    }
                 });
 
             })
@@ -1021,9 +1143,11 @@ class CurrentProgramPage extends Component {
             daysInWeekScope,
             openDaysUI,
             expandedRows,
-            submitDataProcessing
+            submitDataProcessing,
+            nullExerciseData
         } = this.state
 
+        console.log(nullExerciseData)
 
         let loadingHTML =
             <Dimmer active>
@@ -1032,6 +1156,10 @@ class CurrentProgramPage extends Component {
         let noCurrentProgramsHTML = <Header as='h1'>Create A Program Before Accessing This Page</Header>
         let hasCurrentProgramsHTML =
             <NonLandingPageWrapper>
+                <ConfirmNullExerciseData
+                    showModal={nullExerciseData.hasNullData}
+                    handleFormProceed={this.handleNullCheckProceed}
+                />
                 <div className='pageContainerLevel1'
                     id='cpPageContainer1'>
                     <div id='cpProgramHeader'>
