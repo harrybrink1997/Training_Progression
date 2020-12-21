@@ -179,10 +179,10 @@
     color: white;
 }
 
-.ui.fluid.selection.dropdown.availExerciseTableDropdown .visible.menu.transition {
+/* .ui.fluid.selection.dropdown.availExerciseTableDropdown .visible.menu.transition {
     background: ;
     border: none;
-}
+} */
 
 .ui.fluid.selection.dropdown.availExerciseTableDropdown .disabled.item {
     background: #191919;
@@ -194,3 +194,19 @@
     color: #BB86FC;
 }
 
+#cpPageNullDataProceedWarning {
+    margin-bottom: 10px;
+}
+
+#cpPageSubmitDayWarningContent {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.modalContentWarningHeader {
+    text-align: center;
+    color: #CF6679;
+    font-weight: 800;
+    font-size: 20px;
+    margin-bottom: 10px;
+}

@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { Modal, Button, Form } from 'semantic-ui-react'
+import ExerciseTableContainerNoBtns from '../CustomComponents/exerciseTablesNoBtns'
 
-const ConfirmNullExerciseData = ({ handleFormProceed, showModal, nullExTableData }) => {
+const ConfirmNullExerciseData = ({ handleFormProceed, showModal, nullExTableData, scheme }) => {
 
     const [revertProcessing, setRevertProcessing] = useState(false)
     const [proceedProcessing, setProceedProcessing] = useState(false)
@@ -29,7 +30,20 @@ const ConfirmNullExerciseData = ({ handleFormProceed, showModal, nullExTableData
         >
             <Modal.Header>Empty Input Detected</Modal.Header>
             <Modal.Content>
-                WARNING! <br /> We have run validation checks and it seems the exercise data you're submitting is not complete. Please note if this data submits it will not contribute to your load data for today.
+                <div className='modalContentWarningHeader'>
+                    WARNING!
+                </div>
+                <div id='cpPageNullDataProceedWarning'>
+                    We have run validation checks and it seems the exercise data you're submitting is not complete. Please note if this data submits it will not contribute to your load data for today.
+                </div>
+
+                <ExerciseTableContainerNoBtns
+                    dayText='View more details...'
+                    tableData={nullExTableData}
+                    tableScheme={scheme}
+                    defaultOpen={false}
+                    dayIndex='nullExDataCheck'
+                />
             </Modal.Content>
             <Modal.Actions>
                 {

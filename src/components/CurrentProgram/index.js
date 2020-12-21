@@ -64,7 +64,10 @@ class CurrentProgramPage extends Component {
             availExercisesData: [],
             // TODO - if not want delete
             submitDataProcessing: false,
-            nullExerciseData: false
+            nullExerciseData: {
+                hasNullData: false,
+                nullTableData: []
+            }
         }
     }
 
@@ -629,7 +632,6 @@ class CurrentProgramPage extends Component {
     // Updated with new ratio calcs format
     componentWillUnmount() {
         this.props.firebase.getUserData().off();
-        this.props.firebase.exercises().off();
 
     }
 
@@ -877,7 +879,7 @@ class CurrentProgramPage extends Component {
                         this.setState({
                             nullExerciseData: {
                                 hasNullData: true,
-                                nullTableData: dataCheck
+                                nullTableData: dataCheck.exercisesToCheck
                             }
                         })
                     }
@@ -1147,7 +1149,7 @@ class CurrentProgramPage extends Component {
             nullExerciseData
         } = this.state
 
-        console.log(nullExerciseData)
+        console.log(nullExerciseData.nullTableData)
 
         let loadingHTML =
             <Dimmer active>
@@ -1159,6 +1161,8 @@ class CurrentProgramPage extends Component {
                 <ConfirmNullExerciseData
                     showModal={nullExerciseData.hasNullData}
                     handleFormProceed={this.handleNullCheckProceed}
+                    nullExTableData={nullExerciseData.nullTableData}
+                    scheme={loadingScheme}
                 />
                 <div className='pageContainerLevel1'
                     id='cpPageContainer1'>

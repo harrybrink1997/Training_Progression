@@ -36,11 +36,15 @@ const SubmitDayModal = ({ handleFormSubmit, submitDataProcessing }) => {
 
             <Form onSubmit={handleSubmit}>
                 <Modal.Content>
-                    WARNING! <br /> This action is not reversible. Once closed out a program week is no longer editable and you
-                        will be moved to the next week.
-                    </Modal.Content>
+                    <div className='modalContentWarningHeader'>
+                        WARNING!
+                    </div>
+                    <div id='cpPageSubmitDayWarningContent'>
+                        This action is not reversible. Once you submit a day, you can no longer add, remove or edit exercises for that day.
+                    </div>
+                </Modal.Content>
                 <Modal.Actions>
-                    <Button onClick={handleClose}>Close</Button>
+                    <Button className='lightPurpleButton-inverted' onClick={handleClose}>Close</Button>
                     <Button className='submitBtn' type="submit">Submit Day</Button>
                 </Modal.Actions>
             </Form>
