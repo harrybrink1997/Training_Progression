@@ -101,7 +101,7 @@ const GoalHistoryModal = ({ goalTableData, goalStatsData, goalProgPieChartData }
                 }
             </Modal.Content>
             <Modal.Actions>
-                <Button onClick={handleClose}>Close</Button>
+                <Button className='lightPurpleButton-inverted' onClick={handleClose}>Close</Button>
             </Modal.Actions>
         </Modal>
     );

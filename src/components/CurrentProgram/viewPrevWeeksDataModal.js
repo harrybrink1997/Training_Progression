@@ -109,7 +109,7 @@ const ViewPrevWeeksDataModal = ({ handleFormSubmit, data, defaultWeek, progSchem
                     }
                 </Modal.Content>
                 <Modal.Actions>
-                    <Button onClick={handleClose}>Close</Button>
+                    <Button className='lightPurpleButton-inverted' onClick={handleClose}>Close</Button>
                     <Button className='submitBtn' type="submit">Copy Week</Button>
                 </Modal.Actions>
             </Form>

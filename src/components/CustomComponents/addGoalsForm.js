@@ -39,7 +39,7 @@ const AddGoalsForm = ({ handleFormSubmit, buttonText, headerText, triggerElement
                     }
                 </Modal.Content>
                 <Modal.Actions>
-                    <Button onClick={() => setShow(false)}>Close</Button>
+                    <Button className='lightPurpleButton-inverted' onClick={() => setShow(false)}>Close</Button>
                     <Button className='submitBtn' type="submit">{buttonText}</Button>
                 </Modal.Actions>
             </Form>

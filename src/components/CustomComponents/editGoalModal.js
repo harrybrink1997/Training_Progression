@@ -56,8 +56,8 @@ const EditGoalModal = ({ submitHandler, uid, currentData, isSubGoal }) => {
                     }
                 </Modal.Content>
                 <Modal.Actions className='editModalActions'>
-                    <Button onClick={() => setShow(false)}>Close</Button>
-                    <Button type="submit">Edit</Button>
+                    <Button className='lightPurpleButton-inverted' onClick={() => setShow(false)}>Close</Button>
+                    <Button className='submitBtn' type="submit">Edit</Button>
                 </Modal.Actions>
             </Form>
         </Modal>

@@ -51,8 +51,8 @@ const AddSubGoalModal = ({ submitHandler, uid, currentData }) => {
                     }
                 </Modal.Content>
                 <Modal.Actions className='editModalActions'>
-                    <Button onClick={() => setShow(false)}>Close</Button>
-                    <Button type="submit">Create Sub Goal</Button>
+                    <Button className='lightPurpleButton-inverted' onClick={() => setShow(false)}>Close</Button>
+                    <Button className='submitBtn' type="submit">Create Sub Goal</Button>
                 </Modal.Actions>
             </Form>
         </Modal>

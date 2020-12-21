@@ -110,7 +110,7 @@ const EditExerciseModalRpeTime = ({ submitHandler, exUid, currentData }) => {
                     </Grid>
                 </Modal.Content>
                 <Modal.Actions>
-                    <Button onClick={() => setShow(false)}>Close</Button>
+                    <Button className='lightPurpleButton-inverted' onClick={() => setShow(false)}>Close</Button>
                     <Button className='submitBtn' type="submit"
                     >Edit</Button>
                 </Modal.Actions>
@@ -245,7 +245,7 @@ const EditExerciseModalWeightSets = ({ submitHandler, exUid, currentData }) => {
                     </Grid>
                 </Modal.Content>
                 <Modal.Actions className='editModalActions'>
-                    <Button onClick={() => setShow(false)}>Close</Button>
+                    <Button className='lightPurpleButton-inverted' onClick={() => setShow(false)}>Close</Button>
                     <Button className='lightPurpleButton' type="submit">Edit</Button>
                 </Modal.Actions>
             </Form>

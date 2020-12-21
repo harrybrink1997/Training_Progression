@@ -123,7 +123,7 @@ const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc, currD
                     </Grid>
                 </Modal.Content>
                 <Modal.Actions>
-                    <Button onClick={() => setShow(false)}>Close</Button>
+                    <Button className='lightPurpleButton-inverted' onClick={() => setShow(false)}>Close</Button>
                     <Button className='submitBtn' type="submit">Add to Day</Button>
                 </Modal.Actions>
             </Form>
@@ -269,7 +269,7 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc, cu
                     </Grid>
                 </Modal.Content>
                 <Modal.Actions>
-                    <Button onClick={() => setShow(false)}>Close</Button>
+                    <Button className='lightPurpleButton-inverted' onClick={() => setShow(false)}>Close</Button>
                     <Button className='submitBtn' type="submit">Add to Day</Button>
                 </Modal.Actions>
             </Form>

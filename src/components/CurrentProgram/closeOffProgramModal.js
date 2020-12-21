@@ -33,7 +33,7 @@ const CloseOffProgramModal = ({ handleFormSubmit }) => {
                         will only be able to access the historical data.
                     </Modal.Content>
                 <Modal.Actions>
-                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button className='lightPurpleButton-inverted' onClick={handleClose}>Cancel</Button>
                     <Button className='submitBtn' type="submit">Proceed</Button>
                 </Modal.Actions>
             </Form>
