@@ -726,6 +726,10 @@ class CurrentProgramPage extends Component {
             exercisesToCheck: []
         }
 
+        if (data === undefined) {
+            return exData
+        }
+
         Object.values(data).forEach(exercise => {
             if (scheme === 'rpe_time') {
                 for (var stat in exercise) {

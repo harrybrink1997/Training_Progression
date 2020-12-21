@@ -51,7 +51,7 @@ const LandingPageCTAContainer = ({ handleSignInButton, handleLearnMoreButton }) 
                         Train, Track, Triumph, Together
                     </div>
                     <div id='CTAImpactStatement'>
-                        Scientifically Based, Cloud Platform to Manage Training Load and Help Reduce Injury.
+                        Scientifically Based Cloud Platform to Manage Training Load and Help Reduce Injury.
                     </div>
                 </div>
 
