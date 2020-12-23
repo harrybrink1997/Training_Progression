@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
-import { Button, Form, Input } from 'semantic-ui-react'
+import { Button, Form, Input, Popup, Icon } from 'semantic-ui-react'
+import InputLabel from '../CustomComponents/DarkModeInput'
 
 const INITIAL_STATE = {
     email: '',
     passwordOne: '',
     passwordTwo: '',
     username: '',
-    loading: true
+    loading: true,
+    userType: 'athlete'
 };
 
 
@@ -16,11 +18,12 @@ const SignUpForm = ({ submitSignUpHandler, signUpProcessing }) => {
     const [passwordOne, setPasswordOne] = useState(INITIAL_STATE.passwordOne)
     const [passwordTwo, setPasswordTwo] = useState(INITIAL_STATE.passwordTwo)
     const [username, setUsername] = useState(INITIAL_STATE.username)
+    const [userType, setUserType] = useState(INITIAL_STATE.userType)
 
     const handleSubmit = (event) => {
         event.preventDefault();
         if (username != '' && email != '' && passwordOne != '' && passwordOne === passwordTwo) {
-            submitSignUpHandler(username, email, passwordOne)
+            submitSignUpHandler(username, email, passwordOne, userType)
         }
     }
 
@@ -63,6 +66,27 @@ const SignUpForm = ({ submitSignUpHandler, signUpProcessing }) => {
                     placeholder="Re-Enter Password"
                 />
             </Form.Field>
+            <InputLabel
+                text='What will you be using Corvus Strength as?'
+                toolTip={<Popup
+                    basic
+                />}
+            />
+            <Form.Group inline>
+                <Form.Radio
+                    label='Athlete'
+                    value='athlete'
+                    checked={userType === 'athlete'}
+                    onChange={(e, { value }) => setUserType(value)}
+                />
+                <Form.Radio
+                    label='Coach'
+                    value='coach'
+                    checked={userType === 'coach'}
+                    onChange={(e, { value }) => setUserType(value)}
+                />
+
+            </Form.Group>
             {
                 username != ''
                 && email != ''

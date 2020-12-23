@@ -5,7 +5,7 @@ import PasswordChangeForm from './passwordChangeForm'
 
 import InputLabel from '../CustomComponents/DarkModeInput'
 
-class EmailChangePage extends Component {
+class PasswordChangePage extends Component {
 
     constructor(props) {
         super(props)
@@ -71,4 +71,4 @@ class EmailChangePage extends Component {
 }
 
 const condition = authUser => !!authUser;
-export default withAuthorisation(condition)(EmailChangePage)
+export default withAuthorisation(condition)(PasswordChangePage)

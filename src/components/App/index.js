@@ -17,6 +17,7 @@ import LearnMorePage from '../LearnMore'
 import PasswordChangePage from '../PasswordChange'
 import EmailChangePage from '../EmailChange'
 import DeleteAccountPage from '../DeleteAccount'
+import JoinTeamPage from '../JoinTeam'
 
 import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
@@ -49,6 +50,7 @@ import '../../CustomCSS/semanticUINavBar.css'
 import '../../CustomCSS/semanticUIPagination.css'
 import '../../CustomCSS/semanticUIDropdown.css'
 import '../../CustomCSS/semanticUIPopUp.css'
+import '../../CustomCSS/semanticUIForm.css'
 import '../../CustomCSS/joyride.css'
 
 const App = () => {
@@ -75,6 +77,7 @@ const App = () => {
                 <Route path={ROUTES.PASSWORD_CHANGE} component={PasswordChangePage} />
                 <Route path={ROUTES.EMAIL_CHANGE} component={EmailChangePage} />
                 <Route path={ROUTES.DELETE_ACCOUNT} component={DeleteAccountPage} />
+                <Route path={ROUTES.JOIN_TEAM} component={JoinTeamPage} />
             </div>
         </Router >
     )

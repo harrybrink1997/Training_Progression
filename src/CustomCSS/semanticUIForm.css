@@ -1,0 +1,11 @@
+.ui.radio.checkbox > label {
+    color: white;
+}
+
+.ui.checked.radio.checkbox > label {
+    color: white;
+}
+
+.ui.radio.checkbox label:active {
+    color: white;
+}

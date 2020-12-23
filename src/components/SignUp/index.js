@@ -20,10 +20,8 @@ class SignUpPage extends Component {
         this.props.history.push(ROUTES.SIGN_UP)
     }
 
-    handleSubmitSignUp = (username, email, password) => {
-        console.log(username)
-        console.log(password)
-        console.log(email)
+    handleSubmitSignUp = (username, email, password, userType) => {
+
         this.setState({
             signUpProcessing: true
         }, () => {
@@ -31,12 +29,23 @@ class SignUpPage extends Component {
                 .doCreateUserWithEmailAndPassword(email, password)
                 .then(authUser => {
                     // Create a user in your Firebase realtime database
-                    return this.props.firebase.createUserUpstream(
-                        authUser.user.uid,
-                        {
-                            username: username,
-                            email: email,
-                        })
+                    var userPath = `users/${authUser.user.uid}`
+                    console.log(userPath)
+                    var typePath = `userTypes/${authUser.user.uid}`
+
+                    var payLoad = {}
+                    payLoad[userPath] = {
+                        username: username,
+                        email: email,
+                        userType: userType
+                    }
+
+                    // payLoad[typePath] = {
+                    //     userType: userType,
+                    //     email: email
+
+                    // }
+                    return this.props.firebase.createUserUpstream(payLoad)
                 })
                 .then(() => {
                     this.props.history.push(ROUTES.HOME);

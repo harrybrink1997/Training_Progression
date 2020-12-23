@@ -75,10 +75,22 @@ class Firebase {
     // USER API
     getUserData = (uid) => this.db.ref(`users/${uid}`);
 
-    createUserUpstream = (uid, userInfo) => {
+    createUserUpstream = (submitInfo) => {
         return this.db
-            .ref(`users/${uid}`)
-            .set(userInfo)
+            .ref('/')
+            .update(submitInfo)
+    }
+
+    sendTeamRequestUpstream = (athlete, coach, message) => {
+        return this.db
+            .ref(`users/${coach}/teamRequests/${athlete}`)
+            .set(message)
+    }
+
+    userTypes = () => this.db.ref('userTypes')
+
+    userType = (uid) => {
+        return this.db.ref(`userTypes/${uid}/userType`)
     }
 
     getProgramData = (uid, programName) => {

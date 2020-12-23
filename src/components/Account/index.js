@@ -15,7 +15,8 @@ class AccountPage extends Component {
         this.state = {
             username: '',
             email: '',
-            loading: true
+            loading: true,
+            userType: ''
         }
     }
     async componentDidMount() {
@@ -27,6 +28,9 @@ class AccountPage extends Component {
         await this.props.firebase.getUserData(currUserUid).once('value', async userData => {
             var userObject = userData.val();
 
+            // await this.props.firebase.userType(currUserUid).once('value', async userRole => {
+            //     var role = userRole.val()
+
             if (!this.state.loading) {
                 this.setState({
                     loading: true,
@@ -37,14 +41,17 @@ class AccountPage extends Component {
             } else {
                 this.updateObjectState(userObject)
             }
+            // })
+
         })
     }
 
-    updateObjectState = (userObject) => {
+    updateObjectState = (userObject, role) => {
         // Format the user data based on whether or not user has current programs. 
         this.setState({
             email: userObject.email,
             username: userObject.username,
+            userType: userObject.userType,
             loading: false
         })
     }
@@ -56,13 +63,18 @@ class AccountPage extends Component {
         this.props.history.push(ROUTES.DELETE_ACCOUNT)
     }
 
+    handleJoinTeamRedirect = () => {
+        this.props.history.push(ROUTES.JOIN_TEAM)
+
+    }
 
     render() {
 
         const {
             username,
             email,
-            loading
+            loading,
+            userType
         } = this.state
 
         let loadingHTML =
@@ -115,6 +127,19 @@ class AccountPage extends Component {
                                     </Card.Content>
                                 </Card>
                             </div>
+                            {
+                                userType === 'athlete' &&
+                                <div>
+                                    <Card onClick={() => { this.handleJoinTeamRedirect() }}>
+                                        <Card.Content className='iconContent'>
+                                            <Icon name='users' size='huge' />
+                                        </Card.Content>
+                                        <Card.Content>
+                                            <Card.Header textAlign='center'>Join <br /> Team</Card.Header>
+                                        </Card.Content>
+                                    </Card>
+                                </div>
+                            }
                         </Card.Group>
                     </div>
                 </div>
