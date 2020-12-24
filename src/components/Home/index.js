@@ -6,10 +6,13 @@ import DeleteProgramModal from './deleteProgramModal'
 import CreateExerciseModal from './createExerciseModal'
 
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
+import TeamsContainer from './teamsContainer'
+import { AcceptRequestButton, DeclineRequestButton } from './teamRequestModal'
 
 import OnBoarding from './onBoarding'
 
 import { Dimmer, Loader, Statistic } from 'semantic-ui-react'
+import InputLabel from '../CustomComponents/DarkModeInput';
 
 class HomePage extends Component {
 
@@ -23,7 +26,13 @@ class HomePage extends Component {
             greeting: '',
             anatomyObject: {},
             loading: true,
-            firstTimeUser: false
+            userType: '',
+            firstTimeUser: false,
+            teamData: {
+                hasTeamData: false,
+                teamData: undefined,
+                requestData: undefined
+            }
         }
     }
 
@@ -32,7 +41,6 @@ class HomePage extends Component {
 
         var currUserUid = this.props.firebase.auth.currentUser.uid
         this.props.firebase.getUserData(currUserUid).on('value', userData => {
-            console.log("GOING IN ")
             const userObject = userData.val();
 
             this.props.firebase.anatomy().once('value', async snapshot => {
@@ -73,16 +81,88 @@ class HomePage extends Component {
                     anatomyObject: anatomyObject,
                     firstTimeUser: this.determineFirstTimeLogin(this.props.firebase.auth.currentUser.metadata),
                     loading: false,
+                    userType: userObject.userType,
+                    teamData: this.initTeamData(userObject)
                 })
             })
         });
     }
 
+    handlePendingTeamRequestAcceptence = (athleteUID, accepted) => {
+        console.log(athleteUID)
+        console.log(accepted)
+        var coachPath = `users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/${athleteUID}`
+        var athletePath = `users/${athleteUID}/teams/${this.props.firebase.auth.currentUser.uid}`
+        var coachPendingPath = `users/${this.props.firebase.auth.currentUser.uid}/teamRequests/${athleteUID}`
+
+        this.props.firebase.getUserData(athleteUID).once('value', snapshot => {
+            var athleteData = snapshot.val()
+
+            var payLoad = {}
+            payLoad[coachPath] = {
+                email: athleteData.email,
+                username: athleteData.username
+            }
+
+            payLoad[athletePath] = {
+                email: this.state.userInformation.data.email,
+                username: this.state.userInformation.data.username
+            }
+
+            payLoad[coachPendingPath] = null
+
+            this.props.firebase.acceptTeamRequestUpstream(payLoad)
+            console.log(payLoad)
+        })
+    }
+
+    initTeamData = (userObject) => {
+        var payLoad = {
+            hasTeamData: false
+        }
+        // This might need to change.
+        if (userObject.teamRequests !== undefined || userObject.teams !== undefined) {
+            payLoad.hasTeamData = true
+        } else {
+            return payLoad
+        }
+
+        if (userObject.userType === 'coach') {
+            if (userObject.teamRequests !== undefined) {
+
+                var requestData = []
+                Object.keys(userObject.teamRequests).forEach(request => {
+                    requestData.push({
+                        username: userObject.teamRequests[request].username,
+                        notes: userObject.teamRequests[request].message,
+                        athleteUID: request,
+                        email: userObject.teamRequests[request].email,
+                        buttons:
+                            <div>
+                                <AcceptRequestButton buttonHandler={this.handlePendingTeamRequestAcceptence} athleteUID={request} />
+                                <DeclineRequestButton buttonHandler={this.handlePendingTeamRequestAcceptence} athleteUID={request} />
+                            </div>
+
+                    })
+                })
+                payLoad.requestData = requestData
+            } else {
+                payLoad.requestData = undefined
+            }
+
+            if (userObject.teams !== undefined) {
+                console.log("has teams data")
+            } else {
+                payLoad.teamData = undefined
+            }
+        }
+        console.log(payLoad)
+        return payLoad
+    }
+
     determineFirstTimeLogin = (metadata) => {
         var creationTime = metadata.creationTime
         var loginTime = metadata.lastSignInTime
-        console.log(loginTime)
-        console.log(creationTime)
 
         if (loginTime === creationTime) {
             return true
@@ -301,15 +381,12 @@ class HomePage extends Component {
             loading,
             greeting,
             anatomyObject,
-            firstTimeUser
+            firstTimeUser,
+            userType,
+            teamData
         } = this.state
 
-
-        if (firstTimeUser) {
-            console.log("first time user")
-        } else {
-            console.log("not first time user")
-        }
+        console.log(teamData.requestData)
 
         let loadingHTML =
             <Dimmer active>
@@ -350,6 +427,20 @@ class HomePage extends Component {
                         </div>
                     </div>
                 </div>
+                <div className='rowContainer'>
+                    <div className="pageContainerLevel1 half-width">
+                        <InputLabel
+                            custID='myTeamsHeader'
+                            text='My Teams'
+                        />
+                        <TeamsContainer
+                            userType={userType}
+                            teamData={teamData.teamData}
+                            requestData={teamData.requestData}
+                        />
+                    </div>
+                </div>
+
             </NonLandingPageWrapper>
 
 

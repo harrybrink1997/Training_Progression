@@ -60,10 +60,15 @@ class JoinTeamPage extends Component {
                         )
 
                         if (validateRequest.isValid) {
+                            var payLoad = {
+                                message: message,
+                                username: users[this.props.firebase.auth.currentUser.uid].username,
+                                email: users[this.props.firebase.auth.currentUser.uid].email
+                            }
                             await this.props.firebase.sendTeamRequestUpstream(
                                 this.props.firebase.auth.currentUser.uid,
                                 user,
-                                message
+                                payLoad
                             )
 
                             this.setState({

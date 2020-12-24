@@ -81,6 +81,12 @@ class Firebase {
             .update(submitInfo)
     }
 
+    acceptTeamRequestUpstream = (submitInfo) => {
+        return this.db
+            .ref('/')
+            .update(submitInfo)
+    }
+
     sendTeamRequestUpstream = (athlete, coach, message) => {
         return this.db
             .ref(`users/${coach}/teamRequests/${athlete}`)

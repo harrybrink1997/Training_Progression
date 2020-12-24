@@ -144,4 +144,11 @@
     justify-content: flex-start;
 }
 
+#myTeamsHeader {
+    font-size: 25px;
+    text-align: center;
+    margin-top: 10px;
+    font-weight: 600;
+}
+
 
