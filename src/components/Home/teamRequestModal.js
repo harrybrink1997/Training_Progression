@@ -5,7 +5,7 @@ import { useTable } from 'react-table'
 
 
 
-const TeamRequestModal = ({ handleRequestSubmit, requestTableData }) => {
+const TeamRequestModal = ({ requestTableData }) => {
 
     const [show, setShow] = useState(false);
     const handleSubmit = (event) => {

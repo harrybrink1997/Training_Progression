@@ -2,12 +2,9 @@ import React, { useState } from 'react'
 import InputLabel from '../CustomComponents/DarkModeInput'
 import TeamRequestModal from './teamRequestModal'
 import { Popup, Icon } from 'semantic-ui-react'
+import { Button } from 'semantic-ui-react'
 
-const TeamsContainer = ({ requestData, teamData, userType }) => {
-
-    const handlePendingRequestAction = (userID, accepted) => {
-        console.log("in ")
-    }
+const TeamsContainer = ({ requestData, teamData, athleteData, userType, manageAthleteHandler }) => {
 
     let coachHTML =
         <div>
@@ -23,10 +20,19 @@ const TeamsContainer = ({ requestData, teamData, userType }) => {
                     :
                     <div>
                         <TeamRequestModal
-                            handleRequestSubmit={handlePendingRequestAction}
                             requestTableData={requestData}
                         />
                     </div>
+            }
+            {
+                athleteData === undefined
+                    ?
+                    < InputLabel
+                        text='No Current Athletes'
+                        custID='noTeamRequestsHeaderLabel'
+                    />
+                    :
+                    <Button className='lightPurpleButton-inverted' onClick={manageAthleteHandler}>Manage Athletes</Button>
             }
             {
                 teamData === undefined

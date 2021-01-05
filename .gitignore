@@ -24,3 +24,5 @@ yarn-error.log*
 
 # environment variable
 .env
+
+.training-progression-firebase-adminsdk-izc4p-8bb977c0ad

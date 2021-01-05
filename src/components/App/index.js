@@ -18,6 +18,7 @@ import PasswordChangePage from '../PasswordChange'
 import EmailChangePage from '../EmailChange'
 import DeleteAccountPage from '../DeleteAccount'
 import JoinTeamPage from '../JoinTeam'
+import ManageAthletesPage from '../ManageAthletes'
 
 import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
@@ -41,6 +42,7 @@ import '../../CustomCSS/semanticUIMenu.css'
 import '../../CustomCSS/semanticUIBreadCrumb.css'
 import '../../CustomCSS/currentProgramsPage.css'
 import '../../CustomCSS/pastProgramsPage.css'
+import '../../CustomCSS/manageAthletesPage.css'
 import '../../CustomCSS/homePage.css'
 import '../../CustomCSS/deleteAccountPage.css'
 import '../../CustomCSS/accountPage.css'
@@ -78,6 +80,7 @@ const App = () => {
                 <Route path={ROUTES.EMAIL_CHANGE} component={EmailChangePage} />
                 <Route path={ROUTES.DELETE_ACCOUNT} component={DeleteAccountPage} />
                 <Route path={ROUTES.JOIN_TEAM} component={JoinTeamPage} />
+                <Route path={ROUTES.MANAGE_ATHLETES} component={ManageAthletesPage} />
             </div>
         </Router >
     )

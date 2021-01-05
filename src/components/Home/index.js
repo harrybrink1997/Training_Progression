@@ -13,6 +13,7 @@ import OnBoarding from './onBoarding'
 
 import { Dimmer, Loader, Statistic } from 'semantic-ui-react'
 import InputLabel from '../CustomComponents/DarkModeInput';
+import * as ROUTES from '../../constants/routes'
 
 class HomePage extends Component {
 
@@ -31,6 +32,7 @@ class HomePage extends Component {
             teamData: {
                 hasTeamData: false,
                 teamData: undefined,
+                athletData: undefined,
                 requestData: undefined
             }
         }
@@ -78,7 +80,7 @@ class HomePage extends Component {
                     greeting: this.getCurrentGreeting(userObject),
                     currentProgramList: currentProgramList,
                     pastProgramList: pastProgramList,
-                    anatomyObject: anatomyObject,
+                    anatppomyObject: anatomyObject,
                     firstTimeUser: this.determineFirstTimeLogin(this.props.firebase.auth.currentUser.metadata),
                     loading: false,
                     userType: userObject.userType,
@@ -91,29 +93,36 @@ class HomePage extends Component {
     handlePendingTeamRequestAcceptence = (athleteUID, accepted) => {
         console.log(athleteUID)
         console.log(accepted)
-        var coachPath = `users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/${athleteUID}`
-        var athletePath = `users/${athleteUID}/teams/${this.props.firebase.auth.currentUser.uid}`
+        var payLoad = {}
+
         var coachPendingPath = `users/${this.props.firebase.auth.currentUser.uid}/teamRequests/${athleteUID}`
 
-        this.props.firebase.getUserData(athleteUID).once('value', snapshot => {
-            var athleteData = snapshot.val()
+        if (accepted) {
+            var coachPath = `users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/${athleteUID}`
+            var athletePath = `users/${athleteUID}/teams/${this.props.firebase.auth.currentUser.uid}`
+            this.props.firebase.getUserData(athleteUID).once('value', snapshot => {
+                var athleteData = snapshot.val()
 
-            var payLoad = {}
-            payLoad[coachPath] = {
-                email: athleteData.email,
-                username: athleteData.username
-            }
+                payLoad[coachPath] = {
+                    email: athleteData.email,
+                    username: athleteData.username
+                }
 
-            payLoad[athletePath] = {
-                email: this.state.userInformation.data.email,
-                username: this.state.userInformation.data.username
-            }
+                payLoad[athletePath] = {
+                    email: this.state.userInformation.data.email,
+                    username: this.state.userInformation.data.username
+                }
 
+                payLoad[coachPendingPath] = null
+
+                this.props.firebase.acceptTeamRequestUpstream(payLoad)
+                console.log(payLoad)
+            })
+        } else {
             payLoad[coachPendingPath] = null
 
             this.props.firebase.acceptTeamRequestUpstream(payLoad)
-            console.log(payLoad)
-        })
+        }
     }
 
     initTeamData = (userObject) => {
@@ -121,13 +130,14 @@ class HomePage extends Component {
             hasTeamData: false
         }
         // This might need to change.
-        if (userObject.teamRequests !== undefined || userObject.teams !== undefined) {
+        if (userObject.teamRequests !== undefined || userObject.teams !== undefined || userObject.currentAthletes !== undefined) {
             payLoad.hasTeamData = true
         } else {
             return payLoad
         }
 
         if (userObject.userType === 'coach') {
+            // Get the current requests for the coach.
             if (userObject.teamRequests !== undefined) {
 
                 var requestData = []
@@ -150,6 +160,29 @@ class HomePage extends Component {
                 payLoad.requestData = undefined
             }
 
+            // Get the current athletes for the coach.
+            if (userObject.currentAthletes !== undefined) {
+
+                var athletData = []
+                Object.keys(userObject.currentAthletes).forEach(athlete => {
+                    athletData.push({
+                        username: userObject.currentAthletes[athlete].username,
+                        notes: userObject.currentAthletes[athlete].message,
+                        athleteUID: athlete,
+                        email: userObject.currentAthletes[athlete].email,
+                        buttons:
+                            <div>
+                                <AcceptRequestButton buttonHandler={this.handlePendingTeamRequestAcceptence} athleteUID={athlete} />
+                                <DeclineRequestButton buttonHandler={this.handlePendingTeamRequestAcceptence} athleteUID={athlete} />
+                            </div>
+
+                    })
+                })
+                payLoad.athleteData = athletData
+            } else {
+                payLoad.athleteData = undefined
+            }
+
             if (userObject.teams !== undefined) {
                 console.log("has teams data")
             } else {
@@ -169,6 +202,11 @@ class HomePage extends Component {
         } else {
             return false
         }
+    }
+
+    handleManageAthletesRedirect = () => {
+        console.log("going in ")
+        this.props.history.push(ROUTES.MANAGE_ATHLETES)
     }
 
     checkIfProgramAlreadyExists(newProgram) {
@@ -385,9 +423,7 @@ class HomePage extends Component {
             userType,
             teamData
         } = this.state
-
-        console.log(teamData.requestData)
-
+        console.log(this.props.firebase.auth.currentUser.getIdTokenResult())
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
@@ -437,6 +473,8 @@ class HomePage extends Component {
                             userType={userType}
                             teamData={teamData.teamData}
                             requestData={teamData.requestData}
+                            athleteData={teamData.athleteData}
+                            manageAthleteHandler={this.handleManageAthletesRedirect}
                         />
                     </div>
                 </div>

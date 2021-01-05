@@ -27,7 +27,8 @@ class SignUpPage extends Component {
         }, () => {
             this.props.firebase
                 .doCreateUserWithEmailAndPassword(email, password)
-                .then(authUser => {
+                .then(async authUser => {
+
                     // Create a user in your Firebase realtime database
                     var userPath = `users/${authUser.user.uid}`
                     console.log(userPath)
@@ -39,13 +40,9 @@ class SignUpPage extends Component {
                         email: email,
                         userType: userType
                     }
-
-                    // payLoad[typePath] = {
-                    //     userType: userType,
-                    //     email: email
-
-                    // }
-                    return this.props.firebase.createUserUpstream(payLoad)
+                    await this.props.firebase.grantModeratorRole(authUser.user.uid, userType)
+                    await this.props.firebase.auth.currentUser.getIdTokenResult(true)
+                    this.props.firebase.createUserUpstream(payLoad)
                 })
                 .then(() => {
                     this.props.history.push(ROUTES.HOME);

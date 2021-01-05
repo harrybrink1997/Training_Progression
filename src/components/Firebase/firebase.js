@@ -8,6 +8,8 @@ Creates a firebase object with the configuration as set in the .env file.
 import * as app from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
+import 'firebase/functions'
+import { ADMIN } from '../../constants/routes';
 
 const config = {
     apiKey: process.env.REACT_APP_API_KEY,
@@ -25,6 +27,23 @@ class Firebase {
 
         this.auth = app.auth();
         this.db = app.database();
+        this.functions = app.functions()
+
+    }
+
+
+    grantModeratorRole = (id, role) => {
+        var moderatorFunction = this.functions.httpsCallable('setUserPrivledges');
+
+        moderatorFunction({ userType: role })
+            .then(result => {
+                return true
+            })
+            .catch(error => {
+                console.log(`error: ${JSON.stringify(error)}`)
+            })
+
+        // this.functions.httpsCallable('addUserPrivledges')({ userType: role })
     }
 
     isAuthenticatedUser = () => {
@@ -96,7 +115,7 @@ class Firebase {
     userTypes = () => this.db.ref('userTypes')
 
     userType = (uid) => {
-        return this.db.ref(`userTypes/${uid}/userType`)
+        return this.db.ref(`users/${uid}/userType`)
     }
 
     getProgramData = (uid, programName) => {

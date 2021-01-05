@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^7.1.2",
     "bootstrap": "^4.5.3",
     "firebase": "^7.23.0",
+    "firebase-admin": "^9.4.2",
     "match-sorter": "^5.0.0",
     "math-expression-evaluator": "^1.2.22",
     "mathjs": "^7.5.1",
