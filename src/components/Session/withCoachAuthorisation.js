@@ -8,20 +8,33 @@ import * as ROUTES from '../../constants/routes';
 
 const withCoachAuthorisation = condition => Component => {
     class withCoachAuthorisation extends React.Component {
+
+        constructor(props) {
+            super(props)
+
+            this.state = {
+                isCoach: false
+            }
+        }
+
         componentDidMount() {
 
             this.listener = this.props.firebase.auth.onAuthStateChanged(
                 coachAuthUser => {
                     if (coachAuthUser) {
-                        this.props.firebase.userType(coachAuthUser.uid).once('value', role => {
-                            var roleVal = role.val()
-                            if (!condition(roleVal)) {
-                                this.props.history.push(ROUTES.LANDING)
-                            }
-                        })
+                        this.props.firebase.auth.currentUser.getIdTokenResult()
+                            .then(adminToken => {
+                                console.log('')
+                                if (!condition(adminToken.claims.userType)) {
+                                    this.props.history.push(ROUTES.LANDING)
+                                } else {
+                                    this.setState({
+                                        isCoach: true
+                                    })
+                                }
+                            })
                     } else {
                         this.props.history.push(ROUTES.LANDING)
-
                     }
                 },
             );
@@ -32,10 +45,15 @@ const withCoachAuthorisation = condition => Component => {
         }
 
         render() {
+
             return (
                 <AuthUserContext.Consumer>
-                    {authUser =>
-                        condition(authUser) ? <Component {...this.props} /> : null
+                    {
+                        isCoach => {
+                            return (
+                                isCoach ? <Component {...this.props} /> : null
+                            )
+                        }
                     }
                 </AuthUserContext.Consumer>
             );
