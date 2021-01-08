@@ -12,7 +12,7 @@ class ManageTeamsPage extends Component {
 
         this.state = {
             loading: true,
-            createTeamAthleteTableData: [],
+            athleteTableData: [],
             hasCurrentTeams: false
         }
     }
@@ -34,12 +34,12 @@ class ManageTeamsPage extends Component {
         if (userObject.currentTeams !== undefined) {
             this.setState({
                 loading: false,
-                createTeamAthleteTableData: this.initAthleteTableData(userObject)
+                athleteTableData: this.initAthleteTableData(userObject)
             })
         } else {
             this.setState({
                 loading: false,
-                createTeamAthleteTableData: this.initAthleteTableData(userObject)
+                athleteTableData: this.initAthleteTableData(userObject)
             })
         }
 
@@ -65,10 +65,9 @@ class ManageTeamsPage extends Component {
     render() {
         const {
             loading,
-            createTeamAthleteTableData
+            athleteTableData
         } = this.state
 
-        console.log(createTeamAthleteTableData)
 
         let loadingHTML =
             <Dimmer active>
@@ -83,7 +82,7 @@ class ManageTeamsPage extends Component {
                     </div>
                     <div id='createTeamBtnContainer'>
                         <CreateTeamModal
-                            athleteData={createTeamAthleteTableData}
+                            athleteTableData={athleteTableData}
                         />
                     </div>
                 </div>

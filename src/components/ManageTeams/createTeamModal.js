@@ -16,7 +16,6 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData }) => {
         setPageNum(pageNum)
     }
 
-
     const athleteTableColumns =
         [
             {
