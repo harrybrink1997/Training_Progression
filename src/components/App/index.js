@@ -19,10 +19,10 @@ import EmailChangePage from '../EmailChange'
 import DeleteAccountPage from '../DeleteAccount'
 import JoinTeamPage from '../JoinTeam'
 import ManageAthletesPage from '../ManageAthletes'
+import ManageTeamsPage from '../ManageTeams'
 
 import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
-import { useLocation } from 'react-router-dom'
 
 import 'semantic-ui-css/semantic.min.css';
 import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
@@ -43,6 +43,7 @@ import '../../CustomCSS/semanticUIBreadCrumb.css'
 import '../../CustomCSS/currentProgramsPage.css'
 import '../../CustomCSS/pastProgramsPage.css'
 import '../../CustomCSS/manageAthletesPage.css'
+import '../../CustomCSS/manageTeamsPage.css'
 import '../../CustomCSS/homePage.css'
 import '../../CustomCSS/deleteAccountPage.css'
 import '../../CustomCSS/accountPage.css'
@@ -81,6 +82,7 @@ const App = () => {
                 <Route path={ROUTES.DELETE_ACCOUNT} component={DeleteAccountPage} />
                 <Route path={ROUTES.JOIN_TEAM} component={JoinTeamPage} />
                 <Route path={ROUTES.MANAGE_ATHLETES} component={ManageAthletesPage} />
+                <Route path={ROUTES.MANAGE_TEAMS} component={ManageTeamsPage} />
             </div>
         </Router >
     )

@@ -5,34 +5,7 @@ import { Dropdown, Table, Grid, Container, Button, Input } from 'semantic-ui-rea
 import { useTable, useFilters, useGlobalFilter, usePagination } from 'react-table'
 import { DefaultColumnFilter, fuzzyTextFilterFn } from '../../constants/tableFiltering'
 
-const AthleteMangementTable = ({ data }) => {
-
-    // Updated with new ratio calcs format
-    const columns = [
-        {
-            Header: 'Athlete',
-            accessor: 'athlete',
-            filter: 'fuzzyText'
-        },
-        {
-            Header: 'Email',
-            accessor: 'email',
-            filter: 'fuzzyText'
-        },
-        {
-            Header: 'Team',
-            accessor: 'team',
-            filter: 'fuzzyText'
-        },
-        {
-            Header: 'Programs',
-            accessor: 'programs',
-            filter: 'fuzzyText'
-        },
-        {
-            accessor: 'manageModal',
-        },
-    ]
+const AthleteMangementTable = ({ columns, data }) => {
 
     const filterTypes = React.useMemo(
         () => ({

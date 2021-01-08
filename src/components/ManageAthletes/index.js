@@ -3,7 +3,7 @@ import { withCoachAuthorisation } from '../Session';
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import { Dimmer, Loader } from 'semantic-ui-react'
 
-import AthleteMangementTable from './athleteManagementTable'
+import AthleteMangementTable from '../CustomComponents/athleteManagementTable'
 import ManageAthleteModal from './manageAthleteModal'
 
 
@@ -14,6 +14,7 @@ class ManageAthletesPage extends Component {
 
         this.state = {
             athleteManagementTableData: [],
+            athleteManagementTableColumns: [],
             loading: true
         }
     }
@@ -33,8 +34,39 @@ class ManageAthletesPage extends Component {
     updateObjectState = (userObject) => {
         this.setState({
             athleteManagementTableData: this.initAthleteTableData(userObject),
+            athleteManagementTableColumns: this.initAthleteTableColumns(),
             loading: false
         })
+    }
+
+    initAthleteTableColumns = () => {
+        return (
+            [
+                {
+                    Header: 'Athlete',
+                    accessor: 'athlete',
+                    filter: 'fuzzyText'
+                },
+                {
+                    Header: 'Email',
+                    accessor: 'email',
+                    filter: 'fuzzyText'
+                },
+                {
+                    Header: 'Team',
+                    accessor: 'team',
+                    filter: 'fuzzyText'
+                },
+                {
+                    Header: 'Programs',
+                    accessor: 'programs',
+                    filter: 'fuzzyText'
+                },
+                {
+                    accessor: 'manageModal',
+                }
+            ]
+        )
     }
 
     initAthleteTableData = (userObject) => {
@@ -57,7 +89,8 @@ class ManageAthletesPage extends Component {
     render() {
         const {
             loading,
-            athleteManagementTableData
+            athleteManagementTableData,
+            athleteManagementTableColumns
         } = this.state
         let loadingHTML =
             <Dimmer active>
@@ -70,7 +103,10 @@ class ManageAthletesPage extends Component {
                     hello
                 </div>
 
-                <AthleteMangementTable data={athleteManagementTableData} />
+                <AthleteMangementTable
+                    data={athleteManagementTableData}
+                    columns={athleteManagementTableColumns}
+                />
             </NonLandingPageWrapper>
 
 

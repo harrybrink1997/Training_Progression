@@ -4,7 +4,7 @@ import TeamRequestModal from './teamRequestModal'
 import { Popup, Icon } from 'semantic-ui-react'
 import { Button } from 'semantic-ui-react'
 
-const TeamsContainer = ({ requestData, teamData, athleteData, userType, manageAthleteHandler }) => {
+const TeamsContainer = ({ requestData, userType, athleteData, manageAthleteHandler, manageTeamsHandler }) => {
 
     let coachHTML =
         <div>
@@ -34,19 +34,9 @@ const TeamsContainer = ({ requestData, teamData, athleteData, userType, manageAt
                     :
                     <Button className='lightPurpleButton-inverted' onClick={manageAthleteHandler}>Manage Athletes</Button>
             }
-            {
-                teamData === undefined
-                    ?
-                    <InputLabel
-                        text='No Active Teams'
-                        custID='noTeamRequestsHeaderLabel'
-                    />
-                    :
-                    <div>
-                        has team
-                    </div>
-            }
-        </div>
+            < Button className='lightPurpleButton-inverted' onClick={manageTeamsHandler}>Manage Teams</Button>
+
+        </div >
 
     let athleteHTML =
         <div>

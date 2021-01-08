@@ -5,7 +5,7 @@ import SignOutButton from '../SignOut'
 import * as ROUTES from '../../constants/routes'
 import { useLocation } from 'react-router-dom'
 
-import { Button, Menu } from 'semantic-ui-react'
+import { Button, Menu, Image } from 'semantic-ui-react'
 
 const Navigation = ({ custClass }) => {
 
@@ -45,7 +45,7 @@ const NavigationAuth = ({ custClass }) => {
                 as='a'
                 href={ROUTES.LANDING}
             >
-                Landing Page
+                <Image src={require('./Images/corvusStrengthLogoTransparent.png')} size='tiny' centered />
             </Menu.Item>
             {/* <Menu.Item
                 as='a'
@@ -111,8 +111,7 @@ const NavigationNotAuth = ({ custClass }) => {
                 as='a'
                 href={ROUTES.LANDING}
             >
-                Landing Page
-        </Menu.Item>
+            </Menu.Item>
         </Menu>
     )
 }

@@ -24,6 +24,10 @@
     color: white;
 }
 
+.ui.auth-nav-bar.menu > .item:first-child {
+    color:red;
+}
+
 .ui.auth-nav-bar.menu .active.item {
     color: #868cfc;
 }

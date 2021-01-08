@@ -205,8 +205,11 @@ class HomePage extends Component {
     }
 
     handleManageAthletesRedirect = () => {
-        console.log("going in ")
         this.props.history.push(ROUTES.MANAGE_ATHLETES)
+    }
+
+    handleManageTeamsRedirect = () => {
+        this.props.history.push(ROUTES.MANAGE_TEAMS)
     }
 
     checkIfProgramAlreadyExists(newProgram) {
@@ -423,7 +426,7 @@ class HomePage extends Component {
             userType,
             teamData
         } = this.state
-        console.log(this.props.firebase.auth.currentUser.getIdTokenResult())
+        console.log(teamData)
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
@@ -475,6 +478,7 @@ class HomePage extends Component {
                             requestData={teamData.requestData}
                             athleteData={teamData.athleteData}
                             manageAthleteHandler={this.handleManageAthletesRedirect}
+                            manageTeamsHandler={this.handleManageTeamsRedirect}
                         />
                     </div>
                 </div>
