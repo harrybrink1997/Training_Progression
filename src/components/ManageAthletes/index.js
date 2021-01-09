@@ -15,6 +15,7 @@ class ManageAthletesPage extends Component {
         this.state = {
             athleteManagementTableData: [],
             athleteManagementTableColumns: [],
+            selectedAthletesTable: [],
             loading: true
         }
     }
@@ -79,11 +80,18 @@ class ManageAthletesPage extends Component {
             tableData.push({
                 athlete: athlete.username,
                 email: athlete.email,
+                team: athlete.team,
                 manageModal: <ManageAthleteModal athleteUID={athleteUID} athleteData={athlete} />
             })
         })
 
         return tableData
+    }
+
+    handleAthleteSelection = (athleteTableData) => {
+        this.setState({
+            selectedAthletesTable: athleteTableData
+        })
     }
 
     render() {
@@ -106,6 +114,7 @@ class ManageAthletesPage extends Component {
                 <AthleteMangementTable
                     data={athleteManagementTableData}
                     columns={athleteManagementTableColumns}
+                    rowSelectChangeHanlder={this.handleAthleteSelection}
                 />
             </NonLandingPageWrapper>
 

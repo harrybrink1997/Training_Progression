@@ -55,10 +55,31 @@ class ManageTeamsPage extends Component {
             tableData.push({
                 athlete: athlete.username,
                 email: athlete.email,
+                uid: athleteUID
             })
         })
 
         return tableData
+    }
+
+    handleCreateTeam = (teamName, teamDescription, athleteData, programData) => {
+        console.log(teamName)
+        console.log(teamDescription)
+        console.log(athleteData)
+        console.log(programData)
+
+        var payLoad = {}
+
+        var athletePath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/`
+        var teamPath = `/users/${this.props.firebase.auth.currentUser.uid}/teams/${teamName}`
+
+        athleteData.forEach(athlete => {
+            payLoad[athletePath + athlete.uid + '/team'] = teamName
+        })
+
+        payLoad[teamPath + '/description'] = teamDescription
+
+        this.props.firebase.createTeamUpstream(payLoad)
     }
 
 
@@ -83,6 +104,7 @@ class ManageTeamsPage extends Component {
                     <div id='createTeamBtnContainer'>
                         <CreateTeamModal
                             athleteTableData={athleteTableData}
+                            handleFormSubmit={this.handleCreateTeam}
                         />
                     </div>
                 </div>

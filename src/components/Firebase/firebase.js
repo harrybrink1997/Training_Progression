@@ -328,5 +328,11 @@ class Firebase {
             .ref(`users/${uid}/pastPrograms/${progName}`)
             .remove()
     }
+
+    createTeamUpstream = (teamInfo) => {
+        return this.db
+            .ref('/')
+            .update(teamInfo)
+    }
 }
 export default Firebase
