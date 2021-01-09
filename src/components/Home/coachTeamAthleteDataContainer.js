@@ -4,7 +4,7 @@ import TeamRequestModal from './teamRequestModal'
 import { Popup, Icon } from 'semantic-ui-react'
 import { Button } from 'semantic-ui-react'
 
-const TeamsContainer = ({ requestData, userType, athleteData, manageAthleteHandler, manageTeamsHandler }) => {
+const CoachTeamAthleteDataContainer = ({ requestData, userType, athleteData, manageAthleteHandler, manageTeamsHandler }) => {
 
     let coachHTML =
         <div>
@@ -57,4 +57,4 @@ const TeamsContainer = ({ requestData, userType, athleteData, manageAthleteHandl
 
 
 
-export default TeamsContainer;
+export default CoachTeamAthleteDataContainer;

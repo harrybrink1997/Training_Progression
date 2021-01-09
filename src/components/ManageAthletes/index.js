@@ -3,7 +3,7 @@ import { withCoachAuthorisation } from '../Session';
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import { Dimmer, Loader } from 'semantic-ui-react'
 
-import AthleteMangementTable from '../CustomComponents/athleteManagementTable'
+import RowSelectTable from '../CustomComponents/rowSelectTable'
 import ManageAthleteModal from './manageAthleteModal'
 
 
@@ -111,7 +111,7 @@ class ManageAthletesPage extends Component {
                     hello
                 </div>
 
-                <AthleteMangementTable
+                <RowSelectTable
                     data={athleteManagementTableData}
                     columns={athleteManagementTableColumns}
                     rowSelectChangeHanlder={this.handleAthleteSelection}

@@ -5,7 +5,7 @@ import { Dropdown, Table, Grid, Container, Button, Input, Checkbox } from 'seman
 import { useTable, useFilters, useGlobalFilter, usePagination, useRowSelect } from 'react-table'
 import { DefaultColumnFilter, fuzzyTextFilterFn } from '../../constants/tableFiltering'
 
-const AthleteMangementTable = ({ columns, data, rowSelectChangeHanlder }) => {
+const RowSelectTable = ({ columns, data, rowSelectChangeHanlder }) => {
 
     const filterTypes = React.useMemo(
         () => ({
@@ -238,4 +238,4 @@ const IndeterminateCheckbox = React.forwardRef(
 )
 
 
-export default AthleteMangementTable
+export default RowSelectTable

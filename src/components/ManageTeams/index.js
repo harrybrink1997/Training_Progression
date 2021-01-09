@@ -4,6 +4,7 @@ import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import { Dimmer, Loader } from 'semantic-ui-react'
 import CreateTeamModal from './createTeamModal'
 
+import RowSelectTable from '../CustomComponents/rowSelectTable'
 
 class ManageTeamsPage extends Component {
 
@@ -12,8 +13,6 @@ class ManageTeamsPage extends Component {
 
         this.state = {
             loading: true,
-            athleteTableData: [],
-            hasCurrentTeams: false
         }
     }
 
@@ -31,35 +30,135 @@ class ManageTeamsPage extends Component {
 
     updateObjectState = (userObject) => {
 
-        if (userObject.currentTeams !== undefined) {
-            this.setState({
-                loading: false,
-                athleteTableData: this.initAthleteTableData(userObject)
-            })
-        } else {
-            this.setState({
-                loading: false,
-                athleteTableData: this.initAthleteTableData(userObject)
-            })
-        }
+        this.setState({
+            loading: false,
+            athleteTableData: this.initAthleteTableData(userObject),
+            programTableData: this.initProgramTableData(userObject),
+            teamsTableData: this.initTeamsTableData(userObject),
+            selectedTeamsTable: undefined
+        })
 
     }
 
     initAthleteTableData = (userObject) => {
 
         var tableData = []
+        if (userObject.currentAthletes !== undefined) {
+            Object.keys(userObject.currentAthletes).forEach(athleteUID => {
+                var athlete = userObject.currentAthletes[athleteUID]
 
-        Object.keys(userObject.currentAthletes).forEach(athleteUID => {
-            var athlete = userObject.currentAthletes[athleteUID]
-
-            tableData.push({
-                athlete: athlete.username,
-                email: athlete.email,
-                uid: athleteUID
+                tableData.push({
+                    athlete: athlete.username,
+                    email: athlete.email,
+                    uid: athleteUID
+                })
             })
-        })
+            return tableData
+        } else {
+            return undefined
+        }
 
-        return tableData
+    }
+
+    initTeamsTableColumns = () => {
+        return (
+            [
+                {
+                    Header: 'Team',
+                    accessor: 'team',
+                    filter: 'fuzzyText'
+                },
+                {
+                    Header: 'Description',
+                    accessor: 'description',
+                    filter: 'fuzzyText'
+                },
+                {
+                    Header: 'Team Count',
+                    accessor: 'teamCount',
+                    filter: 'fuzzyText'
+                },
+                {
+                    Header: 'Assigned Programs',
+                    accessor: 'programs',
+                    filter: 'fuzzyText'
+                },
+            ]
+        )
+    }
+
+    initTeamsTableData = (userObject) => {
+        var tableData = []
+        if (userObject.teams !== undefined) {
+            Object.keys(userObject.teams).forEach(teamName => {
+                var team = userObject.teams[teamName]
+                var programsString = ''
+                if (team.programs !== undefined) {
+                    Object.keys(team.programs).forEach(program => {
+                        programsString += program + ','
+                    })
+                    programsString = programsString.substring(0, programsString.length - 1)
+                }
+
+                tableData.push({
+                    team: teamName,
+                    description: team.description,
+                    programs: programsString,
+                    teamCount: this.countAthletesOnTeam(teamName, userObject.currentAthletes)
+                })
+            })
+            return tableData
+        } else {
+            return undefined
+        }
+
+
+    }
+
+    teamNameExists = (teamName) => {
+
+    }
+
+    countAthletesOnTeam = (team, currentAthletes) => {
+        var count = 0
+        if (currentAthletes !== undefined) {
+            Object.values(currentAthletes).forEach(athlete => {
+                if (athlete.team === team) {
+                    count++
+                }
+            })
+        }
+
+        return count
+    }
+
+    initProgramTableData = (userObject) => {
+        var tableData = []
+
+        if (userObject.currentPrograms !== undefined) {
+            Object.keys(userObject.currentPrograms).forEach(programName => {
+                var program = userObject.currentPrograms[programName]
+
+                tableData.push({
+                    program: programName,
+                    acutePeriod: program.acutePeriod,
+                    chronicPeriod: program.chronicPeriod,
+                    programLength: program.currentDayInProgram % 7
+                })
+            })
+            return tableData
+        } else {
+            return undefined
+        }
+
+
+    }
+
+
+    handleTeamSelection = (teamTableData) => {
+        this.setState({
+            selectedTeamsTable: teamTableData
+        })
     }
 
     handleCreateTeam = (teamName, teamDescription, athleteData, programData) => {
@@ -69,6 +168,7 @@ class ManageTeamsPage extends Component {
         console.log(programData)
 
         var payLoad = {}
+        var programsObject = {}
 
         var athletePath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/`
         var teamPath = `/users/${this.props.firebase.auth.currentUser.uid}/teams/${teamName}`
@@ -77,7 +177,12 @@ class ManageTeamsPage extends Component {
             payLoad[athletePath + athlete.uid + '/team'] = teamName
         })
 
+        programData.forEach(program => {
+            programsObject[program] = Math.floor(new Date().getTime())
+        })
+
         payLoad[teamPath + '/description'] = teamDescription
+        payLoad[teamPath + '/programs'] = programsObject
 
         this.props.firebase.createTeamUpstream(payLoad)
     }
@@ -86,10 +191,13 @@ class ManageTeamsPage extends Component {
     render() {
         const {
             loading,
-            athleteTableData
+            athleteTableData,
+            programTableData,
+            teamsTableData
         } = this.state
 
-
+        console.log(this.initTeamsTableColumns())
+        console.log(teamsTableData)
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
@@ -104,11 +212,17 @@ class ManageTeamsPage extends Component {
                     <div id='createTeamBtnContainer'>
                         <CreateTeamModal
                             athleteTableData={athleteTableData}
+                            programTableData={programTableData}
                             handleFormSubmit={this.handleCreateTeam}
                         />
                     </div>
                 </div>
 
+                <RowSelectTable
+                    columns={this.initTeamsTableColumns()}
+                    data={teamsTableData}
+                    rowSelectChangeHanlder={this.handleTeamSelection}
+                />
             </NonLandingPageWrapper>
 
 

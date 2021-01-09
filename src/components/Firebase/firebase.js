@@ -169,7 +169,7 @@ class Firebase {
             .remove()
     }
 
-    createProgramUpstream = (uid, pName, acuteP, chronicP, lScheme, sUTS, goalList) => {
+    createProgramUpstream = (uid, pName, acuteP, chronicP, lScheme, startDay, sUTS, goalList) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${pName}`)
             .set({
@@ -177,7 +177,7 @@ class Firebase {
                 acutePeriod: acuteP,
                 chronicPeriod: chronicP,
                 startDayUTS: sUTS,
-                currentDayInProgram: 1,
+                currentDayInProgram: startDay,
                 currentDayUTS: sUTS,
                 goals: goalList
             })

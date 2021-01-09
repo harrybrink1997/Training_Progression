@@ -6,7 +6,7 @@ import DeleteProgramModal from './deleteProgramModal'
 import CreateExerciseModal from './createExerciseModal'
 
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
-import TeamsContainer from './teamsContainer'
+import CoachTeamAthleteDataContainer from './coachTeamAthleteDataContainer'
 import { AcceptRequestButton, DeclineRequestButton } from './teamRequestModal'
 
 import OnBoarding from './onBoarding'
@@ -29,10 +29,10 @@ class HomePage extends Component {
             loading: true,
             userType: '',
             firstTimeUser: false,
-            teamData: {
+            coachTeamAthleteData: {
                 hasTeamData: false,
                 teamData: undefined,
-                athletData: undefined,
+                athleteData: undefined,
                 requestData: undefined
             }
         }
@@ -84,7 +84,7 @@ class HomePage extends Component {
                     firstTimeUser: this.determineFirstTimeLogin(this.props.firebase.auth.currentUser.metadata),
                     loading: false,
                     userType: userObject.userType,
-                    teamData: this.initTeamData(userObject)
+                    coachTeamAthleteData: this.initTeamData(userObject)
                 })
             })
         });
@@ -163,9 +163,9 @@ class HomePage extends Component {
             // Get the current athletes for the coach.
             if (userObject.currentAthletes !== undefined) {
 
-                var athletData = []
+                var athleteData = []
                 Object.keys(userObject.currentAthletes).forEach(athlete => {
-                    athletData.push({
+                    athleteData.push({
                         username: userObject.currentAthletes[athlete].username,
                         notes: userObject.currentAthletes[athlete].message,
                         athleteUID: athlete,
@@ -178,15 +178,9 @@ class HomePage extends Component {
 
                     })
                 })
-                payLoad.athleteData = athletData
+                payLoad.athleteData = athleteData
             } else {
                 payLoad.athleteData = undefined
-            }
-
-            if (userObject.teams !== undefined) {
-                console.log("has teams data")
-            } else {
-                payLoad.teamData = undefined
             }
         }
         console.log(payLoad)
@@ -242,33 +236,53 @@ class HomePage extends Component {
             alert('Program with name "' + programName + '" already exists in either your current or past programs.')
         } else {
 
-            var goalListObject = {}
-            var index = 1
-            Object.values(goalList).forEach(goal => {
-                goalListObject['Goal_' + index] = goal.getFormattedGoalObject()
-                index++
-            })
+            if (this.state.userType === 'athlete') {
+                var goalListObject = {}
+                var index = 1
+                Object.values(goalList).forEach(goal => {
+                    goalListObject['Goal_' + index] = goal.getFormattedGoalObject()
+                    index++
+                })
 
-            var dateConversion = date.split('-')
+                var dateConversion = date.split('-')
 
-            dateConversion = dateConversion[2] + '-' + dateConversion[1] + '-' + dateConversion[0]
+                dateConversion = dateConversion[2] + '-' + dateConversion[1] + '-' + dateConversion[0]
 
-            var startTimestamp = Math.floor(new Date(dateConversion).getTime())
+                var startTimestamp = Math.floor(new Date(dateConversion).getTime())
 
-            await this.props.firebase.createProgramUpstream(
-                this.state.userInformation.uid,
-                programName,
-                acutePeriod,
-                chronicPeriod,
-                loadingScheme,
-                startTimestamp,
-                goalListObject
-            )
+                await this.props.firebase.createProgramUpstream(
+                    this.state.userInformation.uid,
+                    programName,
+                    acutePeriod,
+                    chronicPeriod,
+                    loadingScheme,
+                    1,
+                    startTimestamp,
+                    goalListObject
+                )
 
-            this.props.firebase.setActiveProgram(
-                this.state.userInformation.uid,
-                programName
-            )
+                this.props.firebase.setActiveProgram(
+                    this.state.userInformation.uid,
+                    programName
+                )
+            } else {
+                await this.props.firebase.createProgramUpstream(
+                    this.state.userInformation.uid,
+                    programName,
+                    acutePeriod,
+                    chronicPeriod,
+                    loadingScheme,
+                    1,
+                    null,
+                    null
+                )
+
+                this.props.firebase.setActiveProgram(
+                    this.state.userInformation.uid,
+                    programName
+                )
+            }
+
         }
     }
 
@@ -424,9 +438,9 @@ class HomePage extends Component {
             anatomyObject,
             firstTimeUser,
             userType,
-            teamData
+            coachTeamAthleteData
         } = this.state
-        console.log(teamData)
+        console.log(coachTeamAthleteData)
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
@@ -453,7 +467,10 @@ class HomePage extends Component {
                                 />
                             </div>
                             <div id='hpMidBtnContainer'>
-                                <CreateProgramModal handleFormSubmit={this.handleCreateProgram} />
+                                <CreateProgramModal
+                                    handleFormSubmit={this.handleCreateProgram}
+                                    userType={userType}
+                                />
 
                             </div>
                             <div id='hpRightBtnContainer'>
@@ -472,11 +489,11 @@ class HomePage extends Component {
                             custID='myTeamsHeader'
                             text='My Teams'
                         />
-                        <TeamsContainer
+                        <CoachTeamAthleteDataContainer
                             userType={userType}
-                            teamData={teamData.teamData}
-                            requestData={teamData.requestData}
-                            athleteData={teamData.athleteData}
+                            teamData={coachTeamAthleteData.teamData}
+                            requestData={coachTeamAthleteData.requestData}
+                            athleteData={coachTeamAthleteData.athleteData}
                             manageAthleteHandler={this.handleManageAthletesRedirect}
                             manageTeamsHandler={this.handleManageTeamsRedirect}
                         />

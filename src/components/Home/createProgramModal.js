@@ -8,7 +8,7 @@ import AddGoalsForm from '../CustomComponents/addGoalsForm'
 // import GoalFieldForm from '../CustomComponents/goalFieldForm'
 import { Goal } from '../CustomComponents/goalFieldForm'
 
-const CreateProgramModal = ({ handleFormSubmit }) => {
+const CreateProgramModal = ({ handleFormSubmit, userType }) => {
 
     const [show, setShow] = useState(false);
     const [acutePeriod, setAcutePeriod] = useState(7)
@@ -57,7 +57,12 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
     const handleSubmit = (event) => {
         setShow(false);
 
-        handleFormSubmit(programName, acutePeriod, chronicPeriod, loadingScheme, generateTodaysDate(date), goalList)
+        if (userType === 'athlete') {
+            handleFormSubmit(programName, acutePeriod, chronicPeriod, loadingScheme, generateTodaysDate(date), goalList)
+        } else {
+            handleFormSubmit(programName, acutePeriod, chronicPeriod, loadingScheme, undefined, undefined)
+        }
+
 
         setProgramName('')
         setDate(new Date())
@@ -249,7 +254,7 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                         </Form>
                     }
                     {
-                        pageNum == 3 &&
+                        pageNum == 3 && userType === 'athlete' &&
                         <Form onSubmit={handleNonFinalSubmit}>
                             <Form.Field>
                                 <InputLabel
@@ -278,7 +283,36 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                         </Form>
                     }
                     {
-                        pageNum == 4 &&
+                        pageNum == 3 && userType === 'coach' &&
+                        <Form onSubmit={handleSubmit}>
+                            <Form.Field>
+                                <InputLabel
+                                    text='Selected A Loading Scheme &nbsp;'
+                                    toolTip={<Popup
+                                        basic
+                                        trigger={<Icon name='question circle outline' />}
+                                        content='This will determine your loading scheme for the program. Choose RPE/Time if tracking on weight is not required. Otherwise choose Weight/Repetions.'
+                                        position='right center'
+                                    />}
+                                />
+                                <Form.Radio
+                                    label='RPE / Time'
+                                    value='rpe_time'
+                                    checked={loadingScheme === 'rpe_time'}
+                                    onChange={handleLoadingSchemeChange}
+                                />
+                                <Form.Radio
+                                    label='Weight / Repetitions'
+                                    value='weight_reps'
+                                    checked={loadingScheme === 'weight_reps'}
+                                    onChange={handleLoadingSchemeChange}
+                                />
+                            </Form.Field>
+                            <Button className='submitBtn' type="submit">Create Program</Button>
+                        </Form>
+                    }
+                    {
+                        pageNum == 4 && userType === 'athlete' &&
                         <Form onSubmit={handleNonFinalSubmit}>
                             <Form.Field>
                                 <div id='hpModalGoalsLabelContainer'>
@@ -315,7 +349,7 @@ const CreateProgramModal = ({ handleFormSubmit }) => {
                         </Form>
                     }
                     {
-                        pageNum == 5 &&
+                        pageNum == 5 && userType === 'athlete' &&
                         <Form onSubmit={handleSubmit}>
                             <Form.Field>
                                 <InputLabel

@@ -3,7 +3,7 @@ import { Modal, Button, Form, Input, Container, Popup, Icon, Breadcrumb } from '
 
 import InputLabel from '../CustomComponents/DarkModeInput'
 
-import AthleteManagementTable from '../CustomComponents/athleteManagementTable'
+import RowSelectTable from '../CustomComponents/rowSelectTable'
 
 const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData }) => {
 
@@ -38,6 +38,30 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
             },
         ]
 
+    const programTableColumns =
+        [
+            {
+                Header: 'Program',
+                accessor: 'program',
+                filter: 'fuzzyText'
+            },
+            {
+                Header: 'Acute Period',
+                accessor: 'acutePeriod',
+                filter: 'fuzzyText'
+            },
+            {
+                Header: 'Chronic Period',
+                accessor: 'chronicPeriod',
+                filter: 'fuzzyText'
+            },
+            {
+                Header: 'Program Length (Weeks)',
+                accessor: 'programLength',
+                filter: 'fuzzyText'
+            },
+        ]
+
     const changeTeamName = (event, { value }) => {
         setTeamName(value)
 
@@ -51,12 +75,16 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
         setShow(false);
 
         var athleteData = []
+        var programData = []
 
         Object.values(selectedAthletes).forEach(athlete => {
             athleteData.push(athlete.original)
         })
+        Object.values(selectedPrograms).forEach(program => {
+            programData.push(program.original.program)
+        })
 
-        handleFormSubmit(teamName, teamDescription, athleteData, selectedPrograms)
+        handleFormSubmit(teamName, teamDescription, athleteData, programData)
         setTeamName('')
         setTeamDescription('')
         setSelectedAthletes([])
@@ -73,6 +101,10 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
 
     const handleAthleteSelection = (athleteTableSelection) => {
         setSelectedAthletes(athleteTableSelection)
+    }
+
+    const handleProgramSelection = (programTableSelection) => {
+        setSelectedPrograms(programTableSelection)
     }
 
     return (
@@ -200,7 +232,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                     {
                         pageNum == 3 && programTableData !== undefined &&
                         <Form onSubmit={handleNonFinalSubmit}>
-                            <AthleteManagementTable
+                            <RowSelectTable
                                 columns={athleteTableColumns}
                                 data={athleteTableData}
                                 rowSelectChangeHanlder={handleAthleteSelection}
@@ -212,7 +244,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                     {
                         pageNum == 3 && programTableData === undefined &&
                         <Form onSubmit={handleSubmit}>
-                            <AthleteManagementTable
+                            <RowSelectTable
                                 columns={athleteTableColumns}
                                 data={athleteTableData}
                                 rowSelectChangeHanlder={handleAthleteSelection}
@@ -224,6 +256,11 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                     {
                         pageNum == 4 && programTableData !== undefined &&
                         <Form onSubmit={handleSubmit}>
+                            <RowSelectTable
+                                columns={programTableColumns}
+                                data={programTableData}
+                                rowSelectChangeHanlder={handleProgramSelection}
+                            />
                             <Button className='submitBtn' type="submit">Create Team</Button>
                         </Form>
                     }
