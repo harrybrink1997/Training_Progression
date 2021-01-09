@@ -48,6 +48,18 @@
     box-shadow: 0 0 5px #BB86FC;
 }
 
+.ui.button.red-undo-inverted {
+    background: inherit;
+    /* border: 2px solid #e5e5e5; */
+    border: none;
+    font-weight: 900;
+    color: #e5e5e5;
+
+}
+.ui.button.red-undo-inverted:hover {
+    color: #BB86FC;
+}
+
 .ui.circular.icon.button.deleteExerciseButton {
     background: #CF6679;
 }
@@ -67,3 +79,4 @@
 .ui.loading.button.lightPurpleButton {
     background: #BB86FC;
 }
+

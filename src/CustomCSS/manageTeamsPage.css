@@ -3,3 +3,22 @@
     justify-content: center;
     margin-bottom: 20px;
 }
+
+#programAssignmentCardGroupContainer {
+    padding-top: 30px;
+    padding-bottom: 20px;
+}
+
+#programAssignmentCardGroupContainer > .ui.cards > div {
+    width: 33%;
+    display: flex;
+    justify-content: center;
+}
+
+#programAssignmentCardGroupContainer .ui.cards .ui.card {
+    background: #191919;
+}
+
+#changeAccessTypeBtn {
+    padding-top: 10px;
+}

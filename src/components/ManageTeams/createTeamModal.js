@@ -4,6 +4,7 @@ import { Modal, Button, Form, Input, Container, Popup, Icon, Breadcrumb } from '
 import InputLabel from '../CustomComponents/DarkModeInput'
 
 import RowSelectTable from '../CustomComponents/rowSelectTable'
+import ProgramAssignment from '../CustomComponents/programAssignment'
 
 const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData }) => {
 
@@ -84,7 +85,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
             programData.push(program.original.program)
         })
 
-        handleFormSubmit(teamName, teamDescription, athleteData, programData)
+        // handleFormSubmit(teamName, teamDescription, athleteData, programData)
         setTeamName('')
         setTeamDescription('')
         setSelectedAthletes([])
@@ -95,6 +96,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
 
     const handleNonFinalSubmit = (event) => {
         event.preventDefault()
+        console.log("going in ")
         setPageNum(prevNum => prevNum + 1)
 
     }
@@ -104,6 +106,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
     }
 
     const handleProgramSelection = (programTableSelection) => {
+        console.log(programTableSelection)
         setSelectedPrograms(programTableSelection)
     }
 
@@ -156,11 +159,11 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                             <></>
                     }
                     {
-                        pageNum == 4 &&
+                        pageNum >= 4 &&
                         <Breadcrumb.Divider>/</Breadcrumb.Divider>
                     }
                     {
-                        pageNum == 4 &&
+                        pageNum >= 4 &&
                         <Breadcrumb.Section link active>Assign Programs</Breadcrumb.Section>
                     }
                 </Breadcrumb>
@@ -255,14 +258,35 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                     }
                     {
                         pageNum == 4 && programTableData !== undefined &&
-                        <Form onSubmit={handleSubmit}>
+                        <div>
                             <RowSelectTable
                                 columns={programTableColumns}
                                 data={programTableData}
                                 rowSelectChangeHanlder={handleProgramSelection}
                             />
-                            <Button className='submitBtn' type="submit">Create Team</Button>
-                        </Form>
+                            {
+                                selectedPrograms.length === 0 ?
+                                    <Button
+                                        className='submitBtn'
+                                        onClick={handleSubmit}
+                                    >Create Team</Button>
+                                    :
+                                    <Button
+                                        className='submitBtn'
+                                        onClick={handleNonFinalSubmit}
+                                    >Next</Button>
+                            }
+                        </div>
+                    }
+                    {
+                        pageNum == 5 && selectedPrograms.length > 0 &&
+                        // <Form onSubmit={handleSubmit}>
+                        <ProgramAssignment
+                            programTableData={selectedPrograms}
+                            programTableColumns={programTableColumns}
+                        />
+                        // <Button className='submitBtn' type="submit">Create Team</Button>
+                        // </Form>
                     }
                 </Container>
             </Modal.Content>

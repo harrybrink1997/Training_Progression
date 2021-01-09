@@ -70,6 +70,7 @@ const CreateProgramModal = ({ handleFormSubmit, userType }) => {
         setChronicPeriod(28)
         setAcutePeriod(7)
         setGoalList({})
+        setPageNum(1)
     }
 
     const handleGoalNumUpdate = (increase) => {
