@@ -177,10 +177,26 @@ class ManageTeamsPage extends Component {
             payLoad[athletePath + athlete.uid + '/team'] = teamName
         })
 
-        programData.forEach(program => {
-            programsObject[program] = Math.floor(new Date().getTime())
-        })
+        if (programData.unlimited) {
+            programsObject.unlimited = {}
+            programData.unlimited.forEach(program => {
+                programsObject.unlimited[program.program] = {
+                    dateSet: Math.floor(new Date().getTime())
+                }
+            })
+        }
 
+        if (programData.sequential) {
+            programsObject.sequential = {}
+            programData.sequential.forEach(program => {
+                programsObject.sequential[program.program] = {
+                    dateSet: Math.floor(new Date().getTime()),
+                    order: program.order
+                }
+            })
+        }
+
+        console.log(programsObject)
         payLoad[teamPath + '/description'] = teamDescription
         payLoad[teamPath + '/programs'] = programsObject
 

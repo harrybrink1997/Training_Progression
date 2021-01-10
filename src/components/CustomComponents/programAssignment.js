@@ -28,10 +28,6 @@ const ProgramAssignment = ({ handleFormSubmit, programTableData, programTableCol
 
     const programTableDataFormatted = initTableData(programTableData)
 
-    const handlePageChange = (event, pageNum) => {
-        event.preventDefault()
-        setPageNum(pageNum)
-    }
     const handleSubmit = (accessType, programData = undefined) => {
         var payLoad = {}
         if (accessType === 'unlimited') {
@@ -42,18 +38,16 @@ const ProgramAssignment = ({ handleFormSubmit, programTableData, programTableCol
                 payLoad.unlimited.push(program.original)
             })
 
-            console.log(payLoad)
         } else if (accessType === 'sequential') {
             payLoad.unlimited = false
             payLoad.sequential = programData
 
-            console.log(payLoad)
         } else if (accessType === 'mixed') {
             payLoad = programData
 
-            console.log(payLoad)
         }
 
+        handleFormSubmit(payLoad)
         setAccess('')
     }
 
@@ -431,6 +425,7 @@ const MixedAccess = ({ handleFormSubmit, programTableData, programTableColumns }
     const [unlimitedPrograms, setUnlimitedPrograms] = useState([])
     const [unlimitedProgramsSelected, setUnlimitedProgramsSelected] = useState(false)
     const [sequentialProgramsTableData, setSequentialProgramsTableData] = useState([])
+    const [headerText, setHeaderText] = useState('Select Unlimited Access Programs')
 
     const handleUnlimitedProgramsSubmitted = (unlimitedProgramsSelected, sequentialPrograms) => {
         console.log(unlimitedProgramsSelected)
@@ -440,6 +435,7 @@ const MixedAccess = ({ handleFormSubmit, programTableData, programTableColumns }
             setUnlimitedProgramsSelected(true)
             setSequentialProgramsTableData(sequentialPrograms)
             setUnlimitedPrograms(unlimitedProgramsSelected)
+            setHeaderText('Select Sequentially Accessible Programs')
         } else {
             handleFormSubmit({
                 unlimited: unlimitedProgramsSelected,
@@ -458,6 +454,10 @@ const MixedAccess = ({ handleFormSubmit, programTableData, programTableColumns }
 
     return (
         <div>
+            <InputLabel
+                text={headerText}
+                custID='mixedAccessHeaderText'
+            />
             {
                 !unlimitedProgramsSelected &&
                 <UnlimitedAccess

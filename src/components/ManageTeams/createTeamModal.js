@@ -72,20 +72,16 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
 
     }
 
-    const handleSubmit = (event) => {
+    const handleSubmit = (programData = undefined) => {
         setShow(false);
 
         var athleteData = []
-        var programData = []
 
         Object.values(selectedAthletes).forEach(athlete => {
             athleteData.push(athlete.original)
         })
-        Object.values(selectedPrograms).forEach(program => {
-            programData.push(program.original.program)
-        })
 
-        // handleFormSubmit(teamName, teamDescription, athleteData, programData)
+        handleFormSubmit(teamName, teamDescription, athleteData, programData)
         setTeamName('')
         setTeamDescription('')
         setSelectedAthletes([])
@@ -108,6 +104,10 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
     const handleProgramSelection = (programTableSelection) => {
         console.log(programTableSelection)
         setSelectedPrograms(programTableSelection)
+    }
+
+    const handleProgramAssignmentSubmission = (programAssignment) => {
+        handleSubmit(programAssignment)
     }
 
     return (
@@ -154,7 +154,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                             ?
                             <Breadcrumb.Section link active>Add Athletes</Breadcrumb.Section>
                             :
-                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 2)}>Add Athletes</Breadcrumb.Section>
+                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 3)}>Add Athletes</Breadcrumb.Section>
                             :
                             <></>
                     }
@@ -163,8 +163,21 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                         <Breadcrumb.Divider>/</Breadcrumb.Divider>
                     }
                     {
-                        pageNum >= 4 &&
-                        <Breadcrumb.Section link active>Assign Programs</Breadcrumb.Section>
+                        (pageNum >= 4) ? (pageNum == 4)
+                            ?
+                            <Breadcrumb.Section link active>Assign Programs</Breadcrumb.Section>
+                            :
+                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 4)}>Assign Programs</Breadcrumb.Section>
+                            :
+                            <></>
+                    }
+                    {
+                        pageNum >= 5 &&
+                        <Breadcrumb.Divider>/</Breadcrumb.Divider>
+                    }
+                    {
+                        pageNum >= 5 &&
+                        <Breadcrumb.Section link active>Program Accessbility</Breadcrumb.Section>
                     }
                 </Breadcrumb>
                 <Container>
@@ -280,13 +293,11 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                     }
                     {
                         pageNum == 5 && selectedPrograms.length > 0 &&
-                        // <Form onSubmit={handleSubmit}>
                         <ProgramAssignment
                             programTableData={selectedPrograms}
                             programTableColumns={programTableColumns}
+                            handleFormSubmit={handleProgramAssignmentSubmission}
                         />
-                        // <Button className='submitBtn' type="submit">Create Team</Button>
-                        // </Form>
                     }
                 </Container>
             </Modal.Content>
