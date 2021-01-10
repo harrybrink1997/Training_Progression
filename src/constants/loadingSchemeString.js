@@ -6,4 +6,14 @@ const loadingSchemeString = (scheme) => {
     }
 }
 
+const loadingSchemeStringInverse = (scheme) => {
+    if (scheme == 'RPE / Time') {
+        return 'rpe_time'
+    } else {
+        return 'weight_reps'
+    }
+}
+
 export default loadingSchemeString
+
+export { loadingSchemeStringInverse }

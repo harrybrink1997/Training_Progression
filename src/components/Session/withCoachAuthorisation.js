@@ -24,7 +24,6 @@ const withCoachAuthorisation = condition => Component => {
                     if (coachAuthUser) {
                         this.props.firebase.auth.currentUser.getIdTokenResult()
                             .then(adminToken => {
-                                console.log('')
                                 if (!condition(adminToken.claims.userType)) {
                                     this.props.history.push(ROUTES.LANDING)
                                 } else {

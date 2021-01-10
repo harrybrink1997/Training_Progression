@@ -57,6 +57,11 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                 filter: 'fuzzyText'
             },
             {
+                Header: 'Loading Scheme',
+                accessor: 'loadingScheme',
+                filter: 'fuzzyText'
+            },
+            {
                 Header: 'Program Length (Weeks)',
                 accessor: 'programLength',
                 filter: 'fuzzyText'

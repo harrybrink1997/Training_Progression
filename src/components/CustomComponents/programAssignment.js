@@ -20,7 +20,8 @@ const ProgramAssignment = ({ handleFormSubmit, programTableData, programTableCol
                 program: program.original.program,
                 acutePeriod: program.original.acutePeriod,
                 chronicPeriod: program.original.chronicPeriod,
-                programLength: program.original.programLength,
+                loadingScheme: program.original.loadingScheme,
+                programLength: program.original.programLength
             })
         })
         return tableData
@@ -219,6 +220,10 @@ const SequentialAccess = ({ handleFormSubmit, programTableData, programTableColu
             accessor: 'chronicPeriod',
         },
         {
+            Header: 'Loading Scheme',
+            accessor: 'loadingScheme',
+        },
+        {
             Header: 'Program Length (Weeks)',
             accessor: 'programLength',
         },
@@ -310,6 +315,10 @@ const UnlimitedAccess = ({ handleFormSubmit, programTableData, programTableColum
         {
             Header: 'Chronic Period',
             accessor: 'chronicPeriod',
+        },
+        {
+            Header: 'Loading Scheme',
+            accessor: 'loadingScheme',
         },
         {
             Header: 'Program Length (Weeks)',

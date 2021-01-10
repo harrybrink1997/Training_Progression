@@ -5,6 +5,9 @@ import { Dimmer, Loader } from 'semantic-ui-react'
 import CreateTeamModal from './createTeamModal'
 
 import RowSelectTable from '../CustomComponents/rowSelectTable'
+import loadingSchemeString from '../../constants/loadingSchemeString'
+import { loadingSchemeStringInverse } from '../../constants/loadingSchemeString'
+
 
 class ManageTeamsPage extends Component {
 
@@ -138,9 +141,10 @@ class ManageTeamsPage extends Component {
         if (userObject.currentPrograms !== undefined) {
             Object.keys(userObject.currentPrograms).forEach(programName => {
                 var program = userObject.currentPrograms[programName]
-
+                console.log(program)
                 tableData.push({
                     program: programName,
+                    loadingScheme: loadingSchemeString(program.loading_scheme),
                     acutePeriod: program.acutePeriod,
                     chronicPeriod: program.chronicPeriod,
                     programLength: program.currentDayInProgram % 7
@@ -162,10 +166,6 @@ class ManageTeamsPage extends Component {
     }
 
     handleCreateTeam = (teamName, teamDescription, athleteData, programData) => {
-        console.log(teamName)
-        console.log(teamDescription)
-        console.log(athleteData)
-        console.log(programData)
 
         var payLoad = {}
         var programsObject = {}
@@ -173,9 +173,6 @@ class ManageTeamsPage extends Component {
         var athletePath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/`
         var teamPath = `/users/${this.props.firebase.auth.currentUser.uid}/teams/${teamName}`
 
-        athleteData.forEach(athlete => {
-            payLoad[athletePath + athlete.uid + '/team'] = teamName
-        })
 
         if (programData.unlimited) {
             programsObject.unlimited = {}
@@ -196,7 +193,46 @@ class ManageTeamsPage extends Component {
             })
         }
 
-        console.log(programsObject)
+
+        athleteData.forEach(athlete => {
+            payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/joiningDate'] = Math.floor(new Date().getTime())
+
+            if (programData.unlimited) {
+                programData.unlimited.forEach(program => {
+
+                    var insertionProgramObject = {
+                        acutePeriod: program.acutePeriod,
+                        chronicPeriod: program.chronicPeriod,
+                        currentDayInProgram: 1,
+                        loading_scheme: loadingSchemeStringInverse(program.loadingScheme)
+                    }
+
+                    // Database path to insert into the athletes pending programs.
+                    payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.program] = insertionProgramObject
+                    // Database path to keep track of what programs have been shared with which athlete and when.
+                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.program] = Math.floor(new Date().getTime())
+                })
+            }
+
+            if (programData.sequential) {
+                programData.sequential.forEach(program => {
+
+                    var insertionProgramObject = {
+                        acutePeriod: program.acutePeriod,
+                        chronicPeriod: program.chronicPeriod,
+                        currentDayInProgram: 1,
+                        loading_scheme: loadingSchemeStringInverse(program.loadingScheme),
+                        order: program.order + '_' + teamName + '_' + this.props.firebase.auth.currentUser.uid
+                    }
+
+                    payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.program] = insertionProgramObject
+
+                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.program] = Math.floor(new Date().getTime())
+                })
+            }
+        })
+
+        console.log(payLoad)
         payLoad[teamPath + '/description'] = teamDescription
         payLoad[teamPath + '/programs'] = programsObject
 
@@ -212,8 +248,7 @@ class ManageTeamsPage extends Component {
             teamsTableData
         } = this.state
 
-        console.log(this.initTeamsTableColumns())
-        console.log(teamsTableData)
+        console.log(programTableData)
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
