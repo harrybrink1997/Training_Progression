@@ -132,6 +132,7 @@ class ManageProgramsPage extends Component {
                 if (userObject.userType === 'coach') {
                     returnData.tableData.push({
                         program: programUID.split('_')[0],
+                        programUID: programUID,
                         loadingScheme: loadingSchemeString(program.loading_scheme),
                         acutePeriod: program.acutePeriod,
                         chronicPeriod: program.chronicPeriod,
@@ -304,6 +305,46 @@ class ManageProgramsPage extends Component {
         this.props.firebase.deleteCurrentProgramsUpstream(payLoad)
     }
 
+    handleCreateProgramGroup = (groupName, programData) => {
+        console.log(groupName)
+        console.log(programData)
+
+        var payLoad = {
+            sequential: false,
+            unlimited: false
+        }
+
+        if (programData.unlimited) {
+            var programArray = []
+            programData.unlimited.forEach(program => {
+                programArray.push(program.programUID)
+            })
+            payLoad.unlimited = programArray
+
+        }
+
+        if (programData.sequential) {
+            var programObj = {}
+            var timestamp = new Date().getTime()
+
+            programData.sequential.forEach(program => {
+                programObj[program.programUID] =
+                    program.order
+                    + '_' + programData.sequenceName
+                    + '_' + this.props.firebase.auth.currentUser.uid
+                    + '_' + timestamp
+            })
+
+            payLoad.sequential = programObj
+        }
+
+        this.props.firebase.createProgramGroupUpstream(
+            this.props.firebase.auth.currentUser.uid,
+            groupName,
+            payLoad
+        )
+
+    }
     render() {
         const {
             loading,
@@ -345,6 +386,7 @@ class ManageProgramsPage extends Component {
                             <div id='hpRightBtnContainer'>
                                 <CreateProgramGroupModal
                                     programTableData={programManagementTableData}
+                                    handleFormSubmit={this.handleCreateProgramGroup}
                                 />
                             </div>
 

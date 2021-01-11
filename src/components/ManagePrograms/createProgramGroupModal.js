@@ -52,10 +52,13 @@ const CreateProgramGroupModal = ({ handleFormSubmit, programTableData }) => {
         setGroupName(value)
     }
 
-    const handleSubmit = (programData = undefined) => {
+    const handleSubmit = (programData) => {
         setShow(false);
-        console.log(programData)
-        console.log(groupName)
+        handleFormSubmit(groupName, programData)
+
+        setGroupName('')
+        setPageNum(1)
+        setSelectedPrograms([])
     }
 
     const handleNonFinalSubmit = (event) => {
@@ -104,7 +107,7 @@ const CreateProgramGroupModal = ({ handleFormSubmit, programTableData }) => {
                             ?
                             <Breadcrumb.Section link active>Choose Programs</Breadcrumb.Section>
                             :
-                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 4)}>Assign Programs</Breadcrumb.Section>
+                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 2)}>Assign Programs</Breadcrumb.Section>
                             :
                             <></>
                     }

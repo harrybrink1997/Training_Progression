@@ -329,6 +329,12 @@ class Firebase {
             .remove()
     }
 
+    createProgramGroupUpstream = (uid, groupName, val) => {
+        return this.db
+            .ref(`users/${uid}/programGroups/${groupName}`)
+            .set(val)
+    }
+
     createTeamUpstream = (teamInfo) => {
         return this.db
             .ref('/')

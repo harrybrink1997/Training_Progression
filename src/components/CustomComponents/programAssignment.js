@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Icon, Button, Card } from 'semantic-ui-react'
+import { Icon, Button, Card, Form, Input } from 'semantic-ui-react'
 
 import InputLabel from './DarkModeInput'
 
@@ -20,7 +20,8 @@ const ProgramAssignment = ({ handleFormSubmit, programTableData, programTableCol
                 acutePeriod: program.original.acutePeriod,
                 chronicPeriod: program.original.chronicPeriod,
                 loadingScheme: program.original.loadingScheme,
-                programLength: program.original.programLength
+                programLength: program.original.programLength,
+                programUID: program.original.programUID
             })
         })
         return tableData
@@ -33,14 +34,15 @@ const ProgramAssignment = ({ handleFormSubmit, programTableData, programTableCol
         if (accessType === 'unlimited') {
             payLoad.sequential = false
             payLoad.unlimited = []
-
+            payLoad.sequenceName = ''
             programTableData.forEach(program => {
                 payLoad.unlimited.push(program.original)
             })
 
         } else if (accessType === 'sequential') {
             payLoad.unlimited = false
-            payLoad.sequential = programData
+            payLoad.sequential = programData.programOrder
+            payLoad.sequenceName = programData.sequenceName
 
         } else if (accessType === 'mixed') {
             payLoad = programData
@@ -51,12 +53,6 @@ const ProgramAssignment = ({ handleFormSubmit, programTableData, programTableCol
         setAccess('')
     }
 
-    const handleNonFinalSubmit = (event) => {
-        event.preventDefault()
-        setPageNum(prevNum => prevNum + 1)
-
-    }
-
     const processAccess = (accessType) => {
         setAccess(accessType)
     }
@@ -65,8 +61,11 @@ const ProgramAssignment = ({ handleFormSubmit, programTableData, programTableCol
         setAccess('')
     }
 
-    const handleSequentialProgramSubmission = (programOrder) => {
-        handleSubmit('sequential', programOrder)
+    const handleSequentialProgramSubmission = (programOrder, sequenceName) => {
+        handleSubmit('sequential', {
+            programOrder: programOrder,
+            sequenceName: sequenceName
+        })
     }
 
     const handleMixProgramSubmission = (programData) => {
@@ -156,7 +155,8 @@ const SequentialAccess = ({ handleFormSubmit, programTableData, programTableColu
 
     const [orderedPrograms, setOrderedPrograms] = useState([])
     const tableColumns = programTableColumns
-
+    const [pageNum, setPageNum] = useState(1)
+    const [sequenceName, setSequenceName] = useState('')
     const [seqTableData, setSeqTableData] = useState(programTableData)
 
     const programAlreadyOrdered = (programName) => {
@@ -170,6 +170,10 @@ const SequentialAccess = ({ handleFormSubmit, programTableData, programTableColu
             }
             return false
         }
+    }
+
+    const changeSequenceName = (event, { value }) => {
+        setSequenceName(value)
     }
 
     const removeProgramFromSequentialTable = (programName) => {
@@ -236,7 +240,7 @@ const SequentialAccess = ({ handleFormSubmit, programTableData, programTableColu
     }, [orderedPrograms, seqTableData])
 
     const handleSubmit = (event) => {
-        handleFormSubmit(orderedPrograms)
+        handleFormSubmit(orderedPrograms, sequenceName)
         setOrderedPrograms([])
     }
 
@@ -251,10 +255,51 @@ const SequentialAccess = ({ handleFormSubmit, programTableData, programTableColu
         setSeqTableData(newSeqTableData)
     }
 
+    const handleNonFinalSubmit = (event) => {
+        event.preventDefault()
+        setPageNum(prevNum => prevNum + 1)
+
+    }
+
     return (
         <div>
             {
-                seqTableData.length > 0 &&
+                pageNum == 1 &&
+                <div>
+                    <InputLabel
+                        text='Choose A Sequence Name'
+                        custID='mixedAccessHeaderText'
+                    />
+                    <Form onSubmit={handleNonFinalSubmit}>
+                        <Form.Field>
+                            <Input
+                                fluid
+                                autoFocus={true}
+                                value={sequenceName}
+                                onChange={changeSequenceName}
+                                required
+                            />
+                        </Form.Field>
+                        {
+                            (sequenceName != '') ?
+                                <Button className='submitBtn' type="submit">Next</Button>
+                                :
+                                <></>
+
+                        }
+                    </Form>
+                </div>
+
+            }
+            {
+                pageNum === 2 &&
+                <InputLabel
+                    text='Choose A Program Sequence'
+                    custID='mixedAccessHeaderText'
+                />
+            }
+            {
+                pageNum === 2 && seqTableData.length > 0 &&
                 <RowSelectTable
                     data={seqTableData}
                     columns={tableColumns}
@@ -262,7 +307,7 @@ const SequentialAccess = ({ handleFormSubmit, programTableData, programTableColu
                 />
             }
             {
-                orderedPrograms.length > 0 &&
+                pageNum === 2 && orderedPrograms.length > 0 &&
                 <div>
                     <BasicTable
                         data={orderedPrograms}
@@ -433,7 +478,6 @@ const MixedAccess = ({ handleFormSubmit, programTableData, programTableColumns }
     const [unlimitedPrograms, setUnlimitedPrograms] = useState([])
     const [unlimitedProgramsSelected, setUnlimitedProgramsSelected] = useState(false)
     const [sequentialProgramsTableData, setSequentialProgramsTableData] = useState([])
-    const [headerText, setHeaderText] = useState('Select Unlimited Access Programs')
 
     const handleUnlimitedProgramsSubmitted = (unlimitedProgramsSelected, sequentialPrograms) => {
         console.log(unlimitedProgramsSelected)
@@ -443,7 +487,6 @@ const MixedAccess = ({ handleFormSubmit, programTableData, programTableColumns }
             setUnlimitedProgramsSelected(true)
             setSequentialProgramsTableData(sequentialPrograms)
             setUnlimitedPrograms(unlimitedProgramsSelected)
-            setHeaderText('Select Sequentially Accessible Programs')
         } else {
             handleFormSubmit({
                 unlimited: unlimitedProgramsSelected,
@@ -452,27 +495,30 @@ const MixedAccess = ({ handleFormSubmit, programTableData, programTableColumns }
         }
     }
 
-    const handleSequentialProgramSubmission = (orderedPrograms) => {
+    const handleSequentialProgramSubmission = (orderedPrograms, sequenceName) => {
         console.log(orderedPrograms)
         handleFormSubmit({
             unlimited: unlimitedPrograms,
-            sequential: orderedPrograms
+            sequential: orderedPrograms,
+            sequenceName: sequenceName
         })
     }
 
     return (
         <div>
-            <InputLabel
-                text={headerText}
-                custID='mixedAccessHeaderText'
-            />
             {
                 !unlimitedProgramsSelected &&
-                <UnlimitedAccess
-                    programTableData={programTableData}
-                    programTableColumns={programTableColumns}
-                    handleFormSubmit={handleUnlimitedProgramsSubmitted}
-                />
+                <div>
+                    <InputLabel
+                        text='Choose A Program Sequence'
+                        custID='mixedAccessHeaderText'
+                    />
+                    <UnlimitedAccess
+                        programTableData={programTableData}
+                        programTableColumns={programTableColumns}
+                        handleFormSubmit={handleUnlimitedProgramsSubmitted}
+                    />
+                </div>
             }
             {
                 unlimitedProgramsSelected &&
