@@ -12,7 +12,7 @@ const ProgramsDropdown = ({ programList, headerString, selectHandler, programTyp
             list.forEach(program => {
                 inputData.push({
                     key: program,
-                    text: program,
+                    text: program.split('_')[0],
                     value: program,
                 })
             })

@@ -1171,7 +1171,7 @@ class CurrentProgramPage extends Component {
                 <div className='pageContainerLevel1'
                     id='cpPageContainer1'>
                     <div id='cpProgramHeader'>
-                        {activeProgram}
+                        {activeProgram.split('_')[0]}
                     </div>
                     <div id='cpWeekHeader'>
                         Week {currentWeekInProgram}, Day {convertTotalDaysToUIDay(currentDayInProgram)}

@@ -317,10 +317,10 @@ class Firebase {
             .set(val)
     }
 
-    deleteCurrentProgramUpstream = (uid, progName) => {
+    deleteCurrentProgramsUpstream = (payLoad) => {
         return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}`)
-            .remove()
+            .ref('/')
+            .update(payLoad)
     }
 
     deletePastProgramUpstream = (uid, progName) => {

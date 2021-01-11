@@ -20,6 +20,7 @@ import DeleteAccountPage from '../DeleteAccount'
 import JoinTeamPage from '../JoinTeam'
 import ManageAthletesPage from '../ManageAthletes'
 import ManageTeamsPage from '../ManageTeams'
+import ManageProgramsPage from '../ManagePrograms'
 
 import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
@@ -83,6 +84,7 @@ const App = () => {
                 <Route path={ROUTES.JOIN_TEAM} component={JoinTeamPage} />
                 <Route path={ROUTES.MANAGE_ATHLETES} component={ManageAthletesPage} />
                 <Route path={ROUTES.MANAGE_TEAMS} component={ManageTeamsPage} />
+                <Route path={ROUTES.MANAGE_PROGRAMS} component={ManageProgramsPage} />
             </div>
         </Router >
     )

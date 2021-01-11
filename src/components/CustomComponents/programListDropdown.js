@@ -14,7 +14,7 @@ const ProgramListDropdown = ({ programList, activeProgram, buttonHandler, header
                 returnData.push({
                     key: program,
                     value: program,
-                    text: program
+                    text: program.split('_')[0]
                 })
             })
         }

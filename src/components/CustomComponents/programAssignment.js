@@ -5,7 +5,6 @@ import InputLabel from './DarkModeInput'
 
 import RowSelectTable from './rowSelectTable'
 import BasicTable from './basicTable'
-import { im } from 'mathjs'
 
 const ProgramAssignment = ({ handleFormSubmit, programTableData, programTableColumns }) => {
 

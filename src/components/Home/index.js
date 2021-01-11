@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 
 import { withAuthorisation } from '../Session';
-import CreateProgramModal from './createProgramModal'
-import DeleteProgramModal from './deleteProgramModal'
+
 import CreateExerciseModal from './createExerciseModal'
 
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
@@ -22,8 +21,8 @@ class HomePage extends Component {
 
         this.state = {
             userInformation: {},
-            currentProgramList: [],
-            pastProgramList: [],
+            // currentProgramList: [],
+            // pastProgramList: [],
             greeting: '',
             anatomyObject: {},
             loading: true,
@@ -49,26 +48,26 @@ class HomePage extends Component {
 
                 const anatomyObject = snapshot.val();
 
-                if ('currentPrograms' in userObject) {
-                    var currentProgramList = []
+                // if ('currentPrograms' in userObject) {
+                //     var currentProgramList = []
 
-                    for (var program in userObject.currentPrograms) {
-                        currentProgramList.push(program)
-                    }
-                } else {
-                    currentProgramList = false
-                }
+                //     for (var program in userObject.currentPrograms) {
+                //         currentProgramList.push(program)
+                //     }
+                // } else {
+                //     currentProgramList = false
+                // }
 
-                // Make the list of past programs.
-                if ('pastPrograms' in userObject) {
-                    var pastProgramList = []
+                // // Make the list of past programs.
+                // if ('pastPrograms' in userObject) {
+                //     var pastProgramList = []
 
-                    for (program in userObject.pastPrograms) {
-                        pastProgramList.push(program)
-                    }
-                } else {
-                    pastProgramList = false
-                }
+                //     for (program in userObject.pastPrograms) {
+                //         pastProgramList.push(program)
+                //     }
+                // } else {
+                //     pastProgramList = false
+                // }
 
 
 
@@ -78,9 +77,9 @@ class HomePage extends Component {
                         data: userObject
                     },
                     greeting: this.getCurrentGreeting(userObject),
-                    currentProgramList: currentProgramList,
-                    pastProgramList: pastProgramList,
-                    anatppomyObject: anatomyObject,
+                    // currentProgramList: currentProgramList,
+                    // pastProgramList: pastProgramList,
+                    anatomyObject: anatomyObject,
                     firstTimeUser: this.determineFirstTimeLogin(this.props.firebase.auth.currentUser.metadata),
                     loading: false,
                     userType: userObject.userType,
@@ -206,147 +205,156 @@ class HomePage extends Component {
         this.props.history.push(ROUTES.MANAGE_TEAMS)
     }
 
-    checkIfProgramAlreadyExists(newProgram) {
-
-        if (this.state.currentProgramList.length > 0) {
-            for (var program in this.state.currentProgramList) {
-                if (this.state.currentProgramList[program] == newProgram) {
-                    return true
-                }
-            }
-        }
-
-        if (this.state.pastProgramList.length > 0) {
-            for (program in this.state.pastProgramList) {
-                if (this.state.pastProgramList[program] == newProgram) {
-                    return true
-                }
-            }
-        }
-
-        return false
-
+    handleManageProgramsRedirect = () => {
+        this.props.history.push(ROUTES.MANAGE_PROGRAMS)
     }
 
-    handleCreateProgram = async (programName, acutePeriod, chronicPeriod, loadingScheme, date, goalList) => {
+    // checkIfProgramAlreadyExists(newProgram) {
 
-        programName = programName.trim()
+    //     if (this.state.currentProgramList.length > 0) {
+    //         for (var program in this.state.currentProgramList) {
+    //             if (this.state.currentProgramList[program] == newProgram) {
+    //                 return true
+    //             }
+    //         }
+    //     }
 
-        if (this.checkIfProgramAlreadyExists(programName)) {
-            alert('Program with name "' + programName + '" already exists in either your current or past programs.')
-        } else {
+    //     if (this.state.pastProgramList.length > 0) {
+    //         for (program in this.state.pastProgramList) {
+    //             if (this.state.pastProgramList[program] == newProgram) {
+    //                 return true
+    //             }
+    //         }
+    //     }
 
-            if (this.state.userType === 'athlete') {
-                var goalListObject = {}
-                var index = 1
-                Object.values(goalList).forEach(goal => {
-                    goalListObject['Goal_' + index] = goal.getFormattedGoalObject()
-                    index++
-                })
+    //     return false
 
-                var dateConversion = date.split('-')
+    // }
 
-                dateConversion = dateConversion[2] + '-' + dateConversion[1] + '-' + dateConversion[0]
+    // handleCreateProgram = async (programName, acutePeriod, chronicPeriod, loadingScheme, date, goalList) => {
 
-                var startTimestamp = Math.floor(new Date(dateConversion).getTime())
+    //     // Creates a unique name for a program. Input name + coach UID + timestamp of creation.
+    //     programName = programName.trim()
+    //         + '_'
+    //         + this.props.firebase.auth.currentUser.uid
+    //         + '_'
+    //         + new Date().getTime().toString()
 
-                await this.props.firebase.createProgramUpstream(
-                    this.state.userInformation.uid,
-                    programName,
-                    acutePeriod,
-                    chronicPeriod,
-                    loadingScheme,
-                    1,
-                    startTimestamp,
-                    goalListObject
-                )
+    //     if (this.checkIfProgramAlreadyExists(programName)) {
+    //         alert('Program with name "' + programName + '" already exists in either your current or past programs.')
+    //     } else {
 
-                this.props.firebase.setActiveProgram(
-                    this.state.userInformation.uid,
-                    programName
-                )
-            } else {
-                await this.props.firebase.createProgramUpstream(
-                    this.state.userInformation.uid,
-                    programName,
-                    acutePeriod,
-                    chronicPeriod,
-                    loadingScheme,
-                    1,
-                    null,
-                    null
-                )
+    //         if (this.state.userType === 'athlete') {
+    //             var goalListObject = {}
+    //             var index = 1
+    //             Object.values(goalList).forEach(goal => {
+    //                 goalListObject['Goal_' + index] = goal.getFormattedGoalObject()
+    //                 index++
+    //             })
 
-                this.props.firebase.setActiveProgram(
-                    this.state.userInformation.uid,
-                    programName
-                )
-            }
+    //             var dateConversion = date.split('-')
 
-        }
-    }
+    //             dateConversion = dateConversion[2] + '-' + dateConversion[1] + '-' + dateConversion[0]
+
+    //             var startTimestamp = Math.floor(new Date(dateConversion).getTime())
+
+    //             await this.props.firebase.createProgramUpstream(
+    //                 this.state.userInformation.uid,
+    //                 programName,
+    //                 acutePeriod,
+    //                 chronicPeriod,
+    //                 loadingScheme,
+    //                 1,
+    //                 startTimestamp,
+    //                 goalListObject
+    //             )
+
+    //             this.props.firebase.setActiveProgram(
+    //                 this.state.userInformation.uid,
+    //                 programName
+    //             )
+    //         } else {
+    //             await this.props.firebase.createProgramUpstream(
+    //                 this.state.userInformation.uid,
+    //                 programName,
+    //                 acutePeriod,
+    //                 chronicPeriod,
+    //                 loadingScheme,
+    //                 1,
+    //                 null,
+    //                 null
+    //             )
+
+    //             this.props.firebase.setActiveProgram(
+    //                 this.state.userInformation.uid,
+    //                 programName
+    //             )
+    //         }
+
+    //     }
+    // }
 
 
-    deleteCurrentProgramsUpstream = async (list) => {
-        if (list.length == 0) {
-            return
-        } else {
-            if (!(list.includes(this.state.userInformation.data.activeProgram))) {
+    // deleteCurrentProgramsUpstream = async (list) => {
+    //     if (list.length == 0) {
+    //         return
+    //     } else {
+    //         if (!(list.includes(this.state.userInformation.data.activeProgram))) {
 
-                list.forEach(program => {
-                    this.props.firebase.deleteCurrentProgramUpstream(
-                        this.props.firebase.auth.currentUser.uid,
-                        program
-                    )
-                })
-            } else {
-                var activeProgram = ''
-                var currProgList = this.state.currentProgramList
+    //             list.forEach(program => {
+    //                 this.props.firebase.deleteCurrentProgramUpstream(
+    //                     this.props.firebase.auth.currentUser.uid,
+    //                     program
+    //                 )
+    //             })
+    //         } else {
+    //             var activeProgram = ''
+    //             var currProgList = this.state.currentProgramList
 
-                for (var program in currProgList) {
-                    if (!(list.includes(currProgList[program]))) {
-                        activeProgram = currProgList[program]
-                        break
-                    }
-                }
+    //             for (var program in currProgList) {
+    //                 if (!(list.includes(currProgList[program]))) {
+    //                     activeProgram = currProgList[program]
+    //                     break
+    //                 }
+    //             }
 
-                await this.props.firebase.setActiveProgram(
-                    this.props.firebase.auth.currentUser.uid,
-                    activeProgram
-                )
+    //             await this.props.firebase.setActiveProgram(
+    //                 this.props.firebase.auth.currentUser.uid,
+    //                 activeProgram
+    //             )
 
-                list.forEach(program => {
-                    this.props.firebase.deleteCurrentProgramUpstream(
-                        this.props.firebase.auth.currentUser.uid,
-                        program
-                    )
-                })
-            }
-        }
-    }
+    //             list.forEach(program => {
+    //                 this.props.firebase.deleteCurrentProgramUpstream(
+    //                     this.props.firebase.auth.currentUser.uid,
+    //                     program
+    //                 )
+    //             })
+    //         }
+    //     }
+    // }
 
-    deletePastProgramsUpstream = async (list) => {
-        if (list.length == 0) {
-            return
-        } else {
-            list.forEach(program => {
-                this.props.firebase.deletePastProgramUpstream(
-                    this.props.firebase.auth.currentUser.uid,
-                    program
-                )
-            })
-        }
-    }
+    // deletePastProgramsUpstream = async (list) => {
+    //     if (list.length == 0) {
+    //         return
+    //     } else {
+    //         list.forEach(program => {
+    //             this.props.firebase.deletePastProgramUpstream(
+    //                 this.props.firebase.auth.currentUser.uid,
+    //                 program
+    //             )
+    //         })
+    //     }
+    // }
 
-    handleDeleteProgram = (currentPrograms, pastPrograms) => {
-        this.setState({
-            loading: true
-        }, async () => {
-            await this.deletePastProgramsUpstream(pastPrograms)
-            await this.deleteCurrentProgramsUpstream(currentPrograms)
-        })
+    // handleDeleteProgram = (currentPrograms, pastPrograms) => {
+    //     this.setState({
+    //         loading: true
+    //     }, async () => {
+    //         await this.deletePastProgramsUpstream(pastPrograms)
+    //         await this.deleteCurrentProgramsUpstream(currentPrograms)
+    //     })
 
-    }
+    // }
 
     handleCreateExercise = async (exName, primMusc, secMusc, exDiff) => {
         var exData = {
@@ -430,8 +438,8 @@ class HomePage extends Component {
     render() {
 
         const {
-            pastProgramList,
-            currentProgramList,
+            // pastProgramList,
+            // currentProgramList,
             userInformation,
             loading,
             greeting,
@@ -460,17 +468,17 @@ class HomePage extends Component {
                         </div>
                         <div id='hpBtnContainer' >
                             <div id='hpLeftBtnContainer'>
-                                <DeleteProgramModal
+                                {/* <DeleteProgramModal
                                     handleFormSubmit={this.handleDeleteProgram}
                                     currentProgramList={currentProgramList}
                                     pastProgramList={pastProgramList}
-                                />
+                                /> */}
                             </div>
                             <div id='hpMidBtnContainer'>
-                                <CreateProgramModal
+                                {/* <CreateProgramModal
                                     handleFormSubmit={this.handleCreateProgram}
                                     userType={userType}
-                                />
+                                /> */}
 
                             </div>
                             <div id='hpRightBtnContainer'>
@@ -496,6 +504,7 @@ class HomePage extends Component {
                             athleteData={coachTeamAthleteData.athleteData}
                             manageAthleteHandler={this.handleManageAthletesRedirect}
                             manageTeamsHandler={this.handleManageTeamsRedirect}
+                            manageProgramsHandler={this.handleManageProgramsRedirect}
                         />
                     </div>
                 </div>

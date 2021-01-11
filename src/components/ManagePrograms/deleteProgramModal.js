@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 // import { Modal, Button, Form, Row, Col } from 'react-bootstrap'
-import ProgramsDropdown from './programsDropdown'
+import ProgramsDropdown from '../Home/programsDropdown'
 import { Modal, Button, Segment, Form, Grid } from 'semantic-ui-react'
 
 
 
-const DeleteProgramModal = ({ handleFormSubmit, currentProgramList, pastProgramList }) => {
+const DeleteProgramModal = ({ userType, handleFormSubmit, currentProgramList, pastProgramList }) => {
 
     const [show, setShow] = useState(false);
 
