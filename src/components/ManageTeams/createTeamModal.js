@@ -110,7 +110,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
         setTeamDescription('')
         setSelectedAthletes([])
         setSelectedPrograms([])
-
+        setPageNum(1)
 
     }
 

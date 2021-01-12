@@ -19,7 +19,7 @@ import AddGoalsForm from '../CustomComponents/addGoalsForm'
 import GoalsTable from '../CustomComponents/currentGoalTable'
 import EditGoalModal from '../CustomComponents/editGoalModal'
 import AddSubGoalModal from '../CustomComponents/addSubGoalsModal'
-import ViewPrevWeeksDataModal from './viewPrevWeeksDataModal'
+import ViewPrevWeeksData from './viewPrevWeeksData'
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import ConfirmNullExerciseData from './confirmNullExerciseData'
 // Import Custom functions
@@ -55,6 +55,7 @@ class CurrentProgramPage extends Component {
             currDaySafeLoadTableData: [],
             goalsTableVisible: true,
             safeLoadTableVisible: true,
+            availExerciseTableVisible: true,
             // Goal Table Data
             goalTableData: [],
             expandedRows: {},
@@ -152,7 +153,6 @@ class CurrentProgramPage extends Component {
                 allPrograms: userObject.currentPrograms,
 
                 currentWeekInProgram: Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7),
-
                 currentDayInProgram: userObject.currentPrograms[userObject.activeProgram].currentDayInProgram, // Sets the current day in program.
                 currentDayUTS: userObject.currentPrograms[userObject.activeProgram].currentDayUTS, // Gets unix timestamp for current day
                 daysInWeekScope: this.generateDaysInWeekScope(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram),
@@ -164,10 +164,10 @@ class CurrentProgramPage extends Component {
                     userObject,
                     userObject.currentPrograms[userObject.activeProgram].loading_scheme
                 ),
-                currDaySafeLoadTableData: this.generateCurrDaySafeLoadData(
+                currDaySafeLoadTableData: userObject.userType === 'athlete' ? this.generateCurrDaySafeLoadData(
                     userObject.currentPrograms[userObject.activeProgram],
                     anatomyObject
-                ),
+                ) : [],
                 availExercisesData: this.setAvailExerciseChartData(
                     this.state.exerciseList,
                     this.state.currentDayUI,
@@ -176,7 +176,8 @@ class CurrentProgramPage extends Component {
                 ),
                 prevWeeksData: this.generatePrevWeeksData(userObject),
                 // TODO - if not want delete
-                submitDataProcessing: false
+                submitDataProcessing: false,
+                userType: userObject.userType
             })
         } else {
             this.setState({
@@ -1085,11 +1086,13 @@ class CurrentProgramPage extends Component {
 
                     var dayInProgram = (prevWeekNum - 1) * 7 + day
                     var dayObject = {}
-                    Object.keys(userObject.currentPrograms[userObject.activeProgram][dayInProgram]).forEach(exercise => {
-                        if (exercise != 'loadingData') {
-                            dayObject[exercise] = userObject.currentPrograms[userObject.activeProgram][dayInProgram][exercise]
-                        }
-                    })
+                    if (userObject.currentPrograms[userObject.activeProgram][dayInProgram]) {
+                        Object.keys(userObject.currentPrograms[userObject.activeProgram][dayInProgram]).forEach(exercise => {
+                            if (exercise != 'loadingData') {
+                                dayObject[exercise] = userObject.currentPrograms[userObject.activeProgram][dayInProgram][exercise]
+                            }
+                        })
+                    }
 
                     dataObject[prevWeekNum][day] = dayObject
                 }
@@ -1126,6 +1129,22 @@ class CurrentProgramPage extends Component {
         )
     }
 
+    handleViewNextWeek = () => {
+        this.props.firebase.progressToNextDay(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram,
+            this.state.currentDayInProgram + 7
+        )
+    }
+
+    handleViewPrevWeek = () => {
+        this.props.firebase.progressToNextDay(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram,
+            this.state.currentDayInProgram - 7
+        )
+    }
+
     render() {
         const {
             // Old State variables.
@@ -1150,7 +1169,9 @@ class CurrentProgramPage extends Component {
             openDaysUI,
             expandedRows,
             submitDataProcessing,
-            nullExerciseData
+            nullExerciseData,
+            userType,
+            availExerciseTableVisible
         } = this.state
 
         console.log(nullExerciseData.nullTableData)
@@ -1174,15 +1195,32 @@ class CurrentProgramPage extends Component {
                         {activeProgram.split('_')[0]}
                     </div>
                     <div id='cpWeekHeader'>
-                        Week {currentWeekInProgram}, Day {convertTotalDaysToUIDay(currentDayInProgram)}
+                        {
+                            userType === 'athlete' ?
+                                'Week ' + currentWeekInProgram + ', Day ' + convertTotalDaysToUIDay(currentDayInProgram)
+                                :
+                                'Week ' + currentWeekInProgram
+                        }
                     </div>
                     <div id='cpButtonsHeader'>
                         <div id='submitDayBtnContainer'>
-                            <SubmitDayModal
-                                handleFormSubmit={this.handleSubmitButton}
-                                // TODO - if not want delete
-                                submitDataProcessing={submitDataProcessing}
-                            />
+                            {
+                                userType === 'athlete' ?
+                                    <SubmitDayModal
+                                        handleFormSubmit={this.handleSubmitButton}
+                                        submitDataProcessing={submitDataProcessing}
+                                    />
+                                    :
+                                    currentDayInProgram > 1 ?
+                                        < Button
+                                            onClick={() => { this.handleViewPrevWeek() }}
+                                            className='purpleButton'
+                                        >
+                                            Previous Week
+                                        </Button>
+                                        :
+                                        <></>
+                            }
                         </div>
                         <div id='programsDropdownContainer'>
                             <CurrentProgramDropdown
@@ -1192,108 +1230,138 @@ class CurrentProgramPage extends Component {
                             />
                         </div>
                         <div id='closeOffProgBtnContainer'>
-                            <CloseOffProgramModal handleFormSubmit={this.handleCloseOffProgram} />
+                            {
+                                userType === 'athlete' ?
+                                    <CloseOffProgramModal handleFormSubmit={this.handleCloseOffProgram} />
+                                    :
+                                    <Button
+                                        className='purpleButton'
+                                        onClick={() => { this.handleViewNextWeek() }}
+                                    >
+                                        Next Week
+                                    </Button>
+                            }
                         </div>
                     </div>
                 </div>
-                <div className='pageRowContainer'>
-                    <div className='pageContainerLevel1' id='cpExerciseSpreadTableContainer'>
-                        <div onClick={() => this.setState({ goalsTableVisible: !goalsTableVisible })}>
+                {
+                    userType === 'athlete' &&
+                    <div className='pageRowContainer'>
+                        <div className='pageContainerLevel1' id='cpExerciseSpreadTableContainer'>
+                            <div onClick={() => this.setState({ goalsTableVisible: !goalsTableVisible })}>
+                                {
+                                    goalsTableVisible &&
+                                    <Icon name='toggle on' style={{ fontSize: '20px' }} />
+                                }
+                                {
+                                    !goalsTableVisible &&
+                                    <Icon name='toggle off' style={{ fontSize: '20px' }} />
+
+                                }
+                            </div>
                             {
-                                goalsTableVisible &&
-                                <Icon name='toggle on' style={{ fontSize: '20px' }} />
+                                goalTableData.length > 0 && goalsTableVisible &&
+                                <div>
+                                    <GoalsTable
+                                        data={goalTableData}
+                                        expandedRowsHandler={this.updateExpandedRows}
+                                        expandedRows={expandedRows}
+                                    />
+                                    <div className='goalsPromptBtnContainer'>
+                                        <AddGoalsForm
+                                            buttonText='Create More Goals'
+                                            headerText='Create More Goals'
+                                            handleFormSubmit={this.handleAddGoalData}
+                                            newMainGoalUID={this.generateNewMainGoalUID()}
+                                            triggerElement={
+                                                <Button
+                                                    className='lightPurpleButton-inverted'>
+                                                    Add More Goals
+                                            </Button>
+                                            }
+                                        />
+                                    </div>
+                                </div>
                             }
                             {
-                                !goalsTableVisible &&
-                                <Icon name='toggle off' style={{ fontSize: '20px' }} />
+                                goalTableData.length == 0 &&
+                                goalsTableVisible &&
+                                <div id='noGoalsPromptContainer'>
+                                    <div id='noGoalsPromptLabelContainer'>
+                                        <InputLabel text='No Current Goal Data' custID='noGoalsPromptLabel' />
+                                    </div>
+                                    <div className='goalsPromptBtnContainer'>
+                                        <AddGoalsForm
+                                            buttonText='Create Goals'
+                                            headerText='Create Goals'
+                                            handleFormSubmit={this.handleAddGoalData}
+                                            newMainGoalUID={this.generateNewMainGoalUID()}
+                                            triggerElement={
+                                                <Button
+                                                    className='lightPurpleButton-inverted'>
+                                                    Create A Goal
+                                            </Button>
+                                            }
 
+                                        />
+                                    </div>
+                                </div>
                             }
                         </div>
-                        {
-                            goalTableData.length > 0 && goalsTableVisible &&
-                            <div>
-                                <GoalsTable
-                                    data={goalTableData}
-                                    expandedRowsHandler={this.updateExpandedRows}
-                                    expandedRows={expandedRows}
-                                />
-                                <div className='goalsPromptBtnContainer'>
-                                    <AddGoalsForm
-                                        buttonText='Create More Goals'
-                                        headerText='Create More Goals'
-                                        handleFormSubmit={this.handleAddGoalData}
-                                        newMainGoalUID={this.generateNewMainGoalUID()}
-                                        triggerElement={
-                                            <Button
-                                                className='lightPurpleButton-inverted'>
-                                                Add More Goals
-                                            </Button>
-                                        }
-                                    />
-                                </div>
-                            </div>
-                        }
-                        {
-                            goalTableData.length == 0 &&
-                            goalsTableVisible &&
-                            <div id='noGoalsPromptContainer'>
-                                <div id='noGoalsPromptLabelContainer'>
-                                    <InputLabel text='No Current Goal Data' custID='noGoalsPromptLabel' />
-                                </div>
-                                <div className='goalsPromptBtnContainer'>
-                                    <AddGoalsForm
-                                        buttonText='Create Goals'
-                                        headerText='Create Goals'
-                                        handleFormSubmit={this.handleAddGoalData}
-                                        newMainGoalUID={this.generateNewMainGoalUID()}
-                                        triggerElement={
-                                            <Button
-                                                className='lightPurpleButton-inverted'>
-                                                Create A Goal
-                                            </Button>
-                                        }
+                        <div className='pageContainerLevel1'
+                            id='cpLoadingSpreadTableContainer'>
+                            <div onClick={() => this.setState({ safeLoadTableVisible: !safeLoadTableVisible })}>
+                                {
+                                    safeLoadTableVisible &&
+                                    <Icon style={{ fontSize: '20px' }} name='toggle on' />
+                                }
+                                {
+                                    !safeLoadTableVisible &&
+                                    <Icon style={{ fontSize: '20px' }} name='toggle off' />
 
-                                    />
-                                </div>
+                                }
                             </div>
-                        }
-                    </div>
-                    <div className='pageContainerLevel1'
-                        id='cpLoadingSpreadTableContainer'>
-                        <div onClick={() => this.setState({ safeLoadTableVisible: !safeLoadTableVisible })}>
                             {
                                 safeLoadTableVisible &&
-                                <Icon style={{ fontSize: '20px' }} name='toggle on' />
-                            }
-                            {
-                                !safeLoadTableVisible &&
-                                <Icon style={{ fontSize: '20px' }} name='toggle off' />
-
+                                <LoadingSpreadStatsTable data={currDaySafeLoadTableData} />
                             }
                         </div>
-                        {
-                            safeLoadTableVisible &&
-                            <LoadingSpreadStatsTable data={currDaySafeLoadTableData} />
-                        }
                     </div>
-                </div>
+                }
                 <div className='pageRowContainer'>
                     <div className='pageContainerLevel1' id='availExerciseTableContainer'>
-                        <AvailableExercisesList
-                            columns={availExercisesCols}
-                            data={availExercisesData}
-                        />
+                        {
+                            currentWeekInProgram !== 1 &&
+                            <div onClick={() => this.setState({ availExerciseTableVisible: !availExerciseTableVisible })}>
+                                {
+                                    availExerciseTableVisible &&
+                                    <Icon name='toggle on' style={{ fontSize: '20px' }} />
+                                }
+                                {
+                                    !availExerciseTableVisible &&
+                                    <Icon name='toggle off' style={{ fontSize: '20px' }} />
+
+                                }
+                            </div>
+                        }
+                        {
+                            availExerciseTableVisible ?
+                                <AvailableExercisesList
+                                    columns={availExercisesCols}
+                                    data={availExercisesData}
+                                />
+                                :
+                                <ViewPrevWeeksData
+                                    data={prevWeeksData}
+                                    defaultWeek={currentWeekInProgram - 1}
+                                    progScheme={loadingScheme}
+                                    handleFormSubmit={this.handleCopyPrevWeeksExData}
+                                />
+
+                        }
                     </div>
                     <div className='pageContainerLevel1'
                         id='currentWeekExTableContainer'>
-                        <div id='cpViewPrevWeeksBtnContainer'>
-                            <ViewPrevWeeksDataModal
-                                data={prevWeeksData}
-                                defaultWeek={currentWeekInProgram - 1}
-                                progScheme={loadingScheme}
-                                handleFormSubmit={this.handleCopyPrevWeeksExData}
-                            />
-                        </div>
                         <CurrentWeekExercisesContainer
                             dailyExercises={exerciseListPerDay}
                             loadingScheme={loadingScheme}
@@ -1303,7 +1371,7 @@ class CurrentProgramPage extends Component {
                         />
                     </div>
                 </div>
-            </NonLandingPageWrapper>
+            </NonLandingPageWrapper >
         return (
             <div>
                 {loading && loadingHTML}

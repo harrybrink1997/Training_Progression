@@ -303,14 +303,6 @@ class Firebase {
             .set(val)
     }
 
-    // TODO REMOVE
-    progressToNextWeek = (uid, progName, val) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/currentWeek`)
-            .set(val)
-    }
-
-
     progressToNextDay = (uid, progName, val) => {
         return this.db
             .ref(`users/${uid}/currentPrograms/${progName}/currentDayInProgram`)
