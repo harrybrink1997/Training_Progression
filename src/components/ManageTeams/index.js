@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withCoachAuthorisation } from '../Session';
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
-import { Dimmer, Loader } from 'semantic-ui-react'
+import { Dimmer, Loader, List } from 'semantic-ui-react'
 import CreateTeamModal from './createTeamModal'
 
 import RowSelectTable from '../CustomComponents/rowSelectTable'
@@ -37,6 +37,7 @@ class ManageTeamsPage extends Component {
             loading: false,
             athleteTableData: this.initAthleteTableData(userObject),
             programTableData: this.initProgramTableData(userObject),
+            programGroupTableData: this.initProgramGroupTableData(userObject),
             teamsTableData: this.initTeamsTableData(userObject),
             selectedTeamsTable: undefined
         })
@@ -143,19 +144,84 @@ class ManageTeamsPage extends Component {
                 var program = userObject.currentPrograms[programName]
                 console.log(program)
                 tableData.push({
-                    program: programName,
+                    program: programName.split('_')[0],
                     loadingScheme: loadingSchemeString(program.loading_scheme),
                     acutePeriod: program.acutePeriod,
                     chronicPeriod: program.chronicPeriod,
-                    programLength: program.currentDayInProgram % 7
+                    programLength: program.currentDayInProgram % 7,
+                    programUID: programName
                 })
             })
             return tableData
         } else {
             return undefined
         }
+    }
 
+    initProgramGroupTableData = (userObject) => {
+        var tableData = []
 
+        if (userObject.programGroups !== undefined) {
+            Object.keys(userObject.programGroups).forEach(programGroupName => {
+                var programGroup = userObject.programGroups[programGroupName]
+                console.log(programGroup)
+
+                var sequentialTableVal = ''
+
+                if (programGroup.sequential) {
+                    var sequentialOrder = []
+
+                    Object.keys(programGroup.sequential).forEach(program => {
+                        sequentialOrder.push([program.split('_')[0], parseInt(programGroup.sequential[program].split('_')[0])])
+                    })
+
+                    sequentialOrder.sort((a, b) => {
+                        return a[1] - b[1]
+                    })
+
+                    sequentialTableVal =
+                        <List bulleted>
+                            {
+                                sequentialOrder.map(program => {
+                                    return (
+                                        <List.Item>
+                                            {program[1] + ': ' + program[0]}
+                                        </List.Item>
+                                    )
+                                })
+
+                            }
+                        </List>
+
+                    console.log(sequentialOrder)
+                }
+
+                tableData.push({
+                    programGroup: programGroupName,
+                    unlimited:
+                        !programGroup.unlimited ?
+                            ''
+                            :
+                            <List bulleted>
+                                {
+                                    programGroup.unlimited.map(program => {
+                                        return (
+                                            <List.Item>
+                                                {program.split('_')[0]}
+                                            </List.Item>
+                                        )
+                                    })
+                                }
+                            </List>,
+                    sequential: sequentialTableVal
+                })
+
+            })
+            console.log(tableData)
+            return tableData
+        } else {
+            return undefined
+        }
     }
 
 
@@ -236,7 +302,7 @@ class ManageTeamsPage extends Component {
         payLoad[teamPath + '/description'] = teamDescription
         payLoad[teamPath + '/programs'] = programsObject
 
-        this.props.firebase.createTeamUpstream(payLoad)
+        // this.props.firebase.createTeamUpstream(payLoad)
     }
 
 
@@ -245,7 +311,8 @@ class ManageTeamsPage extends Component {
             loading,
             athleteTableData,
             programTableData,
-            teamsTableData
+            teamsTableData,
+            programGroupTableData
         } = this.state
 
         console.log(programTableData)
@@ -264,6 +331,7 @@ class ManageTeamsPage extends Component {
                         <CreateTeamModal
                             athleteTableData={athleteTableData}
                             programTableData={programTableData}
+                            programGroupTableData={programGroupTableData}
                             handleFormSubmit={this.handleCreateTeam}
                         />
                     </div>

@@ -19,11 +19,33 @@
     background: #191919;
 }
 
+#assignProgramsCardGroupContainer {
+    padding-top: 30px;
+    padding-bottom: 20px;
+}
+
+#assignProgramsCardGroupContainer > .ui.cards > div {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+}
+
+#assignProgramsCardGroupContainer .ui.cards .ui.card {
+    background: #191919;
+}
+
 #changeAccessTypeBtn {
     padding-top: 10px;
 }
 
 #mixedAccessHeaderText {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+#assignProgramsToTeamNowHeader {
     text-align: center;
     margin-top: 15px;
     font-size: 20px;

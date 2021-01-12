@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { Modal, Button, Form, Input, Container, Popup, Icon, Breadcrumb } from 'semantic-ui-react'
+import { Modal, Button, Form, Input, Container, Card, Icon, Breadcrumb } from 'semantic-ui-react'
 
 import InputLabel from '../CustomComponents/DarkModeInput'
 
 import RowSelectTable from '../CustomComponents/rowSelectTable'
 import ProgramAssignment from '../CustomComponents/programAssignment'
 
-const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData }) => {
+const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData, programGroupTableData }) => {
 
     const [show, setShow] = useState(false);
     const [teamName, setTeamName] = useState('')
@@ -68,6 +68,22 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
             },
         ]
 
+    const programGroupTableColumns =
+        [
+            {
+                Header: 'Program Group',
+                accessor: 'programGroup',
+            },
+            {
+                Header: 'Unlimited Programs',
+                accessor: 'unlimited',
+            },
+            {
+                Header: 'Sequential Programs',
+                accessor: 'sequential',
+            }
+        ]
+
     const changeTeamName = (event, { value }) => {
         setTeamName(value)
 
@@ -111,8 +127,17 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
         setSelectedPrograms(programTableSelection)
     }
 
+    const handleProgramGroupSelection = (programGroupTableSelection) => {
+
+    }
+
     const handleProgramAssignmentSubmission = (programAssignment) => {
         handleSubmit(programAssignment)
+    }
+
+    const processDontUseExistingProgGroup = (event) => {
+        event.preventDefault()
+        setPageNum(7)
     }
 
     return (
@@ -128,7 +153,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
             <Modal.Content>
                 <Breadcrumb>
                     {
-                        (pageNum >= 1) ? (pageNum == 1)
+                        (pageNum >= 1) ? (pageNum === 1)
                             ?
                             <Breadcrumb.Section link active >Team Name</Breadcrumb.Section>
                             :
@@ -142,7 +167,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                         <Breadcrumb.Divider>/</Breadcrumb.Divider>
                     }
                     {
-                        (pageNum >= 2) ? (pageNum == 2)
+                        (pageNum >= 2) ? (pageNum === 2)
                             ?
                             <Breadcrumb.Section link active>Team Description</Breadcrumb.Section>
                             :
@@ -155,7 +180,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                         <Breadcrumb.Divider>/</Breadcrumb.Divider>
                     }
                     {
-                        (pageNum >= 3) ? (pageNum == 3)
+                        (pageNum >= 3) ? (pageNum === 3)
                             ?
                             <Breadcrumb.Section link active>Add Athletes</Breadcrumb.Section>
                             :
@@ -168,7 +193,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                         <Breadcrumb.Divider>/</Breadcrumb.Divider>
                     }
                     {
-                        (pageNum >= 4) ? (pageNum == 4)
+                        (pageNum >= 4) ? (pageNum === 4)
                             ?
                             <Breadcrumb.Section link active>Assign Programs</Breadcrumb.Section>
                             :
@@ -187,7 +212,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                 </Breadcrumb>
                 <Container>
                     {
-                        pageNum == 1 &&
+                        pageNum === 1 &&
                         <Form onSubmit={handleNonFinalSubmit}>
                             <Form.Field>
                                 <Input
@@ -209,7 +234,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
 
                     }
                     {
-                        pageNum == 2 && athleteTableData !== undefined &&
+                        pageNum === 2 && athleteTableData !== undefined &&
                         <Form onSubmit={handleNonFinalSubmit}>
                             <Form.Field>
                                 <Input
@@ -230,7 +255,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                         </Form>
                     }
                     {
-                        pageNum == 2 && athleteTableData === undefined &&
+                        pageNum === 2 && athleteTableData === undefined &&
                         <Form onSubmit={handleSubmit}>
                             <Form.Field>
                                 <Input
@@ -251,7 +276,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                         </Form>
                     }
                     {
-                        pageNum == 3 && programTableData !== undefined &&
+                        pageNum === 3 && programTableData !== undefined &&
                         <Form onSubmit={handleNonFinalSubmit}>
                             <RowSelectTable
                                 columns={athleteTableColumns}
@@ -263,7 +288,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
 
                     }
                     {
-                        pageNum == 3 && programTableData === undefined &&
+                        pageNum === 3 && programTableData === undefined &&
                         <Form onSubmit={handleSubmit}>
                             <RowSelectTable
                                 columns={athleteTableColumns}
@@ -275,8 +300,99 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
 
                     }
                     {
-                        pageNum == 4 && programTableData !== undefined &&
+                        pageNum === 4 &&
                         <div>
+                            <InputLabel
+                                text='Would you like to assign programs to this team now?'
+                                custID='assignProgramsToTeamNowHeader'
+                            />
+                            <div id='assignProgramsCardGroupContainer'>
+
+                                <Card.Group>
+                                    <div>
+                                        <Card onClick={handleNonFinalSubmit}>
+
+                                            <Card.Content className='iconContent'>
+                                                <Icon name='thumbs up outline' size='huge' />
+                                            </Card.Content>
+                                            {/* <Card.Content>
+                                                <Card.Header>Sequential <br /> Access</Card.Header>
+                                                <Card.Description>Athletes will have access to the program in the sequential order you choose.</Card.Description>
+                                            </Card.Content> */}
+                                        </Card>
+                                    </div>
+                                    <div>
+                                        <Card onClick={handleSubmit}>
+                                            <Card.Content className='iconContent'>
+                                                <Icon name='thumbs down outline' size='huge' />
+                                            </Card.Content>
+                                            {/* <Card.Content>
+                                                <Card.Header >Mixed <br /> Access</Card.Header>
+                                                <Card.Description>Athletes will have unlimited access to selected programs and sequential access to selected programs.</Card.Description>
+                                            </Card.Content> */}
+                                        </Card>
+                                    </div>
+                                </Card.Group>
+                            </div>
+                            {/* <div className='rowContainer'>
+                                <div className='half-width centred-info'>
+                                    <Button
+                                        className='submitBtn'
+                                        onClick={handleNonFinalSubmit}
+                                    >Yes</Button>
+                                </div>
+                                <div className='half-width centred-info'>
+                                    <Button
+                                        className='submitBtn'
+                                        onClick={handleNonFinalSubmit}
+                                    >No</Button>
+                                </div>
+                            </div> */}
+                        </div>
+                    }
+                    {
+                        pageNum === 5 && programTableData !== undefined &&
+                        < div >
+                            <InputLabel
+                                text='Would you like to use an existing program group?'
+                                custID='assignProgramsToTeamNowHeader'
+                            />
+                            <div id='assignProgramsCardGroupContainer'>
+                                <Card.Group>
+                                    <div>
+                                        <Card onClick={handleNonFinalSubmit}>
+
+                                            <Card.Content className='iconContent'>
+                                                <Icon name='thumbs up outline' size='huge' />
+                                            </Card.Content>
+                                        </Card>
+                                    </div>
+                                    <div>
+                                        <Card onClick={processDontUseExistingProgGroup}>
+                                            <Card.Content className='iconContent'>
+                                                <Icon name='thumbs down outline' size='huge' />
+                                            </Card.Content>
+                                        </Card>
+                                    </div>
+                                </Card.Group>
+                            </div>
+                        </div>
+                    }
+                    {
+                        pageNum === 6 &&
+                        <RowSelectTable
+                            columns={programGroupTableColumns}
+                            data={programGroupTableData}
+                            rowSelectChangeHanlder={handleProgramGroupSelection}
+                        />
+                    }
+                    {
+                        pageNum === 7 && programTableData !== undefined &&
+                        <div>
+                            <InputLabel
+                                text='Select Programs you would like to assign'
+                                custID='assignProgramsToTeamNowHeader'
+                            />
                             <RowSelectTable
                                 columns={programTableColumns}
                                 data={programTableData}
@@ -297,7 +413,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData 
                         </div>
                     }
                     {
-                        pageNum == 5 && selectedPrograms.length > 0 &&
+                        pageNum === 8 && selectedPrograms.length > 0 &&
                         <ProgramAssignment
                             programTableData={selectedPrograms}
                             programTableColumns={programTableColumns}
