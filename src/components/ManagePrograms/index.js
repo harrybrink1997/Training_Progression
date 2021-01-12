@@ -35,6 +35,10 @@ class ManageProgramsPage extends Component {
     }
 
 
+    componentWillUnmount() {
+        this.props.firebase.getUserData().off();
+    }
+
     updateObjectState = (userObject) => {
 
         var programData = this.initProgramData(userObject)

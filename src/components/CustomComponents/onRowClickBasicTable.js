@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
-import { Dropdown, Table, Grid, Container, Button, Input, Checkbox } from 'semantic-ui-react'
-
-import { useTable, useFilters, useGlobalFilter, usePagination, useRowSelect } from 'react-table'
+import { Dropdown, Table, Grid, Container, Button, Input } from 'semantic-ui-react'
+import { useTable, useFilters, useGlobalFilter, usePagination } from 'react-table'
 import { DefaultColumnFilter, fuzzyTextFilterFn } from '../../constants/tableFiltering'
 
-const RowSelectTable = ({ columns, data, rowSelectChangeHanlder, singleSelect }) => {
+const OnRowClickBasicTableWithPageination = ({ columns, data, rowClickHandler }) => {
 
     const filterTypes = React.useMemo(
         () => ({
@@ -35,14 +34,13 @@ const RowSelectTable = ({ columns, data, rowSelectChangeHanlder, singleSelect })
         []
     )
 
-
-
     const {
         getTableProps,
         getTableBodyProps,
         headerGroups,
-        page,
         prepareRow,
+        rows,
+        page,
 
         // For pagenation
         canPreviousPage,
@@ -52,11 +50,9 @@ const RowSelectTable = ({ columns, data, rowSelectChangeHanlder, singleSelect })
         nextPage,
         previousPage,
         setPageSize,
-        selectedFlatRows,
 
+        state: { pageIndex, pageSize }
 
-        // For search filter
-        state: { pageIndex, pageSize, selectedRowIds }
     } = useTable(
         {
             columns,
@@ -66,36 +62,12 @@ const RowSelectTable = ({ columns, data, rowSelectChangeHanlder, singleSelect })
         },
         useFilters,
         useGlobalFilter,
-        usePagination,
-        useRowSelect,
-        hooks => {
-            hooks.visibleColumns.push(columns => [
-                // Let's make a column for selection
-                {
-                    id: 'selection',
-                    // The header can use the table's getToggleAllRowsSelectedProps method
-                    // to render a checkbox
-                    Header: ({ getToggleAllPageRowsSelectedProps }) => (
-                        <div>
-                            <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
-                        </div>
-                    ),
-                    // The cell can use the individual row's getToggleRowSelectedProps method
-                    // to the render a checkbox
-                    Cell: ({ row }) => (
-                        <div>
-                            <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-                        </div>
-                    ),
-                },
-                ...columns,
-            ])
-        }
+        usePagination
     )
 
-    useEffect(() => {
-        rowSelectChangeHanlder(selectedFlatRows)
-    }, [selectedRowIds])
+    const handleRowClick = (rowData) => {
+        rowClickHandler(rowData)
+    }
 
     return (
         <>
@@ -119,23 +91,13 @@ const RowSelectTable = ({ columns, data, rowSelectChangeHanlder, singleSelect })
                 <Table.Body {...getTableBodyProps()}>
                     {page.map((row, i) => {
                         prepareRow(row)
-                        if (row.isSelected) {
-                            return (
-                                <Table.Row onClick={() => row.toggleRowSelected(false)} {...row.getRowProps()}>
-                                    {row.cells.map(cell => {
-                                        return <Table.Cell style={{ textAlign: 'center', background: '#3b0380' }} {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
-                                    })}
-                                </Table.Row>
-                            )
-                        } else {
-                            return (
-                                <Table.Row onClick={() => row.toggleRowSelected(true)} {...row.getRowProps()}>
-                                    {row.cells.map(cell => {
-                                        return <Table.Cell style={{ textAlign: 'center' }} {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
-                                    })}
-                                </Table.Row>
-                            )
-                        }
+                        return (
+                            <Table.Row onClick={() => handleRowClick(row)} {...row.getRowProps()}>
+                                {row.cells.map(cell => {
+                                    return <Table.Cell {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
+                                })}
+                            </Table.Row>
+                        )
                     })}
                 </Table.Body>
             </Table>
@@ -182,6 +144,7 @@ const RowSelectTable = ({ columns, data, rowSelectChangeHanlder, singleSelect })
     )
 };
 
+
 const PagenationDropdown = ({ buttonHandler }) => {
 
     const processData = () => {
@@ -220,22 +183,4 @@ const PagenationDropdown = ({ buttonHandler }) => {
 
 }
 
-const IndeterminateCheckbox = React.forwardRef(
-    ({ indeterminate, ...rest }, ref) => {
-        const defaultRef = React.useRef()
-        const resolvedRef = ref || defaultRef
-
-        React.useEffect(() => {
-            resolvedRef.current.indeterminate = indeterminate
-        }, [resolvedRef, indeterminate])
-
-        return (
-            <>
-                <Checkbox ref={resolvedRef} {...rest} />
-            </>
-        )
-    }
-)
-
-
-export default RowSelectTable
+export default OnRowClickBasicTableWithPageination

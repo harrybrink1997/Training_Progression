@@ -4,6 +4,7 @@ import { Modal, Button, Form, Input, Container, Card, Icon, Breadcrumb } from 's
 import InputLabel from '../CustomComponents/DarkModeInput'
 
 import RowSelectTable from '../CustomComponents/rowSelectTable'
+import OnRowClickBasicTableWithPageination from '../CustomComponents/onRowClickBasicTable'
 import ProgramAssignment from '../CustomComponents/programAssignment'
 
 const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData, programGroupTableData }) => {
@@ -14,6 +15,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
     const [pageNum, setPageNum] = useState(1)
     const [selectedAthletes, setSelectedAthletes] = useState([])
     const [selectedPrograms, setSelectedPrograms] = useState([])
+    const rawProgramData = programTableData
 
     const handlePageChange = (event, pageNum) => {
         event.preventDefault()
@@ -73,6 +75,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
             {
                 Header: 'Program Group',
                 accessor: 'programGroup',
+                filter: 'fuzzyText'
             },
             {
                 Header: 'Unlimited Programs',
@@ -113,13 +116,13 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
 
     const handleNonFinalSubmit = (event) => {
         event.preventDefault()
-        console.log("going in ")
         setPageNum(prevNum => prevNum + 1)
 
     }
 
     const handleAthleteSelection = (athleteTableSelection) => {
         setSelectedAthletes(athleteTableSelection)
+        console.log(athleteTableSelection)
     }
 
     const handleProgramSelection = (programTableSelection) => {
@@ -128,7 +131,48 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
     }
 
     const handleProgramGroupSelection = (programGroupTableSelection) => {
+        console.log(programGroupTableSelection.original.sequentialRawData)
+        console.log(programGroupTableSelection.original.unlimitedRawData)
 
+        var unlimitedPrograms = false
+
+        if (programGroupTableSelection.original.unlimitedRawData) {
+            unlimitedPrograms = []
+            programGroupTableSelection.original.unlimitedRawData.forEach(targetProgram => {
+                for (var program in rawProgramData) {
+                    var programData = rawProgramData[program]
+                    if (targetProgram === programData.programUID) {
+                        unlimitedPrograms.push(programData)
+                        break
+                    }
+                }
+            })
+        }
+
+        var sequentialPrograms = false
+
+        if (programGroupTableSelection.original.sequentialRawData) {
+            sequentialPrograms = []
+            Object.keys(programGroupTableSelection.original.sequentialRawData).forEach(targetProgram => {
+                for (var program in rawProgramData) {
+                    var programData = rawProgramData[program]
+                    if (targetProgram === programData.programUID) {
+                        programData.order = programGroupTableSelection.original.sequentialRawData[targetProgram]
+
+                        sequentialPrograms.push(programData)
+                        break
+                    }
+                }
+            })
+        }
+
+        var payLoad = {
+            sequenceName: 'preDetermined',
+            sequential: sequentialPrograms,
+            unlimited: unlimitedPrograms
+        }
+
+        handleSubmit(payLoad)
     }
 
     const handleProgramAssignmentSubmission = (programAssignment) => {
@@ -202,11 +246,11 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                             <></>
                     }
                     {
-                        pageNum >= 5 &&
+                        pageNum >= 7 &&
                         <Breadcrumb.Divider>/</Breadcrumb.Divider>
                     }
                     {
-                        pageNum >= 5 &&
+                        pageNum >= 7 &&
                         <Breadcrumb.Section link active>Program Accessbility</Breadcrumb.Section>
                     }
                 </Breadcrumb>
@@ -315,10 +359,6 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                                             <Card.Content className='iconContent'>
                                                 <Icon name='thumbs up outline' size='huge' />
                                             </Card.Content>
-                                            {/* <Card.Content>
-                                                <Card.Header>Sequential <br /> Access</Card.Header>
-                                                <Card.Description>Athletes will have access to the program in the sequential order you choose.</Card.Description>
-                                            </Card.Content> */}
                                         </Card>
                                     </div>
                                     <div>
@@ -326,28 +366,10 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                                             <Card.Content className='iconContent'>
                                                 <Icon name='thumbs down outline' size='huge' />
                                             </Card.Content>
-                                            {/* <Card.Content>
-                                                <Card.Header >Mixed <br /> Access</Card.Header>
-                                                <Card.Description>Athletes will have unlimited access to selected programs and sequential access to selected programs.</Card.Description>
-                                            </Card.Content> */}
                                         </Card>
                                     </div>
                                 </Card.Group>
                             </div>
-                            {/* <div className='rowContainer'>
-                                <div className='half-width centred-info'>
-                                    <Button
-                                        className='submitBtn'
-                                        onClick={handleNonFinalSubmit}
-                                    >Yes</Button>
-                                </div>
-                                <div className='half-width centred-info'>
-                                    <Button
-                                        className='submitBtn'
-                                        onClick={handleNonFinalSubmit}
-                                    >No</Button>
-                                </div>
-                            </div> */}
                         </div>
                     }
                     {
@@ -380,10 +402,10 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                     }
                     {
                         pageNum === 6 &&
-                        <RowSelectTable
+                        <OnRowClickBasicTableWithPageination
                             columns={programGroupTableColumns}
                             data={programGroupTableData}
-                            rowSelectChangeHanlder={handleProgramGroupSelection}
+                            rowClickHandler={handleProgramGroupSelection}
                         />
                     }
                     {

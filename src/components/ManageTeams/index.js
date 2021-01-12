@@ -31,6 +31,10 @@ class ManageTeamsPage extends Component {
     }
 
 
+    componentWillUnmount() {
+        this.props.firebase.getUserData().off();
+    }
+
     updateObjectState = (userObject) => {
 
         this.setState({
@@ -213,7 +217,10 @@ class ManageTeamsPage extends Component {
                                     })
                                 }
                             </List>,
-                    sequential: sequentialTableVal
+                    sequential: sequentialTableVal,
+                    unlimitedRawData: programGroup.unlimited,
+                    sequentialRawData: programGroup.sequential
+
                 })
 
             })
@@ -233,8 +240,11 @@ class ManageTeamsPage extends Component {
 
     handleCreateTeam = (teamName, teamDescription, athleteData, programData) => {
 
+        console.log(programData)
+
         var payLoad = {}
         var programsObject = {}
+        var timestamp = Math.floor(new Date().getTime())
 
         var athletePath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/`
         var teamPath = `/users/${this.props.firebase.auth.currentUser.uid}/teams/${teamName}`
@@ -243,8 +253,8 @@ class ManageTeamsPage extends Component {
         if (programData.unlimited) {
             programsObject.unlimited = {}
             programData.unlimited.forEach(program => {
-                programsObject.unlimited[program.program] = {
-                    dateSet: Math.floor(new Date().getTime())
+                programsObject.unlimited[program.programUID] = {
+                    dateSet: timestamp
                 }
             })
         }
@@ -252,16 +262,24 @@ class ManageTeamsPage extends Component {
         if (programData.sequential) {
             programsObject.sequential = {}
             programData.sequential.forEach(program => {
-                programsObject.sequential[program.program] = {
-                    dateSet: Math.floor(new Date().getTime()),
-                    order: program.order
+                programsObject.sequential[program.programUID] = {
+                    dateSet: timestamp,
+                    order:
+                        programData.sequenceName === 'preDetermined' ?
+                            program.order
+                            :
+                            program.order
+                            + '_' + programData.sequenceName
+                            + '_' + teamName
+                            + '_' + this.props.firebase.auth.currentUser.uid
+                            + '_' + timestamp
                 }
             })
         }
 
 
         athleteData.forEach(athlete => {
-            payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/joiningDate'] = Math.floor(new Date().getTime())
+            payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/joiningDate'] = timestamp
 
             if (programData.unlimited) {
                 programData.unlimited.forEach(program => {
@@ -274,9 +292,9 @@ class ManageTeamsPage extends Component {
                     }
 
                     // Database path to insert into the athletes pending programs.
-                    payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.program] = insertionProgramObject
+                    payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
                     // Database path to keep track of what programs have been shared with which athlete and when.
-                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.program] = Math.floor(new Date().getTime())
+                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = Math.floor(new Date().getTime())
                 })
             }
 
@@ -288,12 +306,20 @@ class ManageTeamsPage extends Component {
                         chronicPeriod: program.chronicPeriod,
                         currentDayInProgram: 1,
                         loading_scheme: loadingSchemeStringInverse(program.loadingScheme),
-                        order: program.order + '_' + teamName + '_' + this.props.firebase.auth.currentUser.uid
+                        order:
+                            programData.sequenceName === 'preDetermined' ?
+                                program.order
+                                :
+                                program.order
+                                + '_' + programData.sequenceName
+                                + '_' + teamName
+                                + '_' + this.props.firebase.auth.currentUser.uid
+                                + '_' + timestamp
                     }
 
-                    payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.program] = insertionProgramObject
+                    payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
 
-                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.program] = Math.floor(new Date().getTime())
+                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = timestamp
                 })
             }
         })
@@ -302,7 +328,7 @@ class ManageTeamsPage extends Component {
         payLoad[teamPath + '/description'] = teamDescription
         payLoad[teamPath + '/programs'] = programsObject
 
-        // this.props.firebase.createTeamUpstream(payLoad)
+        this.props.firebase.createTeamUpstream(payLoad)
     }
 
 
