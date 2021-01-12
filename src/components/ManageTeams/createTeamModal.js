@@ -239,9 +239,35 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                     {
                         (pageNum >= 4) ? (pageNum === 4)
                             ?
-                            <Breadcrumb.Section link active>Assign Programs</Breadcrumb.Section>
+                            <Breadcrumb.Section link active>Assign Programs?</Breadcrumb.Section>
                             :
-                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 4)}>Assign Programs</Breadcrumb.Section>
+                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 4)}>Assign Programs?</Breadcrumb.Section>
+                            :
+                            <></>
+                    }
+                    {
+                        pageNum >= 5 &&
+                        <Breadcrumb.Divider>/</Breadcrumb.Divider>
+                    }
+                    {
+                        (pageNum >= 5) ? (pageNum === 5)
+                            ?
+                            <Breadcrumb.Section link active>Use Group?</Breadcrumb.Section>
+                            :
+                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 5)}>Use Group?</Breadcrumb.Section>
+                            :
+                            <></>
+                    }
+                    {
+                        pageNum >= 6 && pageNum !== 7 && pageNum !== 8 &&
+                        <Breadcrumb.Divider>/</Breadcrumb.Divider>
+                    }
+                    {
+                        (pageNum >= 6 && pageNum !== 7 && pageNum !== 8) ? (pageNum === 6)
+                            ?
+                            <Breadcrumb.Section link active>Assign Group</Breadcrumb.Section>
+                            :
+                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 6)}>Assign Group</Breadcrumb.Section>
                             :
                             <></>
                     }
@@ -250,7 +276,20 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                         <Breadcrumb.Divider>/</Breadcrumb.Divider>
                     }
                     {
-                        pageNum >= 7 &&
+                        (pageNum >= 7) ? (pageNum === 7)
+                            ?
+                            <Breadcrumb.Section link active>Selection</Breadcrumb.Section>
+                            :
+                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 7)}>Selection</Breadcrumb.Section>
+                            :
+                            <></>
+                    }
+                    {
+                        pageNum >= 8 &&
+                        <Breadcrumb.Divider>/</Breadcrumb.Divider>
+                    }
+                    {
+                        pageNum >= 8 &&
                         <Breadcrumb.Section link active>Program Accessbility</Breadcrumb.Section>
                     }
                 </Breadcrumb>
@@ -421,16 +460,11 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                                 rowSelectChangeHanlder={handleProgramSelection}
                             />
                             {
-                                selectedPrograms.length === 0 ?
-                                    <Button
-                                        className='submitBtn'
-                                        onClick={handleSubmit}
-                                    >Create Team</Button>
-                                    :
-                                    <Button
-                                        className='submitBtn'
-                                        onClick={handleNonFinalSubmit}
-                                    >Next</Button>
+                                selectedPrograms.length > 0 &&
+                                <Button
+                                    className='submitBtn'
+                                    onClick={handleNonFinalSubmit}
+                                >Next</Button>
                             }
                         </div>
                     }

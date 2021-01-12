@@ -328,7 +328,7 @@ class ManageTeamsPage extends Component {
         payLoad[teamPath + '/description'] = teamDescription
         payLoad[teamPath + '/programs'] = programsObject
 
-        this.props.firebase.createTeamUpstream(payLoad)
+        // this.props.firebase.createTeamUpstream(payLoad)
     }
 
 
