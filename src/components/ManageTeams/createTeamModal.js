@@ -15,6 +15,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
     const [pageNum, setPageNum] = useState(1)
     const [selectedAthletes, setSelectedAthletes] = useState([])
     const [selectedPrograms, setSelectedPrograms] = useState([])
+    const [reservedWordError, setReservedWordError] = useState(false)
     const rawProgramData = programTableData
 
     const handlePageChange = (event, pageNum) => {
@@ -88,7 +89,15 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
         ]
 
     const changeTeamName = (event, { value }) => {
-        setTeamName(value)
+        if (value === 'none') {
+            setTeamName(value)
+            setReservedWordError(true)
+        } else {
+            setTeamName(value)
+            if (reservedWordError) {
+                setReservedWordError(false)
+            }
+        }
 
     }
     const changeTeamDescription = (event, { value }) => {
@@ -116,8 +125,9 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
 
     const handleNonFinalSubmit = (event) => {
         event.preventDefault()
-        setPageNum(prevNum => prevNum + 1)
-
+        if (!reservedWordError) {
+            setPageNum(prevNum => prevNum + 1)
+        }
     }
 
     const handleAthleteSelection = (athleteTableSelection) => {
@@ -296,24 +306,29 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                 <Container>
                     {
                         pageNum === 1 &&
-                        <Form onSubmit={handleNonFinalSubmit}>
-                            <Form.Field>
-                                <Input
-                                    fluid
-                                    autoFocus={true}
-                                    value={teamName}
-                                    onChange={changeTeamName}
-                                    required
-                                />
-                            </Form.Field>
-                            {
-                                (teamName != '') ?
-                                    <Button className='submitBtn' type="submit">Next</Button>
-                                    :
-                                    <></>
+                        <div>
+                            <Form onSubmit={handleNonFinalSubmit}>
+                                <Form.Field>
+                                    <Input
+                                        fluid
+                                        autoFocus={true}
+                                        value={teamName}
+                                        onChange={changeTeamName}
+                                        required
+                                    />
+                                </Form.Field>
+                                {
+                                    (teamName != '') ?
+                                        <Button className='submitBtn' type="submit">Next</Button>
+                                        :
+                                        <></>
 
-                            }
-                        </Form>
+                                }
+                            </Form>
+                            <div id='signInEmailFooterMessagesContainer'>
+                                {reservedWordError && <p>Invalid Team Name</p>}
+                            </div>
+                        </div>
 
                     }
                     {

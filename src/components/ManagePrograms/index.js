@@ -335,6 +335,7 @@ class ManageProgramsPage extends Component {
                 programObj[program.programUID] =
                     program.order
                     + '_' + programData.sequenceName
+                    + '_' + 'none'
                     + '_' + this.props.firebase.auth.currentUser.uid
                     + '_' + timestamp
             })
