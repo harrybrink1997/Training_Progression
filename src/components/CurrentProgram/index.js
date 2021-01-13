@@ -1346,7 +1346,42 @@ class CurrentProgramPage extends Component {
                 }
                 <div className='pageRowContainer'>
                     <div className='pageContainerLevel1' id='availExerciseTableContainer'>
-                        <div onClick={() => this.setState({ availExerciseTableVisible: !availExerciseTableVisible })}>
+                        <div id='availExercises-ExData-toggleContainer'>
+                            <Button.Group size='tiny'>
+                                {
+                                    availExerciseTableVisible ?
+                                        <Button
+                                            className='smallerBtn'
+                                            active
+                                        >
+                                            Available Exercises
+                                        </Button>
+                                        :
+                                        <Button
+                                            className='smallerBtn'
+                                            onClick={() => this.setState({ availExerciseTableVisible: true })}
+                                        >
+                                            Available Exercises
+                                        </Button>
+                                }
+                                {
+                                    !availExerciseTableVisible ?
+                                        <Button
+
+                                            active
+                                        >
+                                            Program Exercise History
+                                        </Button>
+                                        :
+                                        <Button
+                                            onClick={() => this.setState({ availExerciseTableVisible: false })}
+                                        >
+                                            Program Exercise History
+                                        </Button>
+                                }
+                            </Button.Group>
+                        </div>
+                        {/* <div onClick={() => this.setState({ availExerciseTableVisible: !availExerciseTableVisible })}>
                             {
                                 availExerciseTableVisible &&
                                 <Icon name='toggle on' style={{ fontSize: '20px' }} />
@@ -1356,7 +1391,7 @@ class CurrentProgramPage extends Component {
                                 <Icon name='toggle off' style={{ fontSize: '20px' }} />
 
                             }
-                        </div>
+                        </div> */}
                         {
                             availExerciseTableVisible ?
                                 <AvailableExercisesList

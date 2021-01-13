@@ -89,3 +89,27 @@
     background: #BB86FC;
 }
 
+.ui.buttons {
+    border: 2px solid #BB86FC;
+    border-radius: 5px;
+    background: transparent;
+}
+
+.ui.buttons button {
+    color: #BB86FC;
+    background: transparent;
+}
+
+.ui.buttons button:hover {
+    color: #BB86FC;
+    background: transparent;
+}
+
+.ui.buttons .active {
+    color: #BB86FC;
+    background: #333333;
+}
+.ui.buttons .active:hover {
+    color: #BB86FC;
+    background: #333333;
+}
