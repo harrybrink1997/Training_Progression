@@ -9,9 +9,9 @@ const ViewPrevWeeksData = ({ handleFormSubmit, data, defaultWeek, progScheme }) 
     const [currWeek, setCurrWeek] = useState(defaultWeek)
     const scheme = progScheme
 
-    const handleSubmit = (event, isCopyWeek = true, dayToCopy = undefined, insertionDay = undefined) => {
+    const handleSubmit = (isCopyWeek, dayToCopy = undefined, insertionDay = undefined) => {
+        console.log("handle submit")
         if (isCopyWeek) {
-            event.preventDefault()
             handleFormSubmit(historicalData[currWeek], undefined)
         } else {
             console.log(insertionDay)
@@ -25,9 +25,7 @@ const ViewPrevWeeksData = ({ handleFormSubmit, data, defaultWeek, progScheme }) 
     }
 
     const handleCopyDayButton = (dayToCopy, insertionDay) => {
-        console.log(dayToCopy)
-        console.log(insertionDay)
-        handleSubmit(undefined, false, dayToCopy, insertionDay)
+        handleSubmit(false, dayToCopy, insertionDay)
     }
 
     const generateHistoricalTableData = (dayData) => {
@@ -65,7 +63,7 @@ const ViewPrevWeeksData = ({ handleFormSubmit, data, defaultWeek, progScheme }) 
             />
             {
                 currWeek > 0 &&
-                < Form onSubmit={handleSubmit}>
+                <div>
                     <div id='cpPrevExModalPagContainer'>
                         <Pagination
                             firstItem={null}
@@ -108,9 +106,13 @@ const ViewPrevWeeksData = ({ handleFormSubmit, data, defaultWeek, progScheme }) 
 
                     }
                     <div id='copyEntirePrevWeekDataBtnContainer'>
-                        <Button className='lightPurpleButton-inverted' type="submit">Copy Entire Week</Button>
+                        <Button
+                            onClick={() => { handleSubmit(true) }}
+                            className='lightPurpleButton-inverted' type="submit"
+                        >
+                            Copy Entire Week</Button>
                     </div>
-                </Form>
+                </div>
             }
 
         </div >

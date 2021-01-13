@@ -1138,6 +1138,8 @@ class CurrentProgramPage extends Component {
             })
         }
 
+        console.log('going in ')
+        console.log(insertData)
         this.props.firebase.createBulkExercisesUpstream(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
@@ -1189,8 +1191,6 @@ class CurrentProgramPage extends Component {
             userType,
             availExerciseTableVisible
         } = this.state
-
-        console.log(nullExerciseData.nullTableData)
 
         let loadingHTML =
             <Dimmer active>
