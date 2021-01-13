@@ -233,3 +233,8 @@
 .copyDayExerciseDataTextTriggerContainer {
     padding-left: 20px;
 }
+
+#copyEntirePrevWeekDataBtnContainer {
+    display: flex;
+    justify-content: center;
+}

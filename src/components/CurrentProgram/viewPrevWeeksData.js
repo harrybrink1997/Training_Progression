@@ -107,7 +107,9 @@ const ViewPrevWeeksData = ({ handleFormSubmit, data, defaultWeek, progScheme }) 
                             <></>
 
                     }
-                    <Button className='submitBtn' type="submit">Copy Week</Button>
+                    <div id='copyEntirePrevWeekDataBtnContainer'>
+                        <Button className='lightPurpleButton-inverted' type="submit">Copy Entire Week</Button>
+                    </div>
                 </Form>
             }
 
