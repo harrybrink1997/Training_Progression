@@ -112,24 +112,4 @@ const RequestModalTable = ({ data }) => {
     )
 }
 
-
-const AcceptRequestButton = ({ buttonHandler, athleteUID }) => {
-
-    const id = athleteUID
-
-    return (
-        <Button className="lightPurpleButton-inverted" onClick={() => buttonHandler(id, true)}>Accept</Button>
-    )
-}
-
-const DeclineRequestButton = ({ buttonHandler, athleteUID }) => {
-
-    const id = athleteUID
-
-    return (
-        <Button className="lightPurpleButton-inverted" onClick={() => buttonHandler(id, false)}>Decline</Button>
-    )
-}
-
 export default TeamRequestModal;
-export { AcceptRequestButton, DeclineRequestButton }

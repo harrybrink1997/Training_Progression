@@ -41,7 +41,7 @@ const CoachTeamAthleteDataContainer = ({ requestData, userType, athleteData, man
 
     let athleteHTML =
         <div>
-            I'm a athlete
+            < Button className='lightPurpleButton-inverted' onClick={manageProgramsHandler}>Manage Programs</Button>
         </div>
 
     return (

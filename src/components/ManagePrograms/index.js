@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import { withAuthorisation } from '../Session';
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
-import { Dimmer, Loader } from 'semantic-ui-react'
+import { Dimmer, Loader, List } from 'semantic-ui-react'
 
 import BasicTable from '../CustomComponents/basicTable'
 import ManageProgramsModal from './manageProgramsModal'
+import ManagePendingProgramsModal from './managePendingProgramsModal'
 import CreateProgramModal from './createProgramModal'
 import CreateProgramGroupModal from './createProgramGroupModal'
 import DeleteProgramModal from './deleteProgramModal'
 import loadingSchemeString, { loadingSchemeStringInverse } from '../../constants/loadingSchemeString'
+import { AcceptRequestButton, DeclineRequestButton, AcceptReplaceRequestButton, DeclineReplaceRequestButton } from '../CustomComponents/customButtons'
 
 
 class ManageProgramsPage extends Component {
@@ -49,6 +51,7 @@ class ManageProgramsPage extends Component {
             pastProgramList: programData.pastProgramList,
             programManagementTableData: programData.tableData,
             programManagementTableColumns: this.initProgramTableColumns(userObject.userType),
+            pendingProgramsTableData: this.initPendingProgramsTableData(userObject),
             userType: userObject.userType,
             loading: false
         })
@@ -112,6 +115,169 @@ class ManageProgramsPage extends Component {
                 ]
             )
         }
+    }
+
+    findRelatedSequentialPrograms = (userObject, seqOrderString) => {
+
+        // If the start of the sequence is 1 - there will be no related programs in current or past programs. Related programs will only exist in pending programs.
+        if (seqOrderString.split('_')[0] === '1') {
+            var seqOrderArray = seqOrderString.split('_')
+            seqOrderArray.shift()
+            var sequenceString = seqOrderArray.join("_")
+            var relatedPrograms = []
+
+            Object.keys(userObject.pendingPrograms).forEach(programUID => {
+                var programData = userObject.pendingPrograms[programUID]
+
+                if (programData.order) {
+                    if (programData.order !== seqOrderString) {
+                        var currOrderArray = programData.order.split('_')
+                        currOrderArray.shift()
+                        var currSeqString = currOrderArray.join("_")
+
+                        if (sequenceString === currSeqString) {
+                            relatedPrograms.push({
+                                programUID: programUID,
+                                order: programData.order
+                            })
+                        }
+                    }
+                }
+            })
+
+            return relatedPrograms
+
+        }
+    }
+
+    programInCurrentPrograms = (userObject, programName) => {
+        if (!userObject.currentPrograms) {
+            return false
+        } else {
+            for (var program in userObject.currentPrograms) {
+                if (program === programName) {
+                    return true
+                }
+            }
+            return false
+        }
+    }
+
+    programInPastPrograms = (userObject, programName) => {
+        if (!userObject.pastPrograms) {
+            return false
+        } else {
+            for (var program in userObject.pastPrograms) {
+                if (program === programName) {
+                    return true
+                }
+            }
+            return false
+        }
+    }
+
+    handlePendingProgramReplacement = (programName, isAccepted) => {
+        console.log(programName)
+    }
+
+    initPendingProgramsTableData = (userObject) => {
+        if (userObject.pendingPrograms) {
+            var tableData = []
+
+            Object.keys(userObject.pendingPrograms).forEach(programName => {
+                var program = userObject.pendingPrograms[programName]
+                if (program.order === undefined) {
+                    // Deals with unlimited pending programs.
+                    if (this.programInCurrentPrograms(userObject, programName)) {
+                        // If the pending program is already in the athletes
+                        // current programs give an option to replace.
+                        tableData.push({
+                            program: programName.split('_')[0],
+                            coach: userObject.teams[programName.split('_')[1]].username,
+                            relatedPrograms: 'None',
+                            programType: 'Stand-Alone',
+                            buttons:
+                                <div>
+                                    <AcceptReplaceRequestButton buttonHandler={this.handlePendingProgramReplacement} objectUID={programName} />
+                                    <DeclineReplaceRequestButton buttonHandler={this.handlePendingProgramReplacement} objectUID={programName} />
+                                </div>
+                        })
+
+                    } else if (this.programInPastPrograms(userObject, programName)) {
+                        // If the pending program is already in the athletes
+                        // past programs...
+                    } else {
+                        // If its not in past or current programs. 
+                        tableData.push({
+                            program: programName.split('_')[0],
+                            coach: userObject.teams[programName.split('_')[1]].username,
+                            relatedPrograms: 'None',
+                            programType: 'Stand-Alone',
+                            buttons:
+                                <div>
+                                    <AcceptRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
+                                    <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
+                                </div>
+                        })
+                    }
+
+                } else {
+                    // Deals with sequential pending programs
+                    if (program.order.split('_')[0] === '1') {
+
+                        var relatedPrograms = this.findRelatedSequentialPrograms(userObject, program.order)
+
+                        relatedPrograms.sort((a, b) => {
+                            return parseInt(a.order.split('_')[0]) - parseInt(b.order.split('_')[0])
+                        })
+                        var numInSequence = 2
+
+                        if (this.programInCurrentPrograms(userObject, programName)) {
+
+                        } else if (this.programInPastPrograms(userObject, programName)) {
+
+                        } else {
+                            // If its not in past or current programs. 
+                            tableData.push({
+                                program: programName.split('_')[0],
+                                coach: userObject.teams[programName.split('_')[1]].username,
+                                programType: 'Sequential',
+                                buttons:
+                                    <div>
+                                        <AcceptRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
+                                        <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
+                                    </div>,
+                                relatedPrograms:
+                                    <List>
+                                        {
+                                            relatedPrograms.map(relProgram => {
+
+                                                let listHTML =
+                                                    <List.Item>
+                                                        {numInSequence + ': ' + relProgram.programUID.split('_')[0]
+                                                        }
+                                                    </List.Item>
+
+                                                numInSequence++
+                                                return listHTML
+                                            })
+                                        }
+                                    </List>
+                            })
+                        }
+                        console.log(relatedPrograms)
+
+                    }
+                }
+            })
+            return tableData
+        } else {
+            return undefined
+        }
+    }
+
+    handlePendingProgramRequestAcceptence = (programUID, isAccepted) => {
+        console.log(programUID)
     }
 
     initProgramData = (userObject) => {
@@ -356,6 +522,7 @@ class ManageProgramsPage extends Component {
             programManagementTableData,
             programManagementTableColumns,
             currentProgramList,
+            pendingProgramsTableData,
             pastProgramList,
             userType
         } = this.state
@@ -396,6 +563,15 @@ class ManageProgramsPage extends Component {
                             </div>
 
                         </div>
+                        {
+                            pendingProgramsTableData &&
+                            <div id='pendingProgramsModalContainer'>
+                                <ManagePendingProgramsModal
+                                    programTableData={pendingProgramsTableData}
+                                    numPrograms={pendingProgramsTableData.length}
+                                />
+                            </div>
+                        }
                     </div>
                 </div>
                 <div className="pageContainerLevel1">

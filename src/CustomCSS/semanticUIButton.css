@@ -44,6 +44,28 @@
     color:#BB86FC;
 }
 
+.ui.button.lightRedButton-inverted:hover {
+    box-shadow: 0 0 5px #CF6679;
+}
+
+.ui.button.lightRedButton-inverted {
+    background: inherit;
+    border: 2px solid #CF6679;
+    font-weight: 900;
+    color:#CF6679;
+}
+
+.ui.button.lightGreenButton-inverted:hover {
+    box-shadow: 0 0 5px #8cfc86;
+}
+
+.ui.button.lightGreenButton-inverted {
+    background: inherit;
+    border: 2px solid #8cfc86;
+    font-weight: 900;
+    color:#8cfc86;
+}
+
 .ui.button.lightPurpleButton-inverted:hover {
     box-shadow: 0 0 5px #BB86FC;
 }
