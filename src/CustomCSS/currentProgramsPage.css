@@ -210,3 +210,26 @@
     font-size: 20px;
     margin-bottom: 10px;
 }
+
+#noPrevWeekExerciseDataHeader {
+    text-align: center;
+    font-size: 20px;
+}
+
+.exerciseTableContainerHeaderDivContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+.copyDayExerciseDataModalTextTrigger {
+    color: #BB86FC;
+    cursor: pointer;
+}
+
+.copyDayExerciseDataModalTextTrigger:hover {
+    text-shadow: 0 0 10px #BB86FC;
+}
+
+.copyDayExerciseDataTextTriggerContainer {
+    padding-left: 20px;
+}

@@ -1101,27 +1101,43 @@ class CurrentProgramPage extends Component {
         return dataObject
     }
 
-    handleCopyPrevWeeksExData = (weekData) => {
+    handleCopyPrevWeeksExData = (weekData, insertionDay) => {
         var insertData = {}
 
-        Object.keys(weekData).forEach(day => {
-            insertData[this.convertUIDayToTotalDays(day)] = {}
+        if (insertionDay === undefined) {
+            Object.keys(weekData).forEach(day => {
+                insertData[this.convertUIDayToTotalDays(day)] = {}
 
-            Object.keys(weekData[day]).forEach(exercise => {
+                Object.keys(weekData[day]).forEach(exercise => {
+                    var reverseExComp = exercise.split("_").reverse()
+                    reverseExComp[2] = this.state.currentWeekInProgram
+
+                    var currExDay = reverseExComp[1]
+
+                    reverseExComp[1] = this.convertUIDayToTotalDays(convertTotalDaysToUIDay(currExDay))
+
+                    var newExID = reverseExComp.reverse().join("_")
+
+                    insertData[this.convertUIDayToTotalDays(day)][newExID] = weekData[day][exercise]
+
+                })
+
+            })
+        } else {
+            insertData[this.convertUIDayToTotalDays(insertionDay)] = {}
+            Object.keys(weekData).forEach(exercise => {
                 var reverseExComp = exercise.split("_").reverse()
                 reverseExComp[2] = this.state.currentWeekInProgram
 
-                var currExDay = reverseExComp[1]
+                reverseExComp[1] = this.convertUIDayToTotalDays(convertTotalDaysToUIDay(insertionDay))
 
-                reverseExComp[1] = this.convertUIDayToTotalDays(convertTotalDaysToUIDay(currExDay))
 
                 var newExID = reverseExComp.reverse().join("_")
 
-                insertData[this.convertUIDayToTotalDays(day)][newExID] = weekData[day][exercise]
-
+                insertData[this.convertUIDayToTotalDays(insertionDay)][newExID] = weekData[exercise]
             })
+        }
 
-        })
         this.props.firebase.createBulkExercisesUpstream(
             this.props.firebase.auth.currentUser.uid,
             this.state.activeProgram,
@@ -1330,20 +1346,17 @@ class CurrentProgramPage extends Component {
                 }
                 <div className='pageRowContainer'>
                     <div className='pageContainerLevel1' id='availExerciseTableContainer'>
-                        {
-                            currentWeekInProgram !== 1 &&
-                            <div onClick={() => this.setState({ availExerciseTableVisible: !availExerciseTableVisible })}>
-                                {
-                                    availExerciseTableVisible &&
-                                    <Icon name='toggle on' style={{ fontSize: '20px' }} />
-                                }
-                                {
-                                    !availExerciseTableVisible &&
-                                    <Icon name='toggle off' style={{ fontSize: '20px' }} />
+                        <div onClick={() => this.setState({ availExerciseTableVisible: !availExerciseTableVisible })}>
+                            {
+                                availExerciseTableVisible &&
+                                <Icon name='toggle on' style={{ fontSize: '20px' }} />
+                            }
+                            {
+                                !availExerciseTableVisible &&
+                                <Icon name='toggle off' style={{ fontSize: '20px' }} />
 
-                                }
-                            </div>
-                        }
+                            }
+                        </div>
                         {
                             availExerciseTableVisible ?
                                 <AvailableExercisesList

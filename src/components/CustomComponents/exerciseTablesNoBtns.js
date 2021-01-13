@@ -3,9 +3,9 @@ import { useTable } from 'react-table'
 // import { Tabs, Tab, Pagination } from 'react-bootstrap'
 import { Table, Accordion, Icon } from 'semantic-ui-react'
 import InputLabel from '../CustomComponents/DarkModeInput'
+import CopyExerciseDayDataModal from './copyDayExerciseDataModal'
 
-
-const ExerciseTableContainerNoBtns = ({ dayText, tableData, tableScheme, defaultOpen, dayIndex }) => {
+const ExerciseTableContainerNoBtns = ({ dayText, tableData, tableScheme, defaultOpen, dayIndex, copyDays, copyDayHandler }) => {
 
     const [tableVisible, setTableVisible] = useState(defaultOpen)
 
@@ -17,15 +17,27 @@ const ExerciseTableContainerNoBtns = ({ dayText, tableData, tableScheme, default
         setTableVisible(!tableVisible)
     }
 
+    const handleCopyDayClick = (dayToCopy, insertionDay) => {
+        copyDayHandler(dayToCopy, insertionDay)
+    }
+
     return (
         < div>
-            <div onClick={handleOpenClose}>
-
+            <div className='exerciseTableContainerHeaderDivContainer' onClick={handleOpenClose}>
                 <InputLabel
                     text={dayText}
                     leftIcon={<Icon name={iconString} />}
                 />
             </div>
+            {
+                copyDays && tableVisible &&
+                <div className='copyDayExerciseDataTextTriggerContainer'>
+                    <CopyExerciseDayDataModal
+                        defaultDay={parseInt(dayText.split(' ')[1])}
+                        handleFormSubmit={handleCopyDayClick}
+                    />
+                </div>
+            }
             {
                 tableVisible && <LoadingSchemeExTable data={tableData} scheme={tableScheme} />
             }
@@ -132,11 +144,6 @@ const ExerciseTableDayViewRpeTime = ({ data, handleTableUpdate }) => {
                                             {// Render the header
                                                 column.render('Header')}
                                         </Table.HeaderCell>
-
-                                    // <Table.HeaderCell {...column.getHeaderProps()}>
-                                    //     {// Render the header
-                                    //         column.render('Header')}
-                                    // </Table.HeaderCell>
                                 ))}
                         </Table.Row>
                     ))}
@@ -232,7 +239,7 @@ const ExerciseTableDayViewWeightReps = ({ data, handleTableUpdate }) => {
     }
 
     return (
-        <Table selectable celled {...getTableProps()}>
+        <Table celled {...getTableProps()}>
             <Table.Header>
                 {// Loop over the header rows
                     headerGroups.map(headerGroup => (
