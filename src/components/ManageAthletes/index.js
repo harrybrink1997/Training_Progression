@@ -31,6 +31,10 @@ class ManageAthletesPage extends Component {
         });
     }
 
+    componentWillUnmount() {
+        this.props.firebase.getUserData().off();
+    }
+
 
     updateObjectState = (userObject) => {
         this.setState({

@@ -142,8 +142,20 @@ class CurrentProgramPage extends Component {
             var programListArray = []
 
             Object.keys(userObject.currentPrograms).forEach(key => {
-                programListArray.push(key)
+                if (userObject.currentPrograms[key].order) {
+
+                    if (userObject.currentPrograms[key].isActiveInSequence) {
+                        programListArray.push(key)
+                    }
+
+                } else {
+                    programListArray.push(key)
+                }
             })
+
+
+
+
             // Initially Sets the state for the current day
             // and current week and other parameters. 
             this.setState({
@@ -151,7 +163,8 @@ class CurrentProgramPage extends Component {
                 activeProgram: userObject.activeProgram,
                 hasPrograms: true,
                 allPrograms: userObject.currentPrograms,
-
+                sequenceName: this.initSequenceName(userObject),
+                programOwner: this.initActiveProgramOwner(userObject),
                 currentWeekInProgram: Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7),
                 currentDayInProgram: userObject.currentPrograms[userObject.activeProgram].currentDayInProgram, // Sets the current day in program.
                 currentDayUTS: userObject.currentPrograms[userObject.activeProgram].currentDayUTS, // Gets unix timestamp for current day
@@ -186,6 +199,27 @@ class CurrentProgramPage extends Component {
                 loading: false,
                 hasPrograms: false
             })
+        }
+    }
+
+    initSequenceName = (userObject) => {
+        if (userObject.currentPrograms[userObject.activeProgram].order) {
+            return userObject.currentPrograms[userObject.activeProgram].order.split('_')[1]
+        }
+        return undefined
+    }
+
+    initActiveProgramOwner = (userObject) => {
+        var activeProgramOwner = userObject.activeProgram.split('_')[1]
+        if (activeProgramOwner === this.props.firebase.auth.currentUser.uid) {
+            return undefined
+        } else {
+            for (var coach in userObject.teams) {
+                if (coach === activeProgramOwner) {
+                    return userObject.teams[coach].username
+                }
+            }
+            return undefined
         }
     }
 
@@ -939,18 +973,132 @@ class CurrentProgramPage extends Component {
 
     }
 
+    findRelatedSequentialPrograms = (currProgramsObject, seqOrderString) => {
+
+        // If the start of the sequence is 1 - there will be no related programs in current or past programs. Related programs will only exist in pending programs.
+        var seqOrderArray = seqOrderString.split('_')
+        seqOrderArray.shift()
+        var sequenceString = seqOrderArray.join("_")
+        var relatedPrograms = []
+
+        Object.keys(currProgramsObject).forEach(programUID => {
+            var programData = currProgramsObject[programUID]
+
+            if (programData.order) {
+                if (programData.order !== seqOrderString) {
+                    var currOrderArray = programData.order.split('_')
+                    currOrderArray.shift()
+                    var currSeqString = currOrderArray.join("_")
+
+                    if (sequenceString === currSeqString) {
+                        relatedPrograms.push({
+                            programUID: programUID,
+                            order: programData.order
+                        })
+                    }
+                }
+            }
+        })
+        return relatedPrograms
+    }
+
+
+    getValidActiveProgram = () => {
+        if (this.state.programList.length === 1) {
+            return ''
+        } else {
+
+            var activeProgramData = this.state.allPrograms[this.state.activeProgram]
+
+            console.log(activeProgramData)
+            if (activeProgramData.isActiveInSequence) {
+
+                var relatedPrograms = this.findRelatedSequentialPrograms(this.state.allPrograms, activeProgramData.order)
+
+                if (relatedPrograms.length > 0) {
+                    relatedPrograms.sort((a, b) => {
+                        return parseInt(a.order.split('_')[0]) - parseInt(b.order.split('_')[0])
+                    })
+
+                    return {
+                        programName: relatedPrograms[0].programUID,
+                        isNextInSequence: true
+                    }
+                } else {
+                    // If its the final program in the sequence then just treat as an unlimited program. 
+                    for (var program in this.state.allPrograms) {
+
+                        if (program !== this.state.activeProgram) {
+                            var programData = this.state.allPrograms[program]
+                            if (programData.isActiveInSequence === undefined) {
+                                return program
+                            } else {
+                                if (programData.isActiveInSequence) {
+                                    return {
+                                        programName: program,
+                                        isNextInSequence: false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                // its an unlimited program and just find the next valid program to assign to. 
+                for (var program in this.state.allPrograms) {
+
+                    if (program !== this.state.activeProgram) {
+                        var programData = this.state.allPrograms[program]
+                        if (programData.isActiveInSequence === undefined) {
+                            return {
+                                programName: program,
+                                isNextInSequence: false
+                            }
+                        } else {
+                            if (programData.isActiveInSequence) {
+                                return {
+                                    programName: program,
+                                    isNextInSequence: false
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // Updated with new ratio calcs format
     handleCloseOffProgram = async () => {
-        if (this.state.programList.length == 1) {
+
+        // to remove if else statement 
+        if (this.state.programList.length === 1) {
             var newProgram = ''
         } else {
             for (var program in this.state.programList) {
-                if (this.state.programList[program] != this.state.activeProgram) {
-                    newProgram = this.state.programList[program]
+                if (this.state.programList[program] !== this.state.activeProgram) {
+                    var newProgram = this.state.programList[program]
                     break
                 }
             }
         }
+
+        var payLoad = {}
+        var newProgramData = this.getValidActiveProgram()
+
+        var basePath = '/users/' + this.props.firebase.auth.currentUser.uid
+
+        // Sets the new active program in the payload. 
+        payLoad[basePath + '/activeProgram'] = newProgramData.programName
+
+        // If the new active program is next in line in a sequence. This will cause a corresponding change in isActiveInSequence. Sets in payload
+        if (newProgramData.isNextInSequence) {
+            payLoad[basePath + '/currentPrograms/' + newProgramData.programName + '/isActiveInSequence'] = true
+        }
+
+        // Sets in payload the remove of the closed off program from currentPrograms. 
+        payLoad[basePath + '/currentPrograms/' + this.state.activeProgram] = null
+
         var programToCloseOff = this.state.activeProgram
 
         await this.props.firebase.getProgramData(
@@ -959,36 +1107,15 @@ class CurrentProgramPage extends Component {
         ).once('value', async data => {
             var programData = data.val()
 
+            if (programData.isActiveInSequence !== undefined) {
+                delete programData.isActiveInSequence
+            }
 
-            // Transfer program to past program first to ensure correct transfer
-            await this.props.firebase.transferProgramToRecordsUpstream(
-                this.props.firebase.auth.currentUser.uid,
-                programToCloseOff,
-                programData
-            )
+            programData.endDayUTS = Math.floor(new Date().getTime())
 
-            var endTimestamp = Math.floor(new Date().getTime())
+            payLoad[basePath + '/pastPrograms/' + programToCloseOff] = programData
 
-
-            // Set an end timestamp date for the program.
-            await this.props.firebase.appendEndDateUpstream(
-                this.props.firebase.auth.currentUser.uid,
-                programToCloseOff,
-                endTimestamp
-            )
-
-
-            // Update active program to the first in the list that isn't current program. Else set to none- this will allow user to switch programs and delete can then run. 
-            await this.props.firebase.setActiveProgram(
-                this.props.firebase.auth.currentUser.uid,
-                newProgram
-            )
-
-            // Delete program out of current programs afterwards.
-            await this.props.firebase.closeOffProgramUpstream(
-                this.props.firebase.auth.currentUser.uid,
-                programToCloseOff,
-            )
+            await this.props.firebase.closeOffProgramUpstream(payLoad)
         })
 
     }
@@ -1189,14 +1316,16 @@ class CurrentProgramPage extends Component {
             submitDataProcessing,
             nullExerciseData,
             userType,
-            availExerciseTableVisible
+            availExerciseTableVisible,
+            sequenceName,
+            programOwner
         } = this.state
 
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
             </Dimmer>
-        let noCurrentProgramsHTML = <Header as='h1'>Create A Program Before Accessing This Page</Header>
+        let noCurrentProgramsHTML = <NonLandingPageWrapper><Header as='h1'>Create A Program Before Accessing This Page</Header></NonLandingPageWrapper>
         let hasCurrentProgramsHTML =
             <NonLandingPageWrapper>
                 <ConfirmNullExerciseData
@@ -1217,6 +1346,12 @@ class CurrentProgramPage extends Component {
                                 :
                                 'Week ' + currentWeekInProgram
                         }
+                    </div>
+                    <div id='programOwnerHeaderDiv'>
+                        {programOwner && 'Written By: ' + programOwner}
+                    </div>
+                    <div id='sequenceNameHeaderDiv'>
+                        {sequenceName && 'Program Sequence: ' + sequenceName}
                     </div>
                     <div id='cpButtonsHeader'>
                         <div id='submitDayBtnContainer'>
@@ -1381,17 +1516,6 @@ class CurrentProgramPage extends Component {
                                 }
                             </Button.Group>
                         </div>
-                        {/* <div onClick={() => this.setState({ availExerciseTableVisible: !availExerciseTableVisible })}>
-                            {
-                                availExerciseTableVisible &&
-                                <Icon name='toggle on' style={{ fontSize: '20px' }} />
-                            }
-                            {
-                                !availExerciseTableVisible &&
-                                <Icon name='toggle off' style={{ fontSize: '20px' }} />
-
-                            }
-                        </div> */}
                         {
                             availExerciseTableVisible ?
                                 <AvailableExercisesList

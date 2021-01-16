@@ -11,7 +11,8 @@ import CreateProgramGroupModal from './createProgramGroupModal'
 import DeleteProgramModal from './deleteProgramModal'
 import loadingSchemeString, { loadingSchemeStringInverse } from '../../constants/loadingSchemeString'
 import { AcceptRequestButton, DeclineRequestButton, AcceptReplaceRequestButton, DeclineReplaceRequestButton } from '../CustomComponents/customButtons'
-
+import ReplaceProgramOptionsModal from './replaceProgramOptionsModal'
+import OverrideReplaceProgramModal from './overrideReplaceProgramModal'
 
 class ManageProgramsPage extends Component {
 
@@ -52,6 +53,7 @@ class ManageProgramsPage extends Component {
             programManagementTableData: programData.tableData,
             programManagementTableColumns: this.initProgramTableColumns(userObject.userType),
             pendingProgramsTableData: this.initPendingProgramsTableData(userObject),
+            pendingProgramsData: userObject.pendingPrograms,
             userType: userObject.userType,
             loading: false
         })
@@ -144,7 +146,6 @@ class ManageProgramsPage extends Component {
                     }
                 }
             })
-
             return relatedPrograms
 
         }
@@ -176,8 +177,80 @@ class ManageProgramsPage extends Component {
         }
     }
 
-    handlePendingProgramReplacement = (programName, isAccepted) => {
+    handlePendingProgramReplacement = (programName, replacementType, currentDayInProgram) => {
         console.log(programName)
+        console.log(replacementType)
+        console.log(currentDayInProgram)
+        console.log(this.state.pendingProgramsData)
+        var basePath =
+            '/users/'
+            + this.props.firebase.auth.currentUser.uid
+
+        if (replacementType === 'future') {
+            var maxDay = 0
+            Object.keys(this.state.pendingProgramsData[programName]).forEach(key => {
+                if (parseInt(key)) {
+                    if (parseInt(key) > maxDay) {
+                        maxDay = key
+                    }
+                }
+            })
+            var path =
+                basePath
+                + '/currentPrograms/'
+                + programName + '/'
+            var payLoad = {}
+            for (var day = currentDayInProgram + 1; day <= maxDay; day++) {
+
+                (this.state.pendingProgramsData[programName][day]) ?
+                    payLoad[path + day.toString()] = this.state.pendingProgramsData[programName][day]
+                    : payLoad[path + day.toString()] = {}
+            }
+
+        } else {
+            var path =
+                basePath
+                + '/currentPrograms/'
+                + programName
+
+            var payLoad = {}
+
+            payLoad[path] = this.state.pendingProgramsData[programName]
+        }
+        // console.log(payLoad)
+        var pendingPath =
+            basePath
+            + '/pendingPrograms/'
+            + programName
+
+        payLoad[pendingPath] = null
+
+        this.props.firebase.updateDatabaseFromRootPath(payLoad)
+    }
+
+    checkSameMetaParameters = (userObject, programName) => {
+        var metaParameters = {
+            'Loading Scheme': false,
+            'Chronic Period': false,
+            'Acute Period': false
+        }
+
+        if (userObject.currentPrograms[programName].loading_scheme === userObject.pendingPrograms[programName].loading_scheme) {
+            metaParameters['Loading Scheme'] = true
+        }
+
+        if (userObject.currentPrograms[programName].chronicPeriod === userObject.pendingPrograms[programName].chronicPeriod) {
+            metaParameters['Chronic Period'] = true
+        }
+
+        if (userObject.currentPrograms[programName].acutePeriod === userObject.pendingPrograms[programName].acutePeriod) {
+            metaParameters['Acute Period'] = true
+        }
+        if (metaParameters['Acute Period'] && metaParameters['Chronic Period'] && metaParameters['Loading Scheme']) {
+            return true
+        }
+
+        return metaParameters
     }
 
     initPendingProgramsTableData = (userObject) => {
@@ -189,23 +262,44 @@ class ManageProgramsPage extends Component {
                 if (program.order === undefined) {
                     // Deals with unlimited pending programs.
                     if (this.programInCurrentPrograms(userObject, programName)) {
-                        // If the pending program is already in the athletes
-                        // current programs give an option to replace.
-                        tableData.push({
-                            program: programName.split('_')[0],
-                            coach: userObject.teams[programName.split('_')[1]].username,
-                            relatedPrograms: 'None',
-                            programType: 'Stand-Alone',
-                            buttons:
-                                <div>
-                                    <AcceptReplaceRequestButton buttonHandler={this.handlePendingProgramReplacement} objectUID={programName} />
-                                    <DeclineReplaceRequestButton buttonHandler={this.handlePendingProgramReplacement} objectUID={programName} />
-                                </div>
-                        })
+                        var noMetaParameterMismatch = this.checkSameMetaParameters(userObject, programName)
+                        if (noMetaParameterMismatch === true) {
+                            // If the pending program is already in the athletes
+                            // current programs give an option to replace.
+                            tableData.push({
+                                program: programName.split('_')[0],
+                                coach: userObject.teams[programName.split('_')[1]].username,
+                                relatedPrograms: 'None',
+                                programType: 'Stand-Alone',
+                                buttons:
+                                    <div>
+                                        <ReplaceProgramOptionsModal
+                                            handleFormSubmit={this.handlePendingProgramReplacement}
+                                            programUID={programName}
+                                            currentDayInProgram={userObject.currentPrograms[programName].currentDayInProgram}
+                                        />
+                                        <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
+                                    </div>
+                            })
+                        } else {
+                            console.log(noMetaParameterMismatch)
+                            tableData.push({
+                                program: programName.split('_')[0],
+                                coach: userObject.teams[programName.split('_')[1]].username,
+                                relatedPrograms: 'None',
+                                programType: 'Stand-Alone',
+                                buttons:
+                                    <div>
+                                        <OverrideReplaceProgramModal
+                                            handleFormSubmit={this.handlePendingProgramRequestAcceptence}
+                                            programUID={programName}
+                                            mismatchedParams={noMetaParameterMismatch}
+                                        />
+                                        <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
+                                    </div>
+                            })
+                        }
 
-                    } else if (this.programInPastPrograms(userObject, programName)) {
-                        // If the pending program is already in the athletes
-                        // past programs...
                     } else {
                         // If its not in past or current programs. 
                         tableData.push({
@@ -253,7 +347,7 @@ class ManageProgramsPage extends Component {
                                             relatedPrograms.map(relProgram => {
 
                                                 let listHTML =
-                                                    <List.Item>
+                                                    <List.Item key={relProgram.programUID}>
                                                         {numInSequence + ': ' + relProgram.programUID.split('_')[0]
                                                         }
                                                     </List.Item>
@@ -276,8 +370,54 @@ class ManageProgramsPage extends Component {
         }
     }
 
-    handlePendingProgramRequestAcceptence = (programUID, isAccepted) => {
-        console.log(programUID)
+    handlePendingProgramRequestAcceptence = (programName, isAccepted) => {
+        var payLoad = {}
+        var basePath = '/users/'
+            + this.props.firebase.auth.currentUser.uid
+        var pendingPath = basePath + '/pendingPrograms/'
+
+        if (isAccepted) {
+            var currProgPath =
+                basePath
+                + '/currentPrograms/'
+
+            payLoad[basePath + '/activeProgram'] = programName
+            payLoad[currProgPath + programName] = this.state.pendingProgramsData[programName]
+            payLoad[pendingPath + programName] = null
+
+            if (this.state.pendingProgramsData[programName].order) {
+
+                var relatedProgs = this.findRelatedSequentialPrograms(
+                    { pendingPrograms: this.state.pendingProgramsData },
+                    this.state.pendingProgramsData[programName].order
+                )
+
+                relatedProgs.forEach(relatedProgram => {
+                    payLoad[currProgPath + relatedProgram.programUID] = this.state.pendingProgramsData[relatedProgram.programUID]
+
+                    payLoad[pendingPath + relatedProgram.programUID] = null
+                })
+            }
+
+        } else {
+
+            payLoad[pendingPath + programName] = null
+
+            if (this.state.pendingProgramsData[programName].order) {
+
+                var relatedProgs = this.findRelatedSequentialPrograms(
+                    { pendingPrograms: this.state.pendingProgramsData },
+                    this.state.pendingProgramsData[programName].order
+                )
+
+                relatedProgs.forEach(relatedProgram => {
+                    payLoad[pendingPath + relatedProgram.programUID] = null
+                })
+            }
+        }
+
+        this.props.firebase.processPendingProgramsUpstream(payLoad)
+
     }
 
     initProgramData = (userObject) => {
@@ -498,6 +638,7 @@ class ManageProgramsPage extends Component {
             var timestamp = new Date().getTime()
 
             programData.sequential.forEach(program => {
+
                 programObj[program.programUID] =
                     program.order
                     + '_' + programData.sequenceName
@@ -507,6 +648,7 @@ class ManageProgramsPage extends Component {
             })
 
             payLoad.sequential = programObj
+            console.log(programObj)
         }
 
         this.props.firebase.createProgramGroupUpstream(

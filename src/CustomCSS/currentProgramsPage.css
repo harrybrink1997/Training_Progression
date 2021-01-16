@@ -245,3 +245,15 @@
     margin-top: 10px;
     margin-bottom: 10px;
 }
+
+#programOwnerHeaderDiv {
+    padding-top: 10px;
+    text-align: center;
+    font-size: 15px;
+}
+
+#sequenceNameHeaderDiv {
+    text-align: center;
+    padding-top: 10px;
+    font-size: 15px;
+}

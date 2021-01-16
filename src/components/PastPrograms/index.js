@@ -538,12 +538,12 @@ class PastProgramsPage extends Component {
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
             </Dimmer>
-        let noCurrentProgramsHTML = <Header as='h1'>No Past Programs to Show... <br /> Close off a program before this becomes usable. </Header>
+        let noCurrentProgramsHTML = <NonLandingPageWrapper><Header as='h1'>No Past Programs to Show... <br /> Close off a program before this becomes usable. </Header></NonLandingPageWrapper>
         let hasCurrentProgramsHTML =
             <NonLandingPageWrapper>
                 <div className='pageContainerLevel1'>
                     <div id='ppProgramHeader'>
-                        {activeProgram}
+                        {activeProgram.split('_')[0]}
                     </div>
                     <div id='ppCurrentProgramHeader'>
                         <ProgramListDropdown

@@ -279,22 +279,10 @@ class Firebase {
             .remove()
     }
 
-    closeOffProgramUpstream = (uid, progName) => {
+    closeOffProgramUpstream = (payLoad) => {
         return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}`)
-            .remove()
-    }
-
-    appendEndDateUpstream = (uid, progName, endUTS) => {
-        return this.db
-            .ref(`users/${uid}/pastPrograms/${progName}/endDayUTS`)
-            .set(endUTS)
-    }
-
-    transferProgramToRecordsUpstream = (uid, progName, val) => {
-        return this.db
-            .ref(`users/${uid}/pastPrograms/${progName}`)
-            .set(val)
+            .ref('/')
+            .update(payLoad)
     }
 
     pushPastProgramNotesUpstream = (uid, progName, val) => {
@@ -331,6 +319,18 @@ class Firebase {
         return this.db
             .ref('/')
             .update(teamInfo)
+    }
+
+    processPendingProgramsUpstream = (programData) => {
+        return this.db
+            .ref('/')
+            .update(programData)
+    }
+
+    updateDatabaseFromRootPath = (payLoad) => {
+        return this.db
+            .ref('/')
+            .update(payLoad)
     }
 }
 export default Firebase

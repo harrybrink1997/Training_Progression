@@ -43,6 +43,7 @@ class ManageTeamsPage extends Component {
             programTableData: this.initProgramTableData(userObject),
             programGroupTableData: this.initProgramGroupTableData(userObject),
             teamsTableData: this.initTeamsTableData(userObject),
+            currentProgramsData: userObject.currentPrograms,
             selectedTeamsTable: undefined
         })
 
@@ -284,12 +285,16 @@ class ManageTeamsPage extends Component {
             if (programData.unlimited) {
                 programData.unlimited.forEach(program => {
 
-                    var insertionProgramObject = {
-                        acutePeriod: program.acutePeriod,
-                        chronicPeriod: program.chronicPeriod,
-                        currentDayInProgram: 1,
-                        loading_scheme: loadingSchemeStringInverse(program.loadingScheme)
-                    }
+
+                    // var insertionProgramObject = {
+                    //     acutePeriod: program.acutePeriod,
+                    //     chronicPeriod: program.chronicPeriod,
+                    //     currentDayInProgram: 1,
+                    //     loading_scheme: loadingSchemeStringInverse(program.loadingScheme)
+                    // }
+
+                    var insertionProgramObject = this.state.currentProgramsData[program.programUID]
+                    insertionProgramObject.currentDayInProgram = 1
 
                     // Database path to insert into the athletes pending programs.
                     payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
@@ -301,21 +306,46 @@ class ManageTeamsPage extends Component {
             if (programData.sequential) {
                 programData.sequential.forEach(program => {
 
-                    var insertionProgramObject = {
-                        acutePeriod: program.acutePeriod,
-                        chronicPeriod: program.chronicPeriod,
-                        currentDayInProgram: 1,
-                        loading_scheme: loadingSchemeStringInverse(program.loadingScheme),
-                        order:
-                            programData.sequenceName === 'preDetermined' ?
-                                program.order
-                                :
-                                program.order
-                                + '_' + programData.sequenceName
-                                + '_' + teamName
-                                + '_' + this.props.firebase.auth.currentUser.uid
-                                + '_' + timestamp
+                    var isActiveInSequence = false
+                    if (programData.sequenceName === 'preDetermined') {
+                        if (parseInt(program.order.split('_')[0]) === 1) {
+                            isActiveInSequence = true
+                        }
+                    } else {
+                        if (parseInt(program.order) === 1) {
+                            isActiveInSequence = true
+                        }
                     }
+
+                    var insertionProgramObject = this.state.currentProgramsData[program.programUID]
+                    insertionProgramObject.currentDayInProgram = 1
+                    insertionProgramObject.isActiveInSequence = isActiveInSequence
+                    insertionProgramObject.order =
+                        programData.sequenceName === 'preDetermined' ?
+                            program.order
+                            :
+                            program.order
+                            + '_' + programData.sequenceName
+                            + '_' + teamName
+                            + '_' + this.props.firebase.auth.currentUser.uid
+                            + '_' + timestamp
+
+                    // var insertionProgramObject = {
+                    //     acutePeriod: program.acutePeriod,
+                    //     chronicPeriod: program.chronicPeriod,
+                    //     currentDayInProgram: 1,
+                    //     loading_scheme: loadingSchemeStringInverse(program.loadingScheme),
+                    //     isActiveInSequence: isActiveInSequence,
+                    //     order:
+                    //         programData.sequenceName === 'preDetermined' ?
+                    //             program.order
+                    //             :
+                    //             program.order
+                    //             + '_' + programData.sequenceName
+                    //             + '_' + teamName
+                    //             + '_' + this.props.firebase.auth.currentUser.uid
+                    //             + '_' + timestamp
+                    // }
 
                     payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
 
@@ -324,7 +354,6 @@ class ManageTeamsPage extends Component {
             }
         })
 
-        console.log(payLoad)
         payLoad[teamPath + '/description'] = teamDescription
         payLoad[teamPath + '/programs'] = programsObject
 

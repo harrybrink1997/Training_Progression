@@ -48,29 +48,6 @@ class HomePage extends Component {
 
                 const anatomyObject = snapshot.val();
 
-                // if ('currentPrograms' in userObject) {
-                //     var currentProgramList = []
-
-                //     for (var program in userObject.currentPrograms) {
-                //         currentProgramList.push(program)
-                //     }
-                // } else {
-                //     currentProgramList = false
-                // }
-
-                // // Make the list of past programs.
-                // if ('pastPrograms' in userObject) {
-                //     var pastProgramList = []
-
-                //     for (program in userObject.pastPrograms) {
-                //         pastProgramList.push(program)
-                //     }
-                // } else {
-                //     pastProgramList = false
-                // }
-
-
-
                 this.setState({
                     userInformation: {
                         uid: currUserUid,

@@ -18,28 +18,32 @@ const withCoachAuthorisation = condition => Component => {
         }
 
         componentDidMount() {
-
-            this.listener = this.props.firebase.auth.onAuthStateChanged(
-                coachAuthUser => {
-                    if (coachAuthUser) {
-                        this.props.firebase.auth.currentUser.getIdTokenResult()
-                            .then(adminToken => {
-                                if (!condition(adminToken.claims.userType)) {
-                                    this.props.history.push(ROUTES.LANDING)
-                                } else {
-                                    this.setState({
-                                        isCoach: true
-                                    })
-                                }
-                            })
-                    } else {
-                        this.props.history.push(ROUTES.LANDING)
-                    }
-                },
-            );
+            this.setState({ isMounted: true }, () => {
+                this.listener = this.props.firebase.auth.onAuthStateChanged(
+                    coachAuthUser => {
+                        if (coachAuthUser) {
+                            this.props.firebase.auth.currentUser.getIdTokenResult()
+                                .then(adminToken => {
+                                    if (this.state.isMounted) {
+                                        if (!condition(adminToken.claims.userType)) {
+                                            this.props.history.push(ROUTES.LANDING)
+                                        } else {
+                                            this.setState({
+                                                isCoach: true
+                                            })
+                                        }
+                                    }
+                                })
+                        } else {
+                            this.props.history.push(ROUTES.LANDING)
+                        }
+                    },
+                );
+            })
         }
 
         componentWillUnmount() {
+            this.setState({ isMounted: false })
             this.listener();
         }
 
