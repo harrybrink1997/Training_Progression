@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Modal, Button, Form, List } from 'semantic-ui-react'
 
-const OverrideReplaceProgramModal = ({ handleFormSubmit, programUID, mismatchedParams }) => {
+const OverrideReplaceProgramModal = ({ handleFormSubmit, programUID, mismatchedParams, modalType }) => {
 
     const [show, setShow] = useState(false);
     const programName = programUID
@@ -30,25 +30,41 @@ const OverrideReplaceProgramModal = ({ handleFormSubmit, programUID, mismatchedP
 
             <Modal.Content>
                 <div id='cpPageSubmitDayWarningContent'>
-                    We ran some quick checks and it seems you're already actively completing {programUID.split('_')[0]}.
-                    <br /><br />
-                    The new version of the program sent by your coach has a different:
-                    <List bulleted>
-                        {
-                            Object.keys(mismatchedParams).map(param => {
-                                if (!mismatchedParams[param]) {
-                                    return (
-                                        <List.Item key={param}>
-                                            {param}
-                                        </List.Item>
-                                    )
+                    {
+                        modalType === 'metaParamter-Mismatch' &&
+                        <div>
+                            We ran some quick checks and it seems you're already actively completing {programUID.split('_')[0]}.
+                            <br /><br />
+                            The new version of the program sent by your coach has a different:
+                            <List bulleted>
+                                {
+                                    Object.keys(mismatchedParams).map(param => {
+                                        if (!mismatchedParams[param]) {
+                                            return (
+                                                <List.Item key={param}>
+                                                    {param}
+                                                </List.Item>
+                                            )
+                                        }
+                                    })
                                 }
-                            })
-                        }
-                    </List>
-                    <div>
-                        Due to this we can either replace the program completely or you can keep the existing program you're on.
-                    </div>
+                            </List>
+                            <div>
+                                Due to this we can either replace the program completely or you can keep the existing program you're on.
+                            </div>
+                        </div>
+                    }
+                    {
+                        modalType === 'unlimPend->nonActiveSeqCurr' &&
+                        <div>
+                            We ran some quick checks and it seems you already obtain a copy of {programUID.split('_')[0]}.
+                            <br /><br />
+
+                            Currently the program is inactive and part of a program sequence. Your coach has redelivered the program as an unlimited program.
+                            <br /><br />
+                            Replacing this program will update the data and remove it from the program sequence it is currently assigned to.
+                        </div>
+                    }
                 </div>
                 <div className='rowContainer'>
                     <div className='half-width centred-info'>

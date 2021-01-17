@@ -157,7 +157,10 @@ class ManageProgramsPage extends Component {
         } else {
             for (var program in userObject.currentPrograms) {
                 if (program === programName) {
-                    return true
+                    return {
+                        order: userObject.currentPrograms[program].order,
+                        isActiveInSequence: userObject.currentPrograms[program].isActiveInSequence
+                    }
                 }
             }
             return false
@@ -259,30 +262,52 @@ class ManageProgramsPage extends Component {
 
             Object.keys(userObject.pendingPrograms).forEach(programName => {
                 var program = userObject.pendingPrograms[programName]
+                var currentProgramInfo = this.programInCurrentPrograms(userObject, programName)
+                // If the pending program is an unlimited program. 
                 if (program.order === undefined) {
-                    // Deals with unlimited pending programs.
-                    if (this.programInCurrentPrograms(userObject, programName)) {
+                    // If the current program is already in the athletes current programs data.
+                    if (currentProgramInfo) {
+                        // Check if there is a metaParameter mismatch if there is. A full replace is required. Cannot migrate old program data to the new program. 
                         var noMetaParameterMismatch = this.checkSameMetaParameters(userObject, programName)
+
                         if (noMetaParameterMismatch === true) {
-                            // If the pending program is already in the athletes
-                            // current programs give an option to replace.
-                            tableData.push({
-                                program: programName.split('_')[0],
-                                coach: userObject.teams[programName.split('_')[1]].username,
-                                relatedPrograms: 'None',
-                                programType: 'Stand-Alone',
-                                buttons:
-                                    <div>
-                                        <ReplaceProgramOptionsModal
-                                            handleFormSubmit={this.handlePendingProgramReplacement}
-                                            programUID={programName}
-                                            currentDayInProgram={userObject.currentPrograms[programName].currentDayInProgram}
-                                        />
-                                        <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
-                                    </div>
-                            })
+
+                            // If the program in current program is an unlimited program or is an active program is a current sequence. A migration option is offered.
+                            if (currentProgramInfo.order === undefined || currentProgramInfo.isActiveInSequence === true) {
+                                tableData.push({
+                                    program: programName.split('_')[0],
+                                    coach: userObject.teams[programName.split('_')[1]].username,
+                                    relatedPrograms: 'None',
+                                    programType: 'Stand-Alone',
+                                    buttons:
+                                        <div>
+                                            <ReplaceProgramOptionsModal
+                                                handleFormSubmit={this.handlePendingProgramReplacement}
+                                                programUID={programName}
+                                                currentDayInProgram={userObject.currentPrograms[programName].currentDayInProgram}
+                                            />
+                                            <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
+                                        </div>
+                                })
+                            } else {
+                                // If its not active in a sequence. Then a full replace is offered and it will be removed from the current sequence and changed to an unlimited program.  
+                                tableData.push({
+                                    program: programName.split('_')[0],
+                                    coach: userObject.teams[programName.split('_')[1]].username,
+                                    relatedPrograms: 'None',
+                                    programType: 'Stand-Alone',
+                                    buttons:
+                                        <div>
+                                            <OverrideReplaceProgramModal
+                                                handleFormSubmit={this.handlePendingProgramRequestAcceptence}
+                                                programUID={programName}
+                                                modalType={'unlimPend->nonActiveSeqCurr'}
+                                            />
+                                            <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
+                                        </div>
+                                })
+                            }
                         } else {
-                            console.log(noMetaParameterMismatch)
                             tableData.push({
                                 program: programName.split('_')[0],
                                 coach: userObject.teams[programName.split('_')[1]].username,
@@ -294,12 +319,12 @@ class ManageProgramsPage extends Component {
                                             handleFormSubmit={this.handlePendingProgramRequestAcceptence}
                                             programUID={programName}
                                             mismatchedParams={noMetaParameterMismatch}
+                                            modalType={'metaParamter-Mismatch'}
                                         />
                                         <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
                                     </div>
                             })
                         }
-
                     } else {
                         // If its not in past or current programs. 
                         tableData.push({
