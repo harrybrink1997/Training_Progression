@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Modal, Button, List } from 'semantic-ui-react'
+import { Modal, Button, List, Form, Radio } from 'semantic-ui-react'
 
 const ReplaceProgramSequenceModal = ({ handleFormSubmit, firstProgramUID, sequenceOverlapData }) => {
 
@@ -54,24 +54,6 @@ const ReplaceProgramSequenceModal = ({ handleFormSubmit, firstProgramUID, sequen
                         })
                     }
                 </div>
-                {/* <div className='rowContainer'>
-                    <div className='half-width centred-info'>
-                        <Button
-                            onClick={() => { handleButtonClick('all') }}
-                            className='lightPurpleButton-inverted'
-                        >
-                            Replace Completely
-                        </Button>
-                    </div>
-                    <div className='half-width centred-info'>
-                        <Button
-                            onClick={() => { handleButtonClick('future') }}
-                            className='lightPurpleButton-inverted'
-                        >
-                            Replace Only Future
-                        </Button>
-                    </div>
-                </div> */}
             </Modal.Content>
         </Modal>
     );
@@ -116,6 +98,16 @@ const NonFirstProgramText = ({ data }) => {
 
 const FirstProgramText = ({ data }) => {
     const programData = data
+    const [replaceType, setReplaceType] = useState('all')
+
+    const handleRadioChange = (event, { value }) => {
+        console.log(value)
+        setReplaceType(value)
+    }
+
+    const replaceOption1 = 'The first option is we can replace the program entirely.'
+    const replaceOption2Start = 'The second option is we can keep your data up to and including day '
+    const replaceOptions2End = " for the program and replace all the future data that you're yet to complete."
 
     return (
         <div>
@@ -134,6 +126,22 @@ const FirstProgramText = ({ data }) => {
                             The second option is we can keep your data up to and including day {programData.currentDayInProgram} for the program and replace all the future data that you're yet to complete.
                         </List.Item>
                     </List>
+                    <Form.Group >
+                        <Form.Field
+                            control={Radio}
+                            label={replaceOption1}
+                            value='all'
+                            checked={replaceType === 'all'}
+                            onChange={handleRadioChange}
+                        />
+                        <Form.Field
+                            control={Radio}
+                            label={replaceOption2Start + programData.currentDayInProgram + replaceOptions2End}
+                            value='future'
+                            checked={replaceType === 'future'}
+                            onChange={handleRadioChange}
+                        />
+                    </Form.Group>
                 </div>
             }
             {
