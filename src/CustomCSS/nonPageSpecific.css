@@ -63,3 +63,8 @@
     display: flex;
     justify-content: flex-end;
 }
+
+.lightPurpleText {
+    color:#BB86FC;
+
+}

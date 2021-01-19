@@ -13,6 +13,7 @@ import loadingSchemeString, { loadingSchemeStringInverse } from '../../constants
 import { AcceptRequestButton, DeclineRequestButton, AcceptReplaceRequestButton, DeclineReplaceRequestButton } from '../CustomComponents/customButtons'
 import ReplaceProgramOptionsModal from './replaceProgramOptionsModal'
 import OverrideReplaceProgramModal from './overrideReplaceProgramModal'
+import ReplaceProgramSequenceModal from './replaceProgramSequenceModal'
 
 class ManageProgramsPage extends Component {
 
@@ -159,7 +160,9 @@ class ManageProgramsPage extends Component {
                 if (program === programName) {
                     return {
                         order: userObject.currentPrograms[program].order,
-                        isActiveInSequence: userObject.currentPrograms[program].isActiveInSequence
+                        isActiveInSequence: userObject.currentPrograms[program].isActiveInSequence,
+                        currentDayInProgram: userObject.currentPrograms[program].currentDayInProgram,
+                        programUID: program
                     }
                 }
             }
@@ -341,7 +344,7 @@ class ManageProgramsPage extends Component {
                     }
 
                 } else {
-                    // Deals with sequential pending programs
+                    // Only considers the first program in the sequence. This is what will be displayed on the front end. All logic will be considered below. 
                     if (program.order.split('_')[0] === '1') {
 
                         var relatedPrograms = this.findRelatedSequentialPrograms(userObject, program.order)
@@ -349,13 +352,31 @@ class ManageProgramsPage extends Component {
                         relatedPrograms.sort((a, b) => {
                             return parseInt(a.order.split('_')[0]) - parseInt(b.order.split('_')[0])
                         })
-                        var numInSequence = 2
 
-                        if (this.programInCurrentPrograms(userObject, programName)) {
+                        var sequenceProgramsInOrder = relatedPrograms
+                        sequenceProgramsInOrder.unshift({
+                            programUID: programName,
+                            order: program.order
+                        })
 
-                        } else if (this.programInPastPrograms(userObject, programName)) {
+                        var currProgSeqCheckData = this.checkSequenceProgramsInCurrentPrograms(
+                            userObject, sequenceProgramsInOrder
+                        )
 
-                        } else {
+                        var allSeqNotInCurrProgs = true
+
+                        for (var program in currProgSeqCheckData) {
+                            var checkData = currProgSeqCheckData[program]
+                            if (checkData) {
+                                allSeqNotInCurrProgs = false
+                                break
+                            }
+                        }
+
+                        // If none of the program in the sequence is currently in the athletes current program. No special action is required. 
+                        if (allSeqNotInCurrProgs) {
+                            console.log("in")
+                            var numInSequence = 2
                             // If its not in past or current programs. 
                             tableData.push({
                                 program: programName.split('_')[0],
@@ -383,9 +404,43 @@ class ManageProgramsPage extends Component {
                                         }
                                     </List>
                             })
-                        }
-                        console.log(relatedPrograms)
+                        } else {
+                            var numInSequence = 2
+                            // If its not in past or current programs. 
+                            tableData.push({
+                                program: programName.split('_')[0],
+                                coach: userObject.teams[programName.split('_')[1]].username,
+                                programType: 'Sequential',
+                                buttons:
+                                    <div>
+                                        <ReplaceProgramSequenceModal
+                                            buttonHandler={this.handleAcceptOverlappingProgramSequence}
+                                            firstProgramUID={programName}
+                                            sequenceOverlapData={currProgSeqCheckData}
+                                        />
+                                        <DeclineRequestButton
+                                            buttonHandler={this.handlePendingProgramRequestAcceptence}
+                                            objectUID={programName}
+                                        />
+                                    </div>,
+                                relatedPrograms:
+                                    <List>
+                                        {
+                                            relatedPrograms.map(relProgram => {
 
+                                                let listHTML =
+                                                    <List.Item key={relProgram.programUID}>
+                                                        {numInSequence + ': ' + relProgram.programUID.split('_')[0]
+                                                        }
+                                                    </List.Item>
+
+                                                numInSequence++
+                                                return listHTML
+                                            })
+                                        }
+                                    </List>
+                            })
+                        }
                     }
                 }
             })
@@ -393,6 +448,20 @@ class ManageProgramsPage extends Component {
         } else {
             return undefined
         }
+    }
+
+    handleAcceptOverlappingProgramSequence = (programData) => {
+
+    }
+
+    checkSequenceProgramsInCurrentPrograms = (userObject, sequencePrograms) => {
+        console.log(sequencePrograms)
+        var payLoad = []
+        sequencePrograms.forEach(program => {
+            payLoad.push(this.programInCurrentPrograms(userObject, program.programUID))
+        })
+
+        return (payLoad)
     }
 
     handlePendingProgramRequestAcceptence = (programName, isAccepted) => {
