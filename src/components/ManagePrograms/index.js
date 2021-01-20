@@ -55,6 +55,7 @@ class ManageProgramsPage extends Component {
             programManagementTableColumns: this.initProgramTableColumns(userObject.userType),
             pendingProgramsTableData: this.initPendingProgramsTableData(userObject),
             pendingProgramsData: userObject.pendingPrograms,
+            currentProgramsData: userObject.currentPrograms,
             userType: userObject.userType,
             loading: false
         })
@@ -120,45 +121,49 @@ class ManageProgramsPage extends Component {
         }
     }
 
-    findRelatedSequentialPrograms = (userObject, seqOrderString) => {
+    findRelatedSequentialPrograms = (programObject, seqOrderString) => {
 
         // If the start of the sequence is 1 - there will be no related programs in current or past programs. Related programs will only exist in pending programs.
-        if (seqOrderString.split('_')[0] === '1') {
-            var seqOrderArray = seqOrderString.split('_')
-            seqOrderArray.shift()
-            var sequenceString = seqOrderArray.join("_")
-            var relatedPrograms = []
+        // if (seqOrderString.split('_')[0] === '1') {
+        var seqOrderArray = seqOrderString.split('_')
+        seqOrderArray.shift()
+        var sequenceString = seqOrderArray.join("_")
+        var relatedPrograms = []
 
-            Object.keys(userObject.pendingPrograms).forEach(programUID => {
-                var programData = userObject.pendingPrograms[programUID]
+        Object.keys(programObject).forEach(programUID => {
+            var programData = programObject[programUID]
 
-                if (programData.order) {
-                    if (programData.order !== seqOrderString) {
-                        var currOrderArray = programData.order.split('_')
-                        currOrderArray.shift()
-                        var currSeqString = currOrderArray.join("_")
+            if (programData.order) {
+                if (programData.order !== seqOrderString) {
+                    var currOrderArray = programData.order.split('_')
+                    currOrderArray.shift()
+                    var currSeqString = currOrderArray.join("_")
 
-                        if (sequenceString === currSeqString) {
-                            relatedPrograms.push({
-                                programUID: programUID,
-                                order: programData.order
-                            })
-                        }
+                    if (sequenceString === currSeqString) {
+                        relatedPrograms.push({
+                            programUID: programUID,
+                            order: programData.order
+                        })
                     }
                 }
-            })
-            return relatedPrograms
+            }
+        })
+        return relatedPrograms
 
-        }
+        // }
     }
 
     programInCurrentPrograms = (userObject, programName) => {
         if (!userObject.currentPrograms) {
-            return false
+            return {
+                inCurrProg: false,
+                programUID: programName
+            }
         } else {
             for (var program in userObject.currentPrograms) {
                 if (program === programName) {
                     return {
+                        inCurrProg: true,
                         order: userObject.currentPrograms[program].order,
                         isActiveInSequence: userObject.currentPrograms[program].isActiveInSequence,
                         currentDayInProgram: userObject.currentPrograms[program].currentDayInProgram,
@@ -166,7 +171,10 @@ class ManageProgramsPage extends Component {
                     }
                 }
             }
-            return false
+            return {
+                inCurrProg: false,
+                programUID: programName
+            }
         }
     }
 
@@ -184,10 +192,6 @@ class ManageProgramsPage extends Component {
     }
 
     handlePendingProgramReplacement = (programName, replacementType, currentDayInProgram) => {
-        console.log(programName)
-        console.log(replacementType)
-        console.log(currentDayInProgram)
-        console.log(this.state.pendingProgramsData)
         var basePath =
             '/users/'
             + this.props.firebase.auth.currentUser.uid
@@ -223,7 +227,6 @@ class ManageProgramsPage extends Component {
 
             payLoad[path] = this.state.pendingProgramsData[programName]
         }
-        // console.log(payLoad)
         var pendingPath =
             basePath
             + '/pendingPrograms/'
@@ -240,23 +243,26 @@ class ManageProgramsPage extends Component {
             'Chronic Period': false,
             'Acute Period': false
         }
+        if (!userObject.currentPrograms) {
+            return metaParameters
+        } else {
+            if (userObject.currentPrograms[programName].loading_scheme === userObject.pendingPrograms[programName].loading_scheme) {
+                metaParameters['Loading Scheme'] = true
+            }
 
-        if (userObject.currentPrograms[programName].loading_scheme === userObject.pendingPrograms[programName].loading_scheme) {
-            metaParameters['Loading Scheme'] = true
-        }
+            if (userObject.currentPrograms[programName].chronicPeriod === userObject.pendingPrograms[programName].chronicPeriod) {
+                metaParameters['Chronic Period'] = true
+            }
 
-        if (userObject.currentPrograms[programName].chronicPeriod === userObject.pendingPrograms[programName].chronicPeriod) {
-            metaParameters['Chronic Period'] = true
-        }
+            if (userObject.currentPrograms[programName].acutePeriod === userObject.pendingPrograms[programName].acutePeriod) {
+                metaParameters['Acute Period'] = true
+            }
+            if (metaParameters['Acute Period'] && metaParameters['Chronic Period'] && metaParameters['Loading Scheme']) {
+                return true
+            }
 
-        if (userObject.currentPrograms[programName].acutePeriod === userObject.pendingPrograms[programName].acutePeriod) {
-            metaParameters['Acute Period'] = true
+            return metaParameters
         }
-        if (metaParameters['Acute Period'] && metaParameters['Chronic Period'] && metaParameters['Loading Scheme']) {
-            return true
-        }
-
-        return metaParameters
     }
 
     initPendingProgramsTableData = (userObject) => {
@@ -269,7 +275,7 @@ class ManageProgramsPage extends Component {
                 // If the pending program is an unlimited program. 
                 if (program.order === undefined) {
                     // If the current program is already in the athletes current programs data.
-                    if (currentProgramInfo) {
+                    if (currentProgramInfo.inCurrProg) {
                         // Check if there is a metaParameter mismatch if there is. A full replace is required. Cannot migrate old program data to the new program. 
                         var noMetaParameterMismatch = this.checkSameMetaParameters(userObject, programName)
 
@@ -347,27 +353,27 @@ class ManageProgramsPage extends Component {
                     // Only considers the first program in the sequence. This is what will be displayed on the front end. All logic will be considered below. 
                     if (program.order.split('_')[0] === '1') {
 
-                        var relatedPrograms = this.findRelatedSequentialPrograms(userObject, program.order)
+                        var relatedPrograms = this.findRelatedSequentialPrograms(userObject.pendingPrograms, program.order)
 
                         relatedPrograms.sort((a, b) => {
                             return parseInt(a.order.split('_')[0]) - parseInt(b.order.split('_')[0])
                         })
-
-                        var sequenceProgramsInOrder = relatedPrograms
-                        sequenceProgramsInOrder.unshift({
-                            programUID: programName,
-                            order: program.order
-                        })
+                        var sequenceProgramsInOrder = [
+                            {
+                                programUID: programName,
+                                order: program.order
+                            },
+                            ...relatedPrograms
+                        ]
 
                         var currProgSeqCheckData = this.checkSequenceProgramsInCurrentPrograms(
                             userObject, sequenceProgramsInOrder
                         )
-
                         var allSeqNotInCurrProgs = true
 
                         for (var program in currProgSeqCheckData) {
                             var checkData = currProgSeqCheckData[program]
-                            if (checkData) {
+                            if (checkData.inCurrProg) {
                                 allSeqNotInCurrProgs = false
                                 break
                             }
@@ -375,7 +381,6 @@ class ManageProgramsPage extends Component {
 
                         // If none of the program in the sequence is currently in the athletes current program. No special action is required. 
                         if (allSeqNotInCurrProgs) {
-                            console.log("in")
                             var numInSequence = 2
                             // If its not in past or current programs. 
                             tableData.push({
@@ -415,7 +420,6 @@ class ManageProgramsPage extends Component {
                                     <div>
                                         <ReplaceProgramSequenceModal
                                             buttonHandler={this.handleAcceptOverlappingProgramSequence}
-                                            firstProgramUID={programName}
                                             sequenceOverlapData={currProgSeqCheckData}
                                         />
                                         <DeclineRequestButton
@@ -450,12 +454,101 @@ class ManageProgramsPage extends Component {
         }
     }
 
-    handleAcceptOverlappingProgramSequence = (programData) => {
+    handleAcceptOverlappingProgramSequence = (firstProgReplacement, programData) => {
+        var payLoad = {}
+        var basePath =
+            '/users/'
+            + this.props.firebase.auth.currentUser.uid
+        var pendingPath =
+            basePath
+            + '/pendingPrograms/'
+        var currProgPath =
+            basePath
+            + '/currentPrograms/'
 
+        var firstProgram = programData.shift()
+
+        payLoad[pendingPath + firstProgram.programUID] = null
+        console.log(firstProgram)
+        // Generates the exact replacement data for the first program in the sequence. 
+        if (firstProgReplacement === 'future') {
+            var maxDay = 0
+            Object.keys(this.state.pendingProgramsData[firstProgram.programUID
+            ]).forEach(key => {
+                if (parseInt(key)) {
+                    if (parseInt(key) > maxDay) {
+                        maxDay = key
+                    }
+                }
+            })
+            var path =
+                currProgPath
+                + firstProgram.programUID + '/'
+
+            payLoad[path + 'isActiveInSequence'] = true
+            payLoad[path + 'order'] = this.state.pendingProgramsData[firstProgram.programUID].order
+
+            path += '/'
+
+            for (var day = firstProgram.currentDayInProgram + 1; day <= maxDay; day++) {
+                (this.state.pendingProgramsData[firstProgram.programUID][day]) ?
+                    payLoad[path + day.toString()] = this.state.pendingProgramsData[firstProgram.programUID][day]
+                    : payLoad[path + day.toString()] = {}
+            }
+
+        } else {
+            // This will account for a new program that doesn't currently exist in current programs or a full replace of the program selected by the user.
+            var path =
+                currProgPath
+                + firstProgram.programUID
+
+            payLoad[path] = this.state.pendingProgramsData[firstProgram.programUID]
+        }
+
+        // If the program you're replacement is also first in it's sequence. Iterate through current programs to find the associate sequence programs for deletion. 
+        if (firstProgram.order) {
+            if (parseInt(firstProgram.order.split('_')[0]) === 1) {
+                var relatedSeqProgs = this.findRelatedSequentialPrograms(this.state.currentProgramsData, firstProgram.order)
+
+                relatedSeqProgs.forEach(relProg => {
+                    payLoad[currProgPath + relProg.programUID] = null
+                })
+            }
+        }
+
+        programData.forEach(program => {
+
+            payLoad[pendingPath + program.programUID] = null
+
+            payLoad[currProgPath + program.programUID] = this.state.pendingProgramsData[program.programUID]
+
+            if (program.order !== undefined &&
+                program.isActiveInSequence) {
+                var relatedCurrPrograms = this.findRelatedSequentialPrograms(this.state.currentProgramsData, program.order)
+
+                var relatedPendPrograms = this.findRelatedSequentialPrograms(this.state.pendingProgramsData, this.state.pendingProgramsData[program.programUID].order)
+
+                relatedCurrPrograms.forEach(relProg => {
+                    if (!this.programInRelatedProgList(relatedPendPrograms, relProg.programUID)) {
+                        payLoad[currProgPath + relProg.programUID] = null
+                    }
+                })
+            }
+        })
+        this.props.firebase.updateDatabaseFromRootPath(payLoad)
+    }
+
+    programInRelatedProgList = (list, program) => {
+
+        for (var prog in list) {
+            if (list[prog].programUID === program) {
+                return true
+            }
+        }
+        return false
     }
 
     checkSequenceProgramsInCurrentPrograms = (userObject, sequencePrograms) => {
-        console.log(sequencePrograms)
         var payLoad = []
         sequencePrograms.forEach(program => {
             payLoad.push(this.programInCurrentPrograms(userObject, program.programUID))
@@ -482,7 +575,7 @@ class ManageProgramsPage extends Component {
             if (this.state.pendingProgramsData[programName].order) {
 
                 var relatedProgs = this.findRelatedSequentialPrograms(
-                    { pendingPrograms: this.state.pendingProgramsData },
+                    this.state.pendingProgramsData,
                     this.state.pendingProgramsData[programName].order
                 )
 
@@ -500,7 +593,7 @@ class ManageProgramsPage extends Component {
             if (this.state.pendingProgramsData[programName].order) {
 
                 var relatedProgs = this.findRelatedSequentialPrograms(
-                    { pendingPrograms: this.state.pendingProgramsData },
+                    this.state.pendingProgramsData,
                     this.state.pendingProgramsData[programName].order
                 )
 
@@ -710,8 +803,6 @@ class ManageProgramsPage extends Component {
     }
 
     handleCreateProgramGroup = (groupName, programData) => {
-        console.log(groupName)
-        console.log(programData)
 
         var payLoad = {
             sequential: false,
@@ -742,7 +833,6 @@ class ManageProgramsPage extends Component {
             })
 
             payLoad.sequential = programObj
-            console.log(programObj)
         }
 
         this.props.firebase.createProgramGroupUpstream(
@@ -762,7 +852,6 @@ class ManageProgramsPage extends Component {
             pastProgramList,
             userType
         } = this.state
-        console.log(programManagementTableData)
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />

@@ -1,23 +1,48 @@
 import React, { useState } from 'react'
-import { Modal, Button, List, Form, Radio } from 'semantic-ui-react'
+import { Modal, Button, Pagination, Form, Radio } from 'semantic-ui-react'
 
-const ReplaceProgramSequenceModal = ({ handleFormSubmit, firstProgramUID, sequenceOverlapData }) => {
+const ReplaceProgramSequenceModal = ({ buttonHandler, sequenceOverlapData }) => {
 
     const [show, setShow] = useState(false);
-    const programName = firstProgramUID
+    const [currPage, setCurrPage] = useState(1)
+    const totalSequenceData = sequenceOverlapData
+    const initRenderData = (rawData) => {
+        var payLoad = []
+        rawData.forEach(program => {
+            if (program.inCurrProg) {
+                payLoad.push(program)
+            }
+        })
+        return payLoad
+    }
+
+    const renderData = initRenderData(sequenceOverlapData)
+
+    const initReplacementType = (initProgramData) => {
+        if (initProgramData[0].order !== undefined &&
+            initProgramData[0].isActiveInSequence === false) {
+            return undefined
+        } else {
+            return 'all'
+        }
+    }
+
+    const [replacementType, setReplacementType] = useState(initReplacementType(sequenceOverlapData))
+
+    const handleRadioChange = (val) => {
+        setReplacementType(val)
+    }
+
     const handleClose = (event) => {
         setShow(false);
     }
 
-    const initProgramData = (data) => {
-        console.log(data)
-        return data.slice(1, data.length)
+    const handlePageChange = (event, data) => {
+        setCurrPage(data.activePage)
     }
 
-    const nonFirstProgData = initProgramData(sequenceOverlapData)
-
-
-    const handleButtonClick = (replacementType) => {
+    const handleProceedBtnClick = () => {
+        buttonHandler(replacementType, totalSequenceData)
         handleClose()
     }
 
@@ -37,22 +62,65 @@ const ReplaceProgramSequenceModal = ({ handleFormSubmit, firstProgramUID, sequen
 
             <Modal.Content>
                 <div id='cpPageSubmitDayWarningContent'>
-                    We ran some quick checks and found the following issues:
+                    <div>
+                        We ran some quick checks and found the following
+                        {
+                            renderData.length === 1 ?
+                                ' issue'
+                                :
+                                ' ' + renderData.length + ' issues'
+                        }
+                        . Please review these before proceeding.
+                    </div>
+                    <div className='centeredPageContainerLabel'>
+                        <Pagination
+                            firstItem={null}
+                            lastItem={null}
+                            pointing
+                            secondary
+                            defaultActivePage={1}
+                            totalPages={renderData.length}
+                            onPageChange={handlePageChange}
+                        />
+                    </div>
                     {
-                        sequenceOverlapData[0] !== false &&
+                        currPage === 1 && sequenceOverlapData[0].inCurrProg &&
                         <FirstProgramText
                             data={sequenceOverlapData[0]}
+                            pushRadioChangeUpstream={handleRadioChange}
+                            defaultRadioVal={replacementType}
                         />
                     }
                     {
-                        nonFirstProgData.map(program => {
-                            return (
-                                <NonFirstProgramText
-                                    data={program}
-                                />
-                            )
-                        })
+                        currPage === 1 && !sequenceOverlapData[0].inCurrProg &&
+                        <NonFirstProgramText
+                            data={renderData[0]}
+                        />
                     }
+                    {
+                        currPage > 1 &&
+                        <NonFirstProgramText
+                            data={renderData[currPage - 1]}
+                        />
+                    }
+                </div>
+                <div className='rowContainer'>
+                    <div className='half-width centred-info'>
+                        <Button
+                            onClick={() => { handleClose() }}
+                            className='lightPurpleButton-inverted'
+                        >
+                            Back
+                        </Button>
+                    </div>
+                    <div className='half-width centred-info'>
+                        <Button
+                            onClick={() => { handleProceedBtnClick() }}
+                            className='lightPurpleButton-inverted'
+                        >
+                            Proceed
+                        </Button>
+                    </div>
                 </div>
             </Modal.Content>
         </Modal>
@@ -64,7 +132,6 @@ const NonFirstProgramText = ({ data }) => {
 
     return (
         <div>
-            <br />
             <h5 className='lightPurpleText'>{programData.programUID.split('_')[0]}</h5>
 
             {
@@ -96,13 +163,15 @@ const NonFirstProgramText = ({ data }) => {
     )
 }
 
-const FirstProgramText = ({ data }) => {
+const FirstProgramText = ({ data, pushRadioChangeUpstream, defaultRadioVal }) => {
     const programData = data
-    const [replaceType, setReplaceType] = useState('all')
+
+    const [replaceType, setReplaceType] = useState(defaultRadioVal)
 
     const handleRadioChange = (event, { value }) => {
         console.log(value)
         setReplaceType(value)
+        pushRadioChangeUpstream(value)
     }
 
     const replaceOption1 = 'The first option is we can replace the program entirely.'
@@ -111,21 +180,13 @@ const FirstProgramText = ({ data }) => {
 
     return (
         <div>
-            <br />
             <h5 className='lightPurpleText'>{programData.programUID.split('_')[0]}</h5>
             {
                 programData.order === undefined &&
                 <div>
                     You are currently completing {programData.programUID.split('_')[0]} as an unlimited program and are on day {programData.currentDayInProgram}. There are two options for this program moving forward.
                     <br />
-                    <List bulleted>
-                        <List.Item>
-                            The first option is we can replace the program entirely.
-                        </List.Item>
-                        <List.Item>
-                            The second option is we can keep your data up to and including day {programData.currentDayInProgram} for the program and replace all the future data that you're yet to complete.
-                        </List.Item>
-                    </List>
+                    <br />
                     <Form.Group >
                         <Form.Field
                             control={Radio}
@@ -134,6 +195,7 @@ const FirstProgramText = ({ data }) => {
                             checked={replaceType === 'all'}
                             onChange={handleRadioChange}
                         />
+                        <br />
                         <Form.Field
                             control={Radio}
                             label={replaceOption2Start + programData.currentDayInProgram + replaceOptions2End}
@@ -150,14 +212,24 @@ const FirstProgramText = ({ data }) => {
                 <div>
                     You are currently completing {programData.programUID.split('_')[0]} as part of the {programData.order.split('_')[1]} program sequence. There are two options for this program moving forward.
                     <br />
-                    <List bulleted>
-                        <List.Item>
-                            The first option is we can replace the program entirely.
-                        </List.Item>
-                        <List.Item>
-                            The second option is we can keep your data up to and including day {programData.currentDayInProgram} for the program and replace all the future data that you're yet to complete.
-                        </List.Item>
-                    </List>
+                    <br />
+                    <Form.Group >
+                        <Form.Field
+                            control={Radio}
+                            label={replaceOption1}
+                            value='all'
+                            checked={replaceType === 'all'}
+                            onChange={handleRadioChange}
+                        />
+                        <br />
+                        <Form.Field
+                            control={Radio}
+                            label={replaceOption2Start + programData.currentDayInProgram + replaceOptions2End}
+                            value='future'
+                            checked={replaceType === 'future'}
+                            onChange={handleRadioChange}
+                        />
+                    </Form.Group>
                     <div>
                         Please note both these options will remove the entire {programData.order.split('_')[1]} program sequence.
                     </div>

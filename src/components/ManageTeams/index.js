@@ -330,23 +330,6 @@ class ManageTeamsPage extends Component {
                             + '_' + this.props.firebase.auth.currentUser.uid
                             + '_' + timestamp
 
-                    // var insertionProgramObject = {
-                    //     acutePeriod: program.acutePeriod,
-                    //     chronicPeriod: program.chronicPeriod,
-                    //     currentDayInProgram: 1,
-                    //     loading_scheme: loadingSchemeStringInverse(program.loadingScheme),
-                    //     isActiveInSequence: isActiveInSequence,
-                    //     order:
-                    //         programData.sequenceName === 'preDetermined' ?
-                    //             program.order
-                    //             :
-                    //             program.order
-                    //             + '_' + programData.sequenceName
-                    //             + '_' + teamName
-                    //             + '_' + this.props.firebase.auth.currentUser.uid
-                    //             + '_' + timestamp
-                    // }
-
                     payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
 
                     payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = timestamp
@@ -370,7 +353,7 @@ class ManageTeamsPage extends Component {
             programGroupTableData
         } = this.state
 
-        console.log(programTableData)
+        console.log(teamsTableData)
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
@@ -391,12 +374,14 @@ class ManageTeamsPage extends Component {
                         />
                     </div>
                 </div>
-
-                <RowSelectTable
-                    columns={this.initTeamsTableColumns()}
-                    data={teamsTableData}
-                    rowSelectChangeHanlder={this.handleTeamSelection}
-                />
+                {
+                    teamsTableData &&
+                    <RowSelectTable
+                        columns={this.initTeamsTableColumns()}
+                        data={teamsTableData}
+                        rowSelectChangeHanlder={this.handleTeamSelection}
+                    />
+                }
             </NonLandingPageWrapper>
 
 
