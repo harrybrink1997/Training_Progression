@@ -192,9 +192,14 @@ class ManageProgramsPage extends Component {
     }
 
     handlePendingProgramReplacement = (programName, replacementType, currentDayInProgram) => {
+        // Handles the replacement of unlimited programs not sequential programs. That is more involved and found in another function. 
         var basePath =
             '/users/'
             + this.props.firebase.auth.currentUser.uid
+
+        var currPath =
+            basePath
+            + '/currentPrograms/'
 
         if (replacementType === 'future') {
             var maxDay = 0
@@ -206,8 +211,7 @@ class ManageProgramsPage extends Component {
                 }
             })
             var path =
-                basePath
-                + '/currentPrograms/'
+                currPath
                 + programName + '/'
             var payLoad = {}
             for (var day = currentDayInProgram + 1; day <= maxDay; day++) {
@@ -217,16 +221,34 @@ class ManageProgramsPage extends Component {
                     : payLoad[path + day.toString()] = {}
             }
 
+            if (this.state.currentProgramsData[programName].order) {
+                payLoad[path + 'isActiveInSequence'] = null
+                payLoad[path + 'order'] = null
+            }
+
         } else {
             var path =
-                basePath
-                + '/currentPrograms/'
+                currPath
                 + programName
 
             var payLoad = {}
 
             payLoad[path] = this.state.pendingProgramsData[programName]
         }
+
+        // Handle the behaviour of the current program sequences data.
+        var currProgData = this.state.currentProgramsData[programName]
+        if (currProgData.order) {
+            var relatedCurrProgs = this.findRelatedSequentialPrograms(this.state.currentProgramsData, currProgData.order)
+
+            // Remove the other programs in the sequence from the athletes current programs. 
+            relatedCurrProgs.forEach(relProg => {
+                payLoad[currPath + relProg.programUID] = null
+            })
+        }
+
+
+        payLoad[basePath + '/activeProgram'] = programName
         var pendingPath =
             basePath
             + '/pendingPrograms/'
@@ -234,6 +256,7 @@ class ManageProgramsPage extends Component {
 
         payLoad[pendingPath] = null
 
+        // console.log(payLoad)
         this.props.firebase.updateDatabaseFromRootPath(payLoad)
     }
 
@@ -310,6 +333,7 @@ class ManageProgramsPage extends Component {
                                             <OverrideReplaceProgramModal
                                                 handleFormSubmit={this.handlePendingProgramRequestAcceptence}
                                                 programUID={programName}
+                                                currSeq={currentProgramInfo.order.split('_')[1]}
                                                 modalType={'unlimPend->nonActiveSeqCurr'}
                                             />
                                             <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Modal, Button, Form, List } from 'semantic-ui-react'
 
-const OverrideReplaceProgramModal = ({ handleFormSubmit, programUID, mismatchedParams, modalType }) => {
+const OverrideReplaceProgramModal = ({ handleFormSubmit, programUID, mismatchedParams, modalType, currSeq }) => {
 
     const [show, setShow] = useState(false);
     const programName = programUID
@@ -60,21 +60,13 @@ const OverrideReplaceProgramModal = ({ handleFormSubmit, programUID, mismatchedP
                             We ran some quick checks and it seems you already obtain a copy of {programUID.split('_')[0]}.
                             <br /><br />
 
-                            Currently the program is inactive and part of a program sequence. Your coach has redelivered the program as an unlimited program.
+                            Currently the program is inactive and part of the {currSeq} program sequence. Your coach has redelivered this program as an unlimited program.
                             <br /><br />
-                            Replacing this program will update the data and remove it from the program sequence it is currently assigned to.
+                            If you choose to proceed with this program it will remove the {currSeq} sequence completely.
                         </div>
                     }
                 </div>
                 <div className='rowContainer'>
-                    <div className='half-width centred-info'>
-                        <Button
-                            onClick={() => { handleButtonClick(true) }}
-                            className='lightPurpleButton-inverted'
-                        >
-                            Replace Completely
-                        </Button>
-                    </div>
                     <div className='half-width centred-info'>
                         <Button
                             onClick={() => { handleButtonClick(false) }}
@@ -83,6 +75,15 @@ const OverrideReplaceProgramModal = ({ handleFormSubmit, programUID, mismatchedP
                             Keep Existing
                         </Button>
                     </div>
+                    <div className='half-width centred-info'>
+                        <Button
+                            onClick={() => { handleButtonClick(true) }}
+                            className='lightPurpleButton-inverted'
+                        >
+                            Proceed
+                        </Button>
+                    </div>
+
                 </div>
             </Modal.Content>
         </Modal>
