@@ -435,6 +435,12 @@ class ManageProgramsPage extends Component {
                             })
                         } else {
                             var numInSequence = 2
+
+                            currProgSeqCheckData.forEach(prog => {
+                                prog.sameMetaParams = this.checkSameMetaParameters(userObject, prog.programUID)
+                            })
+
+                            console.log(currProgSeqCheckData)
                             // If its not in past or current programs. 
                             tableData.push({
                                 program: programName.split('_')[0],
@@ -532,7 +538,6 @@ class ManageProgramsPage extends Component {
         // If the program you're replacement is also first in it's sequence. Iterate through current programs to find the associate sequence programs for deletion. 
         console.log(firstProgram)
         if (firstProgram.order) {
-            // if (parseInt(firstProgram.order.split('_')[0]) === 1) {
             var relatedSeqProgs = this.findRelatedSequentialPrograms(this.state.currentProgramsData, firstProgram.order)
 
             relatedSeqProgs.forEach(relProg => {
@@ -540,7 +545,6 @@ class ManageProgramsPage extends Component {
                     payLoad[currProgPath + relProg.programUID] = null
                 }
             })
-            // }
         }
 
         programData.forEach(program => {

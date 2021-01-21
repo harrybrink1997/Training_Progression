@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Modal, Button, Pagination, Form, Radio } from 'semantic-ui-react'
+import { Modal, Button, Pagination, Form, Radio, List } from 'semantic-ui-react'
 
 const ReplaceProgramSequenceModal = ({ buttonHandler, sequenceOverlapData }) => {
 
@@ -84,7 +84,9 @@ const ReplaceProgramSequenceModal = ({ buttonHandler, sequenceOverlapData }) => 
                         />
                     </div>
                     {
-                        currPage === 1 && sequenceOverlapData[0].inCurrProg &&
+                        currPage === 1
+                        && sequenceOverlapData[0].inCurrProg
+                        &&
                         <FirstProgramText
                             data={sequenceOverlapData[0]}
                             pushRadioChangeUpstream={handleRadioChange}
@@ -92,13 +94,16 @@ const ReplaceProgramSequenceModal = ({ buttonHandler, sequenceOverlapData }) => 
                         />
                     }
                     {
-                        currPage === 1 && !sequenceOverlapData[0].inCurrProg &&
+                        currPage === 1
+                        && !sequenceOverlapData[0].inCurrProg
+                        &&
                         <NonFirstProgramText
                             data={renderData[0]}
                         />
                     }
                     {
-                        currPage > 1 &&
+                        currPage > 1
+                        &&
                         <NonFirstProgramText
                             data={renderData[currPage - 1]}
                         />
@@ -133,9 +138,33 @@ const NonFirstProgramText = ({ data }) => {
     return (
         <div>
             <h5 className='lightPurpleText'>{programData.programUID.split('_')[0]}</h5>
-
+            {
+                programData.sameMetaParams !== true &&
+                programData.inCurrProg === true &&
+                <div>
+                    You are currently completing {programData.programUID.split('_')[0]}. This current version has the following differences to the version your coach just sent you.
+                    <br />
+                    <List bulleted>
+                        {
+                            Object.keys(programData.sameMetaParams).map(param => {
+                                if (programData.sameMetaParams[param] === false) {
+                                    return (
+                                        <List.Item key={param}>
+                                            {param}
+                                        </List.Item>
+                                    )
+                                }
+                            })
+                        }
+                    </List>
+                    <div>
+                        Due to these differences, the programs are unable to be merged. If you choose to proceed, the program and any associated sequences will be removed.
+                    </div>
+                </div>
+            }
             {
                 data.order === undefined &&
+                programData.sameMetaParams === true &&
                 <div>
                     You are currently completing {programData.programUID.split('_')[0]} as an unlimited program and are on day {programData.currentDayInProgram}. If you accept this sequence, the unlimited program will be removed and added to this new sequence.
                 </div>
@@ -143,6 +172,7 @@ const NonFirstProgramText = ({ data }) => {
             {
                 programData.order !== undefined &&
                 programData.isActiveInSequence &&
+                programData.sameMetaParams === true &&
                 <div>
                     You are currently completing {programData.programUID.split('_')[0]} as part of the {programData.order.split('_')[1]} program sequence.
                     <br /><br />
@@ -152,6 +182,7 @@ const NonFirstProgramText = ({ data }) => {
             {
                 programData.order !== undefined &&
                 programData.isActiveInSequence === false &&
+                programData.sameMetaParams === true &&
                 <div>
                     You are currently have {programData.programUID.split('_')[0]} as part of the {programData.order.split('_')[1]} program sequence. It is, however, not currently active in the sequence.
                     <br />
@@ -182,7 +213,32 @@ const FirstProgramText = ({ data, pushRadioChangeUpstream, defaultRadioVal }) =>
         <div>
             <h5 className='lightPurpleText'>{programData.programUID.split('_')[0]}</h5>
             {
+                programData.sameMetaParams !== true &&
+                programData.inCurrProg === true &&
+                <div>
+                    You are currently completing {programData.programUID.split('_')[0]}. This current version has the following differences to the version your coach just sent you.
+                    <br />
+                    <List bulleted>
+                        {
+                            Object.keys(programData.sameMetaParams).map(param => {
+                                if (programData.sameMetaParams[param] === false) {
+                                    return (
+                                        <List.Item key={param}>
+                                            {param}
+                                        </List.Item>
+                                    )
+                                }
+                            })
+                        }
+                    </List>
+                    <div>
+                        Due to these differences, the programs are unable to be merged. If you choose to proceed, the program and any associated sequences will be removed.
+                    </div>
+                </div>
+            }
+            {
                 programData.order === undefined &&
+                programData.sameMetaParams === true &&
                 <div>
                     You are currently completing {programData.programUID.split('_')[0]} as an unlimited program and are on day {programData.currentDayInProgram}. There are two options for this program moving forward.
                     <br />
@@ -209,6 +265,7 @@ const FirstProgramText = ({ data, pushRadioChangeUpstream, defaultRadioVal }) =>
             {
                 programData.order !== undefined &&
                 programData.isActiveInSequence &&
+                programData.sameMetaParams === true &&
                 <div>
                     You are currently completing {programData.programUID.split('_')[0]} as part of the {programData.order.split('_')[1]} program sequence. There are two options for this program moving forward.
                     <br />
@@ -238,6 +295,7 @@ const FirstProgramText = ({ data, pushRadioChangeUpstream, defaultRadioVal }) =>
             {
                 programData.order !== undefined &&
                 programData.isActiveInSequence === false &&
+                programData.sameMetaParams === true &&
                 <div>
                     You are currently have {programData.programUID.split('_')[0]} as part of the {programData.order.split('_')[1]} program sequence. It is, however, not currently active in the sequence.
                     <br />
