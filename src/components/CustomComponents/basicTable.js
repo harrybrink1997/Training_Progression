@@ -3,7 +3,7 @@ import React from 'react'
 import { Table } from 'semantic-ui-react'
 import { useTable, } from 'react-table'
 
-const BasicTable = ({ columns, data }) => {
+const BasicTable = ({ columns, data, header = true }) => {
     const {
         getTableProps,
         getTableBodyProps,
@@ -21,17 +21,20 @@ const BasicTable = ({ columns, data }) => {
     return (
         <>
             <Table celled {...getTableProps()}>
-                <Table.Header>
-                    {headerGroups.map(headerGroup => (
-                        <Table.Row {...headerGroup.getHeaderGroupProps()}>
-                            {headerGroup.headers.map(column => (
-                                <Table.HeaderCell style={{ textAlign: 'center' }} {...column.getHeaderProps()}>
-                                    {column.render('Header')}
-                                </Table.HeaderCell>
-                            ))}
-                        </Table.Row>
-                    ))}
-                </Table.Header>
+                {
+                    header &&
+                    <Table.Header>
+                        {headerGroups.map(headerGroup => (
+                            <Table.Row {...headerGroup.getHeaderGroupProps()}>
+                                {headerGroup.headers.map(column => (
+                                    <Table.HeaderCell style={{ textAlign: 'center' }} {...column.getHeaderProps()}>
+                                        {column.render('Header')}
+                                    </Table.HeaderCell>
+                                ))}
+                            </Table.Row>
+                        ))}
+                    </Table.Header>
+                }
                 <Table.Body {...getTableBodyProps()}>
                     {rows.map((row, i) => {
                         prepareRow(row)

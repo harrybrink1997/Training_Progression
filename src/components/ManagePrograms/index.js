@@ -55,6 +55,7 @@ class ManageProgramsPage extends Component {
             programManagementTableColumns: this.initProgramTableColumns(userObject.userType),
             pendingProgramsTableData: this.initPendingProgramsTableData(userObject),
             pendingProgramsData: userObject.pendingPrograms,
+            pendProgsModalFootText: (userObject.pendingPrograms) && '',
             currentProgramsData: userObject.currentPrograms,
             userType: userObject.userType,
             loading: false

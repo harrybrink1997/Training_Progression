@@ -79,14 +79,18 @@ class HomePage extends Component {
             this.props.firebase.getUserData(athleteUID).once('value', snapshot => {
                 var athleteData = snapshot.val()
 
+                var joinDate = new Date().getTime()
+
                 payLoad[coachPath] = {
                     email: athleteData.email,
-                    username: athleteData.username
+                    username: athleteData.username,
+                    joinDate: joinDate
                 }
 
                 payLoad[athletePath] = {
                     email: this.state.userInformation.data.email,
-                    username: this.state.userInformation.data.username
+                    username: this.state.userInformation.data.username,
+                    joinDate: joinDate
                 }
 
                 payLoad[coachPendingPath] = null

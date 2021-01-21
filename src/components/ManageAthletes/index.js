@@ -80,7 +80,7 @@ class ManageAthletesPage extends Component {
 
         Object.keys(userObject.currentAthletes).forEach(athleteUID => {
             var athlete = userObject.currentAthletes[athleteUID]
-
+            console.log(athlete)
             tableData.push({
                 athlete: athlete.username,
                 email: athlete.email,
