@@ -469,7 +469,6 @@ class ManageProgramsPage extends Component {
         var firstProgram = programData.shift()
 
         payLoad[pendingPath + firstProgram.programUID] = null
-        console.log(firstProgram)
         // Generates the exact replacement data for the first program in the sequence. 
         if (firstProgReplacement === 'future') {
             var maxDay = 0
@@ -505,15 +504,19 @@ class ManageProgramsPage extends Component {
             payLoad[path] = this.state.pendingProgramsData[firstProgram.programUID]
         }
 
+        payLoad[basePath + '/activeProgram'] = firstProgram.programUID
         // If the program you're replacement is also first in it's sequence. Iterate through current programs to find the associate sequence programs for deletion. 
+        console.log(firstProgram)
         if (firstProgram.order) {
-            if (parseInt(firstProgram.order.split('_')[0]) === 1) {
-                var relatedSeqProgs = this.findRelatedSequentialPrograms(this.state.currentProgramsData, firstProgram.order)
+            // if (parseInt(firstProgram.order.split('_')[0]) === 1) {
+            var relatedSeqProgs = this.findRelatedSequentialPrograms(this.state.currentProgramsData, firstProgram.order)
 
-                relatedSeqProgs.forEach(relProg => {
+            relatedSeqProgs.forEach(relProg => {
+                if (!this.programInRelatedProgList(programData, relProg.programUID)) {
                     payLoad[currProgPath + relProg.programUID] = null
-                })
-            }
+                }
+            })
+            // }
         }
 
         programData.forEach(program => {
@@ -535,6 +538,7 @@ class ManageProgramsPage extends Component {
                 })
             }
         })
+        // console.log(payLoad)
         this.props.firebase.updateDatabaseFromRootPath(payLoad)
     }
 

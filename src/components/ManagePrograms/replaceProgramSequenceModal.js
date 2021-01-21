@@ -156,7 +156,7 @@ const NonFirstProgramText = ({ data }) => {
                     You are currently have {programData.programUID.split('_')[0]} as part of the {programData.order.split('_')[1]} program sequence. It is, however, not currently active in the sequence.
                     <br />
                     <br />
-                    Accepting this new sequence will remove it from {programData.order.split('_')[1]}.
+                    Accepting this new sequence will remove the {programData.order.split('_')[1]} sequence.
                 </div>
             }
         </div>
@@ -242,7 +242,7 @@ const FirstProgramText = ({ data, pushRadioChangeUpstream, defaultRadioVal }) =>
                     You are currently have {programData.programUID.split('_')[0]} as part of the {programData.order.split('_')[1]} program sequence. It is, however, not currently active in the sequence.
                     <br />
                     <br />
-                    Accepting this new sequence will remove it from {programData.order.split('_')[1]}.
+                    Accepting this new sequence will remove the {programData.order.split('_')[1]} program sequence.
                 </div>
             }
         </div>
