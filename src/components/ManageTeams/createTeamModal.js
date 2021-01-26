@@ -120,7 +120,6 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
         setSelectedAthletes([])
         setSelectedPrograms([])
         setPageNum(1)
-
     }
 
     const handleNonFinalSubmit = (event) => {
@@ -141,8 +140,6 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
     }
 
     const handleProgramGroupSelection = (programGroupTableSelection) => {
-        console.log(programGroupTableSelection.original.sequentialRawData)
-        console.log(programGroupTableSelection.original.unlimitedRawData)
 
         var unlimitedPrograms = false
 
@@ -379,7 +376,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                             <RowSelectTable
                                 columns={athleteTableColumns}
                                 data={athleteTableData}
-                                rowSelectChangeHanlder={handleAthleteSelection}
+                                rowSelectChangeHandler={handleAthleteSelection}
                             />
                             <Button className='submitBtn' type="submit">Next</Button>
                         </Form>
@@ -391,7 +388,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                             <RowSelectTable
                                 columns={athleteTableColumns}
                                 data={athleteTableData}
-                                rowSelectChangeHanlder={handleAthleteSelection}
+                                rowSelectChangeHandler={handleAthleteSelection}
                             />
                             <Button className='submitBtn' type="submit">Create Team</Button>
                         </Form>
@@ -472,7 +469,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                             <RowSelectTable
                                 columns={programTableColumns}
                                 data={programTableData}
-                                rowSelectChangeHanlder={handleProgramSelection}
+                                rowSelectChangeHandler={handleProgramSelection}
                             />
                             {
                                 selectedPrograms.length > 0 &&

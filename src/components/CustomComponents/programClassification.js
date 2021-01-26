@@ -6,7 +6,7 @@ import InputLabel from './DarkModeInput'
 import RowSelectTable from './rowSelectTable'
 import BasicTable from './basicTable'
 
-const ProgramAssignment = ({ handleFormSubmit, programTableData, programTableColumns }) => {
+const ProgramClassification = ({ handleFormSubmit, programTableData, programTableColumns }) => {
 
     console.log(programTableColumns)
     console.log(programTableData)
@@ -512,7 +512,7 @@ const MixedAccess = ({ handleFormSubmit, programTableData, programTableColumns }
                 !unlimitedProgramsSelected &&
                 <div>
                     <InputLabel
-                        text='Choose A Program Sequence'
+                        text='Select Unlimited Programs'
                         custID='mixedAccessHeaderText'
                     />
                     <UnlimitedAccess
@@ -535,4 +535,4 @@ const MixedAccess = ({ handleFormSubmit, programTableData, programTableColumns }
 
 }
 
-export default ProgramAssignment;
+export default ProgramClassification;

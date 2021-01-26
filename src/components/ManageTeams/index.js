@@ -6,7 +6,6 @@ import CreateTeamModal from './createTeamModal'
 
 import RowSelectTable from '../CustomComponents/rowSelectTable'
 import loadingSchemeString from '../../constants/loadingSchemeString'
-import { loadingSchemeStringInverse } from '../../constants/loadingSchemeString'
 
 
 class ManageTeamsPage extends Component {
@@ -245,7 +244,7 @@ class ManageTeamsPage extends Component {
 
         var payLoad = {}
         var programsObject = {}
-        var timestamp = Math.floor(new Date().getTime())
+        var timestamp = new Date().getTime()
 
         var athletePath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/`
         var teamPath = `/users/${this.props.firebase.auth.currentUser.uid}/teams/${teamName}`
@@ -278,28 +277,20 @@ class ManageTeamsPage extends Component {
             })
         }
 
-
         athleteData.forEach(athlete => {
             payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/joiningDate'] = timestamp
 
             if (programData.unlimited) {
                 programData.unlimited.forEach(program => {
 
-
-                    // var insertionProgramObject = {
-                    //     acutePeriod: program.acutePeriod,
-                    //     chronicPeriod: program.chronicPeriod,
-                    //     currentDayInProgram: 1,
-                    //     loading_scheme: loadingSchemeStringInverse(program.loadingScheme)
-                    // }
-
                     var insertionProgramObject = this.state.currentProgramsData[program.programUID]
                     insertionProgramObject.currentDayInProgram = 1
+                    insertionProgramObject.deploymentDate = timestamp
 
                     // Database path to insert into the athletes pending programs.
                     payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
                     // Database path to keep track of what programs have been shared with which athlete and when.
-                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = Math.floor(new Date().getTime())
+                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = timestamp
                 })
             }
 
@@ -329,6 +320,7 @@ class ManageTeamsPage extends Component {
                             + '_' + teamName
                             + '_' + this.props.firebase.auth.currentUser.uid
                             + '_' + timestamp
+                    insertionProgramObject.deploymentDate = timestamp
 
                     payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
 
@@ -379,7 +371,7 @@ class ManageTeamsPage extends Component {
                     <RowSelectTable
                         columns={this.initTeamsTableColumns()}
                         data={teamsTableData}
-                        rowSelectChangeHanlder={this.handleTeamSelection}
+                        rowSelectChangeHandler={this.handleTeamSelection}
                     />
                 }
             </NonLandingPageWrapper>

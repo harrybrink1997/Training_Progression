@@ -2,3 +2,10 @@
     padding-top: 10px;
     padding-bottom: 10px;
 }
+
+#programHistHeader {
+    font-size: 15px;
+    text-align: center;
+    font-weight: 600;
+    margin-top: 20px;
+}
