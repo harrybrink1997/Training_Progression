@@ -15,6 +15,8 @@ import ProgramDeployment from '../CustomComponents/programDeployment'
 import ViewProgramErrorModal from './viewProgramErrorModal'
 import CoachProgramView, { CoachProgramViewPageSubHeader } from '../CustomComponents/coachProgramView'
 import { capitaliseFirstLetter } from '../../constants/stringManipulation';
+import { setAvailExerciseCols, listAndFormatLocalGlobalExercises } from '../../constants/viewProgramPagesFunctions'
+
 
 class ManageAthletesPage extends Component {
 
@@ -143,16 +145,30 @@ class ManageAthletesPage extends Component {
                         console.log("in current programs")
                         var programData = userObject.currentPrograms[programName]
 
-                        this.setState(prevState => ({
-                            currAthlete: {
-                                ...prevState.currAthlete,
-                                currViewedProgramName: programName,
-                                currViewedProgramData: programData,
-                                view: 'viewProgram'
-                            },
-                            pageBodyContentLoading: false
-                        }))
+                        // Get the data for available exercises. 
+                        this.props.firebase.exercises().once('value', snapshot => {
+                            const globalExObject = snapshot.val()
 
+                            this.props.firebase.localExerciseData(
+                                this.props.firebase.auth.currentUser.uid
+                            ).once('value', snapshot => {
+                                const localExObject = snapshot.val()
+                                console.log(listAndFormatLocalGlobalExercises(globalExObject, localExObject))
+                                this.setState(prevState => ({
+                                    currAthlete: {
+                                        ...prevState.currAthlete,
+                                        currViewedProgramName: programName,
+                                        currViewedProgramData: programData,
+                                        combinedAvailExerciseList: listAndFormatLocalGlobalExercises(globalExObject, localExObject),
+                                        availExerciseColumns: setAvailExerciseCols(),
+                                        view: 'viewProgram'
+                                    },
+                                    pageBodyContentLoading: false
+                                }))
+
+
+                            })
+                        });
                     } else if (existenceData.pastPrograms === true) {
 
                         console.log("inPastPrograms")
@@ -344,7 +360,8 @@ class ManageAthletesPage extends Component {
                             currViewedProgramData: undefined,
                             viewProgramFunctions: {
                                 handleDeleteExerciseButton: this.handleDeleteExerciseButton,
-                                handleUpdateExercise: this.handleUpdateExercise
+                                handleUpdateExercise: this.handleUpdateExercise,
+                                handleAddExerciseButton: this.handleAddExerciseButton
                             }
 
                         }
@@ -473,8 +490,6 @@ class ManageAthletesPage extends Component {
     }
 
     handleBackClick = (pageView) => {
-
-
 
         if (pageView === 'home') {
             this.setState({
@@ -641,6 +656,45 @@ class ManageAthletesPage extends Component {
         )
     }
 
+    handleAddExerciseButton = (exerciseObject) => {
+
+        var exUID = this.generateExerciseUID(exerciseObject.name, exerciseObject.day)
+
+        if (this.state.loadingScheme == 'rpe_time') {
+            var dataPayload = {
+                exercise: this.underscoreToSpaced(exerciseObject.name),
+                sets: exerciseObject.sets,
+                rpe: exerciseObject.rpe,
+                time: exerciseObject.time,
+                reps: exerciseObject.reps,
+                primMusc: exerciseObject.primMusc
+            }
+        } else {
+            dataPayload = {
+                exercise: this.underscoreToSpaced(exerciseObject.name),
+                sets: exerciseObject.sets,
+                time: exerciseObject.time,
+                reps: exerciseObject.reps,
+                rpe: exerciseObject.rpe,
+                weight: exerciseObject.weight,
+                primMusc: exerciseObject.primMusc
+            }
+        }
+        this.props.firebase.createExerciseUpStream(
+            this.props.firebase.auth.currentUser.uid,
+            this.state.activeProgram,
+            this.convertUIDayToTotalDays(exerciseObject.day),
+            dataPayload,
+            exUID
+        )
+
+        this.setState({
+            currentDayUI: exerciseObject.day
+        })
+
+
+    }
+
     render() {
         const {
             loading,
@@ -778,6 +832,8 @@ class ManageAthletesPage extends Component {
                         data={currAthlete.currViewedProgramData}
                         name={currAthlete.currViewedProgramName}
                         handlerFunctions={currAthlete.viewProgramFunctions}
+                        combinedAvailExerciseList={currAthlete.combinedAvailExerciseList}
+                        availExerciseColumns={currAthlete.availExerciseColumns}
                     />
                 }
             </NonLandingPageWrapper>

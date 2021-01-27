@@ -11,7 +11,6 @@ import SubmitDayModal from './submitDayModal'
 import { AddExerciseModalWeightReps, AddExerciseModalRpeTime } from './addExerciseModal'
 import { EditExerciseModalWeightSets, EditExerciseModalRpeTime } from './editExerciseModal'
 import { DeleteExerciseButton, DeleteGoalButton, CompleteGoalButton } from './currentProgramPageButtons'
-import { SelectColumnFilter } from './filterSearch'
 import { calculateDailyLoads, dailyLoadCalcs } from './calculateWeeklyLoads'
 import CloseOffProgramModal from './closeOffProgramModal'
 import { LoadingSpreadStatsTable } from './statsTable'
@@ -25,9 +24,8 @@ import ConfirmNullExerciseData from './confirmNullExerciseData'
 // Import Custom functions
 import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
 import InputLabel from '../CustomComponents/DarkModeInput';
-import { orderUserExercisesBasedOnExUID } from '../../constants/orderingFunctions'
 
-import { generateDaysInWeekScope, updatedDailyExerciseList } from '../../constants/viewProgramPagesFunctions'
+import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseCols, listAndFormatLocalGlobalExercises, setAvailExerciseChartData } from '../../constants/viewProgramPagesFunctions'
 
 class CurrentProgramPage extends Component {
     constructor(props) {
@@ -85,30 +83,9 @@ class CurrentProgramPage extends Component {
             ).once('value', snapshot => {
                 const localExerciseObject = snapshot.val();
 
-
-                const exerciseList = Object.keys(exerciseObject).map(key => ({
-                    uid: key,
-                    primary: exerciseObject[key].primary,
-                    secondary: exerciseObject[key].secondary,
-                    experience: exerciseObject[key].experience,
-                    name: this.underscoreToSpaced(key)
-                }));
-
-                if (localExerciseObject != undefined) {
-                    var localExerciseList = Object.keys(localExerciseObject).map(key => ({
-                        uid: key,
-                        primary: localExerciseObject[key].primary,
-                        secondary: localExerciseObject[key].secondary,
-                        experience: localExerciseObject[key].experience,
-                        name: this.underscoreToSpaced(key)
-                    }));
-                } else {
-                    localExerciseList = []
-                }
-
                 this.setState({
-                    exerciseList: exerciseList.concat(localExerciseList),
-                    availExercisesCols: this.setAvailExerciseCols(),
+                    exerciseList: listAndFormatLocalGlobalExercises(exerciseObject, localExerciseObject),
+                    availExercisesCols: setAvailExerciseCols(),
                 });
 
             })
@@ -126,7 +103,6 @@ class CurrentProgramPage extends Component {
                     this.setState({
                         loading: true,
                     }, () => {
-                        // Format the user data based on whether or not user has current programs. 
                         this.updateObjectState(userObject, anatomyObject)
                     })
                 } else {
@@ -136,7 +112,7 @@ class CurrentProgramPage extends Component {
         })
     }
 
-    updateObjectState = (userObject, anatomyObject) => {
+    updateObjectState = (userObject, anatomyObject, exerciseList) => {
         // Format the user data based on whether or not user has current programs. 
         if ('currentPrograms' in userObject && userObject.activeProgram != '') {
 
@@ -153,9 +129,6 @@ class CurrentProgramPage extends Component {
                     programListArray.push(key)
                 }
             })
-
-
-
 
             // Initially Sets the state for the current day
             // and current week and other parameters. 
@@ -183,11 +156,12 @@ class CurrentProgramPage extends Component {
                     userObject.currentPrograms[userObject.activeProgram],
                     anatomyObject
                 ) : [],
-                availExercisesData: this.setAvailExerciseChartData(
+                availExercisesData: setAvailExerciseChartData(
                     this.state.exerciseList,
                     this.state.currentDayUI,
                     userObject.currentPrograms[userObject.activeProgram].loading_scheme,
-                    convertTotalDaysToUIDay(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram)
+                    convertTotalDaysToUIDay(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram),
+                    this.handleAddExerciseButton
                 ),
                 prevWeeksData: this.generatePrevWeeksData(userObject),
                 // TODO - if not want delete
@@ -229,57 +203,6 @@ class CurrentProgramPage extends Component {
         this.setState({
             expandedRows: rows
         })
-    }
-
-    // Updated with new ratio calcs format
-    setAvailExerciseChartData = (exerciseList, currDay, loadingScheme, currDayInProg) => {
-        var tableData = []
-        exerciseList.forEach(exercise => {
-            tableData.push({
-                exercise: exercise.name,
-                primMusc: exercise.primary.join(', '),
-                secMusc: exercise.secondary.join(', '),
-                expLevel: exercise.experience,
-                addExerciseBtn: (loadingScheme === 'rpe_time') ?
-                    <AddExerciseModalRpeTime submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} currDayInProg={currDayInProg}
-                    />
-                    : <AddExerciseModalWeightReps submitHandler={this.handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} currDayInProg={currDayInProg} />
-            })
-        })
-        return tableData
-    }
-
-    // Updated with new ratio calcs format
-    setAvailExerciseCols = () => {
-        return (
-            [
-                {
-                    Header: 'Exercise Name',
-                    accessor: 'exercise',
-                    filter: 'fuzzyText'
-                },
-                {
-                    Header: 'Primary Muscles',
-                    accessor: 'primMusc',
-                    filter: 'fuzzyText'
-                },
-                {
-                    Header: 'Secondary Muscles',
-                    accessor: 'secMusc',
-                    filter: 'fuzzyText'
-                },
-                {
-                    Header: 'Experience Level',
-                    accessor: 'expLevel',
-                    Filter: SelectColumnFilter,
-                    filter: 'includes',
-                },
-                {
-                    Header: '',
-                    accessor: 'addExerciseBtn',
-                }
-            ]
-        )
     }
 
     generateSubGoalData = (subGoalList) => {

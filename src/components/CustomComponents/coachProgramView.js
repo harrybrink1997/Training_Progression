@@ -3,10 +3,11 @@ import { Loader, Button } from 'semantic-ui-react'
 import { capitaliseFirstLetter } from '../../constants/stringManipulation'
 import BasicTable from '../CustomComponents/basicTable'
 import CurrentWeekExercisesContainer from '../CurrentProgram/currentWeekExercisesContainer'
-import { generateDaysInWeekScope, updatedDailyExerciseList } from '../../constants/viewProgramPagesFunctions'
+import AvailableExercisesList from '../CurrentProgram/availableExercisesList'
+import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID } from '../../constants/viewProgramPagesFunctions'
 
 
-const CoachProgramView = ({ data, name, handlerFunctions }) => {
+const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseList, availExerciseColumns }) => {
 
     // Loading variables.
     const [loading, setLoading] = useState(true)
@@ -24,6 +25,15 @@ const CoachProgramView = ({ data, name, handlerFunctions }) => {
         newProgramData.openDaysUI = newArray
 
         setProgramData(newProgramData)
+    }
+
+    const handleAddExerciseButton = (exerciseObject) => {
+        console.log("add")
+        console.log(exerciseObject)
+        console.log(programData.exerciseListPerDay)
+        console.log(generateExerciseUID(exerciseObject, programData.exerciseListPerDay, programData.currentDayInProgram))
+
+        // handlerFunctions.handleAddExerciseButton(exerciseObject)
     }
 
     const handleDeleteExerciseButton = (event, { id }) => {
@@ -78,12 +88,11 @@ const CoachProgramView = ({ data, name, handlerFunctions }) => {
             exerciseListPerDay: updatedDailyExerciseList(programData, handleDeleteExerciseButton, handleUpdateExercise),
             loadingScheme: programData.loading_scheme,
             daysInWeekScope: generateDaysInWeekScope(programData.currentDayInProgram),
+            currentDayInProgram: programData.currentDayInProgram,
+            currentDayUI: programData.currentDayInProgram,
             openDaysUI: [false, false, false, false, false, false, false]
         }
-        console.log(programData)
 
-
-        console.log(payLoad)
         return payLoad
     }
 
@@ -127,6 +136,20 @@ const CoachProgramView = ({ data, name, handlerFunctions }) => {
         return payLoad
     }
 
+    const initialiseAvailableExerciseData = (programData, exerciseData) => {
+        console.log(exerciseData)
+
+        return setAvailExerciseChartData(
+            exerciseData,
+            programData.currentDayInProgram,
+            programData.loadingScheme,
+            programData.currentDayInProgram,
+            handleAddExerciseButton
+        )
+
+    }
+
+    const exerciseData = initialiseAvailableExerciseData(data, combinedAvailExerciseList)
     const overviewData = initialiseOverviewData(data)
     const [programData, setProgramData] = useState(initialiseProgramData(data))
 
@@ -141,7 +164,6 @@ const CoachProgramView = ({ data, name, handlerFunctions }) => {
 
     useEffect(() => {
         if (programData) {
-            console.log(programData)
             if (!programLoaded) {
                 setProgramLoaded(true)
             }
@@ -180,7 +202,10 @@ const CoachProgramView = ({ data, name, handlerFunctions }) => {
     let programHTML =
         <div className='rowContainer'>
             <div className='pageContainerLevel1 half-width'>
-                exercises
+                <AvailableExercisesList
+                    columns={availExerciseColumns}
+                    data={exerciseData}
+                />
             </div>
             <div className='pageContainerLevel1 half-width'>
                 <CurrentWeekExercisesContainer
