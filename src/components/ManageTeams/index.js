@@ -290,7 +290,7 @@ class ManageTeamsPage extends Component {
                     // Database path to insert into the athletes pending programs.
                     payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
                     // Database path to keep track of what programs have been shared with which athlete and when.
-                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = timestamp
+                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = [timestamp]
                 })
             }
 
@@ -324,7 +324,7 @@ class ManageTeamsPage extends Component {
 
                     payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
 
-                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = timestamp
+                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = [timestamp]
                 })
             }
         })
@@ -332,6 +332,7 @@ class ManageTeamsPage extends Component {
         payLoad[teamPath + '/description'] = teamDescription
         payLoad[teamPath + '/programs'] = programsObject
 
+        // console.log(payLoad)
         this.props.firebase.createTeamUpstream(payLoad)
     }
 

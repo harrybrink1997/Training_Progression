@@ -9,7 +9,7 @@ import InputLabel from '../CustomComponents/DarkModeInput'
 import utsToDateString from '../../constants/utsToDateString'
 import ProgramDeployment from '../CustomComponents/programDeployment'
 
-const ManageAthleteModal = ({ athleteUID, athleteData, coachProgramTableData, assignProgHandler, assignTeamHandler, initProgGroupTabData }) => {
+const ManageAthleteModal = ({ athleteUID, athleteData, coachProgramTableData, assignProgHandler, assignTeamHandler, initProgGroupTabData, viewProgramHandler }) => {
 
     const [show, setShow] = useState(false);
     const athleteId = athleteUID
@@ -65,7 +65,7 @@ const ManageAthleteModal = ({ athleteUID, athleteData, coachProgramTableData, as
                     accessor: 'dateAssigned'
                 },
                 {
-                    accessor: 'btns'
+                    accessor: 'buttons'
                 }
             ]
 
@@ -78,7 +78,16 @@ const ManageAthleteModal = ({ athleteUID, athleteData, coachProgramTableData, as
                         returnData.data.push({
                             program: prog.split('_')[0],
                             team: team,
-                            dateAssigned: utsToDateString(parseInt(data.teams[team].sharedPrograms[prog]))
+                            dateAssigned: utsToDateString(parseInt(data.teams[team].sharedPrograms[prog])),
+                            buttons:
+                                <Button
+                                    className='lightPurpleButton-inverted'
+                                    onClick={() => { viewProgramHandler(athleteId, prog, data.teams[team].sharedPrograms[prog]) }}
+                                >
+                                    View Program
+                                </Button>
+
+
                         })
                     })
                 }
@@ -130,6 +139,7 @@ const ManageAthleteModal = ({ athleteUID, athleteData, coachProgramTableData, as
         event.preventDefault()
         setPageNum(pageNum)
     }
+
 
     const handleAssignNewProgram = (progData) => {
         console.log(athleteId)
@@ -274,7 +284,7 @@ const ManageProgramsPage = ({ athProgData, coachProgramTableData, assignProgHand
                 </>
             }
             {
-                coachProgTableData && pageNum === 2 &&
+                coachProgTableData !== undefined && pageNum === 2 &&
                 <ProgramDeployment
                     initProgTabData={coachProgTableData}
                     initProgTabColumns={coachProgTableColumns}

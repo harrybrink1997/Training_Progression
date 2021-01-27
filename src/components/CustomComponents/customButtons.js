@@ -38,5 +38,14 @@ const DeclineReplaceRequestButton = ({ buttonHandler, objectUID }) => {
     )
 }
 
+const ManageAthleteButton = ({ buttonHandler, objectUID }) => {
 
-export { AcceptRequestButton, DeclineRequestButton, AcceptReplaceRequestButton, DeclineReplaceRequestButton }
+    const id = objectUID
+
+    return (
+        <Button className="lightPurpleButton-inverted" onClick={() => buttonHandler(id)}>Manage Athlete</Button>
+    )
+}
+
+
+export { AcceptRequestButton, DeclineRequestButton, AcceptReplaceRequestButton, DeclineReplaceRequestButton, ManageAthleteButton }

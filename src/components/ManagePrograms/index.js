@@ -270,22 +270,27 @@ class ManageProgramsPage extends Component {
         if (!userObject.currentPrograms) {
             return metaParameters
         } else {
-            if (userObject.currentPrograms[programName].loading_scheme === userObject.pendingPrograms[programName].loading_scheme) {
-                metaParameters['Loading Scheme'] = true
+            if (!userObject.currentPrograms[programName]) {
+                return metaParameters
+            } else {
+                if (userObject.currentPrograms[programName].loading_scheme === userObject.pendingPrograms[programName].loading_scheme) {
+                    metaParameters['Loading Scheme'] = true
+                }
+
+                if (userObject.currentPrograms[programName].chronicPeriod === userObject.pendingPrograms[programName].chronicPeriod) {
+                    metaParameters['Chronic Period'] = true
+                }
+
+                if (userObject.currentPrograms[programName].acutePeriod === userObject.pendingPrograms[programName].acutePeriod) {
+                    metaParameters['Acute Period'] = true
+                }
+                if (metaParameters['Acute Period'] && metaParameters['Chronic Period'] && metaParameters['Loading Scheme']) {
+                    return true
+                }
+
+                return metaParameters
             }
 
-            if (userObject.currentPrograms[programName].chronicPeriod === userObject.pendingPrograms[programName].chronicPeriod) {
-                metaParameters['Chronic Period'] = true
-            }
-
-            if (userObject.currentPrograms[programName].acutePeriod === userObject.pendingPrograms[programName].acutePeriod) {
-                metaParameters['Acute Period'] = true
-            }
-            if (metaParameters['Acute Period'] && metaParameters['Chronic Period'] && metaParameters['Loading Scheme']) {
-                return true
-            }
-
-            return metaParameters
         }
     }
 
@@ -436,12 +441,12 @@ class ManageProgramsPage extends Component {
                             })
                         } else {
                             var numInSequence = 2
+                            console.log(currProgSeqCheckData)
 
                             currProgSeqCheckData.forEach(prog => {
                                 prog.sameMetaParams = this.checkSameMetaParameters(userObject, prog.programUID)
                             })
 
-                            console.log(currProgSeqCheckData)
                             // If its not in past or current programs. 
                             tableData.push({
                                 program: programName.split('_')[0],

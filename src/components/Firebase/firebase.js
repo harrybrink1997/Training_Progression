@@ -122,6 +122,10 @@ class Firebase {
         return this.db.ref(`users/${uid}/currentPrograms/${programName}`)
     }
 
+    getSharedPrograms = (coachUID, athleteUID, team) => {
+        return this.db.ref(`users/${coachUID}/currentAthletes/${athleteUID}/teams/${team}`)
+    }
+
     users = () => this.db.ref('users');
 
     exercisesName = name => this.db.ref(`exercises/${name}`)

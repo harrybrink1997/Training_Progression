@@ -6,6 +6,8 @@ import InputLabel from '../CustomComponents/DarkModeInput'
 import RowSelectTable from '../CustomComponents/rowSelectTable'
 import OnRowClickBasicTableWithPageination from '../CustomComponents/onRowClickBasicTable'
 import ProgramAssignment from '../CustomComponents/programAssignment'
+import ProgramDeployment from '../CustomComponents/programDeployment'
+
 
 const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData, programGroupTableData }) => {
 
@@ -259,45 +261,11 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                     {
                         (pageNum >= 5) ? (pageNum === 5)
                             ?
-                            <Breadcrumb.Section link active>Use Group?</Breadcrumb.Section>
+                            <Breadcrumb.Section link active>Program Deployment</Breadcrumb.Section>
                             :
-                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 5)}>Use Group?</Breadcrumb.Section>
-                            :
-                            <></>
-                    }
-                    {
-                        pageNum >= 6 && pageNum !== 7 && pageNum !== 8 &&
-                        <Breadcrumb.Divider>/</Breadcrumb.Divider>
-                    }
-                    {
-                        (pageNum >= 6 && pageNum !== 7 && pageNum !== 8) ? (pageNum === 6)
-                            ?
-                            <Breadcrumb.Section link active>Assign Group</Breadcrumb.Section>
-                            :
-                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 6)}>Assign Group</Breadcrumb.Section>
+                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 5)}>Program Deployment</Breadcrumb.Section>
                             :
                             <></>
-                    }
-                    {
-                        pageNum >= 7 &&
-                        <Breadcrumb.Divider>/</Breadcrumb.Divider>
-                    }
-                    {
-                        (pageNum >= 7) ? (pageNum === 7)
-                            ?
-                            <Breadcrumb.Section link active>Selection</Breadcrumb.Section>
-                            :
-                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 7)}>Selection</Breadcrumb.Section>
-                            :
-                            <></>
-                    }
-                    {
-                        pageNum >= 8 &&
-                        <Breadcrumb.Divider>/</Breadcrumb.Divider>
-                    }
-                    {
-                        pageNum >= 8 &&
-                        <Breadcrumb.Section link active>Program Accessbility</Breadcrumb.Section>
                     }
                 </Breadcrumb>
                 <Container>
@@ -425,67 +393,11 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                     }
                     {
                         pageNum === 5 && programTableData !== undefined &&
-                        < div >
-                            <InputLabel
-                                text='Would you like to use an existing program group?'
-                                custID='assignProgramsToTeamNowHeader'
-                            />
-                            <div id='assignProgramsCardGroupContainer'>
-                                <Card.Group>
-                                    <div>
-                                        <Card onClick={handleNonFinalSubmit}>
-
-                                            <Card.Content className='iconContent'>
-                                                <Icon name='thumbs up outline' size='huge' />
-                                            </Card.Content>
-                                        </Card>
-                                    </div>
-                                    <div>
-                                        <Card onClick={processDontUseExistingProgGroup}>
-                                            <Card.Content className='iconContent'>
-                                                <Icon name='thumbs down outline' size='huge' />
-                                            </Card.Content>
-                                        </Card>
-                                    </div>
-                                </Card.Group>
-                            </div>
-                        </div>
-                    }
-                    {
-                        pageNum === 6 &&
-                        <OnRowClickBasicTableWithPageination
-                            columns={programGroupTableColumns}
-                            data={programGroupTableData}
-                            rowClickHandler={handleProgramGroupSelection}
-                        />
-                    }
-                    {
-                        pageNum === 7 && programTableData !== undefined &&
-                        <div>
-                            <InputLabel
-                                text='Select Programs you would like to assign'
-                                custID='assignProgramsToTeamNowHeader'
-                            />
-                            <RowSelectTable
-                                columns={programTableColumns}
-                                data={programTableData}
-                                rowSelectChangeHandler={handleProgramSelection}
-                            />
-                            {
-                                selectedPrograms.length > 0 &&
-                                <Button
-                                    className='submitBtn'
-                                    onClick={handleNonFinalSubmit}
-                                >Next</Button>
-                            }
-                        </div>
-                    }
-                    {
-                        pageNum === 8 && selectedPrograms.length > 0 &&
-                        <ProgramAssignment
-                            programTableData={selectedPrograms}
-                            programTableColumns={programTableColumns}
-                            handleFormSubmit={handleProgramAssignmentSubmission}
+                        <ProgramDeployment
+                            initProgTabData={programTableData}
+                            initProgTabColumns={programTableColumns}
+                            submitHandler={handleProgramAssignmentSubmission}
+                            initProgGroupTabData={programGroupTableData}
                         />
                     }
                 </Container>

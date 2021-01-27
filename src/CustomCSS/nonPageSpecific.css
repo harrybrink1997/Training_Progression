@@ -21,22 +21,8 @@
     flex-direction: row;
 }
 
-.pageContainerLevel1.half-width {
-    width: 50%;
-}
-
-
-.pageContainerLevel2.half-width {
-    width: 50%;
-}
-
 .half-width {
     width: 50%;
-}
-.half-width.centred-info {
-    width: 50%;
-    display: flex;
-    justify-content: center;
 }
 
 .centred-info {
@@ -78,3 +64,35 @@
     display: flex;
     align-items: center;
 }
+
+.clickableDiv {
+    cursor: pointer;
+}
+
+.pageMainHeader {
+    padding: 30px;
+    font-size: 40px;
+    text-align: center;
+}
+
+.pageSubHeader1 {
+    padding: 20px;
+    padding-bottom: 10px;
+    font-size: 25px;
+    text-align: center;
+}
+
+.pageSubHeader2 {
+    text-align: center;
+    padding-top: 10px;
+    font-size: 15px;
+}
+
+.sml-margin-top {
+    margin-top: 10px;
+}
+
+.med-margin-bottom {
+    margin-bottom: 15px;
+}
+

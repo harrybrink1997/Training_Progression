@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 // import { Modal, Button, Form, Row, Col } from 'react-bootstrap'
 import { Modal, Button, Form, Input, Container, Breadcrumb } from 'semantic-ui-react'
-import ProgramAssignment from '../CustomComponents/programAssignment'
+import ProgramClassification from '../CustomComponents/programClassification'
 import RowSelectTable from '../CustomComponents/rowSelectTable'
 
 
@@ -149,25 +149,20 @@ const CreateProgramGroupModal = ({ handleFormSubmit, programTableData }) => {
                             <RowSelectTable
                                 columns={programTableColumns}
                                 data={programTableData}
-                                rowSelectChangeHanlder={handleProgramSelection}
+                                rowSelectChangeHandler={handleProgramSelection}
                             />
                             {
-                                selectedPrograms.length === 0 ?
-                                    <Button
-                                        className='submitBtn'
-                                        onClick={handleSubmit}
-                                    >Create Team</Button>
-                                    :
-                                    <Button
-                                        className='submitBtn'
-                                        onClick={handleNonFinalSubmit}
-                                    >Next</Button>
+                                selectedPrograms.length !== 0 &&
+                                <Button
+                                    className='submitBtn'
+                                    onClick={handleNonFinalSubmit}
+                                >Next</Button>
                             }
                         </div>
                     }
                     {
                         pageNum == 3 && selectedPrograms.length > 0 &&
-                        <ProgramAssignment
+                        <ProgramClassification
                             programTableData={selectedPrograms}
                             programTableColumns={programTableColumns}
                             handleFormSubmit={handleProgramAssignmentSubmission}

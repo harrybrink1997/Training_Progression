@@ -5,7 +5,7 @@ import InputLabel from '../CustomComponents/DarkModeInput'
 import OnRowClickBasicTableWithPageination from '../CustomComponents/onRowClickBasicTable'
 import { Button, Card, Icon } from 'semantic-ui-react'
 
-const ProgramDeployment = ({ initProgTabData, initProgTabColumns, submitHandler, initProgGroupTabData }) => {
+const ProgramDeployment = ({ initProgTabData, submitHandler, initProgGroupTabData }) => {
     const [pageNum, setPageNum] = useState(1)
     const [selectedPrograms, setSelectedPrograms] = useState([])
     const rawProgramData = initProgTabData
@@ -26,6 +26,34 @@ const ProgramDeployment = ({ initProgTabData, initProgTabColumns, submitHandler,
             }
         ]
 
+    const initProgTabColumns =
+        [
+            {
+                Header: 'Program',
+                accessor: 'program',
+                filter: 'fuzzyText'
+            },
+            {
+                Header: 'Acute Period',
+                accessor: 'acutePeriod',
+                filter: 'fuzzyText'
+            },
+            {
+                Header: 'Chronic Period',
+                accessor: 'chronicPeriod',
+                filter: 'fuzzyText'
+            },
+            {
+                Header: 'Loading Scheme',
+                accessor: 'loadingScheme',
+                filter: 'fuzzyText'
+            },
+            {
+                Header: 'Program Length (Weeks)',
+                accessor: 'programLength',
+                filter: 'fuzzyText'
+            },
+        ]
 
     const pageNames = {
         '1': '',
