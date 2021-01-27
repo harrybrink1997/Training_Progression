@@ -27,6 +27,7 @@ import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
 import InputLabel from '../CustomComponents/DarkModeInput';
 import { orderUserExercisesBasedOnExUID } from '../../constants/orderingFunctions'
 
+import { generateDaysInWeekScope, updatedDailyExerciseList } from '../../constants/viewProgramPagesFunctions'
 
 class CurrentProgramPage extends Component {
     constructor(props) {
@@ -168,14 +169,15 @@ class CurrentProgramPage extends Component {
                 currentWeekInProgram: Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7),
                 currentDayInProgram: userObject.currentPrograms[userObject.activeProgram].currentDayInProgram, // Sets the current day in program.
                 currentDayUTS: userObject.currentPrograms[userObject.activeProgram].currentDayUTS, // Gets unix timestamp for current day
-                daysInWeekScope: this.generateDaysInWeekScope(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram),
+                daysInWeekScope: generateDaysInWeekScope(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram),
 
                 loading: false,
                 goalTableData: this.generateGoalTableData(userObject.currentPrograms[userObject.activeProgram]),
                 loadingScheme: userObject.currentPrograms[userObject.activeProgram].loading_scheme,
-                exerciseListPerDay: this.updatedDailyExerciseList(
-                    userObject,
-                    userObject.currentPrograms[userObject.activeProgram].loading_scheme
+                exerciseListPerDay: updatedDailyExerciseList(
+                    userObject.currentPrograms[userObject.activeProgram],
+                    this.handleDeleteExerciseButton,
+                    this.handleUpdateExercise
                 ),
                 currDaySafeLoadTableData: userObject.userType === 'athlete' ? this.generateCurrDaySafeLoadData(
                     userObject.currentPrograms[userObject.activeProgram],
@@ -553,20 +555,21 @@ class CurrentProgramPage extends Component {
         return []
     }
 
-    generateDaysInWeekScope = (currentDayInProgram) => {
-        var currWeek = Math.ceil(currentDayInProgram / 7)
+    // TO REMOVE ONCE TESTED ON CURR PROGRAMS PAGE
+    // generateDaysInWeekScope = (currentDayInProgram) => {
+    //     var currWeek = Math.ceil(currentDayInProgram / 7)
 
-        var firstDayOfWeek = 1 + 7 * (currWeek - 1)
-        var lastDayOfWeek = firstDayOfWeek + 6
+    //     var firstDayOfWeek = 1 + 7 * (currWeek - 1)
+    //     var lastDayOfWeek = firstDayOfWeek + 6
 
-        var programDaysInCurrWeek = []
+    //     var programDaysInCurrWeek = []
 
-        for (var day = firstDayOfWeek; day <= lastDayOfWeek; day++) {
-            programDaysInCurrWeek.push(day)
-        }
+    //     for (var day = firstDayOfWeek; day <= lastDayOfWeek; day++) {
+    //         programDaysInCurrWeek.push(day)
+    //     }
 
-        return programDaysInCurrWeek
-    }
+    //     return programDaysInCurrWeek
+    // }
 
     // Updated with new ratio calcs format
     handleUpdateExercise = async (updateObject) => {
@@ -603,59 +606,60 @@ class CurrentProgramPage extends Component {
         )
     }
 
-    updatedDailyExerciseList = (userObject, loadingScheme) => {
-        // Introduce a call back to show the current exercises. 
-        // Can only be done once the other parameters above have been set. 
-        var currWeek = Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7)
+    // TO REMOVE ONCE TESTED ON CURR PROGRAMS PAGE
+    // updatedDailyExerciseList = (userObject, loadingScheme) => {
+    //     // Introduce a call back to show the current exercises. 
+    //     // Can only be done once the other parameters above have been set. 
+    //     var currWeek = Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7)
 
-        var firstDayOfWeek = 1 + 7 * (currWeek - 1)
-        var lastDayOfWeek = firstDayOfWeek + 6
+    //     var firstDayOfWeek = 1 + 7 * (currWeek - 1)
+    //     var lastDayOfWeek = firstDayOfWeek + 6
 
-        var programDaysInCurrWeek = []
+    //     var programDaysInCurrWeek = []
 
-        for (var day = firstDayOfWeek; day <= lastDayOfWeek; day++) {
-            programDaysInCurrWeek.push(day)
-        }
+    //     for (var day = firstDayOfWeek; day <= lastDayOfWeek; day++) {
+    //         programDaysInCurrWeek.push(day)
+    //     }
 
-        var currProg = userObject.activeProgram
-        var exPerDayObj = {}
+    //     var currProg = userObject.activeProgram
+    //     var exPerDayObj = {}
 
-        for (var dayIndex = 0; dayIndex < 7; dayIndex++) {
-            var currWeekProgExer = userObject.currentPrograms[currProg]
+    //     for (var dayIndex = 0; dayIndex < 7; dayIndex++) {
+    //         var currWeekProgExer = userObject.currentPrograms[currProg]
 
-            var dailyExercises = []
+    //         var dailyExercises = []
 
-            if (programDaysInCurrWeek[dayIndex] in currWeekProgExer) {
-                for (var exercise in currWeekProgExer[programDaysInCurrWeek[dayIndex]]) {
+    //         if (programDaysInCurrWeek[dayIndex] in currWeekProgExer) {
+    //             for (var exercise in currWeekProgExer[programDaysInCurrWeek[dayIndex]]) {
 
-                    if (exercise != 'loadingData') {
-                        var renderObj = currWeekProgExer[programDaysInCurrWeek[dayIndex]][exercise]
-                        renderObj.uid = exercise
-                        renderObj.deleteButton =
-                            (this.shouldRenderExerciseButtons(
-                                exercise,
-                                userObject.currentPrograms[userObject.activeProgram].currentDayInProgram
-                            )) ? (loadingScheme === 'rpe_time') ?
-                                    <div className='currDayExBtnContainer'>
-                                        <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-                                        <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
-                                    </div>
-                                    :
-                                    <div className='currDayExBtnContainer'>
-                                        <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
-                                        <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
-                                    </div>
-                                :
-                                <></>
-                        dailyExercises.push(renderObj)
-                    }
-                }
-            }
-            var sortedExerciseArray = orderUserExercisesBasedOnExUID(dailyExercises)
-            exPerDayObj[programDaysInCurrWeek[dayIndex]] = sortedExerciseArray
-        }
-        return exPerDayObj
-    }
+    //                 if (exercise != 'loadingData') {
+    //                     var renderObj = currWeekProgExer[programDaysInCurrWeek[dayIndex]][exercise]
+    //                     renderObj.uid = exercise
+    //                     renderObj.deleteButton =
+    //                         (this.shouldRenderExerciseButtons(
+    //                             exercise,
+    //                             userObject.currentPrograms[userObject.activeProgram].currentDayInProgram
+    //                         )) ? (loadingScheme === 'rpe_time') ?
+    //                                 <div className='currDayExBtnContainer'>
+    //                                     <EditExerciseModalRpeTime submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+    //                                     <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
+    //                                 </div>
+    //                                 :
+    //                                 <div className='currDayExBtnContainer'>
+    //                                     <EditExerciseModalWeightSets submitHandler={this.handleUpdateExercise} exUid={exercise} currentData={renderObj} />
+    //                                     <DeleteExerciseButton buttonHandler={this.handleDeleteExerciseButton} uid={exercise} />
+    //                                 </div>
+    //                             :
+    //                             <></>
+    //                     dailyExercises.push(renderObj)
+    //                 }
+    //             }
+    //         }
+    //         var sortedExerciseArray = orderUserExercisesBasedOnExUID(dailyExercises)
+    //         exPerDayObj[programDaysInCurrWeek[dayIndex]] = sortedExerciseArray
+    //     }
+    //     return exPerDayObj
+    // }
 
     shouldRenderExerciseButtons = (uid, currDay) => {
         if (uid.split("_").reverse()[1] < currDay) {
