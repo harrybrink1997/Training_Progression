@@ -610,8 +610,8 @@ class ManageAthletesPage extends Component {
     handleUpdateExercise = (updateObject) => {
 
         var day = updateObject.exUid.split('_').reverse()[1]
-
-        if (this.state.loadingScheme === 'rpe_time') {
+        if (this.state.currAthlete.currViewedProgramData.loading_scheme === 'rpe_time') {
+            console.log("going in ")
             var dataPayload = {
                 exercise: updateObject.exercise,
                 rpe: updateObject.rpe,
@@ -632,13 +632,13 @@ class ManageAthletesPage extends Component {
             }
         }
 
-        // this.props.firebase.pushExercisePropertiesUpstream(
-        //     this.state.currAthlete.uid,
-        //     this.state.currAthlete.currViewedProgramName,
-        //     day,
-        //     updateObject.exUid,
-        //     dataPayload
-        // )
+        this.props.firebase.pushExercisePropertiesUpstream(
+            this.state.currAthlete.uid,
+            this.state.currAthlete.currViewedProgramName,
+            day,
+            updateObject.exUid,
+            dataPayload
+        )
     }
 
     render() {

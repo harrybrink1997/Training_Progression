@@ -42,29 +42,35 @@ const CoachProgramView = ({ data, name, handlerFunctions }) => {
         newProgramData.exerciseListPerDay[day] = newArray
         setProgramData(newProgramData)
 
-        // handlerFunctions.handleDeleteExerciseButton(id)
+        handlerFunctions.handleDeleteExerciseButton(id)
     }
 
     const handleUpdateExercise = (updateObject) => {
-        console.log(updateObject)
 
         var day = updateObject.exUid.split('_').reverse()[1]
 
         let newProgramData = { ...programData }
 
-        for (var ex in newProgramData.exerciseListPerDay[day]) {
-            console.log(ex)
-            if (newProgramData.exerciseListPerDay[day][ex].uid === updateObject.exUid) {
+        var newArray = [...newProgramData.exerciseListPerDay[day]]
 
-                console.log("going in ")
+        newArray.forEach(ex => {
+            if (ex.uid === updateObject.exUid) {
+                ex.reps = updateObject.reps
+                ex.time = updateObject.time
+                ex.sets = updateObject.sets
+                ex.rpe = updateObject.rpe
 
-                newProgramData.exerciseListPerDay[day][ex] = updateObject
+                if (updateObject.loadingScheme === 'weight-reps') {
+                    ex.weight = updateObject.weight
+
+                }
             }
-        }
-        console.log(newProgramData)
+        })
+
+        newProgramData.exerciseListPerDay[day] = newArray
         setProgramData(newProgramData)
 
-        // handlerFunctions.handleUpdateExercise(updateObject)
+        handlerFunctions.handleUpdateExercise(updateObject)
     }
 
     const initialiseProgramData = (programData) => {
@@ -135,7 +141,10 @@ const CoachProgramView = ({ data, name, handlerFunctions }) => {
 
     useEffect(() => {
         if (programData) {
-            setProgramLoaded(true)
+            console.log(programData)
+            if (!programLoaded) {
+                setProgramLoaded(true)
+            }
         }
     }, [programData])
 
