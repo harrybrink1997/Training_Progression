@@ -22,10 +22,11 @@ import ViewPrevWeeksData from './viewPrevWeeksData'
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import ConfirmNullExerciseData from './confirmNullExerciseData'
 // Import Custom functions
-import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
+import { convertUIDayToTotalDays, currentWeekInProgram, convertTotalDaysToUIDay } from '../../constants/dayCalculations'
+
 import InputLabel from '../CustomComponents/DarkModeInput';
 
-import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseCols, listAndFormatLocalGlobalExercises, setAvailExerciseChartData } from '../../constants/viewProgramPagesFunctions'
+import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseCols, listAndFormatLocalGlobalExercises, setAvailExerciseChartData, generateExerciseUID } from '../../constants/viewProgramPagesFunctions'
 
 class CurrentProgramPage extends Component {
     constructor(props) {
@@ -139,7 +140,7 @@ class CurrentProgramPage extends Component {
                 allPrograms: userObject.currentPrograms,
                 sequenceName: this.initSequenceName(userObject),
                 programOwner: this.initActiveProgramOwner(userObject),
-                currentWeekInProgram: Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7),
+                currentWeekInProgram: currentWeekInProgram(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram),
                 currentDayInProgram: userObject.currentPrograms[userObject.activeProgram].currentDayInProgram, // Sets the current day in program.
                 currentDayUTS: userObject.currentPrograms[userObject.activeProgram].currentDayUTS, // Gets unix timestamp for current day
                 daysInWeekScope: generateDaysInWeekScope(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram),
@@ -630,43 +631,6 @@ class CurrentProgramPage extends Component {
         return returnString.trim()
     }
 
-    // Uid generated based on exercise_week_day_occurance
-    // TODO change this function - does generate unique id.
-    generateExerciseUID = (exerciseName, uiDay) => {
-
-        var programObject = this.state.allPrograms[this.state.activeProgram]
-        var insertionDay = this.convertUIDayToTotalDays(uiDay)
-
-        // Check if not input for week
-        if (insertionDay in programObject) {
-            var dayExercises = programObject[insertionDay]
-
-
-            var currMaxID = -1;
-
-            for (var exercise in dayExercises) {
-
-                var currExNameInProg = dayExercises[exercise].exercise.split(' ').join('_')
-                // Do a comparison on the exercise name.
-
-                if (exerciseName == currExNameInProg) {
-
-                    // First iterate off the letter. 
-                    if (parseInt(exercise.split('_').slice(-1)[0]) > currMaxID) {
-                        currMaxID = exercise.split('_').slice(-1)[0]
-                    }
-                }
-            }
-            return exerciseName + '_' + this.state.currentWeekInProgram + '_' + insertionDay + '_' + (parseInt(currMaxID) + 1)
-
-
-        }
-
-        return exerciseName + '_' + this.state.currentWeekInProgram + '_' + insertionDay + '_' + '0'
-
-
-    }
-
     // Updated with new ratio calcs format
     handleDeleteExerciseButton = async (event, { id }) => {
         event.preventDefault()
@@ -863,7 +827,12 @@ class CurrentProgramPage extends Component {
     // Updated with new ratio calcs format
     handleAddExerciseButton = async (exerciseObject) => {
 
-        var exUID = this.generateExerciseUID(exerciseObject.name, exerciseObject.day)
+        var exUID = generateExerciseUID(
+            exerciseObject,
+            this.state.exerciseListPerDay,
+            this.state.currentDayInProgram
+        )
+        // var exUID = this.generateExerciseUID(exerciseObject.name, exerciseObject.day)
 
         if (this.state.loadingScheme == 'rpe_time') {
             var dataPayload = {
@@ -1126,7 +1095,7 @@ class CurrentProgramPage extends Component {
     }
 
     generatePrevWeeksData = (userObject) => {
-        var currWeek = Math.ceil(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram / 7)
+        var currWeek = currentWeekInProgram(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram)
 
         var dataObject = {}
 

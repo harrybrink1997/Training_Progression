@@ -14,7 +14,8 @@ import ManageCurrAthleteHome from './manageCurrAthleteHome'
 import ProgramDeployment from '../CustomComponents/programDeployment'
 import ViewProgramErrorModal from './viewProgramErrorModal'
 import CoachProgramView, { CoachProgramViewPageSubHeader } from '../CustomComponents/coachProgramView'
-import { capitaliseFirstLetter } from '../../constants/stringManipulation';
+import { capitaliseFirstLetter, underscoreToSpaced } from '../../constants/stringManipulation';
+import { convertUIDayToTotalDays } from '../../constants/dayCalculations';
 import { setAvailExerciseCols, listAndFormatLocalGlobalExercises } from '../../constants/viewProgramPagesFunctions'
 
 
@@ -656,13 +657,11 @@ class ManageAthletesPage extends Component {
         )
     }
 
-    handleAddExerciseButton = (exerciseObject) => {
+    handleAddExerciseButton = (exerciseObject, exUID, loadingScheme, insertionDay) => {
 
-        var exUID = this.generateExerciseUID(exerciseObject.name, exerciseObject.day)
-
-        if (this.state.loadingScheme == 'rpe_time') {
+        if (loadingScheme == 'rpe_time') {
             var dataPayload = {
-                exercise: this.underscoreToSpaced(exerciseObject.name),
+                exercise: underscoreToSpaced(exerciseObject.name),
                 sets: exerciseObject.sets,
                 rpe: exerciseObject.rpe,
                 time: exerciseObject.time,
@@ -671,7 +670,7 @@ class ManageAthletesPage extends Component {
             }
         } else {
             dataPayload = {
-                exercise: this.underscoreToSpaced(exerciseObject.name),
+                exercise: underscoreToSpaced(exerciseObject.name),
                 sets: exerciseObject.sets,
                 time: exerciseObject.time,
                 reps: exerciseObject.reps,
@@ -680,19 +679,14 @@ class ManageAthletesPage extends Component {
                 primMusc: exerciseObject.primMusc
             }
         }
+
         this.props.firebase.createExerciseUpStream(
-            this.props.firebase.auth.currentUser.uid,
-            this.state.activeProgram,
-            this.convertUIDayToTotalDays(exerciseObject.day),
+            this.state.currAthlete.uid,
+            this.state.currAthlete.currViewedProgramName,
+            insertionDay,
             dataPayload,
             exUID
         )
-
-        this.setState({
-            currentDayUI: exerciseObject.day
-        })
-
-
     }
 
     render() {

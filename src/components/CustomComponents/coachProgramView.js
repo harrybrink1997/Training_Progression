@@ -5,6 +5,7 @@ import BasicTable from '../CustomComponents/basicTable'
 import CurrentWeekExercisesContainer from '../CurrentProgram/currentWeekExercisesContainer'
 import AvailableExercisesList from '../CurrentProgram/availableExercisesList'
 import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID } from '../../constants/viewProgramPagesFunctions'
+import { convertTotalDaysToUIDay, convertUIDayToTotalDays, currentWeekInProgram } from '../../constants/dayCalculations'
 
 
 const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseList, availExerciseColumns }) => {
@@ -28,12 +29,41 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
     }
 
     const handleAddExerciseButton = (exerciseObject) => {
-        console.log("add")
-        console.log(exerciseObject)
-        console.log(programData.exerciseListPerDay)
-        console.log(generateExerciseUID(exerciseObject, programData.exerciseListPerDay, programData.currentDayInProgram))
 
-        // handlerFunctions.handleAddExerciseButton(exerciseObject)
+        console.log(exerciseObject)
+        var exUID = generateExerciseUID(
+            exerciseObject,
+            programData.exerciseListPerDay,
+            programData.currentDayInProgram
+        )
+
+        var insertionDay = exUID.split('_').reverse()[1]
+
+        var frontEndRenderObj = formatExerciseObjectForLocalInsertion(
+            exerciseObject,
+            exUID,
+            programData.loadingScheme,
+            programData.currentDayInProgram,
+            handleUpdateExercise,
+            handleDeleteExerciseButton
+        )
+
+
+        let newProgramData = { ...programData }
+
+        var newArray = [...newProgramData.exerciseListPerDay[insertionDay]]
+
+        newArray.push(frontEndRenderObj)
+        newProgramData.exerciseListPerDay[insertionDay] = newArray
+
+        setProgramData(newProgramData)
+
+        handlerFunctions.handleAddExerciseButton(
+            exerciseObject,
+            exUID,
+            programData.loadingScheme,
+            insertionDay
+        )
     }
 
     const handleDeleteExerciseButton = (event, { id }) => {
@@ -133,6 +163,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
                 value: programData.isActiveInSequence ? 'Yes' : 'No'
             })
         }
+
         return payLoad
     }
 
@@ -149,9 +180,9 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
 
     }
 
-    const exerciseData = initialiseAvailableExerciseData(data, combinedAvailExerciseList)
-    const overviewData = initialiseOverviewData(data)
-    const [programData, setProgramData] = useState(initialiseProgramData(data))
+    const [exerciseData, setExerciseData] = useState(() => initialiseAvailableExerciseData(data, combinedAvailExerciseList))
+    const [overviewData, setOverviewData] = useState(() => initialiseOverviewData(data))
+    const [programData, setProgramData] = useState(() => initialiseProgramData(data))
 
 
 
@@ -243,6 +274,9 @@ const CoachProgramViewPageSubHeader = ({ data, name }) => {
         <>
             <div className='pageSubHeader2'>
                 Current Program: {capitaliseFirstLetter(name.split('_')[0])}
+            </div>
+            <div className='pageSubHeader2'>
+                Week {currentWeekInProgram(data.currentDayInProgram)}, Day {convertTotalDaysToUIDay(data.currentDayInProgram)}
             </div>
         </>
     )

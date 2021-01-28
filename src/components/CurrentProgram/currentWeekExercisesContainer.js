@@ -5,7 +5,7 @@ import { Table, Accordion, Icon } from 'semantic-ui-react'
 import InputLabel from '../CustomComponents/DarkModeInput'
 
 // Import Custom functions needed
-import convertTotalDaysToUIDay from '../../constants/convertTotalDaysToUIDays'
+import { convertTotalDaysToUIDay } from '../../constants/dayCalculations'
 
 const CurrentWeekExercisesContainer = ({
     dailyExercises,

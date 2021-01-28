@@ -4,7 +4,9 @@ import { DeleteExerciseButton, DeleteGoalButton, CompleteGoalButton } from '../c
 import { orderUserExercisesBasedOnExUID } from './orderingFunctions'
 import { SelectColumnFilter } from '../components/CurrentProgram/filterSearch'
 import { AddExerciseModalWeightReps, AddExerciseModalRpeTime } from '../components/CurrentProgram/addExerciseModal'
-
+import { convertUIDayToTotalDays, currentWeekInProgram, convertTotalDaysToUIDay } from './dayCalculations'
+import { max } from 'mathjs'
+import { render } from '@testing-library/react'
 
 
 const generateDaysInWeekScope = (currentDayInProgram) => {
@@ -22,43 +24,60 @@ const generateDaysInWeekScope = (currentDayInProgram) => {
     return programDaysInCurrWeek
 }
 
-const formatExerciseObjectForLocalInsertion = (exerciseObject) => {
+const formatExerciseObjectForLocalInsertion = (exerciseObject, exUID, loadingScheme, currentDayInProgram, handleUpdateExercise, handleDeleteExerciseButton) => {
+
+    var renderObj = exerciseObject
+    renderObj.exercise = exerciseObject.name
+    delete render.name
+    renderObj.uid = exUID
+    renderObj.deleteButton =
+        (shouldRenderExerciseButtons(
+            exUID,
+            currentDayInProgram
+        )) ? (loadingScheme === 'rpe_time') ?
+                <div className='currDayExBtnContainer'>
+                    <EditExerciseModalRpeTime submitHandler={handleUpdateExercise} exUid={exUID} currentData={renderObj} />
+                    <DeleteExerciseButton buttonHandler={handleDeleteExerciseButton} uid={exUID} />
+                </div>
+                :
+                <div className='currDayExBtnContainer'>
+                    <EditExerciseModalWeightSets submitHandler={handleUpdateExercise} exUid={exUID} currentData={renderObj} />
+                    <DeleteExerciseButton buttonHandler={handleDeleteExerciseButton} uid={exUID} />
+                </div>
+            :
+            <></>
+
+    return renderObj
 
 }
 
-const generateExerciseUID = (exerciseObject, programObject) => {
+const generateExerciseUID = (exerciseObject, exerciseListPerDay, currentDayInProgram) => {
 
     var exerciseName = exerciseObject.name
     var uiDay = exerciseObject.day
 
-    var insertionDay = this.convertUIDayToTotalDays(uiDay)
+    var insertionDay = convertUIDayToTotalDays(uiDay, currentDayInProgram)
 
-    // Check if not input for week
-    if (insertionDay in programObject) {
-        var dayExercises = programObject[insertionDay]
+    if (exerciseListPerDay[insertionDay].length > 0) {
+        var dayExercises = exerciseListPerDay[insertionDay]
 
+        var currMaxID = -1
 
-        var currMaxID = -1;
+        dayExercises.forEach(exercise => {
 
-        for (var exercise in dayExercises) {
-
-            var currExNameInProg = dayExercises[exercise].exercise.split(' ').join('_')
-            // Do a comparison on the exercise name.
-
-            if (exerciseName == currExNameInProg) {
-
+            if (exercise.exercise.split(' ').join('_') === exerciseName) {
+                console.log("going in ")
                 // First iterate off the letter. 
-                if (parseInt(exercise.split('_').slice(-1)[0]) > currMaxID) {
-                    currMaxID = exercise.split('_').slice(-1)[0]
+                if (parseInt(exercise.uid.split('_').slice(-1)[0]) > currMaxID) {
+                    currMaxID = exercise.uid.split('_').slice(-1)[0]
                 }
             }
-        }
-        return exerciseName + '_' + this.state.currentWeekInProgram + '_' + insertionDay + '_' + (parseInt(currMaxID) + 1)
+        })
 
+        return exerciseName + '_' + currentWeekInProgram(currentDayInProgram) + '_' + insertionDay + '_' + (parseInt(currMaxID) + 1).toString()
 
     }
-
-    return exerciseName + '_' + this.state.currentWeekInProgram + '_' + insertionDay + '_' + '0'
+    return exerciseName + '_' + currentWeekInProgram(currentDayInProgram) + '_' + insertionDay + '_' + '0'
 
 
 }
