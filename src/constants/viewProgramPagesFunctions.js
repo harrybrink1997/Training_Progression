@@ -229,6 +229,54 @@ const underscoreToSpaced = (string) => {
     return returnString.trim()
 }
 
+const checkNullExerciseData = (data, scheme) => {
+
+    var exData = {
+        allValid: true,
+        exercisesToCheck: []
+    }
+
+    if (data === undefined) {
+        return exData
+    }
+
+    Object.values(data).forEach(exercise => {
+        if (scheme === 'rpe_time') {
+            for (var stat in exercise) {
+                if (exercise[stat] === '' || exercise[stat] === undefined) {
+                    if (exData.allValid) {
+                        exData.allValid = false
+                    }
+                    exData.exercisesToCheck.push({
+                        rpe: exercise.rpe,
+                        sets: exercise.sets,
+                        reps: exercise.reps,
+                        exercise: exercise.exercise
+                    })
+                }
+            }
+        } else {
+            for (var stat in exercise) {
+                if (stat !== 'time') {
+                    if (exercise[stat] === '' || exercise[stat] === undefined) {
+                        if (exData.allValid) {
+                            exData.allValid = false
+                        }
+                        exData.exercisesToCheck.push({
+                            rpe: exercise.rpe,
+                            weight: exercise.weight,
+                            sets: exercise.sets,
+                            reps: exercise.reps,
+                            exercise: exercise.exercise
+                        })
+                    }
+                }
+            }
+        }
+    })
+
+    return exData
+}
 
 export {
     generateDaysInWeekScope,
@@ -237,5 +285,6 @@ export {
     listAndFormatLocalGlobalExercises,
     setAvailExerciseChartData,
     formatExerciseObjectForLocalInsertion,
-    generateExerciseUID
+    generateExerciseUID,
+    checkNullExerciseData
 }

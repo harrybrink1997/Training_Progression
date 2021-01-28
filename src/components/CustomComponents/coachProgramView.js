@@ -6,14 +6,18 @@ import CurrentWeekExercisesContainer from '../CurrentProgram/currentWeekExercise
 import AvailableExercisesList from '../CurrentProgram/availableExercisesList'
 import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID } from '../../constants/viewProgramPagesFunctions'
 import { convertTotalDaysToUIDay, convertUIDayToTotalDays, currentWeekInProgram } from '../../constants/dayCalculations'
-
-
-const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseList, availExerciseColumns }) => {
+import SubmitDayModal from '../CurrentProgram/submitDayModal'
+import ConfirmNullExerciseData from '../CurrentProgram/confirmNullExerciseData'
+const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseList, availExerciseColumns, nullExerciseData, submitProcessingBackend }) => {
 
     // Loading variables.
     const [loading, setLoading] = useState(true)
     const [overviewLoaded, setOverviewLoaded] = useState(false)
     const [programLoaded, setProgramLoaded] = useState(false)
+    const [exercisesLoaded, setExercisesLoaded] = useState(false)
+    const [submitDailyExDataProcessing, setSubmitDailyExDataProcessing] = useState(false)
+
+
     const [progressionLoaded, setProgressionLoaded] = useState(true)
 
     const [pageView, setPageView] = useState('overview')
@@ -113,6 +117,10 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         handlerFunctions.handleUpdateExercise(updateObject)
     }
 
+    const handleSubmitButton = () => {
+        handlerFunctions.handleSubmitButton()
+    }
+
     const initialiseProgramData = (programData) => {
         var payLoad = {
             exerciseListPerDay: updatedDailyExerciseList(programData, handleDeleteExerciseButton, handleUpdateExercise),
@@ -185,13 +193,40 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
     const [programData, setProgramData] = useState(() => initialiseProgramData(data))
 
 
-
     // Use Effects to monitor the loading state of the program page.
+
+    // useEffect(() => {
+    //     if (submitDailyExDataProcessing) {
+    //         handlerFunctions.handleSubmitButton()
+    //     }
+    // }, [submitDailyExDataProcessing])
+
     useEffect(() => {
         if (overviewData) {
             setOverviewLoaded(true)
         }
     }, [overviewData])
+
+    // useEffect(() => {
+    //     if (!nullExerciseData.hasNullData) {
+    //         console.log('in update processing effect')
+    //         setSubmitDailyExDataProcessing(false)
+    //     }
+    // }, [nullExerciseData, data.currentDayInProgram])
+
+    useEffect(() => {
+        if (submitProcessingBackend) {
+            setSubmitDailyExDataProcessing(true)
+        } else {
+            setSubmitDailyExDataProcessing(false)
+        }
+    }, [submitProcessingBackend])
+
+    useEffect(() => {
+        if (exerciseData) {
+            setExercisesLoaded(true)
+        }
+    }, [exerciseData])
 
     useEffect(() => {
         if (programData) {
@@ -202,10 +237,10 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
     }, [programData])
 
     useEffect(() => {
-        if (overviewLoaded && programLoaded && progressionLoaded) {
+        if (overviewLoaded && programLoaded && progressionLoaded && exercisesLoaded) {
             setLoading(false)
         }
-    }, [overviewLoaded, programLoaded, progressionLoaded])
+    }, [overviewLoaded, programLoaded, progressionLoaded, exercisesLoaded])
 
 
     // HTML that will actually be rendered
@@ -231,23 +266,37 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         </div>
 
     let programHTML =
-        <div className='rowContainer'>
-            <div className='pageContainerLevel1 half-width'>
-                <AvailableExercisesList
-                    columns={availExerciseColumns}
-                    data={exerciseData}
+        <>
+            <ConfirmNullExerciseData
+                showModal={nullExerciseData.hasNullData}
+                handleFormProceed={handlerFunctions.handleNullCheckProceed}
+                nullExTableData={nullExerciseData.nullTableData}
+                scheme={programData.loadingScheme}
+            />
+            <div className='rowContainer centred-info sml-margin-top'>
+                <SubmitDayModal
+                    handleFormSubmit={handleSubmitButton}
+                    submitDataProcessing={submitDailyExDataProcessing}
                 />
             </div>
-            <div className='pageContainerLevel1 half-width'>
-                <CurrentWeekExercisesContainer
-                    dailyExercises={programData.exerciseListPerDay}
-                    loadingScheme={programData.loadingScheme}
-                    daysViewHandler={handleChangeDaysOpenView}
-                    daysInWeekScope={programData.daysInWeekScope}
-                    openDaysUI={programData.openDaysUI}
-                />
+            <div className='rowContainer'>
+                <div className='pageContainerLevel1 half-width'>
+                    <AvailableExercisesList
+                        columns={availExerciseColumns}
+                        data={exerciseData}
+                    />
+                </div>
+                <div className='pageContainerLevel1 half-width'>
+                    <CurrentWeekExercisesContainer
+                        dailyExercises={programData.exerciseListPerDay}
+                        loadingScheme={programData.loadingScheme}
+                        daysViewHandler={handleChangeDaysOpenView}
+                        daysInWeekScope={programData.daysInWeekScope}
+                        openDaysUI={programData.openDaysUI}
+                    />
+                </div>
             </div>
-        </div>
+        </>
 
     let progressionHTML =
         <div className='centred-info'>

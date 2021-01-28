@@ -34,20 +34,18 @@ const SubmitDayModal = ({ handleFormSubmit, submitDataProcessing }) => {
         >
             <Modal.Header>Submit Day</Modal.Header>
 
-            <Form onSubmit={handleSubmit}>
-                <Modal.Content>
-                    <div className='modalContentWarningHeader'>
-                        WARNING!
+            <Modal.Content>
+                <div className='modalContentWarningHeader'>
+                    WARNING!
                     </div>
-                    <div id='cpPageSubmitDayWarningContent'>
-                        This action is not reversible. Once you submit a day, you can no longer add, remove or edit exercises for that day.
+                <div id='cpPageSubmitDayWarningContent'>
+                    This action is not reversible. Once you submit a day, you can no longer add, remove or edit exercises for that day.
                     </div>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button className='lightPurpleButton-inverted' onClick={handleClose}>Close</Button>
-                    <Button className='submitBtn' type="submit">Submit Day</Button>
-                </Modal.Actions>
-            </Form>
+            </Modal.Content>
+            <Modal.Actions>
+                <Button className='lightPurpleButton-inverted' onClick={handleClose}>Close</Button>
+                <Button className='submitBtn' onClick={(e) => { handleSubmit(e) }}>Submit Day</Button>
+            </Modal.Actions>
         </Modal>
     );
 }

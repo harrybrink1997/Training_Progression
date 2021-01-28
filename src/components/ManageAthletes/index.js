@@ -16,7 +16,8 @@ import ViewProgramErrorModal from './viewProgramErrorModal'
 import CoachProgramView, { CoachProgramViewPageSubHeader } from '../CustomComponents/coachProgramView'
 import { capitaliseFirstLetter, underscoreToSpaced } from '../../constants/stringManipulation';
 import { convertUIDayToTotalDays } from '../../constants/dayCalculations';
-import { setAvailExerciseCols, listAndFormatLocalGlobalExercises } from '../../constants/viewProgramPagesFunctions'
+import { setAvailExerciseCols, listAndFormatLocalGlobalExercises, checkNullExerciseData } from '../../constants/viewProgramPagesFunctions'
+import { calculateDailyLoads, dailyLoadCalcs } from '../CurrentProgram/calculateWeeklyLoads'
 
 
 class ManageAthletesPage extends Component {
@@ -362,8 +363,15 @@ class ManageAthletesPage extends Component {
                             viewProgramFunctions: {
                                 handleDeleteExerciseButton: this.handleDeleteExerciseButton,
                                 handleUpdateExercise: this.handleUpdateExercise,
-                                handleAddExerciseButton: this.handleAddExerciseButton
-                            }
+                                handleAddExerciseButton: this.handleAddExerciseButton,
+                                handleSubmitButton: this.handleSubmitButton,
+                                handleNullCheckProceed: this.handleNullCheckProceed
+                            },
+                            nullExerciseData: {
+                                hasNullData: false,
+                                nullTableData: []
+                            },
+                            submitProcessingBackend: false
 
                         }
                     })
@@ -623,6 +631,163 @@ class ManageAthletesPage extends Component {
         )
     }
 
+    handleSubmitButton = () => {
+        // Get the current exercise data for the given week.
+        // And for the current active program.
+
+        this.setState(prevState => ({
+            currAthlete: {
+                ...prevState.currAthlete,
+                submitProcessingBackend: true
+            }
+        }), () => {
+
+
+
+
+            this.props.firebase.getProgramData(
+                this.state.currAthlete.uid,
+                this.state.currAthlete.currViewedProgramName
+            ).once('value', userData => {
+                var programObject = userData.val();
+
+                this.props.firebase.anatomy().once('value', async snapshot => {
+                    const anatomyObject = snapshot.val();
+
+                    var dataCheck = checkNullExerciseData(
+                        programObject[programObject.currentDayInProgram],
+                        programObject.loading_scheme
+                    )
+
+                    if (dataCheck.allValid) {
+                        var processedDayData = calculateDailyLoads(
+                            programObject,
+                            programObject.currentDayInProgram,
+                            programObject.loading_scheme,
+                            programObject.acutePeriod,
+                            programObject.chronicPeriod,
+                            anatomyObject
+                        )
+
+                        // Submit day in one update statement.
+                        var loadPath =
+                            programObject.currentDayInProgram
+                            + '/'
+                            + 'loadingData'
+
+                        var currDay = 'currentDayInProgram'
+
+
+                        var payLoad = {}
+                        payLoad[loadPath] = processedDayData
+                        payLoad[currDay] = parseInt(this.state.currAthlete.currViewedProgramData.currentDayInProgram + 1)
+
+                        this.props.firebase.handleSubmitDayUpstream(
+                            this.state.currAthlete.uid,
+                            this.state.currAthlete.currViewedProgramName,
+                            payLoad
+                        )
+
+                        this.setState(prevState => ({
+                            currAthlete: {
+                                ...prevState.currAthlete,
+                                submitProcessingBackend: false,
+                                currViewedProgramData: {
+                                    ...prevState.currAthlete.currViewedProgramData,
+                                    currentDayInProgram: programObject.currentDayInProgram + 1
+                                }
+                            }
+                        }))
+                    } else {
+                        this.setState(prevState => ({
+                            currAthlete: {
+                                ...prevState.currAthlete,
+                                nullExerciseData: {
+                                    hasNullData: true,
+                                    nullTableData: dataCheck.exercisesToCheck
+                                }
+                            }
+                        }))
+                    }
+                });
+
+            })
+        })
+    }
+
+    handleNullCheckProceed = (proceed) => {
+        console.log(proceed)
+        if (proceed) {
+            this.props.firebase.getProgramData(
+                this.state.currAthlete.uid,
+                this.state.currAthlete.currViewedProgramName
+            ).once('value', userData => {
+                var programObject = userData.val();
+
+                this.props.firebase.anatomy().once('value', snapshot => {
+                    const anatomyObject = snapshot.val();
+
+                    var processedDayData = calculateDailyLoads(
+                        programObject,
+                        programObject.currentDayInProgram,
+                        programObject.loading_scheme,
+                        programObject.acutePeriod,
+                        programObject.chronicPeriod,
+                        anatomyObject
+                    )
+
+                    // Submit day in one update statement.
+                    var loadPath =
+                        programObject.currentDayInProgram
+                        + '/'
+                        + 'loadingData'
+
+                    var currDay = 'currentDayInProgram'
+
+
+                    var payLoad = {}
+                    payLoad[loadPath] = processedDayData
+                    payLoad[currDay] = parseInt(this.state.currAthlete.currViewedProgramData.currentDayInProgram + 1)
+
+                    this.props.firebase.handleSubmitDayUpstream(
+                        this.state.currAthlete.uid,
+                        this.state.currAthlete.currViewedProgramName,
+                        payLoad
+                    )
+
+                    this.setState(prevState => ({
+                        currAthlete: {
+                            ...prevState.currAthlete,
+                            submitProcessingBackend: false,
+                            currViewedProgramData: {
+                                ...prevState.currAthlete.currViewedProgramData,
+                                currentDayInProgram: programObject.currentDayInProgram + 1
+                            },
+                            nullExerciseData: {
+                                hasNullData: false,
+                                nullTableData: []
+                            }
+                        }
+                    }))
+                })
+
+            })
+        } else {
+            this.setState(prevState => ({
+                currAthlete: {
+                    ...prevState.currAthlete,
+                    submitProcessingBackend: false,
+                    nullExerciseData: {
+                        hasNullData: false,
+                        nullTableData: []
+                    }
+                }
+            }))
+        }
+    }
+
+
+
     handleUpdateExercise = (updateObject) => {
 
         var day = updateObject.exUid.split('_').reverse()[1]
@@ -828,6 +993,8 @@ class ManageAthletesPage extends Component {
                         handlerFunctions={currAthlete.viewProgramFunctions}
                         combinedAvailExerciseList={currAthlete.combinedAvailExerciseList}
                         availExerciseColumns={currAthlete.availExerciseColumns}
+                        nullExerciseData={currAthlete.nullExerciseData}
+                        submitProcessingBackend={currAthlete.submitProcessingBackend}
                     />
                 }
             </NonLandingPageWrapper>
