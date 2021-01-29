@@ -382,7 +382,6 @@ class ManageAthletesPage extends Component {
     initAthleteManagementTableData = (userObject, coachProgramTableData) => {
 
         var tableData = []
-        var progGroupTableData = this.initProgramGroupTableData(userObject)
         Object.keys(userObject.currentAthletes).forEach(athleteUID => {
             var athlete = userObject.currentAthletes[athleteUID]
             console.log(athlete)

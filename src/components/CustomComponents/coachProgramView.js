@@ -8,6 +8,7 @@ import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChar
 import { convertTotalDaysToUIDay, convertUIDayToTotalDays, currentWeekInProgram } from '../../constants/dayCalculations'
 import SubmitDayModal from '../CurrentProgram/submitDayModal'
 import ConfirmNullExerciseData from '../CurrentProgram/confirmNullExerciseData'
+
 const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseList, availExerciseColumns, nullExerciseData, submitProcessingBackend }) => {
 
     // Loading variables.
@@ -29,12 +30,12 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         let newProgramData = { ...programData }
         newProgramData.openDaysUI = newArray
 
+        console.log(newProgramData)
         setProgramData(newProgramData)
     }
 
     const handleAddExerciseButton = (exerciseObject) => {
 
-        console.log(exerciseObject)
         var exUID = generateExerciseUID(
             exerciseObject,
             programData.exerciseListPerDay,
@@ -52,14 +53,34 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
             handleDeleteExerciseButton
         )
 
+        var rawDataInsertionObj = { ...frontEndRenderObj }
+
+        rawDataInsertionObj.exercise = rawDataInsertionObj.name
+        delete rawDataInsertionObj.name
+        delete rawDataInsertionObj.day
+
+        if (programData.loadingScheme === 'rpe_time') {
+            delete rawDataInsertionObj.weight
+        }
 
         let newProgramData = { ...programData }
+        var newRawData = newProgramData.rawData
 
-        var newArray = [...newProgramData.exerciseListPerDay[insertionDay]]
 
-        newArray.push(frontEndRenderObj)
-        newProgramData.exerciseListPerDay[insertionDay] = newArray
+        if (newRawData[insertionDay]) {
+            newRawData[insertionDay][exUID] = rawDataInsertionObj
 
+        } else {
+            var dayObj = {}
+            dayObj[exUID] = rawDataInsertionObj
+            newRawData[insertionDay] = dayObj
+
+        }
+
+        var newExerciseListPerDay = updatedDailyExerciseList(newRawData, handleDeleteExerciseButton, handleUpdateExercise)
+
+        newProgramData.rawData = newRawData
+        newProgramData.exerciseListPerDay = newExerciseListPerDay
         setProgramData(newProgramData)
 
         handlerFunctions.handleAddExerciseButton(
@@ -79,11 +100,21 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
 
         let newProgramData = { ...programData }
 
-        var newArray = newProgramData.exerciseListPerDay[day].filter((value) => {
-            console.log(value)
-            return (value.uid !== exUid)
-        })
-        newProgramData.exerciseListPerDay[day] = newArray
+        var newRawData = newProgramData.rawData
+
+        if (newRawData[day][exUid] && Object.keys(newRawData[day]).length === 1) {
+            delete newRawData[day]
+
+        } else {
+            delete newRawData[day][exUid]
+
+        }
+
+        var newExerciseListPerDay = updatedDailyExerciseList(newRawData, handleDeleteExerciseButton, handleUpdateExercise)
+
+        newProgramData.rawData = newRawData
+        newProgramData.exerciseListPerDay = newExerciseListPerDay
+
         setProgramData(newProgramData)
 
         handlerFunctions.handleDeleteExerciseButton(id)
@@ -95,26 +126,47 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
 
         let newProgramData = { ...programData }
 
-        var newArray = [...newProgramData.exerciseListPerDay[day]]
+        var newRawData = newProgramData.rawData
 
-        newArray.forEach(ex => {
-            if (ex.uid === updateObject.exUid) {
-                ex.reps = updateObject.reps
-                ex.time = updateObject.time
-                ex.sets = updateObject.sets
-                ex.rpe = updateObject.rpe
+        newRawData[day][updateObject.exUid].reps = updateObject.reps
+        newRawData[day][updateObject.exUid].time = updateObject.time
+        newRawData[day][updateObject.exUid].sets = updateObject.sets
+        newRawData[day][updateObject.exUid].rpe = updateObject.rpe
 
-                if (updateObject.loadingScheme === 'weight-reps') {
-                    ex.weight = updateObject.weight
+        if (updateObject.loadingScheme === 'weight-reps') {
+            newRawData[day][updateObject.exUid].weight = updateObject.weight
+        }
 
-                }
-            }
-        })
 
-        newProgramData.exerciseListPerDay[day] = newArray
+        var newExerciseListPerDay = updatedDailyExerciseList(newRawData, handleDeleteExerciseButton, handleUpdateExercise)
+
+        newProgramData.rawData = newRawData
+        newProgramData.exerciseListPerDay = newExerciseListPerDay
+
         setProgramData(newProgramData)
 
         handlerFunctions.handleUpdateExercise(updateObject)
+    }
+
+    const handleChangeWeekView = (nextWeek) => {
+        let newProgramData = { ...programData }
+
+        if (nextWeek) {
+            newProgramData.currentDayInProgram += 7
+        } else {
+            newProgramData.currentDayInProgram -= 7
+        }
+
+        const currButtonView = initCurrButtonView(
+            true,
+            false,
+            newProgramData.currentDayInProgram
+        )
+
+        newProgramData.currButtonView = currButtonView
+
+        console.log(newProgramData)
+        setProgramData(newProgramData)
     }
 
     const handleSubmitButton = () => {
@@ -122,16 +174,46 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
     }
 
     const initialiseProgramData = (programData) => {
+        console.log(programData)
         var payLoad = {
+            rawData: programData,
             exerciseListPerDay: updatedDailyExerciseList(programData, handleDeleteExerciseButton, handleUpdateExercise),
             loadingScheme: programData.loading_scheme,
             daysInWeekScope: generateDaysInWeekScope(programData.currentDayInProgram),
             currentDayInProgram: programData.currentDayInProgram,
             currentDayUI: programData.currentDayInProgram,
-            openDaysUI: [false, false, false, false, false, false, false]
+            openDaysUI: [false, false, false, false, false, false, false],
+            currButtonView: initCurrButtonView(programData.order, programData.isActiveInSequence, programData.currentDayInProgram)
         }
 
         return payLoad
+    }
+
+    const initCurrButtonView = (order, isActiveInSequence, currentDayInProgram) => {
+        if (!order || isActiveInSequence) {
+
+            return {
+                nextWeek: false,
+                prevWeek: false,
+                submitDay: true
+            }
+
+        } else {
+
+            if (currentDayInProgram > 7) {
+                return {
+                    nextWeek: true,
+                    prevWeek: true,
+                    submitDay: false
+                }
+            } else {
+                return {
+                    nextWeek: true,
+                    prevWeek: false,
+                    submitDay: false
+                }
+            }
+        }
     }
 
     const initialiseOverviewData = (programData) => {
@@ -192,27 +274,13 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
     const [overviewData, setOverviewData] = useState(() => initialiseOverviewData(data))
     const [programData, setProgramData] = useState(() => initialiseProgramData(data))
 
-
     // Use Effects to monitor the loading state of the program page.
-
-    // useEffect(() => {
-    //     if (submitDailyExDataProcessing) {
-    //         handlerFunctions.handleSubmitButton()
-    //     }
-    // }, [submitDailyExDataProcessing])
 
     useEffect(() => {
         if (overviewData) {
             setOverviewLoaded(true)
         }
     }, [overviewData])
-
-    // useEffect(() => {
-    //     if (!nullExerciseData.hasNullData) {
-    //         console.log('in update processing effect')
-    //         setSubmitDailyExDataProcessing(false)
-    //     }
-    // }, [nullExerciseData, data.currentDayInProgram])
 
     useEffect(() => {
         if (submitProcessingBackend) {
@@ -229,6 +297,8 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
     }, [exerciseData])
 
     useEffect(() => {
+        console.log('chang in programData')
+        console.log(programData)
         if (programData) {
             if (!programLoaded) {
                 setProgramLoaded(true)
@@ -274,10 +344,38 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
                 scheme={programData.loadingScheme}
             />
             <div className='rowContainer centred-info sml-margin-top'>
-                <SubmitDayModal
-                    handleFormSubmit={handleSubmitButton}
-                    submitDataProcessing={submitDailyExDataProcessing}
-                />
+                {
+                    programData.currButtonView.submitDay ?
+                        <SubmitDayModal
+                            handleFormSubmit={handleSubmitButton}
+                            submitDataProcessing={submitDailyExDataProcessing}
+                        />
+                        :
+                        (programData.currButtonView.prevWeek) ?
+                            <div>
+                                <Button
+                                    onClick={() => { handleChangeWeekView(false) }}
+                                    className='purpleButton'
+                                >
+                                    Previous Week
+                                </Button>
+                                <Button
+                                    className='purpleButton'
+                                    onClick={() => { handleChangeWeekView(true) }}
+                                >
+                                    Next Week
+                                </Button>
+                            </div>
+                            :
+                            <Button
+                                className='purpleButton'
+                                onClick={() => { handleChangeWeekView(true) }}
+                            >
+                                Next Week
+                            </Button>
+
+
+                }
             </div>
             <div className='rowContainer'>
                 <div className='pageContainerLevel1 half-width'>
