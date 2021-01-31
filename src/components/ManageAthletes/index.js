@@ -343,39 +343,46 @@ class ManageAthletesPage extends Component {
                 .once('value', userData => {
                     const userObject = userData.val();
 
-                    var athlete = userObject.currentAthletes[athleteUid]
+                    this.props.firebase.anatomy().once('value', async snapshot => {
 
-                    this.setState({
-                        pageBodyContentLoading: false,
-                        currAthlete: {
-                            uid: athleteUid,
-                            username: athlete.username,
-                            email: athlete.email,
-                            joinDate: utsToDateString(parseInt(athlete.joinDate)),
-                            currTeams: athlete.teams ? Object.keys(athlete.teams).length : '0',
-                            athProgTableData: this.initAthProgTableData(athlete, athleteUid),
-                            athTeamTableData: this.initAthTeamTableData(athlete),
-                            view: 'home',
-                            showViewProgramErrorModal: false,
-                            viewProgramErrorType: undefined,
-                            currViewedProgramName: undefined,
-                            currViewedProgramData: undefined,
-                            viewProgramFunctions: {
-                                handleDeleteExerciseButton: this.handleDeleteExerciseButton,
-                                handleUpdateExercise: this.handleUpdateExercise,
-                                handleAddExerciseButton: this.handleAddExerciseButton,
-                                handleSubmitButton: this.handleSubmitButton,
-                                handleNullCheckProceed: this.handleNullCheckProceed
-                            },
-                            nullExerciseData: {
-                                hasNullData: false,
-                                nullTableData: []
-                            },
-                            submitProcessingBackend: false
+                        const anatomyObject = snapshot.val();
 
-                        }
-                    })
-                });
+                        var athlete = userObject.currentAthletes[athleteUid]
+
+                        this.setState({
+                            pageBodyContentLoading: false,
+                            currAthlete: {
+                                uid: athleteUid,
+                                username: athlete.username,
+                                email: athlete.email,
+                                joinDate: utsToDateString(parseInt(athlete.joinDate)),
+                                currTeams: athlete.teams ? Object.keys(athlete.teams).length : '0',
+                                athProgTableData: this.initAthProgTableData(athlete, athleteUid),
+                                athTeamTableData: this.initAthTeamTableData(athlete),
+                                view: 'home',
+                                showViewProgramErrorModal: false,
+                                viewProgramErrorType: undefined,
+                                currViewedProgramName: undefined,
+                                currViewedProgramData: undefined,
+                                viewProgramFunctions: {
+                                    handleDeleteExerciseButton: this.handleDeleteExerciseButton,
+                                    handleUpdateExercise: this.handleUpdateExercise,
+                                    handleAddExerciseButton: this.handleAddExerciseButton,
+                                    handleSubmitButton: this.handleSubmitButton,
+                                    handleNullCheckProceed: this.handleNullCheckProceed
+                                },
+                                nullExerciseData: {
+                                    hasNullData: false,
+                                    nullTableData: []
+                                },
+                                submitProcessingBackend: false,
+                                rawAnatomyData: anatomyObject
+
+                            }
+                        })
+                    });
+                })
+
         })
     }
 
@@ -433,7 +440,7 @@ class ManageAthletesPage extends Component {
                             {
                                 sequentialOrder.map(program => {
                                     return (
-                                        <List.Item>
+                                        <List.Item key={program}>
                                             {program[1] + ': ' + program[0]}
                                         </List.Item>
                                     )
@@ -455,7 +462,7 @@ class ManageAthletesPage extends Component {
                                 {
                                     programGroup.unlimited.map(program => {
                                         return (
-                                            <List.Item>
+                                            <List.Item key={program}>
                                                 {program.split('_')[0]}
                                             </List.Item>
                                         )
@@ -994,6 +1001,7 @@ class ManageAthletesPage extends Component {
                         availExerciseColumns={currAthlete.availExerciseColumns}
                         nullExerciseData={currAthlete.nullExerciseData}
                         submitProcessingBackend={currAthlete.submitProcessingBackend}
+                        rawAnatomyData={currAthlete.rawAnatomyData}
                     />
                 }
             </NonLandingPageWrapper>

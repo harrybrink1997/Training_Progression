@@ -1,15 +1,20 @@
 import React, { useEffect, useState, useReducer, useRef } from 'react'
-import { Loader, Button } from 'semantic-ui-react'
+import { Loader, Button, Icon, Popup } from 'semantic-ui-react'
 import { capitaliseFirstLetter } from '../../constants/stringManipulation'
 import BasicTable from '../CustomComponents/basicTable'
 import CurrentWeekExercisesContainer from '../CurrentProgram/currentWeekExercisesContainer'
 import AvailableExercisesList from '../CurrentProgram/availableExercisesList'
-import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID } from '../../constants/viewProgramPagesFunctions'
 import { convertTotalDaysToUIDay, convertUIDayToTotalDays, currentWeekInProgram } from '../../constants/dayCalculations'
 import SubmitDayModal from '../CurrentProgram/submitDayModal'
 import ConfirmNullExerciseData from '../CurrentProgram/confirmNullExerciseData'
+import ViewPrevWeeksData from '../CurrentProgram/viewPrevWeeksData'
+import BodyPartListGroup from '../CustomComponents/bodyPartListGroup'
+import InputLabel from '../CustomComponents/DarkModeInput'
+import { ACWEGraph, RollChronicACWRGraph } from '../ProgressionData/ACWRGraph'
+import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID, generateACWRGraphData, generateSafeLoadGraphProps } from '../../constants/viewProgramPagesFunctions'
 
-const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseList, availExerciseColumns, nullExerciseData, submitProcessingBackend }) => {
+
+const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseList, availExerciseColumns, nullExerciseData, submitProcessingBackend, rawAnatomyData }) => {
 
     // Loading variables.
     const [loading, setLoading] = useState(true)
@@ -22,6 +27,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
     const [progressionLoaded, setProgressionLoaded] = useState(true)
 
     const [pageView, setPageView] = useState('overview')
+    // const [currExerciseView, setCurrExerciseView] = useState('availExercises')
 
     const handleChangeDaysOpenView = (day) => {
         var currProgramDataObj = programDataRef.current
@@ -194,20 +200,75 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         handlerFunctions.handleSubmitButton()
     }
 
-    const initialiseProgramData = (programData) => {
-        console.log(programData)
+    const initialiseProgramData = (rawProgramData) => {
         var payLoad = {
-            rawData: programData,
-            exerciseListPerDay: updatedDailyExerciseList(programData, handleDeleteExerciseButton, handleUpdateExercise),
-            loadingScheme: programData.loading_scheme,
-            daysInWeekScope: generateDaysInWeekScope(programData.currentDayInProgram),
-            currentDayInProgram: programData.currentDayInProgram,
-            currentDayUI: programData.currentDayInProgram,
+            rawData: rawProgramData,
+            exerciseListPerDay: updatedDailyExerciseList(rawProgramData, handleDeleteExerciseButton, handleUpdateExercise),
+            loadingScheme: rawProgramData.loading_scheme,
+            daysInWeekScope: generateDaysInWeekScope(rawProgramData.currentDayInProgram),
+            currentDayInProgram: rawProgramData.currentDayInProgram,
+            currentDayUI: rawProgramData.currentDayInProgram,
             openDaysUI: [false, false, false, false, false, false, false],
-            currButtonView: initCurrButtonView(programData.order, programData.isActiveInSequence, programData.currentDayInProgram)
+            currButtonView: initCurrButtonView(rawProgramData.order, rawProgramData.isActiveInSequence, rawProgramData.currentDayInProgram),
         }
 
         return payLoad
+    }
+
+
+
+    const handleSelectBodyPart = (value) => {
+        setProgressionData({
+            type: PROGRESSION_ACTIONS.CHANGE_BODY_PART,
+            payLoad: value
+        })
+    }
+
+    const handleOpenMuscleGroup = (value) => {
+        setProgressionData({
+            type: PROGRESSION_ACTIONS.CHANGE_OPEN_BODY_GROUP,
+            payLoad: value
+        })
+    }
+
+    const PROGRESSION_ACTIONS = {
+        CHANGE_BODY_PART: 'changeBodyPart',
+        CHANGE_OPEN_BODY_GROUP: 'changeOpenBodyGroup',
+        UPDATE_GRAPH_DATA: 'updateGraphData'
+    }
+
+    const progressionDataReducer = (state, action) => {
+        console.log(action)
+        console.log(state)
+        switch (action.type) {
+            case PROGRESSION_ACTIONS.CHANGE_BODY_PART:
+                return {
+                    ...state,
+                    currentBodyPart: action.payLoad
+                }
+
+            case PROGRESSION_ACTIONS.CHANGE_OPEN_BODY_GROUP:
+                return {
+                    ...state,
+                    currMuscleGroupOpen: action.payLoad
+                }
+
+            case PROGRESSION_ACTIONS.UPDATE_GRAPH_DATA:
+                return {
+                    ...state,
+                    ACWRGraphProps: generateACWRGraphData(
+                        action.payLoad.rawProgramData,
+                        action.payLoad.anatomyData
+                    ),
+                    rollingAverageGraphProps: generateSafeLoadGraphProps(
+                        action.payLoad.rawProgramData,
+                        action.payLoad.anatomyData
+                    ),
+                }
+
+            default:
+                return state
+        }
     }
 
     const PROGRAM_ACTIONS = {
@@ -280,7 +341,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         }
     }
 
-    const initialiseOverviewData = (programData) => {
+    const initialiseOverviewData = (rawProgramData) => {
         var payLoad = {
             data: [],
             columns: [{ accessor: 'parameter' }, { accessor: 'value' }]
@@ -288,48 +349,48 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
 
         payLoad.data.push({
             parameter: 'Day In Program',
-            value: programData.currentDayInProgram
+            value: rawProgramData.currentDayInProgram
         })
         payLoad.data.push({
             parameter: 'Acute Timeframe',
-            value: programData.acutePeriod
+            value: rawProgramData.acutePeriod
         })
         payLoad.data.push({
             parameter: 'Chronic Timeframe',
-            value: programData.chronicPeriod
+            value: rawProgramData.chronicPeriod
         })
         payLoad.data.push({
             parameter: 'Program Type',
-            value: programData.order ? 'Sequential' : 'Unlimited'
+            value: rawProgramData.order ? 'Sequential' : 'Unlimited'
         })
 
-        if (programData.order) {
+        if (rawProgramData.order) {
             payLoad.data.push({
                 parameter: 'Sequence Name',
-                value: programData.order.split('_')[1]
+                value: rawProgramData.order.split('_')[1]
             })
             payLoad.data.push({
                 parameter: 'Order In Sequence',
-                value: programData.order.split('_')[0]
+                value: rawProgramData.order.split('_')[0]
             })
             payLoad.data.push({
                 parameter: 'Currently Active In Sequence',
-                value: programData.isActiveInSequence ? 'Yes' : 'No'
+                value: rawProgramData.isActiveInSequence ? 'Yes' : 'No'
             })
         }
 
         return payLoad
     }
 
-    const initialiseAvailableExerciseData = (programData, exerciseData) => {
+    const initialiseAvailableExerciseData = (rawProgramData, exerciseData) => {
 
         return {
             rawData: exerciseData,
             chartData: setAvailExerciseChartData(
                 exerciseData,
-                convertTotalDaysToUIDay(programData.currentDayInProgram),
-                programData.loadingScheme,
-                convertTotalDaysToUIDay(programData.currentDayInProgram),
+                convertTotalDaysToUIDay(rawProgramData.currentDayInProgram),
+                rawProgramData.loadingScheme,
+                convertTotalDaysToUIDay(rawProgramData.currentDayInProgram),
                 handleAddExerciseButton
             )
         }
@@ -337,8 +398,26 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
 
     }
 
+    const initialiseProgressionData = (rawProgramData) => {
+        console.log(rawProgramData)
+        if (rawProgramData.order && !rawProgramData.isActiveInSequence) {
+            return undefined
+        } else {
+            return {
+                ACWRGraphProps: generateACWRGraphData(rawProgramData, rawAnatomyData),
+                rollingAverageGraphProps: generateSafeLoadGraphProps(rawProgramData, rawAnatomyData),
+                currentBodyPart: 'Overall_Total',
+                currMuscleGroupOpen: 'Arms',
+
+            }
+        }
+    }
+    const anatomyData = rawAnatomyData
     const [exerciseData, setExerciseData] = useState(() => initialiseAvailableExerciseData(data, combinedAvailExerciseList))
     const [overviewData, setOverviewData] = useState(() => initialiseOverviewData(data))
+
+    const [progressionData, setProgressionData] = useReducer(progressionDataReducer, data, initialiseProgressionData)
+
     const [programData, setProgramData] = useReducer(programDataReducer, data, initialiseProgramData)
 
     // Use Effects to monitor the loading state of the program page.
@@ -377,7 +456,6 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
 
     const programDataRef = useRef();
 
-
     useEffect(() => {
         if (overviewData) {
             setOverviewLoaded(true)
@@ -389,6 +467,13 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
             setSubmitDailyExDataProcessing(true)
         } else {
             setSubmitDailyExDataProcessing(false)
+            setProgressionData({
+                type: PROGRESSION_ACTIONS.UPDATE_GRAPH_DATA,
+                payLoad: {
+                    rawProgramData: data,
+                    anatomyData: anatomyData
+                }
+            })
         }
     }, [submitProcessingBackend])
 
@@ -480,10 +565,15 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
             </div>
             <div className='rowContainer'>
                 <div className='pageContainerLevel1 half-width'>
+                    {/* <CoachAvailExProgHistToggle
+                        currentView={currExerciseView}
+                        clickHandler={(newView) => { setCurrExerciseView(newView) }}
+                    /> */}
                     <AvailableExercisesList
                         columns={availExerciseColumns}
                         data={exerciseData.chartData}
                     />
+
                 </div>
                 <div className='pageContainerLevel1 half-width'>
                     <CurrentWeekExercisesContainer
@@ -498,9 +588,63 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         </>
 
     let progressionHTML =
-        <div className='centred-info'>
-            progression tab
-        </div>
+        <>
+            {
+                !progressionData &&
+                <div className='centred-info'>
+                    <div className='paragraphDiv'>
+                        Progression data is unable to be calculated because this program has not yet been started.
+                    </div>
+                </div>
+            }
+            {
+                progressionData &&
+                <div className='pageContainerLevel1' id='pdBodyContainer1'>
+                    <div className='pageContainerLevel2' id='pdSideBarContainer'>
+                        <BodyPartListGroup
+                            activeMuscle={progressionData.currentBodyPart}
+                            muscleGroups={anatomyData}
+                            changeMuscleHandler={handleSelectBodyPart}
+                            activeMuscleGroup={progressionData.currMuscleGroupOpen}
+                            openMuscleGroupHandler={handleOpenMuscleGroup}
+                        />
+                    </div>
+
+                    <div className='pageContainerLevel2' id='pdGraphContainer'>
+                        <div id='rollChronicGraphContainer'>
+                            <InputLabel
+                                custID='rollChronicGraphLabel'
+                                text='Rolling Safe Loading Threshold &nbsp;'
+                                toolTip={<Popup
+                                    basic
+                                    trigger={<Icon name='question circle outline' />}
+                                    content='Historical representation of your actual loading with upper and lower safe training thresholds based on ACWR.'
+                                    position='right center'
+                                />}
+                            />
+                            <RollChronicACWRGraph
+                                graphData={progressionData.rollingAverageGraphProps.totalData[progressionData.currentBodyPart]}
+                                graphSeries={progressionData.rollingAverageGraphProps.series}
+                            />
+                        </div>
+                        <div id='ACWRGraphContainer'>
+                            <InputLabel
+                                custID='ACWRGraphLabel'
+                                text='Rolling Acute Chronic Workload Ratio & Subcomponents &nbsp;'
+                                toolTip={<Popup
+                                    basic
+                                    trigger={<Icon name='question circle outline' />}
+                                    content='Historical representation of your Acute Load, Chronic Load and ACWR.'
+                                    position='bottom center'
+                                />}
+                            />
+                            <ACWEGraph ACWRData={progressionData.ACWRGraphProps[progressionData.currentBodyPart]} />
+                        </div>
+                    </div>
+
+                </div>
+            }
+        </>
 
 
 
@@ -597,6 +741,48 @@ const CoachProgramViewNavButtons = ({ currentView, clickHandler }) => {
         </Button.Group>
     )
 }
+
+
+const CoachAvailExProgHistToggle = ({ currentView, clickHandler }) => {
+    return (
+        <div className='availExercises-ExData-toggleContainer centred-info'>
+            <Button.Group size='tiny'>
+                {
+                    currentView === 'availExercises' ?
+                        <Button
+                            className='smallerBtn'
+                            active
+                        >
+                            Available Exercises
+                                        </Button>
+                        :
+                        <Button
+                            className='smallerBtn'
+                            onClick={() => { { clickHandler('availExercises') } }}
+                        >
+                            Available Exercises
+                    </Button>
+                }
+                {
+                    currentView === 'progHistory' ?
+                        <Button
+
+                            active
+                        >
+                            Program Exercise History
+                                        </Button>
+                        :
+                        <Button
+                            onClick={() => { clickHandler('progHistory') }}
+                        >
+                            Program Exercise History
+                    </Button>
+                }
+            </Button.Group>
+        </div>
+    )
+}
+
 
 export default CoachProgramView
 export { CoachProgramViewPageSubHeader }

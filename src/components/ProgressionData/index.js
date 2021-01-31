@@ -54,7 +54,6 @@ class ProgressionDataPage extends Component {
                     this.setState({
                         loading: true
                     }, () => {
-                        console.log(userObject)
                         // Format the user data based on whether or not user has current programs. 
                         this.updateObjectState(userObject, anatomyObject)
                     })

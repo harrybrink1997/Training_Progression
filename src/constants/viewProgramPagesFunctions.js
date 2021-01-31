@@ -278,6 +278,227 @@ const checkNullExerciseData = (data, scheme) => {
     return exData
 }
 
+const generateACWRGraphData = (programData, muscleGroups) => {
+
+
+    var dataToGraph = {}
+
+    for (var day = 1; day < programData.currentDayInProgram; day++) {
+
+        var dateString = stripDateFromTSString(new Date((programData.startDayUTS + 86400000 * (day - 1))))
+
+        if (day == 1) {
+            dataToGraph['Overall_Total'] = []
+
+            var insertObj = {
+                name: dateString
+            }
+            insertObj['Acute Load'] = parseFloat(programData[day]['loadingData']['Total'].acuteEWMA.toFixed(2))
+            insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData']['Total'].chronicEWMA.toFixed(2))
+            insertObj['ACWR'] = programData[day]['loadingData']['Total'].ACWR
+
+            dataToGraph['Overall_Total'].push(insertObj)
+
+        } else {
+            insertObj = {
+                name: dateString
+            }
+
+            insertObj['Acute Load'] = parseFloat(programData[day]['loadingData']['Total'].acuteEWMA.toFixed(2))
+            insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData']['Total'].chronicEWMA.toFixed(2))
+            insertObj['ACWR'] = programData[day]['loadingData']['Total'].ACWR
+
+            dataToGraph['Overall_Total'].push(insertObj)
+        }
+
+
+        Object.keys(muscleGroups).forEach(muscleGroup => {
+
+            if (day == 1) {
+                dataToGraph[muscleGroup + '_Total'] = []
+
+                var insertObj = {
+                    name: dateString
+                }
+                insertObj['Acute Load'] = parseFloat(programData[day]['loadingData'][muscleGroup]['Total'].acuteEWMA.toFixed(2))
+                insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData'][muscleGroup]['Total'].chronicEWMA.toFixed(2))
+                insertObj['ACWR'] = programData[day]['loadingData'][muscleGroup]['Total'].ACWR
+
+                dataToGraph[muscleGroup + '_Total'].push(insertObj)
+
+            } else {
+                insertObj = {
+                    name: dateString
+                }
+
+                insertObj['Acute Load'] = parseFloat(programData[day]['loadingData'][muscleGroup]['Total'].acuteEWMA.toFixed(2))
+                insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData'][muscleGroup]['Total'].chronicEWMA.toFixed(2))
+                insertObj['ACWR'] = programData[day]['loadingData']['Total'].ACWR
+
+                dataToGraph[muscleGroup + '_Total'].push(insertObj)
+            }
+
+
+            muscleGroups[muscleGroup].forEach(muscle => {
+                if (day == 1) {
+                    dataToGraph[muscle] = []
+
+                    var insertObj = {
+                        name: dateString
+                    }
+                    insertObj['Acute Load'] = parseFloat(programData[day]['loadingData'][muscleGroup][muscle].acuteEWMA.toFixed(2))
+                    insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData'][muscleGroup][muscle].chronicEWMA.toFixed(2))
+                    insertObj['ACWR'] = programData[day]['loadingData'][muscleGroup][muscle].ACWR
+
+                    dataToGraph[muscle].push(insertObj)
+
+                } else {
+                    insertObj = {
+                        name: dateString
+                    }
+
+                    insertObj['Acute Load'] = parseFloat(programData[day]['loadingData'][muscleGroup][muscle].acuteEWMA.toFixed(2))
+                    insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData'][muscleGroup][muscle].chronicEWMA.toFixed(2))
+                    insertObj['ACWR'] = programData[day]['loadingData'][muscleGroup][muscle].ACWR
+
+                    dataToGraph[muscle].push(insertObj)
+                }
+
+
+            })
+
+        })
+    }
+    return dataToGraph
+
+}
+
+const generateSafeLoadGraphProps = (programData, muscleGroups) => {
+
+    var ghostThresholds = [20]
+
+    // First generate the series
+    var chartSeries = ['Actual Loading']
+    var dataToGraph = {}
+
+    ghostThresholds.forEach(threshold => {
+
+        var lowerSeries = 'Threshold - (-' + threshold + '%)'
+        var upperSeries = 'Threshold - (+' + threshold + '%)'
+
+
+        for (var day = 1; day < programData.currentDayInProgram; day++) {
+
+
+
+            var dateString = stripDateFromTSString(new Date((programData.startDayUTS + 86400000 * (day - 1))))
+
+            var loadingVal = parseFloat(programData[day]['loadingData']['Total'].chronicEWMA)
+
+            if (day == 1) {
+                dataToGraph['Overall_Total'] = []
+
+                var insertObj = {
+                    name: dateString
+                }
+                insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+                insertObj['Actual Loading'] = parseFloat(loadingVal.toFixed(2))
+
+                dataToGraph['Overall_Total'].push(insertObj)
+
+            } else {
+                insertObj = {
+                    name: dateString
+                }
+
+                insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+                insertObj['Actual Loading'] = parseFloat(loadingVal.toFixed(2))
+
+                dataToGraph['Overall_Total'].push(insertObj)
+            }
+
+            Object.keys(muscleGroups).forEach(muscleGroup => {
+
+                var loadingVal = parseFloat(programData[day]['loadingData'][muscleGroup]['Total'].chronicEWMA)
+
+                if (day == 1) {
+                    dataToGraph[muscleGroup + '_Total'] = []
+
+                    var insertObj = {
+                        name: dateString
+                    }
+                    insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                    insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+                    insertObj['Actual Loading'] = parseFloat(loadingVal.toFixed(2))
+
+                    dataToGraph[muscleGroup + '_Total'].push(insertObj)
+
+                } else {
+                    insertObj = {
+                        name: dateString
+                    }
+
+                    insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                    insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+                    insertObj['Actual Loading'] = parseFloat(loadingVal.toFixed(2))
+
+                    dataToGraph[muscleGroup + '_Total'].push(insertObj)
+                }
+
+
+
+                muscleGroups[muscleGroup].forEach(muscle => {
+                    var loadingVal = parseFloat(programData[day]['loadingData'][muscleGroup][muscle].chronicEWMA)
+
+                    if (day == 1) {
+                        dataToGraph[muscle] = []
+
+                        var insertObj = {
+                            name: dateString
+                        }
+                        insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                        insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+                        insertObj['Actual Loading'] = parseFloat(loadingVal.toFixed(2))
+
+                        dataToGraph[muscle].push(insertObj)
+
+                    } else {
+                        insertObj = {
+                            name: dateString
+                        }
+
+                        insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
+                        insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
+                        insertObj['Actual Loading'] = parseFloat(loadingVal.toFixed(2))
+
+                        dataToGraph[muscle].push(insertObj)
+                    }
+                })
+            })
+        }
+        chartSeries.push(lowerSeries)
+        chartSeries.push(upperSeries)
+    })
+
+    return {
+        series: chartSeries,
+        totalData: dataToGraph
+    }
+}
+
+const stripDateFromTSString = (inputDay) => {
+
+    var day = String(inputDay.getDate()).padStart(2, '0');
+    var month = String(inputDay.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var year = inputDay.getFullYear();
+
+    var date = day + '-' + month + '-' + year;
+
+    return date
+}
+
 export {
     generateDaysInWeekScope,
     updatedDailyExerciseList,
@@ -286,5 +507,8 @@ export {
     setAvailExerciseChartData,
     formatExerciseObjectForLocalInsertion,
     generateExerciseUID,
-    checkNullExerciseData
+    checkNullExerciseData,
+    generateACWRGraphData,
+    generateSafeLoadGraphProps
+
 }
