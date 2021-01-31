@@ -177,6 +177,8 @@ const setAvailExerciseCols = () => {
 
 // Updated with new ratio calcs format
 const setAvailExerciseChartData = (exerciseList, currDay, loadingScheme, currDayInProg, handleAddExerciseButton) => {
+    console.log(currDay)
+    console.log(currDayInProg)
     var tableData = []
     exerciseList.forEach(exercise => {
         tableData.push({
