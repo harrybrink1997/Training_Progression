@@ -20,9 +20,10 @@ const CurrentWeekExercisesContainer = ({
                 [0, 1, 2, 3, 4, 5, 6].map(dayIndex => {
                     var day = daysInWeekScope[dayIndex]
                     if (dailyExercises[day].length > 0) {
+                        console.log(day)
                         return (
                             <ExerciseTableContainer
-                                key={dayIndex}
+                                key={day}
                                 dayText={'Day ' + convertTotalDaysToUIDay(day)}
                                 tableData={dailyExercises[day]}
                                 tableScheme={loadingScheme}
@@ -31,10 +32,6 @@ const CurrentWeekExercisesContainer = ({
                                 clickHandler={daysViewHandler}
                                 dayIndex={dayIndex}
                             />
-                        )
-                    } else {
-                        return (
-                            <></>
                         )
                     }
                 })
@@ -170,21 +167,18 @@ const ExerciseTableDayViewRpeTime = ({ data, handleTableUpdate }) => {
                                 headerGroup.headers.map(column => (
                                     // Apply the header cell props
                                     (column.Header === '') ?
-                                        <Table.HeaderCell className='currDayExerciseBtnCol' style={headerCellCSS} {...column.getHeaderProps()}>
+                                        <Table.HeaderCell
+                                            key={column.accessor}
+                                            className='currDayExerciseBtnCol' style={headerCellCSS} {...column.getHeaderProps()}>
                                             {// Render the header
                                                 column.render('Header')}
                                         </Table.HeaderCell>
                                         :
 
-                                        <Table.HeaderCell style={bodyCellCSS} {...column.getHeaderProps()}>
+                                        <Table.HeaderCell key={column.accessor} style={bodyCellCSS} {...column.getHeaderProps()}>
                                             {// Render the header
                                                 column.render('Header')}
                                         </Table.HeaderCell>
-
-                                    // <Table.HeaderCell {...column.getHeaderProps()}>
-                                    //     {// Render the header
-                                    //         column.render('Header')}
-                                    // </Table.HeaderCell>
                                 ))}
                         </Table.Row>
                     ))}

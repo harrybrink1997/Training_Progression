@@ -24,14 +24,18 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
     const [pageView, setPageView] = useState('overview')
 
     const handleChangeDaysOpenView = (day) => {
-        var newArray = programData.openDaysUI
-        newArray[day] = !newArray[day]
-        console.log(programData)
-        let newProgramData = { ...programData }
-        newProgramData.openDaysUI = newArray
+        var currProgramDataObj = programDataRef.current
 
-        console.log(newProgramData)
-        setProgramData(newProgramData)
+        let newProgramData = { ...currProgramDataObj }
+
+        var newArray = newProgramData.openDaysUI
+
+        newArray[day] = !newArray[day]
+
+        setProgramData({
+            type: PROGRAM_ACTIONS.CHANGE_DAYS_OPEN_VIEW,
+            payLoad: newArray
+        })
     }
 
     const handleAddExerciseButton = (exerciseObject) => {
@@ -93,12 +97,12 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
             }
         })
 
-        // handlerFunctions.handleAddExerciseButton(
-        //     exerciseObject,
-        //     exUID,
-        //     programData.loadingScheme,
-        //     insertionDay
-        // )
+        handlerFunctions.handleAddExerciseButton(
+            exerciseObject,
+            exUID,
+            programData.loadingScheme,
+            insertionDay
+        )
     }
 
     const handleDeleteExerciseButton = (event, { id }) => {
@@ -129,7 +133,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
             }
         })
 
-        // handlerFunctions.handleDeleteExerciseButton(id)
+        handlerFunctions.handleDeleteExerciseButton(id)
     }
 
     const handleUpdateExercise = (updateObject) => {
@@ -159,7 +163,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
             }
         })
 
-        // handlerFunctions.handleUpdateExercise(updateObject)
+        handlerFunctions.handleUpdateExercise(updateObject)
     }
 
     const handleChangeWeekView = (nextWeek) => {
@@ -209,7 +213,8 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
     const PROGRAM_ACTIONS = {
         CHANGE_CURRENT_EXERCISE_LIST: 'changeCurrentExerciseList',
         UPDATE_ON_WEEK_CHANGE: 'updateOnWeekChange',
-        CHANGE_WEEK: 'changeWeek'
+        CHANGE_WEEK: 'changeWeek',
+        CHANGE_DAYS_OPEN_VIEW: 'changeDaysOpenView'
     }
 
     const programDataReducer = (state, action) => {
@@ -236,6 +241,11 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
                     rawData: action.payLoad.rawData
                 }
 
+            case PROGRAM_ACTIONS.CHANGE_DAYS_OPEN_VIEW:
+                return {
+                    ...state,
+                    openDaysUI: action.payLoad
+                }
 
             default:
                 return state
