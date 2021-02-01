@@ -17,6 +17,7 @@ import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChar
 const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseList, availExerciseColumns, nullExerciseData, submitProcessingBackend, rawAnatomyData }) => {
 
     // Loading variables.
+    const [firstRender, setFirstRender] = useState(true)
     const [loading, setLoading] = useState(true)
     const [overviewLoaded, setOverviewLoaded] = useState(false)
     const [programLoaded, setProgramLoaded] = useState(false)
@@ -467,13 +468,18 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
             setSubmitDailyExDataProcessing(true)
         } else {
             setSubmitDailyExDataProcessing(false)
-            setProgressionData({
-                type: PROGRESSION_ACTIONS.UPDATE_GRAPH_DATA,
-                payLoad: {
-                    rawProgramData: data,
-                    anatomyData: anatomyData
-                }
-            })
+            if (!firstRender) {
+                console.log("udpating progression data")
+                console.log(data)
+                console.log(programDataRef.current.rawData)
+                setProgressionData({
+                    type: PROGRESSION_ACTIONS.UPDATE_GRAPH_DATA,
+                    payLoad: {
+                        rawProgramData: data,
+                        anatomyData: anatomyData
+                    }
+                })
+            }
         }
     }, [submitProcessingBackend])
 
@@ -495,6 +501,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
     useEffect(() => {
         if (overviewLoaded && programLoaded && progressionLoaded && exercisesLoaded) {
             setLoading(false)
+            setFirstRender(false)
         }
     }, [overviewLoaded, programLoaded, progressionLoaded, exercisesLoaded])
 

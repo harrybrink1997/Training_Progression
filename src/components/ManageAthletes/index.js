@@ -68,8 +68,6 @@ class ManageAthletesPage extends Component {
 
     checkProgramLocation = (locationData, name, time) => {
 
-        var payLoad = []
-
         if (!locationData) {
             return false
         } else {
@@ -78,37 +76,31 @@ class ManageAthletesPage extends Component {
                 if (prog === name) {
                     if (locationData[prog].deploymentDate === time) {
                         return true
-                    } else {
-                        payLoad.push({
-                            deploymentDate: locationData[prog].deploymentDate,
-                            order: locationData[prog].order,
-                            isActiveInSequence: locationData[prog].isActiveInSequence
-                        })
                     }
                 }
             }
 
-            return payLoad
+            return false
         }
 
 
     }
 
-    checkProgramExistence = (userObject, programName, time) => {
+    checkProgramExistenceInCurrPast = (userObject, programName, time) => {
         var payLoad = {
             pendingPrograms: this.checkProgramLocation(userObject.pendingPrograms, programName, time),
             currentPrograms: this.checkProgramLocation(userObject.currentPrograms, programName, time),
             pastPrograms: this.checkProgramLocation(userObject.pastPrograms, programName, time)
         }
 
-        if (!payLoad.pendingPrograms && !payLoad.currentPrograms && !payLoad.pastPrograms) {
+        if (!payLoad.currentPrograms && !payLoad.pastPrograms) {
             return false
         }
 
         return payLoad
     }
 
-    handleViewProgramClick = (athleteUid, programName, deploymentTime) => {
+    handleViewProgramClick = (athleteUid, programName, deploymentTime, location) => {
         this.setState({
             pageBodyContentLoading: true
         }, () => {
@@ -117,66 +109,38 @@ class ManageAthletesPage extends Component {
             ).once('value', userData => {
                 const userObject = userData.val();
 
-                var existenceData = this.checkProgramExistence(userObject, programName, deploymentTime)
+                if (location === 'currentPrograms') {
+                    console.log("in current programs")
+                    var programData = userObject.currentPrograms[programName]
 
-                // If existenceData is false then the program name does not exist anyway in the athletes program data.
-                if (!existenceData) {
-                    //Represent this in the modal.
-                    this.setState(prevState => ({
-                        currAthlete: {
-                            ...prevState.currAthlete,
-                            showViewProgramErrorModal: true,
-                            viewProgramErrorType: 'nonExistent'
-                        },
-                        pageBodyContentLoading: false
-                    }))
-                } else {
-                    // If the program exists, however, is in pending programs. Show this state in the modal. 
-                    if (existenceData.pendingPrograms === true) {
+                    // Get the data for available exercises. 
+                    this.props.firebase.exercises().once('value', snapshot => {
+                        const globalExObject = snapshot.val()
 
-                        this.setState(prevState => ({
-                            currAthlete: {
-                                ...prevState.currAthlete,
-                                showViewProgramErrorModal: true,
-                                viewProgramErrorType: 'inPending'
-                            },
-                            pageBodyContentLoading: false
-                        }))
-
-                    } else if (existenceData.currentPrograms === true) {
-                        console.log("in current programs")
-                        var programData = userObject.currentPrograms[programName]
-
-                        // Get the data for available exercises. 
-                        this.props.firebase.exercises().once('value', snapshot => {
-                            const globalExObject = snapshot.val()
-
-                            this.props.firebase.localExerciseData(
-                                this.props.firebase.auth.currentUser.uid
-                            ).once('value', snapshot => {
-                                const localExObject = snapshot.val()
-                                console.log(listAndFormatLocalGlobalExercises(globalExObject, localExObject))
-                                this.setState(prevState => ({
-                                    currAthlete: {
-                                        ...prevState.currAthlete,
-                                        currViewedProgramName: programName,
-                                        currViewedProgramData: programData,
-                                        combinedAvailExerciseList: listAndFormatLocalGlobalExercises(globalExObject, localExObject),
-                                        availExerciseColumns: setAvailExerciseCols(),
-                                        view: 'viewProgram'
-                                    },
-                                    pageBodyContentLoading: false
-                                }))
+                        this.props.firebase.localExerciseData(
+                            this.props.firebase.auth.currentUser.uid
+                        ).once('value', snapshot => {
+                            const localExObject = snapshot.val()
+                            console.log(listAndFormatLocalGlobalExercises(globalExObject, localExObject))
+                            this.setState(prevState => ({
+                                currAthlete: {
+                                    ...prevState.currAthlete,
+                                    currViewedProgramName: programName,
+                                    currViewedProgramData: programData,
+                                    combinedAvailExerciseList: listAndFormatLocalGlobalExercises(globalExObject, localExObject),
+                                    availExerciseColumns: setAvailExerciseCols(),
+                                    view: 'viewProgram'
+                                },
+                                pageBodyContentLoading: false
+                            }))
 
 
-                            })
-                        });
-                    } else if (existenceData.pastPrograms === true) {
+                        })
+                    });
+                } else if (location === 'pastPrograms') {
 
-                        console.log("inPastPrograms")
-                    }
+                    console.log("inPastPrograms")
                 }
-
             })
         })
     }
@@ -236,9 +200,12 @@ class ManageAthletesPage extends Component {
         }))
     }
 
-    initAthProgTableData = (data, athleteUid) => {
+    initAthProgTableData = (data, athleteUid, userObject) => {
+        console.log(data)
         if (data.teams) {
+
             var returnData = {}
+
             returnData.columns = [
                 {
                     Header: 'Program',
@@ -257,7 +224,6 @@ class ManageAthletesPage extends Component {
                 }
             ]
 
-
             returnData.data = []
             Object.keys(data.teams).forEach(team => {
 
@@ -266,31 +232,44 @@ class ManageAthletesPage extends Component {
 
                         data.teams[team].sharedPrograms[prog].forEach(deployTime => {
 
+                            var existenceData = this.checkProgramExistenceInCurrPast(userObject, prog, deployTime)
+                            console.log(existenceData)
+
+                            if (existenceData) {
+
+                                var location =
+                                    existenceData.currentPrograms ?
+                                        'currentPrograms'
+                                        :
+                                        'pastPrograms'
+                            }
+
                             returnData.data.push({
                                 program: prog.split('_')[0],
                                 team: team,
                                 timestampAssigned: deployTime,
                                 dateAssigned: utsToDateString(parseInt(deployTime)),
                                 buttons:
+                                    existenceData &&
                                     <Button
                                         className='lightPurpleButton-inverted'
-                                        onClick={() => { this.handleViewProgramClick(athleteUid, prog, deployTime) }}
+                                        onClick={() => { this.handleViewProgramClick(athleteUid, prog, deployTime, location) }}
                                     >
                                         View Program
-                                </Button>
-
+                                        </Button>
 
                             })
                         })
                     })
                 }
             })
-            console.log(returnData)
             returnData.data.sort((a, b) => {
                 return (
                     parseInt(b.timestampAssigned) - parseInt(a.timestampAssigned)
                 )
             })
+
+            console.log(returnData)
 
             return returnData
         } else {
@@ -344,41 +323,44 @@ class ManageAthletesPage extends Component {
                     const userObject = userData.val();
 
                     this.props.firebase.anatomy().once('value', async snapshot => {
-
                         const anatomyObject = snapshot.val();
 
-                        var athlete = userObject.currentAthletes[athleteUid]
+                        this.props.firebase.getUserData(athleteUid).once('value', athData => {
+                            const athleteObject = athData.val();
 
-                        this.setState({
-                            pageBodyContentLoading: false,
-                            currAthlete: {
-                                uid: athleteUid,
-                                username: athlete.username,
-                                email: athlete.email,
-                                joinDate: utsToDateString(parseInt(athlete.joinDate)),
-                                currTeams: athlete.teams ? Object.keys(athlete.teams).length : '0',
-                                athProgTableData: this.initAthProgTableData(athlete, athleteUid),
-                                athTeamTableData: this.initAthTeamTableData(athlete),
-                                view: 'home',
-                                showViewProgramErrorModal: false,
-                                viewProgramErrorType: undefined,
-                                currViewedProgramName: undefined,
-                                currViewedProgramData: undefined,
-                                viewProgramFunctions: {
-                                    handleDeleteExerciseButton: this.handleDeleteExerciseButton,
-                                    handleUpdateExercise: this.handleUpdateExercise,
-                                    handleAddExerciseButton: this.handleAddExerciseButton,
-                                    handleSubmitButton: this.handleSubmitButton,
-                                    handleNullCheckProceed: this.handleNullCheckProceed
-                                },
-                                nullExerciseData: {
-                                    hasNullData: false,
-                                    nullTableData: []
-                                },
-                                submitProcessingBackend: false,
-                                rawAnatomyData: anatomyObject
+                            var athlete = userObject.currentAthletes[athleteUid]
 
-                            }
+                            this.setState({
+                                pageBodyContentLoading: false,
+                                currAthlete: {
+                                    uid: athleteUid,
+                                    username: athlete.username,
+                                    email: athlete.email,
+                                    joinDate: utsToDateString(parseInt(athlete.joinDate)),
+                                    currTeams: athlete.teams ? Object.keys(athlete.teams).length : '0',
+                                    athProgTableData: this.initAthProgTableData(athlete, athleteUid, athleteObject),
+                                    athTeamTableData: this.initAthTeamTableData(athlete),
+                                    view: 'home',
+                                    showViewProgramErrorModal: false,
+                                    viewProgramErrorType: undefined,
+                                    currViewedProgramName: undefined,
+                                    currViewedProgramData: undefined,
+                                    viewProgramFunctions: {
+                                        handleDeleteExerciseButton: this.handleDeleteExerciseButton,
+                                        handleUpdateExercise: this.handleUpdateExercise,
+                                        handleAddExerciseButton: this.handleAddExerciseButton,
+                                        handleSubmitButton: this.handleSubmitButton,
+                                        handleNullCheckProceed: this.handleNullCheckProceed
+                                    },
+                                    nullExerciseData: {
+                                        hasNullData: false,
+                                        nullTableData: []
+                                    },
+                                    submitProcessingBackend: false,
+                                    rawAnatomyData: anatomyObject
+
+                                }
+                            })
                         })
                     });
                 })
@@ -647,10 +629,6 @@ class ManageAthletesPage extends Component {
                 submitProcessingBackend: true
             }
         }), () => {
-
-
-
-
             this.props.firebase.getProgramData(
                 this.state.currAthlete.uid,
                 this.state.currAthlete.currViewedProgramName
@@ -694,14 +672,17 @@ class ManageAthletesPage extends Component {
                             payLoad
                         )
 
+                        var frontEndProgData = { ...programObject }
+
+                        frontEndProgData[programObject.currentDayInProgram]['loadingData'] = processedDayData
+
+                        frontEndProgData.currentDayInProgram += 1
+
                         this.setState(prevState => ({
                             currAthlete: {
                                 ...prevState.currAthlete,
                                 submitProcessingBackend: false,
-                                currViewedProgramData: {
-                                    ...prevState.currAthlete.currViewedProgramData,
-                                    currentDayInProgram: programObject.currentDayInProgram + 1
-                                }
+                                currViewedProgramData: frontEndProgData
                             }
                         }))
                     } else {
@@ -760,19 +741,17 @@ class ManageAthletesPage extends Component {
                         this.state.currAthlete.currViewedProgramName,
                         payLoad
                     )
+                    var frontEndProgData = { ...programObject }
+
+                    frontEndProgData[programObject.currentDayInProgram]['loadingData'] = processedDayData
+
+                    frontEndProgData.currentDayInProgram += 1
 
                     this.setState(prevState => ({
                         currAthlete: {
                             ...prevState.currAthlete,
                             submitProcessingBackend: false,
-                            currViewedProgramData: {
-                                ...prevState.currAthlete.currViewedProgramData,
-                                currentDayInProgram: programObject.currentDayInProgram + 1
-                            },
-                            nullExerciseData: {
-                                hasNullData: false,
-                                nullTableData: []
-                            }
+                            currViewedProgramData: frontEndProgData
                         }
                     }))
                 })
@@ -870,6 +849,9 @@ class ManageAthletesPage extends Component {
             pageBodyContentLoading,
             currAthlete,
         } = this.state
+        if (currAthlete) {
+            console.log(currAthlete)
+        }
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
