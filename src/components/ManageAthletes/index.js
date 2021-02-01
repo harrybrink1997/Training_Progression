@@ -122,6 +122,9 @@ class ManageAthletesPage extends Component {
                         ).once('value', snapshot => {
                             const localExObject = snapshot.val()
                             console.log(listAndFormatLocalGlobalExercises(globalExObject, localExObject))
+
+
+
                             this.setState(prevState => ({
                                 currAthlete: {
                                     ...prevState.currAthlete,
@@ -129,6 +132,7 @@ class ManageAthletesPage extends Component {
                                     currViewedProgramData: programData,
                                     combinedAvailExerciseList: listAndFormatLocalGlobalExercises(globalExObject, localExObject),
                                     availExerciseColumns: setAvailExerciseCols(),
+                                    pageHistory: this.appendPageHistoryArray(),
                                     view: 'viewProgram'
                                 },
                                 pageBodyContentLoading: false
@@ -143,6 +147,16 @@ class ManageAthletesPage extends Component {
                 }
             })
         })
+    }
+
+    appendPageHistoryArray = () => {
+
+        let currAthleteState = { ...this.state.currAthlete }
+        const currView = currAthleteState.view
+        var currPageHistory = currAthleteState.pageHistory
+        currPageHistory.push(currView)
+
+        return currPageHistory
     }
 
     handleViewProgramErrorModalDecision = (continueProcess) => {
@@ -191,11 +205,12 @@ class ManageAthletesPage extends Component {
     }
 
     handleManageCurrAthleteViewChange = (view) => {
-        console.log(view)
+
         this.setState(prevState => ({
             currAthlete: {
                 ...prevState.currAthlete,
-                view: view
+                view: view,
+                pageHistory: this.appendPageHistoryArray()
             }
         }))
     }
@@ -341,6 +356,7 @@ class ManageAthletesPage extends Component {
                                     athProgTableData: this.initAthProgTableData(athlete, athleteUid, athleteObject),
                                     athTeamTableData: this.initAthTeamTableData(athlete),
                                     view: 'home',
+                                    pageHistory: [],
                                     showViewProgramErrorModal: false,
                                     viewProgramErrorType: undefined,
                                     currViewedProgramName: undefined,
@@ -501,10 +517,15 @@ class ManageAthletesPage extends Component {
             this.setState({
                 pageBodyContentLoading: true
             }, () => {
+                let currAthleteState = { ...this.state.currAthlete }
+                var currPageHistory = currAthleteState.pageHistory
+                var previousPage = currPageHistory.pop()
+
                 this.setState(prevState => ({
                     currAthlete: {
                         ...prevState.currAthlete,
-                        view: 'home'
+                        view: previousPage,
+                        pageHistory: currPageHistory
                     },
                     pageBodyContentLoading: false,
                 }))
@@ -925,18 +946,17 @@ class ManageAthletesPage extends Component {
                 </div>
                 {
                     currAthlete &&
-                    <div className='rowContainer clickableDiv' onClick={() => { this.handleBackClick(currAthlete.view) }}>
-                        <Button className='backButton-inverted' circular icon='arrow left' />
-                        <div className='lightPurpleText vert-aligned'>
-                            {
-                                currAthlete.view === 'home' &&
-                                <>Athlete Management</>
-                            }
-                            {
-                                currAthlete.view !== 'home' &&
-                                <>Athlete Home</>
-                            }
-                        </div>
+                    <div className='rowContainer clickableDiv'>
+                        <Button
+                            content='Back'
+                            className='backButton-inverted'
+                            circular
+                            icon='arrow left'
+                            onClick={() => { this.handleBackClick(currAthlete.view) }}
+                        />
+                        {/* <div className='lightPurpleText vert-aligned'>
+                            Back
+                        </div> */}
                     </div>
                 }
                 {
