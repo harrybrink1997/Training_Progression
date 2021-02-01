@@ -279,6 +279,8 @@ class ManageTeamsPage extends Component {
 
         athleteData.forEach(athlete => {
             payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/joiningDate'] = timestamp
+            payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/activeMember'] = true
+
 
             if (programData.unlimited) {
                 programData.unlimited.forEach(program => {

@@ -18,6 +18,7 @@ import { capitaliseFirstLetter, underscoreToSpaced } from '../../constants/strin
 import { convertUIDayToTotalDays } from '../../constants/dayCalculations';
 import { setAvailExerciseCols, listAndFormatLocalGlobalExercises, checkNullExerciseData } from '../../constants/viewProgramPagesFunctions'
 import { calculateDailyLoads, dailyLoadCalcs } from '../CurrentProgram/calculateWeeklyLoads'
+import AssignNewTeam from './assignNewTeam'
 
 
 class ManageAthletesPage extends Component {
@@ -56,7 +57,7 @@ class ManageAthletesPage extends Component {
         var coachProgTableData = this.initCoachProgramTableData(userObject)
 
         this.setState({
-            athleteManagementTableData: this.initAthleteManagementTableData(userObject, coachProgTableData),
+            athleteManagementTableData: this.initAthleteManagementTableData(userObject),
             athleteManagementTableColumns: this.initAthleteTableColumns(),
             coachProgramTableData: coachProgTableData,
             coachProgramGroupTableData: this.initProgramGroupTableData(userObject),
@@ -171,7 +172,37 @@ class ManageAthletesPage extends Component {
         }
     }
 
-    initAthTeamTableData = (data) => {
+    handleRemoveAthleteFromTeam = (teamName, athleteUID) => {
+
+        var payLoad = {}
+        var coachPath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/${athleteUID}/teams/${teamName}/`
+        var timestamp = new Date().getTime().toString()
+        payLoad[coachPath + 'activeMember'] = false
+        payLoad[coachPath + 'leavingDate'] = timestamp
+
+        let currTeamData = [...this.state.currAthlete.athTeamTableData.data]
+
+        for (var team in currTeamData) {
+            if (currTeamData[team].team === teamName) {
+                currTeamData[team].buttons = false
+                currTeamData[team].leaveDate = utsToDateString(parseInt(timestamp))
+            }
+        }
+
+        this.props.firebase.updateDatabaseFromRootPath(payLoad)
+        this.setState(prevState => ({
+            ...prevState,
+            currAthlete: {
+                ...prevState.currAthlete,
+                athTeamTableData: {
+                    ...prevState.currAthlete.athTeamTableData,
+                    data: currTeamData
+                }
+            }
+        }))
+    }
+
+    initAthTeamTableData = (data, athleteUid) => {
 
         if (data.teams) {
             var returnData = {}
@@ -181,21 +212,35 @@ class ManageAthletesPage extends Component {
                     accessor: 'team'
                 },
                 {
-                    Header: 'Date Joined',
+                    Header: 'Joining Date',
                     accessor: 'joinDate'
                 },
                 {
-                    accessor: 'btns'
+                    Header: 'Leaving Date',
+                    accessor: 'leaveDate'
+                },
+                {
+                    accessor: 'buttons'
                 }
             ]
 
             returnData.data = []
             Object.keys(data.teams).forEach(team => {
-
-                returnData.data.push({
-                    team: team,
-                    joinDate: utsToDateString(parseInt(data.teams[team].joiningDate))
-                })
+                console.log(data.teams[team])
+                if (team !== 'none') {
+                    returnData.data.push({
+                        team: team,
+                        joinDate: utsToDateString(parseInt(data.teams[team].joiningDate)),
+                        leaveDate: data.teams[team].leavingDate && utsToDateString(parseInt(data.teams[team].leavingDate)),
+                        buttons: data.teams[team].activeMember &&
+                            <Button
+                                className='lightRedButton-inverted'
+                                onClick={() => { this.handleRemoveAthleteFromTeam(team, athleteUid) }}
+                            >
+                                Remove From Team
+                            </Button>
+                    })
+                }
             })
             console.log(returnData)
             return returnData
@@ -207,6 +252,7 @@ class ManageAthletesPage extends Component {
     handleManageCurrAthleteViewChange = (view) => {
 
         this.setState(prevState => ({
+            ...prevState,
             currAthlete: {
                 ...prevState.currAthlete,
                 view: view,
@@ -271,7 +317,7 @@ class ManageAthletesPage extends Component {
                                         onClick={() => { this.handleViewProgramClick(athleteUid, prog, deployTime, location) }}
                                     >
                                         View Program
-                                        </Button>
+                                    </Button>
 
                             })
                         })
@@ -307,17 +353,7 @@ class ManageAthletesPage extends Component {
                     filter: 'fuzzyText'
                 },
                 {
-                    Header: 'Team',
-                    accessor: 'team',
-                    filter: 'fuzzyText'
-                },
-                {
-                    Header: 'Programs',
-                    accessor: 'programs',
-                    filter: 'fuzzyText'
-                },
-                {
-                    accessor: 'manageModal',
+                    accessor: 'buttons',
                 }
             ]
         )
@@ -354,7 +390,7 @@ class ManageAthletesPage extends Component {
                                     joinDate: utsToDateString(parseInt(athlete.joinDate)),
                                     currTeams: athlete.teams ? Object.keys(athlete.teams).length : '0',
                                     athProgTableData: this.initAthProgTableData(athlete, athleteUid, athleteObject),
-                                    athTeamTableData: this.initAthTeamTableData(athlete),
+                                    athTeamTableData: this.initAthTeamTableData(athlete, athleteUid),
                                     view: 'home',
                                     pageHistory: [],
                                     showViewProgramErrorModal: false,
@@ -384,7 +420,7 @@ class ManageAthletesPage extends Component {
         })
     }
 
-    initAthleteManagementTableData = (userObject, coachProgramTableData) => {
+    initAthleteManagementTableData = (userObject) => {
 
         var tableData = []
         Object.keys(userObject.currentAthletes).forEach(athleteUID => {
@@ -394,7 +430,7 @@ class ManageAthletesPage extends Component {
                 athlete: athlete.username,
                 email: athlete.email,
                 team: athlete.team,
-                manageModal:
+                buttons:
                     <ManageAthleteButton
                         objectUID={athleteUID}
                         buttonHandler={this.handleManageAthleteClick}
@@ -535,96 +571,122 @@ class ManageAthletesPage extends Component {
 
     handleDeployAthleteProgram = (programData) => {
 
-        var payLoad = {}
-        var timestamp = new Date().getTime()
-        var athleteUid = this.state.currAthlete.uid
-        var athletePath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/`
+        this.setState({
+            pageBodyContentLoading: true,
+        }, () => {
+            var payLoad = {}
+            var renderPayload = []
+            var timestamp = new Date().getTime()
+            var athleteUid = this.state.currAthlete.uid
+            var athletePath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/`
 
-        this.props.firebase.getSharedPrograms(
-            this.props.firebase.auth.currentUser.uid,
-            athleteUid,
-            'none'
-        ).once('value', userData => {
-            const sharedProgObj = userData.val();
-            console.log(sharedProgObj)
+            this.props.firebase.getSharedPrograms(
+                this.props.firebase.auth.currentUser.uid,
+                athleteUid,
+                'none'
+            ).once('value', userData => {
+                const sharedProgObj = userData.val();
 
-            if (programData.unlimited) {
-                programData.unlimited.forEach(program => {
+                if (programData.unlimited) {
+                    programData.unlimited.forEach(program => {
 
-                    var insertionProgramObject = this.state.currentProgramsData[program.programUID]
-                    insertionProgramObject.currentDayInProgram = 1
-                    insertionProgramObject.deploymentDate = timestamp
+                        var insertionProgramObject = this.state.currentProgramsData[program.programUID]
+                        insertionProgramObject.currentDayInProgram = 1
+                        insertionProgramObject.deploymentDate = timestamp
 
-                    // Database path to insert into the athletes pending programs.
-                    payLoad['/users/' + athleteUid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
-                    // Database path to keep track of what prograsms have been shared with which athlete and when.
+                        // Database path to insert into the athletes pending programs.
+                        payLoad['/users/' + athleteUid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
+                        // Database path to keep track of what prograsms have been shared with which athlete and when.
 
-                    if (!sharedProgObj || !sharedProgObj.sharedPrograms[program.programUID]) {
+                        if (!sharedProgObj || !sharedProgObj.sharedPrograms[program.programUID]) {
 
-                        payLoad[athletePath + athleteUid + '/teams/' + 'none' + '/sharedPrograms/' + program.programUID] = [timestamp]
-                    } else {
-                        let deployTimes = [...sharedProgObj.sharedPrograms[program.programUID], timestamp]
+                            payLoad[athletePath + athleteUid + '/teams/' + 'none' + '/sharedPrograms/' + program.programUID] = [timestamp]
+                        } else {
+                            let deployTimes = [...sharedProgObj.sharedPrograms[program.programUID], timestamp]
 
-                        payLoad[athletePath + athleteUid + '/teams/' + 'none' + '/sharedPrograms/' + program.programUID] = deployTimes
-                    }
-                })
-            }
-
-            if (programData.sequential) {
-                programData.sequential.forEach(program => {
-
-                    var isActiveInSequence = false
-                    if (programData.sequenceName === 'preDetermined') {
-                        if (parseInt(program.order.split('_')[0]) === 1) {
-                            isActiveInSequence = true
+                            payLoad[athletePath + athleteUid + '/teams/' + 'none' + '/sharedPrograms/' + program.programUID] = deployTimes
                         }
-                    } else {
-                        if (parseInt(program.order) === 1) {
-                            isActiveInSequence = true
+
+                        renderPayload.push({
+                            program: program.programUID.split("_")[0],
+                            team: 'none',
+                            timestampAssigned: timestamp,
+                            dateAssigned: utsToDateString(timestamp),
+                            buttons: false
+                        })
+                    })
+                }
+
+                if (programData.sequential) {
+                    programData.sequential.forEach(program => {
+
+                        var isActiveInSequence = false
+                        if (programData.sequenceName === 'preDetermined') {
+                            if (parseInt(program.order.split('_')[0]) === 1) {
+                                isActiveInSequence = true
+                            }
+                        } else {
+                            if (parseInt(program.order) === 1) {
+                                isActiveInSequence = true
+                            }
                         }
-                    }
 
-                    var insertionProgramObject = this.state.currentProgramsData[program.programUID]
-                    insertionProgramObject.currentDayInProgram = 1
-                    insertionProgramObject.isActiveInSequence = isActiveInSequence
-                    insertionProgramObject.order =
-                        programData.sequenceName === 'preDetermined' ?
-                            program.order
-                            :
-                            program.order
-                            + '_' + programData.sequenceName
-                            + '_' + 'none'
-                            + '_' + this.props.firebase.auth.currentUser.uid
-                            + '_' + timestamp
-                    insertionProgramObject.deploymentDate = timestamp
-                    payLoad['/users/' + athleteUid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
+                        var insertionProgramObject = this.state.currentProgramsData[program.programUID]
+                        insertionProgramObject.currentDayInProgram = 1
+                        insertionProgramObject.isActiveInSequence = isActiveInSequence
+                        insertionProgramObject.order =
+                            programData.sequenceName === 'preDetermined' ?
+                                program.order
+                                :
+                                program.order
+                                + '_' + programData.sequenceName
+                                + '_' + 'none'
+                                + '_' + this.props.firebase.auth.currentUser.uid
+                                + '_' + timestamp
+                        insertionProgramObject.deploymentDate = timestamp
+                        payLoad['/users/' + athleteUid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
 
-                    if (!sharedProgObj || !sharedProgObj.sharedPrograms[program.programUID]) {
-                        payLoad[athletePath + athleteUid + '/teams/' + 'none' + '/sharedPrograms/' + program.programUID] = [timestamp]
-                    } else {
-                        let deployTimes = [...sharedProgObj.sharedPrograms[program.programUID], timestamp]
+                        if (!sharedProgObj || !sharedProgObj.sharedPrograms[program.programUID]) {
+                            payLoad[athletePath + athleteUid + '/teams/' + 'none' + '/sharedPrograms/' + program.programUID] = [timestamp]
+                        } else {
+                            let deployTimes = [...sharedProgObj.sharedPrograms[program.programUID], timestamp]
 
-                        payLoad[athletePath + athleteUid + '/teams/' + 'none' + '/sharedPrograms/' + program.programUID] = deployTimes
-                    }
+                            payLoad[athletePath + athleteUid + '/teams/' + 'none' + '/sharedPrograms/' + program.programUID] = deployTimes
+                        }
+
+                        renderPayload.push({
+                            program: program.programUID.split("_")[0],
+                            team: 'none',
+                            timestampAssigned: timestamp,
+                            dateAssigned: utsToDateString(timestamp),
+                            buttons: false
+                        })
+                    })
+                }
+
+                console.log(payLoad)
+                console.log(this.state.currAthlete.athProgTableData.data)
+
+                let currentAthProgData = [...this.state.currAthlete.athProgTableData.data]
+
+                renderPayload.forEach(prog => {
+                    currentAthProgData.unshift(prog)
                 })
-            }
 
-            console.log(payLoad)
-            this.props.firebase.createTeamUpstream(payLoad)
-            // .then(() => {
-            //     this.setState(prevState => ({
-            //         currAthlete: {
-            //             ...prevState.currAthlete,
-            //             view: 'managePrograms'
-            //         },
-            //     }))
-            // })
-
-
-
-
+                this.setState(prevState => ({
+                    ...prevState,
+                    pageBodyContentLoading: false,
+                    currAthlete: {
+                        ...prevState.currAthlete,
+                        athProgTableData: {
+                            ...prevState.currAthlete.athProgTableData,
+                            data: currentAthProgData
+                        },
+                        view: 'managePrograms'
+                    }
+                }))
+            })
         })
-
     }
 
     // Updated with new ratio calcs format
@@ -792,8 +854,6 @@ class ManageAthletesPage extends Component {
         }
     }
 
-
-
     handleUpdateExercise = (updateObject) => {
 
         var day = updateObject.exUid.split('_').reverse()[1]
@@ -934,6 +994,17 @@ class ManageAthletesPage extends Component {
                                 </div>
                             }
                             {
+                                currAthlete.view === 'manageTeams' &&
+                                <div className='rowContainer centred-info sml-margin-top'>
+                                    <Button
+                                        className='lightPurpleButton'
+                                        onClick={() => { this.handleManageCurrAthleteViewChange('teamAssignment') }}
+                                    >
+                                        Assign New Team
+                                </Button>
+                                </div>
+                            }
+                            {
                                 currAthlete.view === 'viewProgram' &&
                                 <CoachProgramViewPageSubHeader
                                     name={currAthlete.currViewedProgramName}
@@ -954,9 +1025,6 @@ class ManageAthletesPage extends Component {
                             icon='arrow left'
                             onClick={() => { this.handleBackClick(currAthlete.view) }}
                         />
-                        {/* <div className='lightPurpleText vert-aligned'>
-                            Back
-                        </div> */}
                     </div>
                 }
                 {
@@ -1005,6 +1073,30 @@ class ManageAthletesPage extends Component {
                         submitProcessingBackend={currAthlete.submitProcessingBackend}
                         rawAnatomyData={currAthlete.rawAnatomyData}
                     />
+                }
+                {
+                    currAthlete && currAthlete.view === 'manageTeams' &&
+                    < div className='pageContainerLevel1'>
+                        <InputLabel
+                            text='Current Teams'
+                            custID='programHistHeader'
+                        />
+                        {
+                            currAthlete.athProgTableData &&
+                            <BasicTablePagination
+                                data={currAthlete.athTeamTableData.data}
+                                columns={currAthlete.athTeamTableData.columns}
+                            />
+                        }
+                    </div>
+                }
+                {
+                    currAthlete && currAthlete.view === 'teamAssignment' &&
+                    <div>
+                        <AssignNewTeam
+
+                        />
+                    </div>
                 }
             </NonLandingPageWrapper>
 
