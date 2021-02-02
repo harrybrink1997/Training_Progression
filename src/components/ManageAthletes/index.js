@@ -397,6 +397,7 @@ class ManageAthletesPage extends Component {
                                     viewProgramErrorType: undefined,
                                     currViewedProgramName: undefined,
                                     currViewedProgramData: undefined,
+                                    coachTeamTableData: this.initCoachTeamTableData(userObject),
                                     viewProgramFunctions: {
                                         handleDeleteExerciseButton: this.handleDeleteExerciseButton,
                                         handleUpdateExercise: this.handleUpdateExercise,
@@ -418,6 +419,184 @@ class ManageAthletesPage extends Component {
                 })
 
         })
+    }
+
+    checkAthleteAssignedToTeam = (athleteObject, team) => {
+        if (athleteObject[team]) {
+            return {
+                activeMember: athleteObject[team].activeMember
+            }
+        } else {
+            return false
+        }
+    }
+
+    updateStateOnNewTeamAssignment = (teamList) => {
+        this.setState(prevState => ({
+            ...prevState,
+            pageBodyContentLoading: false,
+            currAthlete: {
+                ...prevState.currAthlete,
+                athTeamTableData: {
+                    ...prevState.currAthlete.athTeamTableData,
+                    data: teamList
+                },
+                view: 'manageTeams'
+            }
+        }))
+    }
+
+    handleAssignAthleteNewTeam = (team) => {
+
+        console.log(this.state.currAthlete)
+
+        this.setState({
+            pageBodyContentLoading: true
+        }, () => {
+            this.props.firebase.getUserData(this.props.firebase.auth.currentUser.uid).once('value', snapshot => {
+
+                let currAthTeamTableData = [...this.state.currAthlete.athTeamTableData.data]
+
+                var timestamp = new Date().getTime()
+                var payLoad = {}
+                var insertionData = {
+                    activeMember: true,
+                    joiningDate: timestamp
+                }
+                var athleteUID = this.state.currAthlete.uid
+                var coachPath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/${athleteUID}/teams/${team}`
+                const userObject = snapshot.val();
+
+                if (!userObject.currentAthletes[athleteUID].teams) {
+                    // No teams have been assigned to athlete and you can go ahead. 
+                    payLoad[coachPath] = insertionData
+
+                    currAthTeamTableData.push({
+                        team: team,
+                        joinDate: utsToDateString(timestamp),
+                        leaveDate: undefined,
+                        buttons:
+                            <Button
+                                className='lightRedButton-inverted'
+                                onClick={() => { this.handleRemoveAthleteFromTeam(team, athleteUID) }}
+                            >
+                                Remove From Team
+                        </Button>
+
+                    })
+
+                    this.updateStateOnNewTeamAssignment(currAthTeamTableData)
+
+                    console.log(payLoad)
+                    this.props.firebase.updateDatabaseFromRootPath(payLoad)
+                } else {
+
+                    var prevAthAssignment = this.checkAthleteAssignedToTeam(
+                        userObject.currentAthletes[athleteUID].teams,
+                        team
+                    )
+
+                    if (!prevAthAssignment) {
+
+                        payLoad[coachPath] = insertionData
+                        console.log(payLoad)
+
+                        currAthTeamTableData.push({
+                            team: team,
+                            joinDate: utsToDateString(timestamp),
+                            leaveDate: undefined,
+                            buttons:
+                                <Button
+                                    className='lightRedButton-inverted'
+                                    onClick={() => { this.handleRemoveAthleteFromTeam(team, athleteUID) }}
+                                >
+                                    Remove From Team
+                            </Button>
+
+                        })
+                        console.log(payLoad)
+                        console.log(currAthTeamTableData)
+
+                        this.updateStateOnNewTeamAssignment(currAthTeamTableData)
+
+                        this.props.firebase.updateDatabaseFromRootPath(payLoad)
+                    } else {
+                        if (prevAthAssignment.activeMember) {
+                            //Set an error modal and not update DB.
+
+                            this.setState(prevState => ({
+                                ...prevState,
+                                pageBodyContentLoading: false,
+                                currAthlete: {
+                                    ...prevState.currAthlete,
+                                    showViewProgramErrorModal: true,
+                                    viewProgramErrorType: 'athleteCurrBelongsToTeam',
+                                    view: 'manageTeams'
+                                }
+
+                            }))
+                        } else {
+                            // Remove the leaving date from db and set active member to true. 
+                            payLoad[coachPath + '/activeMember'] = true
+                            payLoad[coachPath + '/leavingDate'] = null
+
+                            for (var prog in currAthTeamTableData) {
+                                if (currAthTeamTableData[prog].team === team) {
+                                    currAthTeamTableData[prog].leaveDate = undefined
+                                    currAthTeamTableData[prog].buttons =
+                                        <Button
+                                            className='lightRedButton-inverted'
+                                            onClick={() => { this.handleRemoveAthleteFromTeam(team, athleteUID) }}
+                                        >
+                                            Remove From Team
+                                        </Button>
+
+                                }
+                            }
+                            console.log(payLoad)
+
+                            this.updateStateOnNewTeamAssignment(currAthTeamTableData)
+
+
+                            this.props.firebase.updateDatabaseFromRootPath(payLoad)
+                        }
+                    }
+                }
+            })
+        })
+    }
+
+    initCoachTeamTableData = (userObject) => {
+
+        if (!userObject.teams) {
+            return undefined
+        } else {
+
+            var columns = [
+                {
+                    Header: 'Team Name',
+                    accessor: 'team'
+                },
+                {
+                    Header: 'Team Description',
+                    accessor: 'description'
+                }
+            ]
+
+            var data = []
+
+            Object.keys(userObject.teams).forEach(team => {
+                data.push({
+                    team: team,
+                    description: userObject.teams[team].description
+                })
+            })
+
+            return {
+                data: data,
+                columns: columns
+            }
+        }
     }
 
     initAthleteManagementTableData = (userObject) => {
@@ -1078,7 +1257,7 @@ class ManageAthletesPage extends Component {
                     currAthlete && currAthlete.view === 'manageTeams' &&
                     < div className='pageContainerLevel1'>
                         <InputLabel
-                            text='Current Teams'
+                            text='Team History'
                             custID='programHistHeader'
                         />
                         {
@@ -1094,7 +1273,8 @@ class ManageAthletesPage extends Component {
                     currAthlete && currAthlete.view === 'teamAssignment' &&
                     <div>
                         <AssignNewTeam
-
+                            teamList={currAthlete.coachTeamTableData}
+                            handleSubmit={this.handleAssignAthleteNewTeam}
                         />
                     </div>
                 }

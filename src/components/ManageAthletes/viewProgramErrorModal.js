@@ -25,15 +25,8 @@ const ViewProgramErrorModal = ({ handleFormProceed, showModal, errorType, athlet
             <Modal.Header>Something's Wrong...</Modal.Header>
             <Modal.Content>
                 {
-                    errorType === 'inPending' &&
-                    <ProgramInPending
-                        clickHandler={handleRevert}
-                        name={capitaliseFirstLetter(athleteName.split()[0])}
-                    />
-                }
-                {
-                    errorType === 'nonExistent' &&
-                    <ProgramNonExistent
+                    errorType === 'athleteCurrBelongsToTeam' &&
+                    <AthleteAlreadyBelongsToTeam
                         clickHandler={handleRevert}
                         name={capitaliseFirstLetter(athleteName.split()[0])}
                     />
@@ -43,11 +36,11 @@ const ViewProgramErrorModal = ({ handleFormProceed, showModal, errorType, athlet
     );
 }
 
-const ProgramInPending = ({ clickHandler, name }) => {
+const AthleteAlreadyBelongsToTeam = ({ clickHandler, name }) => {
     return (
         <>
             <div>
-                We did some checking and the program you want to view hasn't been accepted by {name} yet. You must wait for {name} to accept the program before you can view it.
+                We did some checking and {name} is already apart of the team you're trying to assign to them.
             </div>
             <div className='centred-info sml-margin-top'>
                 <Button className='lightPurpleButton' onClick={(e) => { clickHandler(e) }}>Back</Button>
@@ -56,17 +49,5 @@ const ProgramInPending = ({ clickHandler, name }) => {
     )
 }
 
-const ProgramNonExistent = ({ clickHandler, name }) => {
-    return (
-        <>
-            <div>
-                We did some checking and you are unable to view this program. The program has been deleted and no longer exists on {name}'s account.
-            </div>
-            <div className='centred-info sml-margin-top'>
-                <Button className='lightPurpleButton' onClick={(e) => { clickHandler(e) }}>Back</Button>
-            </div>
-        </>
-    )
-}
 
 export default ViewProgramErrorModal;

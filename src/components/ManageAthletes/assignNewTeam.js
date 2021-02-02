@@ -1,11 +1,20 @@
 import React from 'react'
+import OnRowClickBasicTableWithPageination from '../CustomComponents/onRowClickBasicTable'
 
 
-const AssignNewTeam = ({ teamList, handlerFunctions }) => {
+const AssignNewTeam = ({ teamList, handleSubmit }) => {
+
+    const handleRowClick = (row) => {
+        handleSubmit(row.original.team)
+    }
 
     return (
         <div>
-            wef
+            <OnRowClickBasicTableWithPageination
+                columns={teamList.columns}
+                data={teamList.data}
+                rowClickHandler={handleRowClick}
+            />
         </div>
     )
 }
