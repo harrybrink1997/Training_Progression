@@ -3,8 +3,9 @@ import { withCoachAuthorisation } from '../Session';
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import { Dimmer, Loader, List } from 'semantic-ui-react'
 import CreateTeamModal from './createTeamModal'
+import { ManageTeamButton } from '../CustomComponents/customButtons'
 
-import RowSelectTable from '../CustomComponents/rowSelectTable'
+import BasicTablePagination from '../CustomComponents/basicTablePagination'
 import loadingSchemeString from '../../constants/loadingSchemeString'
 
 
@@ -43,9 +44,19 @@ class ManageTeamsPage extends Component {
             programGroupTableData: this.initProgramGroupTableData(userObject),
             teamsTableData: this.initTeamsTableData(userObject),
             currentProgramsData: userObject.currentPrograms,
-            selectedTeamsTable: undefined
+            selectedTeamsTable: undefined,
+            currTeamListArray: this.initCurrTeamListArray(userObject)
         })
 
+    }
+
+    initCurrTeamListArray = (userObject) => {
+        if (userObject.teams) {
+            let newArr = [...Object.keys(userObject.teams)]
+            newArr.push('none')
+            return newArr
+        }
+        return ['none']
     }
 
     initAthleteTableData = (userObject) => {
@@ -87,9 +98,7 @@ class ManageTeamsPage extends Component {
                     filter: 'fuzzyText'
                 },
                 {
-                    Header: 'Assigned Programs',
-                    accessor: 'programs',
-                    filter: 'fuzzyText'
+                    accessor: 'buttons',
                 },
             ]
         )
@@ -112,7 +121,12 @@ class ManageTeamsPage extends Component {
                     team: teamName,
                     description: team.description,
                     programs: programsString,
-                    teamCount: this.countAthletesOnTeam(teamName, userObject.currentAthletes)
+                    teamCount: this.countAthletesOnTeam(teamName, userObject.currentAthletes),
+                    buttons:
+                        <ManageTeamButton
+                            objectUID={teamName}
+                            buttonHandler={this.handleManageTeamClick}
+                        />
                 })
             })
             return tableData
@@ -123,21 +137,26 @@ class ManageTeamsPage extends Component {
 
     }
 
-    teamNameExists = (teamName) => {
-
-    }
-
     countAthletesOnTeam = (team, currentAthletes) => {
         var count = 0
+        console.log(currentAthletes)
         if (currentAthletes !== undefined) {
             Object.values(currentAthletes).forEach(athlete => {
-                if (athlete.team === team) {
-                    count++
+                if (athlete.teams) {
+                    var teamNames = Object.keys(athlete.teams)
+
+                    if (teamNames.includes(team)) {
+                        count++
+                    }
                 }
             })
         }
 
         return count
+    }
+
+    handleManageTeamClick = (teamName) => {
+        console.log(teamName)
     }
 
     initProgramTableData = (userObject) => {
@@ -345,10 +364,11 @@ class ManageTeamsPage extends Component {
             athleteTableData,
             programTableData,
             teamsTableData,
-            programGroupTableData
+            programGroupTableData,
+            currTeamListArray
         } = this.state
 
-        console.log(teamsTableData)
+        console.log(currTeamListArray)
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
@@ -362,6 +382,7 @@ class ManageTeamsPage extends Component {
                     </div>
                     <div id='createTeamBtnContainer'>
                         <CreateTeamModal
+                            currTeamListArray={currTeamListArray}
                             athleteTableData={athleteTableData}
                             programTableData={programTableData}
                             programGroupTableData={programGroupTableData}
@@ -371,11 +392,14 @@ class ManageTeamsPage extends Component {
                 </div>
                 {
                     teamsTableData &&
-                    <RowSelectTable
-                        columns={this.initTeamsTableColumns()}
-                        data={teamsTableData}
-                        rowSelectChangeHandler={this.handleTeamSelection}
-                    />
+                    <div className='pageContainerLevel1'>
+                        <BasicTablePagination
+                            columns={this.initTeamsTableColumns()}
+                            data={teamsTableData}
+                            rowSelectChangeHandler={this.handleTeamSelection}
+                        />
+                    </div>
+
                 }
             </NonLandingPageWrapper>
 

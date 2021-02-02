@@ -9,8 +9,7 @@ import ProgramAssignment from '../CustomComponents/programAssignment'
 import ProgramDeployment from '../CustomComponents/programDeployment'
 
 
-const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData, programGroupTableData }) => {
-
+const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData, programGroupTableData, currTeamListArray }) => {
     const [show, setShow] = useState(false);
     const [teamName, setTeamName] = useState('')
     const [teamDescription, setTeamDescription] = useState('')
@@ -91,7 +90,8 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
         ]
 
     const changeTeamName = (event, { value }) => {
-        if (value === 'none') {
+        console.log(currTeamListArray)
+        if (currTeamListArray.includes(value)) {
             setTeamName(value)
             setReservedWordError(true)
         } else {
