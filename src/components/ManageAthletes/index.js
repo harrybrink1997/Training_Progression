@@ -11,7 +11,7 @@ import utsToDateString from '../../constants/utsToDateString'
 import BasicTablePagination from '../CustomComponents/basicTablePagination'
 import InputLabel from '../CustomComponents/DarkModeInput'
 import ManageCurrAthleteHome from './manageCurrAthleteHome'
-import ProgramDeployment from '../CustomComponents/programDeployment'
+import ProgramDeployment, { initProgDeployCoachProgGroupTableData, initProgDeployCoachProgramTableData } from '../CustomComponents/programDeployment'
 import ViewProgramErrorModal from './viewProgramErrorModal'
 import CoachProgramView, { CoachProgramViewPageSubHeader } from '../CustomComponents/coachProgramView'
 import { capitaliseFirstLetter, underscoreToSpaced } from '../../constants/stringManipulation';
@@ -19,6 +19,7 @@ import { convertUIDayToTotalDays } from '../../constants/dayCalculations';
 import { setAvailExerciseCols, listAndFormatLocalGlobalExercises, checkNullExerciseData } from '../../constants/viewProgramPagesFunctions'
 import { calculateDailyLoads, dailyLoadCalcs } from '../CurrentProgram/calculateWeeklyLoads'
 import AssignNewTeam from './assignNewTeam'
+import PageHistory from '../CustomComponents/pageHistory'
 
 
 class ManageAthletesPage extends Component {
@@ -54,13 +55,11 @@ class ManageAthletesPage extends Component {
 
     updateObjectState = (userObject) => {
 
-        var coachProgTableData = this.initCoachProgramTableData(userObject)
-
         this.setState({
             athleteManagementTableData: this.initAthleteManagementTableData(userObject),
             athleteManagementTableColumns: this.initAthleteTableColumns(),
-            coachProgramTableData: coachProgTableData,
-            coachProgramGroupTableData: this.initProgramGroupTableData(userObject),
+            coachProgramTableData: initProgDeployCoachProgramTableData(userObject),
+            coachProgramGroupTableData: initProgDeployCoachProgGroupTableData(userObject),
             currentProgramsData: userObject.currentPrograms,
             loading: false,
             viewProgramProcessing: false
@@ -124,7 +123,7 @@ class ManageAthletesPage extends Component {
                             const localExObject = snapshot.val()
                             console.log(listAndFormatLocalGlobalExercises(globalExObject, localExObject))
 
-
+                            this.state.currAthlete.pageHistory.next(this.state.currAthlete.view)
 
                             this.setState(prevState => ({
                                 currAthlete: {
@@ -133,7 +132,6 @@ class ManageAthletesPage extends Component {
                                     currViewedProgramData: programData,
                                     combinedAvailExerciseList: listAndFormatLocalGlobalExercises(globalExObject, localExObject),
                                     availExerciseColumns: setAvailExerciseCols(),
-                                    pageHistory: this.appendPageHistoryArray(),
                                     view: 'viewProgram'
                                 },
                                 pageBodyContentLoading: false
@@ -150,15 +148,15 @@ class ManageAthletesPage extends Component {
         })
     }
 
-    appendPageHistoryArray = () => {
+    // appendPageHistoryArray = () => {
 
-        let currAthleteState = { ...this.state.currAthlete }
-        const currView = currAthleteState.view
-        var currPageHistory = currAthleteState.pageHistory
-        currPageHistory.push(currView)
+    //     let currAthleteState = { ...this.state.currAthlete }
+    //     const currView = currAthleteState.view
+    //     var currPageHistory = currAthleteState.pageHistory
+    //     currPageHistory.push(currView)
 
-        return currPageHistory
-    }
+    //     return currPageHistory
+    // }
 
     handleViewProgramErrorModalDecision = (continueProcess) => {
         if (continueProcess === false) {
@@ -251,12 +249,13 @@ class ManageAthletesPage extends Component {
 
     handleManageCurrAthleteViewChange = (view) => {
 
+        this.state.currAthlete.pageHistory.next(this.state.currAthlete.view)
+
         this.setState(prevState => ({
             ...prevState,
             currAthlete: {
                 ...prevState.currAthlete,
                 view: view,
-                pageHistory: this.appendPageHistoryArray()
             }
         }))
     }
@@ -392,7 +391,7 @@ class ManageAthletesPage extends Component {
                                     athProgTableData: this.initAthProgTableData(athlete, athleteUid, athleteObject),
                                     athTeamTableData: this.initAthTeamTableData(athlete, athleteUid),
                                     view: 'home',
-                                    pageHistory: [],
+                                    pageHistory: new PageHistory(),
                                     showViewProgramErrorModal: false,
                                     viewProgramErrorType: undefined,
                                     currViewedProgramName: undefined,
@@ -732,15 +731,13 @@ class ManageAthletesPage extends Component {
             this.setState({
                 pageBodyContentLoading: true
             }, () => {
-                let currAthleteState = { ...this.state.currAthlete }
-                var currPageHistory = currAthleteState.pageHistory
-                var previousPage = currPageHistory.pop()
+
+                var previousPage = this.state.currAthlete.pageHistory.back()
 
                 this.setState(prevState => ({
                     currAthlete: {
                         ...prevState.currAthlete,
                         view: previousPage,
-                        pageHistory: currPageHistory
                     },
                     pageBodyContentLoading: false,
                 }))

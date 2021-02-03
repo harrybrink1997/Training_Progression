@@ -3,7 +3,8 @@ import ProgramClassification from './programClassification'
 import RowSelectTable from './rowSelectTable'
 import InputLabel from '../CustomComponents/DarkModeInput'
 import OnRowClickBasicTableWithPageination from '../CustomComponents/onRowClickBasicTable'
-import { Button, Card, Icon } from 'semantic-ui-react'
+import { Button, Card, Icon, List } from 'semantic-ui-react'
+import loadingSchemeString from '../../constants/loadingSchemeString'
 
 const ProgramDeployment = ({ initProgTabData, submitHandler, initProgGroupTabData }) => {
     const [pageNum, setPageNum] = useState(1)
@@ -229,4 +230,96 @@ const ProgramDeployment = ({ initProgTabData, submitHandler, initProgGroupTabDat
 
 }
 
+const initProgDeployCoachProgGroupTableData = (userObject) => {
+    var tableData = []
+
+    if (userObject.programGroups !== undefined) {
+        Object.keys(userObject.programGroups).forEach(programGroupName => {
+            var programGroup = userObject.programGroups[programGroupName]
+            console.log(programGroup)
+
+            var sequentialTableVal = ''
+
+            if (programGroup.sequential) {
+                var sequentialOrder = []
+
+                Object.keys(programGroup.sequential).forEach(program => {
+                    sequentialOrder.push([program.split('_')[0], parseInt(programGroup.sequential[program].split('_')[0])])
+                })
+
+                sequentialOrder.sort((a, b) => {
+                    return a[1] - b[1]
+                })
+
+                sequentialTableVal =
+                    <List bulleted>
+                        {
+                            sequentialOrder.map(program => {
+                                return (
+                                    <List.Item key={program}>
+                                        {program[1] + ': ' + program[0]}
+                                    </List.Item>
+                                )
+                            })
+
+                        }
+                    </List>
+
+                console.log(sequentialOrder)
+            }
+
+            tableData.push({
+                programGroup: programGroupName,
+                unlimited:
+                    !programGroup.unlimited ?
+                        ''
+                        :
+                        <List bulleted>
+                            {
+                                programGroup.unlimited.map(program => {
+                                    return (
+                                        <List.Item key={program}>
+                                            {program.split('_')[0]}
+                                        </List.Item>
+                                    )
+                                })
+                            }
+                        </List>,
+                sequential: sequentialTableVal,
+                unlimitedRawData: programGroup.unlimited,
+                sequentialRawData: programGroup.sequential
+
+            })
+
+        })
+        return tableData
+    } else {
+        return undefined
+    }
+}
+
+const initProgDeployCoachProgramTableData = (userObject) => {
+    var tableData = []
+
+    if (userObject.currentPrograms !== undefined) {
+        Object.keys(userObject.currentPrograms).forEach(programName => {
+            var program = userObject.currentPrograms[programName]
+            console.log(program)
+            tableData.push({
+                program: programName.split('_')[0],
+                loadingScheme: loadingSchemeString(program.loading_scheme),
+                acutePeriod: program.acutePeriod,
+                chronicPeriod: program.chronicPeriod,
+                programLength: program.currentDayInProgram % 7,
+                programUID: programName
+            })
+        })
+        return tableData
+    } else {
+        return undefined
+    }
+}
+
+
 export default ProgramDeployment
+export { initProgDeployCoachProgGroupTableData, initProgDeployCoachProgramTableData }

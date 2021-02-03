@@ -94,6 +94,8 @@ class Firebase {
     // USER API
     getUserData = (uid) => this.db.ref(`users/${uid}`);
 
+    getCoachCurrAthData = (uid) => this.db.ref(`users/${uid}/currentAthletes`)
+
     createUserUpstream = (submitInfo) => {
         return this.db
             .ref('/')

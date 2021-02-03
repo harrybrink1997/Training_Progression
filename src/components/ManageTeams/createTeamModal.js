@@ -91,6 +91,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
 
     const changeTeamName = (event, { value }) => {
         console.log(currTeamListArray)
+
         if (currTeamListArray.includes(value)) {
             setTeamName(value)
             setReservedWordError(true)
