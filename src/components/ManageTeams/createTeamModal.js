@@ -7,6 +7,7 @@ import RowSelectTable from '../CustomComponents/rowSelectTable'
 import OnRowClickBasicTableWithPageination from '../CustomComponents/onRowClickBasicTable'
 import ProgramAssignment from '../CustomComponents/programAssignment'
 import ProgramDeployment from '../CustomComponents/programDeployment'
+import SelectAthletesTable from './selectAthletesTable'
 
 
 const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData, programGroupTableData, currTeamListArray }) => {
@@ -23,25 +24,6 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
         event.preventDefault()
         setPageNum(pageNum)
     }
-
-    const athleteTableColumns =
-        [
-            {
-                Header: 'Athlete',
-                accessor: 'athlete',
-                filter: 'fuzzyText'
-            },
-            {
-                Header: 'Email',
-                accessor: 'email',
-                filter: 'fuzzyText'
-            },
-            {
-                Header: 'Current Team',
-                accessor: 'currentTeam',
-                filter: 'fuzzyText'
-            },
-        ]
 
     const programTableColumns =
         [
@@ -125,8 +107,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
         setPageNum(1)
     }
 
-    const handleNonFinalSubmit = (event) => {
-        event.preventDefault()
+    const handleNonFinalSubmit = () => {
         if (!reservedWordError) {
             setPageNum(prevNum => prevNum + 1)
         }
@@ -134,64 +115,21 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
 
     const handleAthleteSelection = (athleteTableSelection) => {
         setSelectedAthletes(athleteTableSelection)
-        console.log(athleteTableSelection)
     }
-
-    const handleProgramSelection = (programTableSelection) => {
-        console.log(programTableSelection)
-        setSelectedPrograms(programTableSelection)
-    }
-
-    const handleProgramGroupSelection = (programGroupTableSelection) => {
-
-        var unlimitedPrograms = false
-
-        if (programGroupTableSelection.original.unlimitedRawData) {
-            unlimitedPrograms = []
-            programGroupTableSelection.original.unlimitedRawData.forEach(targetProgram => {
-                for (var program in rawProgramData) {
-                    var programData = rawProgramData[program]
-                    if (targetProgram === programData.programUID) {
-                        unlimitedPrograms.push(programData)
-                        break
-                    }
-                }
-            })
+    // Use effect to determine next step once athletes are assigned. 
+    useEffect(() => {
+        // Check if team name has been entered. 
+        if (teamName !== '') {
+            if (programTableData) {
+                handleNonFinalSubmit()
+            } else {
+                handleSubmit()
+            }
         }
-
-        var sequentialPrograms = false
-
-        if (programGroupTableSelection.original.sequentialRawData) {
-            sequentialPrograms = []
-            Object.keys(programGroupTableSelection.original.sequentialRawData).forEach(targetProgram => {
-                for (var program in rawProgramData) {
-                    var programData = rawProgramData[program]
-                    if (targetProgram === programData.programUID) {
-                        programData.order = programGroupTableSelection.original.sequentialRawData[targetProgram]
-
-                        sequentialPrograms.push(programData)
-                        break
-                    }
-                }
-            })
-        }
-
-        var payLoad = {
-            sequenceName: 'preDetermined',
-            sequential: sequentialPrograms,
-            unlimited: unlimitedPrograms
-        }
-
-        handleSubmit(payLoad)
-    }
+    }, [selectedAthletes])
 
     const handleProgramAssignmentSubmission = (programAssignment) => {
         handleSubmit(programAssignment)
-    }
-
-    const processDontUseExistingProgGroup = (event) => {
-        event.preventDefault()
-        setPageNum(7)
     }
 
     return (
@@ -298,7 +236,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
 
                     }
                     {
-                        pageNum === 2 && athleteTableData !== undefined &&
+                        pageNum === 2 && athleteTableData.data.length > 0 &&
                         <Form onSubmit={handleNonFinalSubmit}>
                             <Form.Field>
                                 <Input
@@ -319,7 +257,7 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                         </Form>
                     }
                     {
-                        pageNum === 2 && athleteTableData === undefined &&
+                        pageNum === 2 && athleteTableData.data.length === 0 &&
                         <Form onSubmit={handleSubmit}>
                             <Form.Field>
                                 <Input
@@ -340,28 +278,13 @@ const CreateTeamModal = ({ handleFormSubmit, athleteTableData, programTableData,
                         </Form>
                     }
                     {
-                        pageNum === 3 && programTableData !== undefined &&
-                        <Form onSubmit={handleNonFinalSubmit}>
-                            <RowSelectTable
-                                columns={athleteTableColumns}
-                                data={athleteTableData}
-                                rowSelectChangeHandler={handleAthleteSelection}
-                            />
-                            <Button className='submitBtn' type="submit">Next</Button>
-                        </Form>
-
-                    }
-                    {
-                        pageNum === 3 && programTableData === undefined &&
-                        <Form onSubmit={handleSubmit}>
-                            <RowSelectTable
-                                columns={athleteTableColumns}
-                                data={athleteTableData}
-                                rowSelectChangeHandler={handleAthleteSelection}
-                            />
-                            <Button className='submitBtn' type="submit">Create Team</Button>
-                        </Form>
-
+                        pageNum === 3 &&
+                        <SelectAthletesTable
+                            data={athleteTableData.data}
+                            columns={athleteTableData.columns}
+                            submitHandler={handleAthleteSelection}
+                            buttonText={programTableData ? 'Next' : 'Create Team'}
+                        />
                     }
                     {
                         pageNum === 4 &&

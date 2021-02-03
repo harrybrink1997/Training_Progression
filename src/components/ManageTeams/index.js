@@ -13,6 +13,7 @@ import ManageCurrTeamHome from './manageCurrTeamHome';
 import { cmp } from '../../constants/sortingFunctions'
 import InputLabel from '../CustomComponents/DarkModeInput';
 import ProgramDeployment, { initProgDeployCoachProgGroupTableData, initProgDeployCoachProgramTableData } from '../CustomComponents/programDeployment';
+import SelectAthletesTable from './selectAthletesTable';
 
 class ManageTeamsPage extends Component {
 
@@ -66,6 +67,29 @@ class ManageTeamsPage extends Component {
 
     initAthleteTableData = (userObject) => {
 
+        var payLoad = {
+            columns:
+                [
+                    {
+                        Header: 'Athlete',
+                        accessor: 'athlete',
+                        filter: 'fuzzyText'
+                    },
+                    {
+                        Header: 'Email',
+                        accessor: 'email',
+                        filter: 'fuzzyText'
+                    },
+                    {
+                        Header: 'Current Team',
+                        accessor: 'currentTeam',
+                        filter: 'fuzzyText'
+                    },
+                ],
+            data: []
+
+        }
+
         var tableData = []
         if (userObject.currentAthletes !== undefined) {
             Object.keys(userObject.currentAthletes).forEach(athleteUID => {
@@ -77,9 +101,12 @@ class ManageTeamsPage extends Component {
                     uid: athleteUID
                 })
             })
-            return tableData
+
+            payLoad.data = tableData
+
+            return payLoad
         } else {
-            return undefined
+            return payLoad
         }
 
     }
@@ -107,6 +134,10 @@ class ManageTeamsPage extends Component {
                 },
             ]
         )
+    }
+
+    handleAssignNewTeamMembers = (athletes) => {
+        console.log(athletes)
     }
 
     handleManageCurrTeamViewChange = (view) => {
@@ -386,8 +417,6 @@ class ManageTeamsPage extends Component {
                         }
                     })
 
-                    console.log(frontEndPayLoad)
-
                     frontEndPayLoad.sort((a, b) => {
                         return cmp(
                             [-cmp(a.deploymentUTS, b.deploymentUTS), cmp(a.sequenceName, b.sequenceName), cmp(a.order, b.order),],
@@ -455,6 +484,8 @@ class ManageTeamsPage extends Component {
 
                     // var athlete = userObject.currentAthletes[athleteUid]
 
+                    var currTeamMemberData = this.initCurrTeamMemberData(team, userObject.currentAthletes)
+
                     this.setState({
                         pageBodyContentLoading: false,
                         currTeam: {
@@ -465,8 +496,8 @@ class ManageTeamsPage extends Component {
                             showViewProgramErrorModal: false,
                             viewProgramErrorType: undefined,
                             currTeamProgramData: this.initCurrTeamProgramData(userObject.teams[team].programs),
-                            // currViewedProgramName: undefined,
-                            // currViewedProgramData: undefined,
+                            currTeamMemberData: currTeamMemberData,
+                            nonCurrTeamMemberData: this.initNonCurrTeamMembersData(this.state.athleteTableData, currTeamMemberData),
                             viewTeamFunctions: {},
                             // rawAnatomyData: anatomyObject
 
@@ -477,6 +508,114 @@ class ManageTeamsPage extends Component {
                 })
 
         })
+    }
+
+    initNonCurrTeamMembersData = (allAthleteData, currTeamMemberData) => {
+
+        var payLoad = {
+            columns: [...allAthleteData.columns],
+            data: []
+        }
+
+        var teamMembers = []
+        currTeamMemberData.data.forEach(athlete => {
+            teamMembers.push(athlete.athleteUID)
+        })
+
+        allAthleteData.data.forEach(athlete => {
+            if (!teamMembers.includes(athlete.uid)) {
+                payLoad.data.push(athlete)
+            }
+        })
+
+        return payLoad
+
+    }
+
+    initCurrTeamMemberData = (team, currentAthletes) => {
+        var payLoad = {
+            columns: [
+                {
+                    Header: 'Username',
+                    accessor: 'username'
+                },
+                {
+                    Header: 'Email',
+                    accessor: 'email'
+                },
+                {
+                    Header: 'Joining Date',
+                    accessor: 'joinDate'
+                },
+                {
+                    accessor: 'buttons'
+                }
+            ],
+            data: []
+        }
+        console.log(currentAthletes)
+        if (currentAthletes) {
+
+
+
+            Object.keys(currentAthletes).forEach(athleteUID => {
+                var athlete = currentAthletes[athleteUID]
+                if (athlete.teams) {
+                    var teamNames = Object.keys(athlete.teams)
+
+                    if (teamNames.includes(team) && athlete.teams[team].activeMember) {
+                        payLoad.data.push({
+                            username: athlete.username,
+                            email: athlete.email,
+                            athleteUID: athleteUID,
+                            joinDate: utsToDateString(parseInt(athlete.joinDate)),
+                            joinDateUTS: parseInt(athlete.joinDate),
+                            buttons:
+                                <Button
+                                    className='lightRedButton-inverted'
+                                    onClick={() => { this.handleRemoveAthleteFromTeam(team, athleteUID) }}
+                                >
+                                    Remove From Team
+                                </Button>
+                        })
+                    }
+                }
+            })
+
+            return payLoad
+        }
+
+        return payLoad
+
+    }
+
+    handleRemoveAthleteFromTeam = (teamName, athleteUID) => {
+
+        var payLoad = {}
+        var coachPath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/${athleteUID}/teams/${teamName}/`
+        var timestamp = new Date().getTime().toString()
+        payLoad[coachPath + 'activeMember'] = false
+        payLoad[coachPath + 'leavingDate'] = timestamp
+
+        let currTeamData = [...this.state.currTeam.currTeamMemberData.data]
+
+        var filteredData = currTeamData.filter(athlete => {
+            return (
+                athlete.athleteUID !== athleteUID
+            )
+        })
+
+        this.props.firebase.updateDatabaseFromRootPath(payLoad)
+        this.setState(prevState => ({
+            ...prevState,
+            currTeam: {
+                ...prevState.currTeam,
+                currTeamMemberData: {
+                    ...prevState.currTeam.currTeamMemberData,
+                    data: filteredData
+                }
+            }
+        }))
     }
 
     initCurrTeamProgramData = (programsObject) => {
@@ -725,6 +864,17 @@ class ManageTeamsPage extends Component {
                                 </Button>
                                 </div>
                             }
+                            {
+                                currTeam.view === 'manageTeamMembers' &&
+                                <div className='rowContainer centred-info sml-margin-top'>
+                                    <Button
+                                        className='lightPurpleButton'
+                                        onClick={() => { this.handleManageCurrTeamViewChange('assignNewTeamMembers') }}
+                                    >
+                                        Add New Members
+                                </Button>
+                                </div>
+                            }
                         </>
 
                     }
@@ -783,8 +933,48 @@ class ManageTeamsPage extends Component {
                 }
                 {
                     currTeam && currTeam.view === 'manageTeamMembers' &&
-                    <div>
-                        manage members
+                    < div className='pageContainerLevel1'>
+                        <InputLabel
+                            text='Current Members'
+                            custID='programHistHeader'
+                        />
+                        {
+                            currTeam.currTeamMemberData.data.length > 0 &&
+                            <BasicTablePagination
+                                data={currTeam.currTeamMemberData.data}
+                                columns={currTeam.currTeamMemberData.columns}
+                            />
+                        }
+                        {
+                            currTeam.currTeamMemberData.data.length === 0 &&
+                            <div className='paragraphDiv centred-info lightPurpleText'>
+                                There are no current athletes in {currTeam.team}
+                            </div>
+                        }
+                    </div>
+                }
+                {
+                    currTeam && currTeam.view === 'assignNewTeamMembers' &&
+                    < div className='pageContainerLevel1'>
+                        <InputLabel
+                            text='Select Athletes'
+                            custID='programHistHeader'
+                        />
+                        {
+                            currTeam.nonCurrTeamMemberData.data.length > 0 &&
+                            <SelectAthletesTable
+                                data={currTeam.nonCurrTeamMemberData.data}
+                                columns={currTeam.nonCurrTeamMemberData.columns}
+                                submitHandler={this.handleAssignNewTeamMembers}
+                                buttonText={'Add Athletes'}
+                            />
+                        }
+                        {
+                            currTeam.nonCurrTeamMemberData.data.length === 0 &&
+                            <div className='paragraphDiv centred-info lightPurpleText'>
+                                All your athletes are already assigned to this team.
+                            </div>
+                        }
                     </div>
                 }
             </NonLandingPageWrapper>
