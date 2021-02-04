@@ -80,11 +80,6 @@ class ManageTeamsPage extends Component {
                         accessor: 'email',
                         filter: 'fuzzyText'
                     },
-                    {
-                        Header: 'Current Team',
-                        accessor: 'currentTeam',
-                        filter: 'fuzzyText'
-                    },
                 ],
             data: []
 
@@ -137,7 +132,103 @@ class ManageTeamsPage extends Component {
     }
 
     handleAssignNewTeamMembers = (athletes) => {
-        console.log(athletes)
+
+        if (athletes.length > 0) {
+            this.setState({
+                pageBodyContentLoading: true,
+            }, () => {
+                this.props.firebase.getCoachCurrAthData(this.props.firebase.auth.currentUser.uid).once('value', userData => {
+
+                    const currentAthletes = userData.val();
+                    var payLoad = {}
+                    var frontEndPayLoad = {
+                        currTeamMembers: [...this.state.currTeam.currTeamMemberData.data],
+                        nonCurrTeamMembers: []
+                    }
+                    var athleteUIDArray = []
+                    var timestamp = new Date().getTime()
+                    var athletePath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/`
+                    var teamName = this.state.currTeam.team
+
+
+                    console.log(frontEndPayLoad.currTeamMembers)
+                    console.log(athletes)
+                    console.log(currentAthletes)
+
+                    athletes.forEach(athlete => {
+                        var athData = athlete.original
+                        athleteUIDArray.push(athData.uid)
+
+                        if (!currentAthletes[athData.uid].teams || !currentAthletes[athData.uid].teams[teamName]) {
+
+                            var feJoinDate = timestamp
+
+                            payLoad[athletePath + athData.uid + '/teams/' + teamName + '/joiningDate'] = timestamp
+                        } else {
+                            feJoinDate = currentAthletes[athData.uid].teams[teamName].joiningDate
+
+                            payLoad[athletePath + athData.uid + '/teams/' + teamName + '/leavingDate'] = null
+
+                        }
+
+                        payLoad[athletePath + athData.uid + '/teams/' + teamName + '/activeMember'] = true
+
+                        frontEndPayLoad.currTeamMembers.push({
+                            athleteUID: athData.uid,
+                            username: athData.athlete,
+                            email: athData.email,
+                            joinDateUTS: feJoinDate,
+                            joinDate: utsToDateString(parseInt(feJoinDate)),
+                            buttons:
+                                <Button
+                                    className='lightRedButton-inverted'
+                                    onClick={() => { this.handleRemoveAthleteFromTeam(this.state.currTeam.team, athData.uid) }}
+                                >
+                                    Remove From Team
+                                </Button>
+                        })
+
+                    })
+
+
+                    frontEndPayLoad.nonCurrTeamMembers = [...this.state.currTeam.nonCurrTeamMemberData.data].filter(ath => {
+                        return (
+                            !athleteUIDArray.includes(ath.uid)
+                        )
+                    })
+
+                    let currTeamsTableData = [...this.state.teamsTableData]
+                    console.log(currTeamsTableData)
+
+                    for (var team in currTeamsTableData) {
+                        if (currTeamsTableData[team].team === teamName) {
+                            currTeamsTableData[team].teamCount += athleteUIDArray.length
+                        }
+                    }
+
+                    console.log(payLoad)
+                    this.props.firebase.updateDatabaseFromRootPath(payLoad)
+                    this.setState(prevState => ({
+                        ...prevState,
+                        teamsTableData: currTeamsTableData,
+                        pageBodyContentLoading: false,
+                        currTeam: {
+                            ...prevState.currTeam,
+                            view: this.state.currTeam.pageHistory.back(),
+                            nonCurrTeamMemberData: {
+                                ...prevState.currTeam.nonCurrTeamMemberData,
+                                data: frontEndPayLoad.nonCurrTeamMembers
+                            },
+                            currTeamMemberData: {
+                                ...prevState.currTeam.currTeamMemberData,
+                                data: frontEndPayLoad.currTeamMembers
+                            },
+
+                        }
+                    }))
+                })
+            })
+        }
     }
 
     handleManageCurrTeamViewChange = (view) => {
@@ -431,7 +522,7 @@ class ManageTeamsPage extends Component {
                         pageBodyContentLoading: false,
                         currTeam: {
                             ...prevState.currTeam,
-                            view: 'manageTeamPrograms',
+                            view: this.state.currTeam.pageHistory.back(),
                             currTeamProgramData: {
                                 ...prevState.currTeam.currTeamProgramData,
                                 data: frontEndPayLoad
@@ -446,14 +537,14 @@ class ManageTeamsPage extends Component {
 
     countAthletesOnTeam = (team, currentAthletes) => {
         var count = 0
-        console.log(currentAthletes)
         if (currentAthletes !== undefined) {
             Object.values(currentAthletes).forEach(athlete => {
                 if (athlete.teams) {
                     var teamNames = Object.keys(athlete.teams)
-
                     if (teamNames.includes(team)) {
-                        count++
+                        if (athlete.teams[team].activeMember) {
+                            count++
+                        }
                     }
                 }
             })
