@@ -138,8 +138,6 @@ const ProgramDeployment = ({ initProgTabData, submitHandler, initProgGroupTabDat
     }
 
     useEffect(() => {
-        console.log(pageNames[pageNum.toString()])
-        console.log(pageNum)
         setBackText(pageNames[pageNum.toString()])
     }, [pageNum])
 
@@ -236,7 +234,6 @@ const initProgDeployCoachProgGroupTableData = (userObject) => {
     if (userObject.programGroups !== undefined) {
         Object.keys(userObject.programGroups).forEach(programGroupName => {
             var programGroup = userObject.programGroups[programGroupName]
-            console.log(programGroup)
 
             var sequentialTableVal = ''
 
@@ -265,7 +262,6 @@ const initProgDeployCoachProgGroupTableData = (userObject) => {
                         }
                     </List>
 
-                console.log(sequentialOrder)
             }
 
             tableData.push({
@@ -304,7 +300,6 @@ const initProgDeployCoachProgramTableData = (userObject) => {
     if (userObject.currentPrograms !== undefined) {
         Object.keys(userObject.currentPrograms).forEach(programName => {
             var program = userObject.currentPrograms[programName]
-            console.log(program)
             tableData.push({
                 program: programName.split('_')[0],
                 loadingScheme: loadingSchemeString(program.loading_scheme),

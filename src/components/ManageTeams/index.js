@@ -554,7 +554,6 @@ class ManageTeamsPage extends Component {
     }
 
     handleManageTeamClick = (team) => {
-        console.log(team)
         this.setState({
             pageBodyContentLoading: true,
             currTeam: {
@@ -567,38 +566,69 @@ class ManageTeamsPage extends Component {
                 .once('value', userData => {
                     const userObject = userData.val();
 
-                    // this.props.firebase.anatomy().once('value', async snapshot => {
-                    //     const anatomyObject = snapshot.val();
+                    this.props.firebase.anatomy().once('value', async snapshot => {
+                        const anatomyObject = snapshot.val();
 
-                    // this.props.firebase.getUserData(athleteUid).once('value', athData => {
-                    //     const athleteObject = athData.val();
+                        var currTeamMemberData = this.initCurrTeamMemberData(team, userObject.currentAthletes)
 
-                    // var athlete = userObject.currentAthletes[athleteUid]
+                        this.setState({
+                            pageBodyContentLoading: false,
+                            currTeam: {
+                                team: team,
+                                description: userObject.teams[team].description,
+                                view: 'home',
+                                pageHistory: new PageHistory(),
+                                showViewProgramErrorModal: false,
+                                viewProgramErrorType: undefined,
+                                currTeamProgramData: this.initCurrTeamProgramData(userObject.teams[team].programs),
+                                currTeamMemberData: currTeamMemberData,
+                                nonCurrTeamMemberData: this.initNonCurrTeamMembersData(this.state.athleteTableData, currTeamMemberData),
+                                viewTeamFunctions: {},
+                                loadingData: this.initTeamLoadingData(currTeamMemberData, anatomyObject),
+                                rawAnatomyData: anatomyObject
 
-                    var currTeamMemberData = this.initCurrTeamMemberData(team, userObject.currentAthletes)
-
-                    this.setState({
-                        pageBodyContentLoading: false,
-                        currTeam: {
-                            team: team,
-                            description: userObject.teams[team].description,
-                            view: 'home',
-                            pageHistory: new PageHistory(),
-                            showViewProgramErrorModal: false,
-                            viewProgramErrorType: undefined,
-                            currTeamProgramData: this.initCurrTeamProgramData(userObject.teams[team].programs),
-                            currTeamMemberData: currTeamMemberData,
-                            nonCurrTeamMemberData: this.initNonCurrTeamMembersData(this.state.athleteTableData, currTeamMemberData),
-                            viewTeamFunctions: {},
-                            // rawAnatomyData: anatomyObject
-
-                        }
-                        //     })
-                        // })
+                            }
+                        })
                     });
                 })
 
         })
+    }
+
+    initTeamLoadingData = (currTeamMemberData, anatomyObject) => {
+
+        var payLoad = {
+            columns:
+                [
+                    {
+                        Header: 'Username',
+                        accessor: 'username'
+                    },
+                    {
+                        Header: 'Email',
+                        accessor: 'email'
+                    },
+                    {
+                        accessor: 'buttons'
+                    }
+
+                ],
+            data: []
+        }
+
+        currTeamMemberData.data.forEach(athlete => {
+            this.props.firebase.getUserData(athlete.athleteUID).once('value', userData => {
+
+                const athleteData = userData.val();
+
+                var loadingData = this.processAthleteLoadingData(athleteData.currentPrograms)
+            })
+        })
+
+    }
+
+    processAthleteLoadingData = (currentPrograms) => {
+        console.log(currentPrograms)
     }
 
     initNonCurrTeamMembersData = (allAthleteData, currTeamMemberData) => {
@@ -644,7 +674,6 @@ class ManageTeamsPage extends Component {
             ],
             data: []
         }
-        console.log(currentAthletes)
         if (currentAthletes) {
 
 
@@ -1073,7 +1102,7 @@ class ManageTeamsPage extends Component {
         let pageBodyContentLoadingHTML =
             <NonLandingPageWrapper>
                 <div className='vert-aligned'>
-                    <Loader active inline='centered' content='Preparing Athlete Data...' />
+                    <Loader active inline='centered' content='Preparing Team Data...' />
                 </div>
             </NonLandingPageWrapper>
 
