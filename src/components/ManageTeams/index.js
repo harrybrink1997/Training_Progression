@@ -14,6 +14,8 @@ import { cmp } from '../../constants/sortingFunctions'
 import InputLabel from '../CustomComponents/DarkModeInput';
 import ProgramDeployment, { initProgDeployCoachProgGroupTableData, initProgDeployCoachProgramTableData } from '../CustomComponents/programDeployment';
 import SelectAthletesTable from './selectAthletesTable';
+import { generateCurrDaySafeLoadData } from '../../constants/viewProgramPagesFunctions'
+import TeamMemberLoadLogModal from './teamMemberLoadLogModal';
 
 class ManageTeamsPage extends Component {
 
@@ -206,7 +208,6 @@ class ManageTeamsPage extends Component {
                         }
                     }
 
-                    console.log(payLoad)
                     this.props.firebase.updateDatabaseFromRootPath(payLoad)
                     this.setState(prevState => ({
                         ...prevState,
@@ -609,7 +610,11 @@ class ManageTeamsPage extends Component {
                         accessor: 'email'
                     },
                     {
-                        accessor: 'buttons'
+                        Header: 'Days Since Overloading',
+                        accessor: 'lastDayOverloaded'
+                    },
+                    {
+                        accessor: 'modal'
                     }
 
                 ],
@@ -617,18 +622,124 @@ class ManageTeamsPage extends Component {
         }
 
         currTeamMemberData.data.forEach(athlete => {
-            this.props.firebase.getUserData(athlete.athleteUID).once('value', userData => {
+            this.props.firebase.getUserData(athlete.athleteUID)
+                .once('value', userData => {
 
-                const athleteData = userData.val();
+                    const athleteData = userData.val();
 
-                var loadingData = this.processAthleteLoadingData(athleteData.currentPrograms)
-            })
+                    var loadingData = this.processAthleteLoadingData(athleteData.currentPrograms, athlete.athleteUID)
+
+                    payLoad.data.push({
+                        username: athleteData.username,
+                        email: athleteData.email,
+                        lastDayOverloaded: loadingData.lastDayOverloaded,
+                        warningSign: loadingData.lastDayOverloaded <= 2,
+                        modal:
+                            <TeamMemberLoadLogModal
+                                logsData={loadingData.programData}
+                            />
+                    })
+                })
         })
+
+        return payLoad
 
     }
 
-    processAthleteLoadingData = (currentPrograms) => {
+    validProgramForLoadCheck = (programData) => {
+        return (
+            programData.currentDayInProgram > 1
+            && programData.isActiveInSequence !== false
+        )
+    }
+
+    determineDaysSinceLastOverload = (programData) => {
+
+        for (var day = programData.currentDayInProgram - 1; day >= 1; day--) {
+
+            var loadingData = programData[day].loadingData
+
+            for (var muscleGroup in loadingData) {
+                if (muscleGroup !== 'Total') {
+                    for (var muscle in loadingData[muscleGroup]) {
+                        if ((loadingData[muscleGroup][muscle].ACWR > 1.2 || loadingData[muscleGroup][muscle].ACWR < 0.8) && loadingData[muscleGroup][muscle].ACWR !== 0) {
+
+                            return programData.currentDayInProgram - day
+                        }
+
+                    }
+                } else {
+                    if ((loadingData[muscleGroup].ACWR > 1.2 || loadingData[muscleGroup].ACWR < 0.8) && loadingData[muscleGroup].ACWR !== 0) {
+
+                        return programData.currentDayInProgram - day
+                    }
+                }
+            }
+        }
+        return -1
+    }
+
+    processAthleteLoadingData = (currentPrograms, athleteUID) => {
         console.log(currentPrograms)
+        var payLoad = {
+            lastDayOverloaded: undefined,
+            programData: {
+                columns: [
+                    {
+                        Header: 'Program',
+                        accessor: 'program'
+                    },
+                    {
+                        Header: 'Days Since Overloading',
+                        accessor: 'lastDayOverloaded'
+                    },
+                    {
+                        accessor: 'buttons'
+                    }
+                ],
+                data: []
+            }
+        }
+        var mostRecentDay = -1
+        Object.keys(currentPrograms).forEach(program => {
+            console.log(program)
+
+            if (this.validProgramForLoadCheck(currentPrograms[program])) {
+
+                var lastOverload = this.determineDaysSinceLastOverload(currentPrograms[program])
+
+                if (lastOverload !== -1) {
+                    if (mostRecentDay === -1) {
+                        mostRecentDay = lastOverload
+                    } else {
+                        if (lastOverload < mostRecentDay && lastOverload !== -1) {
+                            mostRecentDay = lastOverload
+                        }
+                    }
+                }
+
+                payLoad.programData.data.push({
+                    program: program.split('_')[0],
+                    lastDayOverloaded: lastOverload,
+                    buttons:
+                        <Button
+                            className='lightPurpleButton'
+                            onClick={() => { this.handleViewProgramLoadingLogs(program, athleteUID) }}
+                        >
+                            View Program Logs
+                        </Button>
+                })
+            }
+        })
+
+        payLoad.lastDayOverloaded = mostRecentDay
+
+        return payLoad
+
+    }
+
+    handleViewProgramLoadingLogs = (program, athleteUID) => {
+        console.log('viewing program loads')
     }
 
     initNonCurrTeamMembersData = (allAthleteData, currTeamMemberData) => {
@@ -1019,8 +1130,18 @@ class ManageTeamsPage extends Component {
                 }
                 {
                     currTeam && currTeam.view === 'manageTeamLoads' &&
-                    <div>
-                        manage team loads
+                    < div className='pageContainerLevel1'>
+                        <InputLabel
+                            text='Team Loading Data'
+                            custID='programHistHeader'
+                        />
+                        {
+                            currTeam.loadingData &&
+                            <BasicTablePagination
+                                data={currTeam.loadingData.data}
+                                columns={currTeam.loadingData.columns}
+                            />
+                        }
                     </div>
                 }
                 {

@@ -22,7 +22,7 @@ import ViewPrevWeeksData from './viewPrevWeeksData'
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import ConfirmNullExerciseData from './confirmNullExerciseData'
 // Import Custom functions
-import { convertUIDayToTotalDays, currentWeekInProgram, convertTotalDaysToUIDay } from '../../constants/dayCalculations'
+import { currentWeekInProgram, convertTotalDaysToUIDay } from '../../constants/dayCalculations'
 
 import InputLabel from '../CustomComponents/DarkModeInput';
 
@@ -1062,7 +1062,6 @@ class CurrentProgramPage extends Component {
                             currDayData,
                             anatomyObject[muscleGroup]
                         ),
-                        // selector: 'the bois'
                     })
                 }
             })
