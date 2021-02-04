@@ -16,6 +16,8 @@ import ProgramDeployment, { initProgDeployCoachProgGroupTableData, initProgDeplo
 import SelectAthletesTable from './selectAthletesTable';
 import { generateCurrDaySafeLoadData } from '../../constants/viewProgramPagesFunctions'
 import TeamMemberLoadLogModal from './teamMemberLoadLogModal';
+import RedGreenUnderlinePagTable from '../CustomComponents/redGreenUnderlinePagTable';
+import * as programIDFunctions from '../../constants/programIDManipulation'
 
 class ManageTeamsPage extends Component {
 
@@ -627,18 +629,43 @@ class ManageTeamsPage extends Component {
 
                     const athleteData = userData.val();
 
-                    var loadingData = this.processAthleteLoadingData(athleteData.currentPrograms, athlete.athleteUID)
+                    if (athleteData.currentPrograms) {
+                        var loadingData = this.processAthleteLoadingData(athleteData.currentPrograms, athlete.athleteUID)
 
-                    payLoad.data.push({
-                        username: athleteData.username,
-                        email: athleteData.email,
-                        lastDayOverloaded: loadingData.lastDayOverloaded,
-                        warningSign: loadingData.lastDayOverloaded <= 2,
-                        modal:
-                            <TeamMemberLoadLogModal
-                                logsData={loadingData.programData}
-                            />
+                        payLoad.data.push({
+                            username: athleteData.username,
+                            email: athleteData.email,
+                            lastDayOverloaded: loadingData.lastDayOverloaded,
+                            warningValue: loadingData.lastDayOverloaded,
+                            modal:
+                                <TeamMemberLoadLogModal
+                                    logsData={loadingData.programData}
+                                    warningThreshold={2}
+                                    warnBelowThreshold={true}
+                                />
+                        })
+                    } else {
+                        payLoad.data.push({
+                            username: athleteData.username,
+                            email: athleteData.email,
+                            lastDayOverloaded: '',
+                            warningValue: undefined,
+                            modal: 'No Loading Data'
+                        })
+                    }
+
+                    payLoad.data.sort((a, b) => {
+                        if (!a.warningValue && a.warningValue) {
+                            return 1
+                        } else if (a.warningValue && !b.warningValue) {
+                            return -1
+                        } else if (!a.warningValue && !b.warningValue) {
+                            return 0
+                        } else {
+                            return cmp(a.warningValue, b.warningValue)
+                        }
                     })
+
                 })
         })
 
@@ -646,9 +673,10 @@ class ManageTeamsPage extends Component {
 
     }
 
-    validProgramForLoadCheck = (programData) => {
+    validProgramForLoadCheck = (programName, programData) => {
         return (
-            programData.currentDayInProgram > 1
+            programIDFunctions.getCreator(programName) === this.props.firebase.auth.currentUser.uid
+            && programData.currentDayInProgram > 1
             && programData.isActiveInSequence !== false
         )
     }
@@ -698,13 +726,13 @@ class ManageTeamsPage extends Component {
                     }
                 ],
                 data: []
-            }
+            },
         }
         var mostRecentDay = -1
         Object.keys(currentPrograms).forEach(program => {
             console.log(program)
 
-            if (this.validProgramForLoadCheck(currentPrograms[program])) {
+            if (this.validProgramForLoadCheck(program, currentPrograms[program])) {
 
                 var lastOverload = this.determineDaysSinceLastOverload(currentPrograms[program])
 
@@ -721,6 +749,7 @@ class ManageTeamsPage extends Component {
                 payLoad.programData.data.push({
                     program: program.split('_')[0],
                     lastDayOverloaded: lastOverload,
+                    warningValue: lastOverload,
                     buttons:
                         <Button
                             className='lightPurpleButton'
@@ -1137,9 +1166,11 @@ class ManageTeamsPage extends Component {
                         />
                         {
                             currTeam.loadingData &&
-                            <BasicTablePagination
+                            <RedGreenUnderlinePagTable
                                 data={currTeam.loadingData.data}
                                 columns={currTeam.loadingData.columns}
+                                warnBelowThreshold={true}
+                                warningThreshold={2}
                             />
                         }
                     </div>

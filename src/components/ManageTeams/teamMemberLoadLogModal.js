@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { Modal, Button } from 'semantic-ui-react'
-import BasicTable from '../CustomComponents/basicTable';
+import RedGreenUnderlineBasicTable from '../CustomComponents/redGreenUnderlineBasicTable';
 
-const TeamMemberLoadLogModal = ({ logsData, clickHandler }) => {
+const TeamMemberLoadLogModal = ({ logsData, clickHandler, warnBelowThreshold, warningThreshold }) => {
 
     const [show, setShow] = useState(false);
 
@@ -20,9 +20,11 @@ const TeamMemberLoadLogModal = ({ logsData, clickHandler }) => {
         >
             <Modal.Header>Load Logs</Modal.Header>
             <Modal.Content>
-                <BasicTable
+                <RedGreenUnderlineBasicTable
                     data={logsData.data}
                     columns={logsData.columns}
+                    warnBelowThreshold={warnBelowThreshold}
+                    warningThreshold={warningThreshold}
                 />
             </Modal.Content>
         </Modal>

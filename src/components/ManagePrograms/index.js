@@ -734,6 +734,9 @@ class ManageProgramsPage extends Component {
             alert('Program with name "' + programName.split('_')[0] + '" already exists in either your current or past programs.')
         } else {
 
+            var path = `/users/${this.props.firebase.auth.currentUser.uid}/`
+            var payLoad = {}
+
             if (this.state.userType === 'athlete') {
                 var goalListObject = {}
                 var index = 1
@@ -748,37 +751,41 @@ class ManageProgramsPage extends Component {
 
                 var startTimestamp = Math.floor(new Date(dateConversion).getTime())
 
-                await this.props.firebase.createProgramUpstream(
-                    this.state.userInformation.uid,
-                    programName,
-                    acutePeriod,
-                    chronicPeriod,
-                    loadingScheme,
-                    1,
-                    startTimestamp,
-                    goalListObject
-                )
 
-                this.props.firebase.setActiveProgram(
-                    this.props.firebase.auth.currentUser.uid,
-                    programName
-                )
+                var programObject = {
+                    loading_scheme: loadingScheme,
+                    acutePeriod: acutePeriod,
+                    chronicPeriod: chronicPeriod,
+                    startDayUTS: startTimestamp,
+                    currentDayInProgram: 1,
+                    currentDayUTS: startTimestamp,
+                    goals: goalListObject
+                }
+
+                payLoad[path + 'currentPrograms/' + programName] = programObject
+
+                payLoad[path + 'activeProgram'] = programName
+
+                this.props.firebase.updateDatabaseFromRootPath(payLoad)
+
             } else {
-                await this.props.firebase.createProgramUpstream(
-                    this.props.firebase.auth.currentUser.uid,
-                    programName,
-                    acutePeriod,
-                    chronicPeriod,
-                    loadingScheme,
-                    1,
-                    null,
-                    null
-                )
 
-                this.props.firebase.setActiveProgram(
-                    this.props.firebase.auth.currentUser.uid,
-                    programName
-                )
+                var programObject = {
+                    loading_scheme: loadingScheme,
+                    acutePeriod: acutePeriod,
+                    chronicPeriod: chronicPeriod,
+                    startDayUTS: startTimestamp,
+                    currentDayInProgram: 1,
+                    currentDayUTS: null,
+                    goals: null
+                }
+
+                payLoad[path + 'currentPrograms/' + programName] = programObject
+
+                payLoad[path + 'activeProgram'] = programName
+
+                this.props.firebase.updateDatabaseFromRootPath(payLoad)
+
             }
 
         }

@@ -4,6 +4,7 @@ import { withAuthorisation } from '../Session';
 import JoinTeamForm from './joinTeamForm'
 
 import InputLabel from '../CustomComponents/DarkModeInput'
+import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper';
 
 class JoinTeamPage extends Component {
 
@@ -106,22 +107,24 @@ class JoinTeamPage extends Component {
 
 
         return (
-            <div id='signInPageMainContainer'>
-                <div id='signInEmailMainContainer' className='pageContainerLevel1'>
-                    <InputLabel
-                        text='Join A Team'
-                        custID='signInPageMainLabel'
-                    />
-                    <JoinTeamForm
-                        submitRequestHandler={this.handleSubmitJoinTeam}
-                        submitProcessing={submitProcessing}
-                    />
-                    <div id='signInEmailFooterMessagesContainer'>
-                        {requestError && <p>{errorMsg}</p>}
-                        {requestSent && <div>Request Sent!</div>}
+            <NonLandingPageWrapper>
+                <div id='signInPageMainContainer'>
+                    <div id='signInEmailMainContainer' className='pageContainerLevel1'>
+                        <InputLabel
+                            text='Join A Team'
+                            custID='signInPageMainLabel'
+                        />
+                        <JoinTeamForm
+                            submitRequestHandler={this.handleSubmitJoinTeam}
+                            submitProcessing={submitProcessing}
+                        />
+                        <div id='signInEmailFooterMessagesContainer'>
+                            {requestError && <p>{errorMsg}</p>}
+                            {requestSent && <div>Request Sent!</div>}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </NonLandingPageWrapper>
         )
     }
 }

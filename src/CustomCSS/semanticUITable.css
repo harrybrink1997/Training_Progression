@@ -74,3 +74,12 @@
 .ui.celled.table .react-table-expandedChildRow {
     background: #3F3F3F;
 }
+
+
+.ui.celled.table .greenUnderlineTableRow {
+    background: linear-gradient(#333333 90%,#8cfc86);
+}
+
+.ui.celled.table .redUnderlineTableRow {
+    background: linear-gradient(#333333 90%,#CF6679);
+}
