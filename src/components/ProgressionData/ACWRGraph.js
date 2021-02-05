@@ -8,6 +8,10 @@ const ACWEGraph = ({ ACWRData }) => {
 
     const hasGraphData = ACWRData != [] && ACWRData != undefined
 
+    const handleOnClick = (e) => {
+        console.log(e)
+    }
+
     return (
         <>
             { hasGraphData &&
@@ -41,7 +45,7 @@ const ACWEGraph = ({ ACWRData }) => {
                         <Legend />
                         <CartesianGrid stroke='#f5f5f5' />
                         <Area yAxisId="left" type='monotone' dataKey='Chronic Load' fill='#86fcbb' stroke='#8cfc86' />
-                        <Bar yAxisId="left" dataKey='Acute Load' barSize={20} fill='#bb86fc' />
+                        <Bar yAxisId="left" dataKey='Acute Load' barSize={20} fill='#bb86fc' onClick={handleOnClick} />
                         <Line yAxisId="right" type='monotone' dataKey='ACWR' stroke='#fcbb86' />
                     </ComposedChart>
                 </ResponsiveContainer>

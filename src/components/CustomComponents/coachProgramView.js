@@ -441,17 +441,6 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
                     exerciseListPerDay: updatedDailyExerciseList(newProgramData.rawData, handleDeleteExerciseButton, handleUpdateExercise)
                 }
             })
-
-            // setExerciseData(prevState => ({
-            //     ...prevState,
-            //     chartData: setAvailExerciseChartData(
-            //         exerciseData.rawData,
-            //         convertTotalDaysToUIDay(programData.currentDayInProgram),
-            //         programData.loadingScheme,
-            //         convertTotalDaysToUIDay(programData.currentDayInProgram),
-            //         handleAddExerciseButton
-            //     )
-            // }))
         }
     }, [programData.currentDayInProgram])
 

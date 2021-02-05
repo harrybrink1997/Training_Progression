@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Modal, Button } from 'semantic-ui-react'
 import RedGreenUnderlineBasicTable from '../CustomComponents/redGreenUnderlineBasicTable';
 
-const TeamMemberLoadLogModal = ({ logsData, clickHandler, warnBelowThreshold, warningThreshold }) => {
+const TeamMemberLoadLogModal = ({ logsData, warnBelowThreshold, warningThreshold }) => {
 
     const [show, setShow] = useState(false);
 

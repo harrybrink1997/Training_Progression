@@ -148,16 +148,6 @@ class ManageAthletesPage extends Component {
         })
     }
 
-    // appendPageHistoryArray = () => {
-
-    //     let currAthleteState = { ...this.state.currAthlete }
-    //     const currView = currAthleteState.view
-    //     var currPageHistory = currAthleteState.pageHistory
-    //     currPageHistory.push(currView)
-
-    //     return currPageHistory
-    // }
-
     handleViewProgramErrorModalDecision = (continueProcess) => {
         if (continueProcess === false) {
             this.setState(prevState => ({

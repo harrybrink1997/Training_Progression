@@ -14,10 +14,11 @@ import { cmp } from '../../constants/sortingFunctions'
 import InputLabel from '../CustomComponents/DarkModeInput';
 import ProgramDeployment, { initProgDeployCoachProgGroupTableData, initProgDeployCoachProgramTableData } from '../CustomComponents/programDeployment';
 import SelectAthletesTable from './selectAthletesTable';
-import { generateCurrDaySafeLoadData } from '../../constants/viewProgramPagesFunctions'
+import { generateCurrDaySafeLoadData, generateACWRGraphData, generateSafeLoadGraphProps } from '../../constants/viewProgramPagesFunctions'
 import TeamMemberLoadLogModal from './teamMemberLoadLogModal';
 import RedGreenUnderlinePagTable from '../CustomComponents/redGreenUnderlinePagTable';
 import * as programIDFunctions from '../../constants/programIDManipulation'
+import TeamMemberProgLoadInfo from './teamMemberProgLoadInfo';
 
 class ManageTeamsPage extends Component {
 
@@ -575,7 +576,6 @@ class ManageTeamsPage extends Component {
                         var currTeamMemberData = this.initCurrTeamMemberData(team, userObject.currentAthletes)
 
                         this.setState({
-                            pageBodyContentLoading: false,
                             currTeam: {
                                 team: team,
                                 description: userObject.teams[team].description,
@@ -588,9 +588,15 @@ class ManageTeamsPage extends Component {
                                 nonCurrTeamMemberData: this.initNonCurrTeamMembersData(this.state.athleteTableData, currTeamMemberData),
                                 viewTeamFunctions: {},
                                 loadingData: this.initTeamLoadingData(currTeamMemberData, anatomyObject),
-                                rawAnatomyData: anatomyObject
+                                rawAnatomyData: anatomyObject,
+                                daysSinceOverloadThreshold: 5,
+                                memberProgramLoadingInfo: undefined
 
                             }
+                        }, () => {
+                            this.setState({
+                                pageBodyContentLoading: false
+                            })
                         })
                     });
                 })
@@ -640,7 +646,7 @@ class ManageTeamsPage extends Component {
                             modal:
                                 <TeamMemberLoadLogModal
                                     logsData={loadingData.programData}
-                                    warningThreshold={2}
+                                    warningThreshold={5}
                                     warnBelowThreshold={true}
                                 />
                         })
@@ -748,8 +754,8 @@ class ManageTeamsPage extends Component {
 
                 payLoad.programData.data.push({
                     program: program.split('_')[0],
-                    lastDayOverloaded: lastOverload,
-                    warningValue: lastOverload,
+                    lastDayOverloaded: lastOverload === -1 ? '-' : lastOverload,
+                    warningValue: lastOverload === -1 ? false : lastOverload,
                     buttons:
                         <Button
                             className='lightPurpleButton'
@@ -769,6 +775,46 @@ class ManageTeamsPage extends Component {
 
     handleViewProgramLoadingLogs = (program, athleteUID) => {
         console.log('viewing program loads')
+        console.log(program)
+        console.log(athleteUID)
+        this.setState({
+            pageBodyContentLoading: true
+        }, () => {
+            this.props.firebase.getProgramData(
+                athleteUID,
+                program
+            ).once('value', userData => {
+
+                const programData = userData.val();
+                var rawAnatomyData = this.state.currTeam.rawAnatomyData
+
+                var loadingInfo = {
+                    ACWRGraphProps: generateACWRGraphData(programData, rawAnatomyData),
+                    rollingAverageGraphProps: generateSafeLoadGraphProps(programData, rawAnatomyData),
+                    currentBodyPart: 'Overall_Total',
+                    currMuscleGroupOpen: 'Arms',
+                }
+
+                this.state.currTeam.pageHistory.next('teamMemberProgramLoadingInfo')
+
+                this.setState(prevState => ({
+                    ...prevState,
+                    currTeam: {
+                        ...prevState.currTeam,
+                        memberProgramLoadingInfo: loadingInfo,
+                        view: 'teamMemberProgramLoadingInfo'
+                    }
+                }), () => {
+                    this.setState(prevState => ({
+                        ...prevState,
+                        pageBodyContentLoading: false,
+                    }))
+                })
+
+            })
+        })
+
+
     }
 
     initNonCurrTeamMembersData = (allAthleteData, currTeamMemberData) => {
@@ -1135,6 +1181,12 @@ class ManageTeamsPage extends Component {
                                 </Button>
                                 </div>
                             }
+                            {
+                                currTeam.view === 'teamMemberProgramLoadingInfo' &&
+                                <div className='rowContainer centred-info sml-margin-top'>
+                                    programName
+                                </div>
+                            }
                         </>
 
                     }
@@ -1170,7 +1222,7 @@ class ManageTeamsPage extends Component {
                                 data={currTeam.loadingData.data}
                                 columns={currTeam.loadingData.columns}
                                 warnBelowThreshold={true}
-                                warningThreshold={2}
+                                warningThreshold={currTeam.daysSinceOverloadThreshold}
                             />
                         }
                     </div>
@@ -1247,6 +1299,15 @@ class ManageTeamsPage extends Component {
                                 All your athletes are already assigned to this team.
                             </div>
                         }
+                    </div>
+                }
+                {
+                    currTeam && currTeam.view === 'teamMemberProgramLoadingInfo' &&
+                    < div className='pageContainerLevel1'>
+                        <TeamMemberProgLoadInfo
+                            loadingInfo={currTeam.memberProgramLoadingInfo}
+                            anatomyData={this.state.currTeam.rawAnatomyData}
+                        />
                     </div>
                 }
             </NonLandingPageWrapper>

@@ -36,43 +36,52 @@ const RedGreenUnderlineBasicTable = ({ data, columns, warningThreshold, warnBelo
                 <Table.Body {...getTableBodyProps()}>
                     {rows.map((row, i) => {
                         prepareRow(row)
-                        if (warnBelowThreshold) {
-
-                            if (row.original.warningValue < warningThreshold) {
-                                return (
-                                    <Table.Row className='redUnderlineTableRow' {...row.getRowProps()}>
-                                        {row.cells.map(cell => {
-                                            return <Table.Cell style={{ textAlign: 'center' }} {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
-                                        })}
-                                    </Table.Row>
-                                )
+                        if (row.original.warningValue !== undefined) {
+                            if (warnBelowThreshold) {
+                                if (row.original.warningValue < warningThreshold && row.original.warningValue !== false) {
+                                    return (
+                                        <Table.Row className='redUnderlineTableRow' {...row.getRowProps()}>
+                                            {row.cells.map(cell => {
+                                                return <Table.Cell style={{ textAlign: 'center' }} {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
+                                            })}
+                                        </Table.Row>
+                                    )
+                                } else {
+                                    return (
+                                        <Table.Row className='greenUnderlineTableRow' {...row.getRowProps()}>
+                                            {row.cells.map(cell => {
+                                                return <Table.Cell style={{ textAlign: 'center' }} {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
+                                            })}
+                                        </Table.Row>
+                                    )
+                                }
                             } else {
-                                return (
-                                    <Table.Row className='greenUnderlineTableRow' {...row.getRowProps()}>
-                                        {row.cells.map(cell => {
-                                            return <Table.Cell style={{ textAlign: 'center' }} {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
-                                        })}
-                                    </Table.Row>
-                                )
+                                if (row.original.warningValue > warningThreshold && row.original.warningValue !== false) {
+                                    return (
+                                        <Table.Row className='redUnderlineTableRow' {...row.getRowProps()}>
+                                            {row.cells.map(cell => {
+                                                return <Table.Cell style={{ textAlign: 'center' }} {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
+                                            })}
+                                        </Table.Row>
+                                    )
+                                } else {
+                                    return (
+                                        <Table.Row className='greenUnderlineTableRow' {...row.getRowProps()}>
+                                            {row.cells.map(cell => {
+                                                return <Table.Cell style={{ textAlign: 'center' }} {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
+                                            })}
+                                        </Table.Row>
+                                    )
+                                }
                             }
                         } else {
-                            if (row.original.warningValue > warningThreshold) {
-                                return (
-                                    <Table.Row className='redUnderlineTableRow' {...row.getRowProps()}>
-                                        {row.cells.map(cell => {
-                                            return <Table.Cell style={{ textAlign: 'center' }} {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
-                                        })}
-                                    </Table.Row>
-                                )
-                            } else {
-                                return (
-                                    <Table.Row className='greenUnderlineTableRow' {...row.getRowProps()}>
-                                        {row.cells.map(cell => {
-                                            return <Table.Cell style={{ textAlign: 'center' }} {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
-                                        })}
-                                    </Table.Row>
-                                )
-                            }
+                            return (
+                                <Table.Row {...row.getRowProps()}>
+                                    {row.cells.map(cell => {
+                                        return <Table.Cell style={{ textAlign: 'center' }} {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
+                                    })}
+                                </Table.Row>
+                            )
                         }
                     })}
                 </Table.Body>
