@@ -27,6 +27,7 @@ import { currentWeekInProgram, convertTotalDaysToUIDay } from '../../constants/d
 import InputLabel from '../CustomComponents/DarkModeInput';
 
 import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseCols, listAndFormatLocalGlobalExercises, setAvailExerciseChartData, generateExerciseUID } from '../../constants/viewProgramPagesFunctions'
+import StartProgramView from '../CustomComponents/startProgramView';
 
 class CurrentProgramPage extends Component {
     constructor(props) {
@@ -144,7 +145,7 @@ class CurrentProgramPage extends Component {
                 currentDayInProgram: userObject.currentPrograms[userObject.activeProgram].currentDayInProgram, // Sets the current day in program.
                 currentDayUTS: userObject.currentPrograms[userObject.activeProgram].currentDayUTS, // Gets unix timestamp for current day
                 daysInWeekScope: generateDaysInWeekScope(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram),
-
+                startDayUTS: userObject.currentPrograms[userObject.activeProgram].startDayUTS,
                 loading: false,
                 goalTableData: this.generateGoalTableData(userObject.currentPrograms[userObject.activeProgram]),
                 loadingScheme: userObject.currentPrograms[userObject.activeProgram].loading_scheme,
@@ -1093,6 +1094,22 @@ class CurrentProgramPage extends Component {
         return returnData
     }
 
+    handleStartProgram = (start) => {
+        console.log(start)
+
+        var path =
+            '/users'
+            + '/' + this.props.firebase.auth.currentUser.uid
+            + '/currentPrograms'
+            + '/' + this.state.activeProgram
+            + '/startDayUTS'
+
+        var payLoad = {}
+        payLoad[path] = new Date().getTime()
+
+        this.props.firebase.updateDatabaseFromRootPath(payLoad)
+    }
+
     generatePrevWeeksData = (userObject) => {
         var currWeek = currentWeekInProgram(userObject.currentPrograms[userObject.activeProgram].currentDayInProgram)
 
@@ -1202,6 +1219,7 @@ class CurrentProgramPage extends Component {
             prevWeeksData,
             safeLoadTableVisible,
             goalsTableVisible,
+            startDayUTS,
 
             // New state variables.
             currentDayInProgram,
@@ -1251,21 +1269,24 @@ class CurrentProgramPage extends Component {
                     <div id='cpButtonsHeader'>
                         <div id='submitDayBtnContainer'>
                             {
-                                userType === 'athlete' ?
-                                    <SubmitDayModal
-                                        handleFormSubmit={this.handleSubmitButton}
-                                        submitDataProcessing={submitDataProcessing}
-                                    />
-                                    :
-                                    currentDayInProgram > 1 ?
-                                        < Button
-                                            onClick={() => { this.handleViewPrevWeek() }}
-                                            className='purpleButton'
-                                        >
-                                            Previous Week
-                                        </Button>
+                                startDayUTS ?
+                                    userType === 'athlete' ?
+                                        <SubmitDayModal
+                                            handleFormSubmit={this.handleSubmitButton}
+                                            submitDataProcessing={submitDataProcessing}
+                                        />
                                         :
-                                        <></>
+                                        currentDayInProgram > 1 ?
+                                            < Button
+                                                onClick={() => { this.handleViewPrevWeek() }}
+                                                className='purpleButton'
+                                            >
+                                                Previous Week
+                                        </Button>
+                                            :
+                                            <></>
+                                    :
+                                    <></>
                             }
                         </div>
                         <div id='programsDropdownContainer'>
@@ -1277,21 +1298,24 @@ class CurrentProgramPage extends Component {
                         </div>
                         <div id='closeOffProgBtnContainer'>
                             {
-                                userType === 'athlete' ?
-                                    <CloseOffProgramModal handleFormSubmit={this.handleCloseOffProgram} />
-                                    :
-                                    <Button
-                                        className='purpleButton'
-                                        onClick={() => { this.handleViewNextWeek() }}
-                                    >
-                                        Next Week
+                                startDayUTS ?
+                                    userType === 'athlete' ?
+                                        <CloseOffProgramModal handleFormSubmit={this.handleCloseOffProgram} />
+                                        :
+                                        <Button
+                                            className='purpleButton'
+                                            onClick={() => { this.handleViewNextWeek() }}
+                                        >
+                                            Next Week
                                     </Button>
+                                    :
+                                    <></>
                             }
                         </div>
                     </div>
                 </div>
                 {
-                    userType === 'athlete' &&
+                    userType === 'athlete' && startDayUTS &&
                     <div className='pageRowContainer'>
                         <div className='pageContainerLevel1' id='cpExerciseSpreadTableContainer'>
                             <div onClick={() => this.setState({ goalsTableVisible: !goalsTableVisible })}>
@@ -1374,70 +1398,79 @@ class CurrentProgramPage extends Component {
                         </div>
                     </div>
                 }
-                <div className='pageRowContainer'>
-                    <div className='pageContainerLevel1' id='availExerciseTableContainer'>
-                        <div id='availExercises-ExData-toggleContainer'>
-                            <Button.Group size='tiny'>
-                                {
-                                    availExerciseTableVisible ?
-                                        <Button
-                                            className='smallerBtn'
-                                            active
-                                        >
-                                            Available Exercises
+                {
+                    startDayUTS &&
+                    <div className='pageRowContainer'>
+                        <div className='pageContainerLevel1' id='availExerciseTableContainer'>
+                            <div id='availExercises-ExData-toggleContainer'>
+                                <Button.Group size='tiny'>
+                                    {
+                                        availExerciseTableVisible ?
+                                            <Button
+                                                className='smallerBtn'
+                                                active
+                                            >
+                                                Available Exercises
                                         </Button>
-                                        :
-                                        <Button
-                                            className='smallerBtn'
-                                            onClick={() => this.setState({ availExerciseTableVisible: true })}
-                                        >
-                                            Available Exercises
+                                            :
+                                            <Button
+                                                className='smallerBtn'
+                                                onClick={() => this.setState({ availExerciseTableVisible: true })}
+                                            >
+                                                Available Exercises
                                         </Button>
-                                }
-                                {
-                                    !availExerciseTableVisible ?
-                                        <Button
+                                    }
+                                    {
+                                        !availExerciseTableVisible ?
+                                            <Button
 
-                                            active
-                                        >
-                                            Program Exercise History
+                                                active
+                                            >
+                                                Program Exercise History
                                         </Button>
-                                        :
-                                        <Button
-                                            onClick={() => this.setState({ availExerciseTableVisible: false })}
-                                        >
-                                            Program Exercise History
+                                            :
+                                            <Button
+                                                onClick={() => this.setState({ availExerciseTableVisible: false })}
+                                            >
+                                                Program Exercise History
                                         </Button>
-                                }
-                            </Button.Group>
+                                    }
+                                </Button.Group>
+                            </div>
+                            {
+                                availExerciseTableVisible ?
+                                    <AvailableExercisesList
+                                        columns={availExercisesCols}
+                                        data={availExercisesData}
+                                    />
+                                    :
+                                    <ViewPrevWeeksData
+                                        data={prevWeeksData}
+                                        defaultWeek={currentWeekInProgram - 1}
+                                        progScheme={loadingScheme}
+                                        handleFormSubmit={this.handleCopyPrevWeeksExData}
+                                    />
+
+                            }
                         </div>
-                        {
-                            availExerciseTableVisible ?
-                                <AvailableExercisesList
-                                    columns={availExercisesCols}
-                                    data={availExercisesData}
-                                />
-                                :
-                                <ViewPrevWeeksData
-                                    data={prevWeeksData}
-                                    defaultWeek={currentWeekInProgram - 1}
-                                    progScheme={loadingScheme}
-                                    handleFormSubmit={this.handleCopyPrevWeeksExData}
-                                />
-
-                        }
+                        <div className='pageContainerLevel1'
+                            id='currentWeekExTableContainer'>
+                            <CurrentWeekExercisesContainer
+                                dailyExercises={exerciseListPerDay}
+                                loadingScheme={loadingScheme}
+                                daysViewHandler={this.handleChangeDaysOpenView}
+                                daysInWeekScope={daysInWeekScope}
+                                openDaysUI={openDaysUI}
+                            />
+                        </div>
                     </div>
-                    <div className='pageContainerLevel1'
-                        id='currentWeekExTableContainer'>
-                        <CurrentWeekExercisesContainer
-                            dailyExercises={exerciseListPerDay}
-                            loadingScheme={loadingScheme}
-                            daysViewHandler={this.handleChangeDaysOpenView}
-                            daysInWeekScope={daysInWeekScope}
-                            openDaysUI={openDaysUI}
-                        />
-                    </div>
-                </div>
+                }
+                {
+                    startDayUTS === undefined &&
+                    <StartProgramView
+                        handleFormProceed={this.handleStartProgram}
+                    />
+                }
             </NonLandingPageWrapper >
         return (
             <div>

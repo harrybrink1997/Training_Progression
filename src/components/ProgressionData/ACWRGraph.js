@@ -4,12 +4,15 @@ import { Label } from 'semantic-ui-react'
 
 import InputLabel from '../CustomComponents/DarkModeInput'
 
-const ACWEGraph = ({ ACWRData }) => {
+const ACWEGraph = ({ ACWRData, clickHandler = undefined }) => {
 
     const hasGraphData = ACWRData != [] && ACWRData != undefined
 
     const handleOnClick = (e) => {
-        console.log(e)
+        if (clickHandler) {
+            console.log(e.payload.day)
+            clickHandler(e.payload.day)
+        }
     }
 
     return (

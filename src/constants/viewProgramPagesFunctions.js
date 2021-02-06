@@ -291,17 +291,18 @@ const generateACWRGraphData = (programData, muscleGroups) => {
             dataToGraph['Overall_Total'] = []
 
             var insertObj = {
-                name: dateString
+                name: dateString,
+                day: day
             }
             insertObj['Acute Load'] = parseFloat(programData[day]['loadingData']['Total'].acuteEWMA.toFixed(2))
             insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData']['Total'].chronicEWMA.toFixed(2))
             insertObj['ACWR'] = programData[day]['loadingData']['Total'].ACWR
-
             dataToGraph['Overall_Total'].push(insertObj)
 
         } else {
             insertObj = {
-                name: dateString
+                name: dateString,
+                day: day
             }
 
             insertObj['Acute Load'] = parseFloat(programData[day]['loadingData']['Total'].acuteEWMA.toFixed(2))
@@ -318,7 +319,8 @@ const generateACWRGraphData = (programData, muscleGroups) => {
                 dataToGraph[muscleGroup + '_Total'] = []
 
                 var insertObj = {
-                    name: dateString
+                    name: dateString,
+                    day: day
                 }
                 insertObj['Acute Load'] = parseFloat(programData[day]['loadingData'][muscleGroup]['Total'].acuteEWMA.toFixed(2))
                 insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData'][muscleGroup]['Total'].chronicEWMA.toFixed(2))
@@ -328,7 +330,8 @@ const generateACWRGraphData = (programData, muscleGroups) => {
 
             } else {
                 insertObj = {
-                    name: dateString
+                    name: dateString,
+                    day: day
                 }
 
                 insertObj['Acute Load'] = parseFloat(programData[day]['loadingData'][muscleGroup]['Total'].acuteEWMA.toFixed(2))
@@ -344,7 +347,8 @@ const generateACWRGraphData = (programData, muscleGroups) => {
                     dataToGraph[muscle] = []
 
                     var insertObj = {
-                        name: dateString
+                        name: dateString,
+                        day: day
                     }
                     insertObj['Acute Load'] = parseFloat(programData[day]['loadingData'][muscleGroup][muscle].acuteEWMA.toFixed(2))
                     insertObj['Chronic Load'] = parseFloat(programData[day]['loadingData'][muscleGroup][muscle].chronicEWMA.toFixed(2))
@@ -354,7 +358,8 @@ const generateACWRGraphData = (programData, muscleGroups) => {
 
                 } else {
                     insertObj = {
-                        name: dateString
+                        name: dateString,
+                        day: day
                     }
 
                     insertObj['Acute Load'] = parseFloat(programData[day]['loadingData'][muscleGroup][muscle].acuteEWMA.toFixed(2))
@@ -399,7 +404,8 @@ const generateSafeLoadGraphProps = (programData, muscleGroups) => {
                 dataToGraph['Overall_Total'] = []
 
                 var insertObj = {
-                    name: dateString
+                    name: dateString,
+                    day: day
                 }
                 insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
                 insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
@@ -409,7 +415,8 @@ const generateSafeLoadGraphProps = (programData, muscleGroups) => {
 
             } else {
                 insertObj = {
-                    name: dateString
+                    name: dateString,
+                    day: day
                 }
 
                 insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
@@ -427,7 +434,8 @@ const generateSafeLoadGraphProps = (programData, muscleGroups) => {
                     dataToGraph[muscleGroup + '_Total'] = []
 
                     var insertObj = {
-                        name: dateString
+                        name: dateString,
+                        day: day
                     }
                     insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
                     insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
@@ -437,7 +445,8 @@ const generateSafeLoadGraphProps = (programData, muscleGroups) => {
 
                 } else {
                     insertObj = {
-                        name: dateString
+                        name: dateString,
+                        day: day
                     }
 
                     insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
@@ -456,7 +465,8 @@ const generateSafeLoadGraphProps = (programData, muscleGroups) => {
                         dataToGraph[muscle] = []
 
                         var insertObj = {
-                            name: dateString
+                            name: dateString,
+                            day: day
                         }
                         insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
                         insertObj[upperSeries] = parseFloat(((1 + threshold / 100) * loadingVal).toFixed(2))
@@ -466,7 +476,8 @@ const generateSafeLoadGraphProps = (programData, muscleGroups) => {
 
                     } else {
                         insertObj = {
-                            name: dateString
+                            name: dateString,
+                            day: day
                         }
 
                         insertObj[lowerSeries] = parseFloat(((1 - threshold / 100) * loadingVal).toFixed(2))
