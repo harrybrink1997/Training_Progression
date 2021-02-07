@@ -893,6 +893,42 @@ const calculateRollingMonthlyAverage = (pastUserData, currentWeekData) => {
     }
 }
 
+const generateHistoricalTableData = (dayData, scheme) => {
+    var tableData = []
+    if (scheme == 'rpe_time') {
+        Object.keys(dayData).forEach(exerciseName => {
+
+            if (exerciseName !== 'loadingData') {
+                var exercise = dayData[exerciseName]
+                tableData.push({
+                    exercise: exercise.exercise,
+                    sets: exercise.sets,
+                    reps: exercise.reps,
+                    time: exercise.time,
+                    rpe: exercise.rpe
+                })
+            }
+        })
+    } else {
+        Object.keys(dayData).forEach(exerciseName => {
+
+            if (exerciseName !== 'loadingData') {
+                var exercise = dayData[exerciseName]
+                tableData.push({
+                    exercise: exercise.exercise,
+                    sets: exercise.sets,
+                    reps: exercise.reps,
+                    weight: exercise.weight,
+                    time: exercise.time,
+                    rpe: exercise.rpe
+                })
+            }
+        })
+    }
+    return tableData
+
+}
+
 export {
     generateDaysInWeekScope,
     updatedDailyExerciseList,
@@ -904,5 +940,6 @@ export {
     checkNullExerciseData,
     generateACWRGraphData,
     generateSafeLoadGraphProps,
-    generateCurrDaySafeLoadData
+    generateCurrDaySafeLoadData,
+    generateHistoricalTableData
 }

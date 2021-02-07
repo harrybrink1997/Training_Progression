@@ -199,10 +199,13 @@ const ExerciseTableDayViewWeightReps = ({ data, handleTableUpdate }) => {
                 accessor: 'weight',
             },
             {
+                Header: 'RPE',
+                accessor: 'rpe',
+            },
+            {
                 Header: 'Time',
                 accessor: 'time',
             },
-
         ],
         []
     )
@@ -284,3 +287,4 @@ const ExerciseTableDayViewWeightReps = ({ data, handleTableUpdate }) => {
 }
 
 export default ExerciseTableContainerNoBtns
+export { LoadingSchemeExTable }

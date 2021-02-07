@@ -10,7 +10,6 @@ const ACWEGraph = ({ ACWRData, clickHandler = undefined }) => {
 
     const handleOnClick = (e) => {
         if (clickHandler) {
-            console.log(e.payload.day)
             clickHandler(e.payload.day)
         }
     }

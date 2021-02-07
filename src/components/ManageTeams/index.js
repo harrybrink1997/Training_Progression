@@ -14,10 +14,11 @@ import { cmp } from '../../constants/sortingFunctions'
 import InputLabel from '../CustomComponents/DarkModeInput';
 import ProgramDeployment, { initProgDeployCoachProgGroupTableData, initProgDeployCoachProgramTableData } from '../CustomComponents/programDeployment';
 import SelectAthletesTable from './selectAthletesTable';
-import { generateCurrDaySafeLoadData, generateACWRGraphData, generateSafeLoadGraphProps } from '../../constants/viewProgramPagesFunctions'
+import { generateCurrDaySafeLoadData, generateACWRGraphData, generateSafeLoadGraphProps, generateHistoricalTableData } from '../../constants/viewProgramPagesFunctions'
 import TeamMemberLoadLogModal from './teamMemberLoadLogModal';
 import RedGreenUnderlinePagTable from '../CustomComponents/redGreenUnderlinePagTable';
 import * as programIDFunctions from '../../constants/programIDManipulation'
+import { capitaliseFirstLetter } from '../../constants/stringManipulation'
 import TeamMemberProgLoadInfo from './teamMemberProgLoadInfo';
 
 class ManageTeamsPage extends Component {
@@ -636,7 +637,7 @@ class ManageTeamsPage extends Component {
                     const athleteData = userData.val();
 
                     if (athleteData.currentPrograms) {
-                        var loadingData = this.processAthleteLoadingData(athleteData.currentPrograms, athlete.athleteUID)
+                        var loadingData = this.processAthleteLoadingData(athleteData.currentPrograms, { uid: athlete.athleteUID, username: athlete.username })
 
                         payLoad.data.push({
                             username: athleteData.username,
@@ -713,7 +714,7 @@ class ManageTeamsPage extends Component {
         return -1
     }
 
-    processAthleteLoadingData = (currentPrograms, athleteUID) => {
+    processAthleteLoadingData = (currentPrograms, athlete) => {
         console.log(currentPrograms)
         var payLoad = {
             lastDayOverloaded: undefined,
@@ -759,7 +760,7 @@ class ManageTeamsPage extends Component {
                     buttons:
                         <Button
                             className='lightPurpleButton'
-                            onClick={() => { this.handleViewProgramLoadingLogs(program, athleteUID) }}
+                            onClick={() => { this.handleViewProgramLoadingLogs(program, athlete) }}
                         >
                             View Program Logs
                         </Button>
@@ -773,26 +774,31 @@ class ManageTeamsPage extends Component {
 
     }
 
-    handleViewProgramLoadingLogs = (program, athleteUID) => {
-        console.log('viewing program loads')
-        console.log(program)
-        console.log(athleteUID)
+    handleViewProgramLoadingLogs = (program, athlete) => {
+
         this.setState({
             pageBodyContentLoading: true
         }, () => {
             this.props.firebase.getProgramData(
-                athleteUID,
+                athlete.uid,
                 program
             ).once('value', userData => {
 
                 const programData = userData.val();
-                var rawAnatomyData = this.state.currTeam.rawAnatomyData
 
+
+                var rawAnatomyData = this.state.currTeam.rawAnatomyData
+                console.log(programData)
                 var loadingInfo = {
+                    athleteUID: athlete.uid,
+                    username: athlete.username,
+                    programName: program,
+                    specificDayLoadingInfo: undefined,
                     ACWRGraphProps: generateACWRGraphData(programData, rawAnatomyData),
                     rollingAverageGraphProps: generateSafeLoadGraphProps(programData, rawAnatomyData),
                     currentBodyPart: 'Overall_Total',
                     currMuscleGroupOpen: 'Arms',
+                    loadingScheme: programData.loading_scheme
                 }
 
                 this.state.currTeam.pageHistory.next('teamMemberProgramLoadingInfo')
@@ -815,6 +821,26 @@ class ManageTeamsPage extends Component {
         })
 
 
+    }
+
+    handleGetSpecificDayProgramData = (day) => {
+        this.props.firebase.getProgramData(
+            this.state.currTeam.memberProgramLoadingInfo.athleteUID,
+            this.state.currTeam.memberProgramLoadingInfo.programName
+        ).once('value', userData => {
+            const programData = userData.val();
+
+            this.setState(prevState => ({
+                currTeam: {
+                    ...prevState.currTeam,
+                    memberProgramLoadingInfo: {
+                        ...prevState.currTeam.memberProgramLoadingInfo,
+                        specificDayLoadingInfo: generateHistoricalTableData(programData[day], this.state.currTeam.memberProgramLoadingInfo.loadingScheme)
+                    }
+                }
+            }))
+
+        })
     }
 
     initNonCurrTeamMembersData = (allAthleteData, currTeamMemberData) => {
@@ -1183,8 +1209,13 @@ class ManageTeamsPage extends Component {
                             }
                             {
                                 currTeam.view === 'teamMemberProgramLoadingInfo' &&
-                                <div className='rowContainer centred-info sml-margin-top'>
-                                    programName
+                                <div className='columnContainer'>
+                                    <div className='pageSubHeader1'>
+                                        {capitaliseFirstLetter(currTeam.memberProgramLoadingInfo.username)}
+                                    </div>
+                                    <div className='pageSubHeader2'>
+                                        {capitaliseFirstLetter(programIDFunctions.getName(currTeam.memberProgramLoadingInfo.programName))}
+                                    </div>
                                 </div>
                             }
                         </>
@@ -1303,10 +1334,12 @@ class ManageTeamsPage extends Component {
                 }
                 {
                     currTeam && currTeam.view === 'teamMemberProgramLoadingInfo' &&
-                    < div className='pageContainerLevel1'>
+                    <div>
                         <TeamMemberProgLoadInfo
                             loadingInfo={currTeam.memberProgramLoadingInfo}
                             anatomyData={this.state.currTeam.rawAnatomyData}
+                            clickDayHandler={this.handleGetSpecificDayProgramData}
+                            specificDayExData={currTeam.memberProgramLoadingInfo.specificDayLoadingInfo}
                         />
                     </div>
                 }
