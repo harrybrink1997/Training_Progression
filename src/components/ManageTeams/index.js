@@ -801,7 +801,7 @@ class ManageTeamsPage extends Component {
                     loadingScheme: programData.loading_scheme
                 }
 
-                this.state.currTeam.pageHistory.next('teamMemberProgramLoadingInfo')
+                this.state.currTeam.pageHistory.next(this.state.currTeam.view)
 
                 this.setState(prevState => ({
                     ...prevState,
