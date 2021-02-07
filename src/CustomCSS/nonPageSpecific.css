@@ -97,6 +97,14 @@
     margin-top: 10px;
 }
 
+.tiny-margin-top {
+    margin-top: 2px;
+}
+
+.sml-margin-left {
+    margin-left: 10px;
+}
+
 .med-margin-bottom {
     margin-bottom: 15px;
 }
@@ -105,5 +113,13 @@
     text-align: center;
     padding-top: 10px;
     font-size: 18px;
+}
+
+.tableHeader {
+    text-align: center;
+    padding-top: 10px;
+    font-size: 20px;
+    font-weight: 600;
+    padding-bottom: 10px;
 }
 

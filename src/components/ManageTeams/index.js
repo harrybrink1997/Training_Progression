@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withCoachAuthorisation } from '../Session';
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
-import { Dimmer, Loader, List, Button } from 'semantic-ui-react'
+import { Dimmer, Loader, List, Button, Form, Input } from 'semantic-ui-react'
 import CreateTeamModal from './createTeamModal'
 import { ManageTeamButton } from '../CustomComponents/customButtons'
 
@@ -20,6 +20,7 @@ import RedGreenUnderlinePagTable from '../CustomComponents/redGreenUnderlinePagT
 import * as programIDFunctions from '../../constants/programIDManipulation'
 import { capitaliseFirstLetter } from '../../constants/stringManipulation'
 import TeamMemberProgLoadInfo from './teamMemberProgLoadInfo';
+import TeamLoadingDataOverview from './teamLoadingDataOverview';
 
 class ManageTeamsPage extends Component {
 
@@ -590,8 +591,9 @@ class ManageTeamsPage extends Component {
                                 viewTeamFunctions: {},
                                 loadingData: this.initTeamLoadingData(currTeamMemberData, anatomyObject),
                                 rawAnatomyData: anatomyObject,
+                                memberProgramLoadingInfo: undefined,
                                 daysSinceOverloadThreshold: 5,
-                                memberProgramLoadingInfo: undefined
+                                overviewTableVisible: true
 
                             }
                         }, () => {
@@ -1242,20 +1244,26 @@ class ManageTeamsPage extends Component {
                 }
                 {
                     currTeam && currTeam.view === 'manageTeamLoads' &&
-                    < div className='pageContainerLevel1'>
-                        <InputLabel
-                            text='Team Loading Data'
-                            custID='programHistHeader'
-                        />
-                        {
-                            currTeam.loadingData &&
-                            <RedGreenUnderlinePagTable
-                                data={currTeam.loadingData.data}
-                                columns={currTeam.loadingData.columns}
-                                warnBelowThreshold={true}
-                                warningThreshold={currTeam.daysSinceOverloadThreshold}
+                    <div className='columnContainer'>
+                        <div className='pageContainerLevel1'>
+                            <TeamLoadingDataOverview
+                                dayThreshold={currTeam.daysSinceOverloadThreshold}
                             />
-                        }
+                        </div>
+                        < div className='pageContainerLevel1'>
+                            <div className='tableHeader'>
+                                Loading Data
+                            </div>
+                            {
+                                currTeam.loadingData &&
+                                <RedGreenUnderlinePagTable
+                                    data={currTeam.loadingData.data}
+                                    columns={currTeam.loadingData.columns}
+                                    warnBelowThreshold={true}
+                                    warningThreshold={currTeam.daysSinceOverloadThreshold}
+                                />
+                            }
+                        </div>
                     </div>
                 }
                 {
