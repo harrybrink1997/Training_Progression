@@ -32,6 +32,10 @@ class ManageTeamsPage extends Component {
         }
     }
 
+    CONSTANTS = {
+        DAY_THRESHOLD: 5
+    }
+
     componentDidMount() {
         this.setState({ loading: true });
 
@@ -559,17 +563,18 @@ class ManageTeamsPage extends Component {
         return count
     }
 
+
     handleManageTeamClick = (team) => {
         this.setState({
             pageBodyContentLoading: true,
             currTeam: {
                 team: team
             }
-        }, () => {
+        }, async () => {
             this.props.firebase.getUserData(
                 this.props.firebase.auth.currentUser.uid
             )
-                .once('value', userData => {
+                .once('value', async userData => {
                     const userObject = userData.val();
 
                     this.props.firebase.anatomy().once('value', async snapshot => {
@@ -577,37 +582,73 @@ class ManageTeamsPage extends Component {
 
                         var currTeamMemberData = this.initCurrTeamMemberData(team, userObject.currentAthletes)
 
-                        this.setState({
-                            currTeam: {
-                                team: team,
-                                description: userObject.teams[team].description,
-                                view: 'home',
-                                pageHistory: new PageHistory(),
-                                showViewProgramErrorModal: false,
-                                viewProgramErrorType: undefined,
-                                currTeamProgramData: this.initCurrTeamProgramData(userObject.teams[team].programs),
-                                currTeamMemberData: currTeamMemberData,
-                                nonCurrTeamMemberData: this.initNonCurrTeamMembersData(this.state.athleteTableData, currTeamMemberData),
-                                viewTeamFunctions: {},
-                                loadingData: this.initTeamLoadingData(currTeamMemberData, anatomyObject),
-                                rawAnatomyData: anatomyObject,
-                                memberProgramLoadingInfo: undefined,
-                                daysSinceOverloadThreshold: 5,
-                                overviewTableVisible: true
+                        this.initTeamLoadingData(currTeamMemberData).then(promises => {
+                            Promise.all(promises).then(athleteResponses => {
 
-                            }
-                        }, () => {
-                            this.setState({
-                                pageBodyContentLoading: false
+                                var teamLoadingData = this.formatAthleteLoadData(athleteResponses)
+
+                                this.setState({
+                                    pageBodyContentLoading: false,
+                                    currTeam: {
+                                        team: team,
+                                        description: userObject.teams[team].description,
+                                        view: 'home',
+                                        pageHistory: new PageHistory(),
+                                        showViewProgramErrorModal: false,
+                                        viewProgramErrorType: undefined,
+                                        currTeamProgramData: this.initCurrTeamProgramData(userObject.teams[team].programs),
+                                        currTeamMemberData: currTeamMemberData,
+                                        nonCurrTeamMemberData: this.initNonCurrTeamMembersData(this.state.athleteTableData, currTeamMemberData),
+                                        viewTeamFunctions: {},
+                                        loadingData: teamLoadingData,
+                                        rawAnatomyData: anatomyObject,
+                                        memberProgramLoadingInfo: undefined,
+                                        daysSinceOverloadThreshold: 5,
+                                        overviewTableVisible: true,
+                                        teamLoadOverviewData: this.initOverviewData(teamLoadingData, 5),
+                                    }
+                                })
                             })
                         })
-                    });
+                    })
                 })
-
         })
     }
 
-    initTeamLoadingData = (currTeamMemberData, anatomyObject) => {
+    initOverviewData = (teamData, threshold) => {
+        var aboveCount = 0
+        var belowCount = 0
+
+
+        for (var index in teamData.data) {
+            console.log("hey")
+            var athlete = teamData.data[index]
+            if (athlete.lastDayOverloaded === "") {
+                console.log("going in ")
+                aboveCount++
+            } else if (athlete.lastDayOverloaded <= threshold) {
+                console.log("going in 1")
+                belowCount++
+            } else {
+                console.log("going in 2")
+                aboveCount++
+            }
+        }
+
+        return [
+            {
+                field: `Green Zone Athletes (Number which haven't overloaded within ${threshold} days)`,
+                value: aboveCount
+            },
+            {
+                field: `Red Zone Athletes (Number which have overloaded within ${threshold} days)`,
+                value: belowCount
+            },
+        ]
+    }
+
+
+    formatAthleteLoadData = (data) => {
 
         var payLoad = {
             columns:
@@ -629,10 +670,42 @@ class ManageTeamsPage extends Component {
                     }
 
                 ],
-            data: []
+
         }
 
+        var athleteData = [...data]
+
+        athleteData.sort((a, b) => {
+            if (!a.warningValue && a.warningValue) {
+                return 1
+            } else if (a.warningValue && !b.warningValue) {
+                return -1
+            } else if (!a.warningValue && !b.warningValue) {
+                return 0
+            } else {
+                return cmp(a.warningValue, b.warningValue)
+            }
+        })
+
+        payLoad.data = athleteData
+
+        return payLoad
+    }
+
+    initTeamLoadingData = async (currTeamMemberData) => {
+
+        const dbPromises = []
+
         currTeamMemberData.data.forEach(athlete => {
+            dbPromises.push(this.prepareAthleteLoadData(athlete))
+        })
+
+        return dbPromises
+
+    }
+
+    prepareAthleteLoadData = (athlete) => {
+        return new Promise(resolve => {
             this.props.firebase.getUserData(athlete.athleteUID)
                 .once('value', userData => {
 
@@ -641,7 +714,7 @@ class ManageTeamsPage extends Component {
                     if (athleteData.currentPrograms) {
                         var loadingData = this.processAthleteLoadingData(athleteData.currentPrograms, { uid: athlete.athleteUID, username: athlete.username })
 
-                        payLoad.data.push({
+                        resolve({
                             username: athleteData.username,
                             email: athleteData.email,
                             lastDayOverloaded: loadingData.lastDayOverloaded,
@@ -654,7 +727,7 @@ class ManageTeamsPage extends Component {
                                 />
                         })
                     } else {
-                        payLoad.data.push({
+                        resolve({
                             username: athleteData.username,
                             email: athleteData.email,
                             lastDayOverloaded: '',
@@ -662,24 +735,8 @@ class ManageTeamsPage extends Component {
                             modal: 'No Loading Data'
                         })
                     }
-
-                    payLoad.data.sort((a, b) => {
-                        if (!a.warningValue && a.warningValue) {
-                            return 1
-                        } else if (a.warningValue && !b.warningValue) {
-                            return -1
-                        } else if (!a.warningValue && !b.warningValue) {
-                            return 0
-                        } else {
-                            return cmp(a.warningValue, b.warningValue)
-                        }
-                    })
-
                 })
         })
-
-        return payLoad
-
     }
 
     validProgramForLoadCheck = (programName, programData) => {
@@ -1248,6 +1305,7 @@ class ManageTeamsPage extends Component {
                         <div className='pageContainerLevel1'>
                             <TeamLoadingDataOverview
                                 dayThreshold={currTeam.daysSinceOverloadThreshold}
+                                data={currTeam.teamLoadOverviewData}
                             />
                         </div>
                         < div className='pageContainerLevel1'>

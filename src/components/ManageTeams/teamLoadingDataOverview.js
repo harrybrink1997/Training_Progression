@@ -52,11 +52,13 @@ const TeamLoadingDataOverview = ({ dayThreshold, data }) => {
                     </div>
                 </Form>
             </div>
-            <BasicTable
-                data={data}
-                columns={columns}
-                header={false}
-            />
+            <div className='half-width centred-info'>
+                <BasicTable
+                    data={data}
+                    columns={columns}
+                    header={false}
+                />
+            </div>
 
         </>
     )
