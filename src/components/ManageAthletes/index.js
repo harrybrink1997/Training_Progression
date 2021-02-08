@@ -839,6 +839,9 @@ class ManageAthletesPage extends Component {
                     currentAthProgData.unshift(prog)
                 })
 
+                this.props.firebase.updateDatabaseFromRootPath(payLoad)
+
+
                 this.setState(prevState => ({
                     ...prevState,
                     pageBodyContentLoading: false,
