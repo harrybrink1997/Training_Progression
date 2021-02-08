@@ -38,7 +38,7 @@ const RedGreenUnderlineBasicTable = ({ data, columns, warningThreshold, warnBelo
                         prepareRow(row)
                         if (row.original.warningValue !== undefined) {
                             if (warnBelowThreshold) {
-                                if (row.original.warningValue < warningThreshold && row.original.warningValue !== false) {
+                                if (row.original.warningValue <= warningThreshold && row.original.warningValue !== false) {
                                     return (
                                         <Table.Row className='redUnderlineTableRow' {...row.getRowProps()}>
                                             {row.cells.map(cell => {
@@ -56,7 +56,7 @@ const RedGreenUnderlineBasicTable = ({ data, columns, warningThreshold, warnBelo
                                     )
                                 }
                             } else {
-                                if (row.original.warningValue > warningThreshold && row.original.warningValue !== false) {
+                                if (row.original.warningValue >= warningThreshold && row.original.warningValue !== false) {
                                     return (
                                         <Table.Row className='redUnderlineTableRow' {...row.getRowProps()}>
                                             {row.cells.map(cell => {
