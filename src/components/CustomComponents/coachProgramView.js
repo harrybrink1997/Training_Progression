@@ -12,6 +12,7 @@ import BodyPartListGroup from '../CustomComponents/bodyPartListGroup'
 import InputLabel from '../CustomComponents/DarkModeInput'
 import { ACWEGraph, RollChronicACWRGraph } from '../ProgressionData/ACWRGraph'
 import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID, generateACWRGraphData, generateSafeLoadGraphProps } from '../../constants/viewProgramPagesFunctions'
+import StartProgramView from '../CustomComponents/startProgramView'
 
 
 const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseList, availExerciseColumns, nullExerciseData, submitProcessingBackend, rawAnatomyData }) => {
@@ -143,6 +144,17 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         handlerFunctions.handleDeleteExerciseButton(id)
     }
 
+    const handleStartProgram = () => {
+        let startDateUTS = new Date().getTime()
+        handlerFunctions.handleStartProgram(startDateUTS)
+
+        setProgramData({
+            type: PROGRAM_ACTIONS.START_PROGRAM,
+            payLoad: startDateUTS
+        })
+
+    }
+
     const handleUpdateExercise = (updateObject) => {
 
         var day = updateObject.exUid.split('_').reverse()[1]
@@ -211,6 +223,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
             currentDayUI: rawProgramData.currentDayInProgram,
             openDaysUI: [false, false, false, false, false, false, false],
             currButtonView: initCurrButtonView(rawProgramData.order, rawProgramData.isActiveInSequence, rawProgramData.currentDayInProgram),
+            startDayUTS: rawProgramData.startDayUTS
         }
 
         return payLoad
@@ -235,7 +248,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
     const PROGRESSION_ACTIONS = {
         CHANGE_BODY_PART: 'changeBodyPart',
         CHANGE_OPEN_BODY_GROUP: 'changeOpenBodyGroup',
-        UPDATE_GRAPH_DATA: 'updateGraphData'
+        UPDATE_GRAPH_DATA: 'updateGraphData',
     }
 
     const progressionDataReducer = (state, action) => {
@@ -276,7 +289,9 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         CHANGE_CURRENT_EXERCISE_LIST: 'changeCurrentExerciseList',
         UPDATE_ON_WEEK_CHANGE: 'updateOnWeekChange',
         CHANGE_WEEK: 'changeWeek',
-        CHANGE_DAYS_OPEN_VIEW: 'changeDaysOpenView'
+        CHANGE_DAYS_OPEN_VIEW: 'changeDaysOpenView',
+        START_PROGRAM: 'startProgram'
+
     }
 
     const programDataReducer = (state, action) => {
@@ -309,6 +324,12 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
                     openDaysUI: action.payLoad
                 }
 
+            case PROGRAM_ACTIONS.START_PROGRAM:
+                return {
+                    ...state,
+                    startDayUTS: action.payLoad
+
+                }
             default:
                 return state
 
@@ -401,7 +422,9 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
 
     const initialiseProgressionData = (rawProgramData) => {
         console.log(rawProgramData)
-        if (rawProgramData.order && !rawProgramData.isActiveInSequence) {
+        if (rawProgramData.currentDayInProgram === 1) {
+            return undefined
+        } else if (rawProgramData.order && !rawProgramData.isActiveInSequence) {
             return undefined
         } else {
             return {
@@ -525,62 +548,69 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
                 nullExTableData={nullExerciseData.nullTableData}
                 scheme={programData.loadingScheme}
             />
-            <div className='rowContainer centred-info sml-margin-top'>
-                {
-                    programData.currButtonView.submitDay ?
-                        <SubmitDayModal
-                            handleFormSubmit={handleSubmitButton}
-                            submitDataProcessing={submitDailyExDataProcessing}
-                        />
-                        :
-                        (programData.currButtonView.prevWeek) ?
-                            <div>
-                                <Button
-                                    onClick={() => { handleChangeWeekView(false) }}
-                                    className='purpleButton'
-                                >
-                                    Previous Week
+            {
+                programData.startDayUTS ?
+                    <>
+                        <div className='rowContainer centred-info sml-margin-top'>
+                            {
+                                programData.currButtonView.submitDay ?
+                                    <SubmitDayModal
+                                        handleFormSubmit={handleSubmitButton}
+                                        submitDataProcessing={submitDailyExDataProcessing}
+                                    />
+                                    :
+                                    (programData.currButtonView.prevWeek) ?
+                                        <div>
+                                            <Button
+                                                onClick={() => { handleChangeWeekView(false) }}
+                                                className='purpleButton'
+                                            >
+                                                Previous Week
                                 </Button>
-                                <Button
-                                    className='purpleButton'
-                                    onClick={() => { handleChangeWeekView(true) }}
-                                >
-                                    Next Week
+                                            <Button
+                                                className='purpleButton'
+                                                onClick={() => { handleChangeWeekView(true) }}
+                                            >
+                                                Next Week
                                 </Button>
-                            </div>
-                            :
-                            <Button
-                                className='purpleButton'
-                                onClick={() => { handleChangeWeekView(true) }}
-                            >
-                                Next Week
+                                        </div>
+                                        :
+                                        <Button
+                                            className='purpleButton'
+                                            onClick={() => { handleChangeWeekView(true) }}
+                                        >
+                                            Next Week
                             </Button>
-
-
-                }
-            </div>
-            <div className='rowContainer'>
-                <div className='pageContainerLevel1 half-width'>
-                    {/* <CoachAvailExProgHistToggle
+                            }
+                        </div>
+                        <div className='rowContainer'>
+                            <div className='pageContainerLevel1 half-width'>
+                                {/* <CoachAvailExProgHistToggle
                         currentView={currExerciseView}
                         clickHandler={(newView) => { setCurrExerciseView(newView) }}
                     /> */}
-                    <AvailableExercisesList
-                        columns={availExerciseColumns}
-                        data={exerciseData.chartData}
-                    />
+                                <AvailableExercisesList
+                                    columns={availExerciseColumns}
+                                    data={exerciseData.chartData}
+                                />
 
-                </div>
-                <div className='pageContainerLevel1 half-width'>
-                    <CurrentWeekExercisesContainer
-                        dailyExercises={programData.exerciseListPerDay}
-                        loadingScheme={programData.loadingScheme}
-                        daysViewHandler={handleChangeDaysOpenView}
-                        daysInWeekScope={programData.daysInWeekScope}
-                        openDaysUI={programData.openDaysUI}
+                            </div>
+                            <div className='pageContainerLevel1 half-width'>
+                                <CurrentWeekExercisesContainer
+                                    dailyExercises={programData.exerciseListPerDay}
+                                    loadingScheme={programData.loadingScheme}
+                                    daysViewHandler={handleChangeDaysOpenView}
+                                    daysInWeekScope={programData.daysInWeekScope}
+                                    openDaysUI={programData.openDaysUI}
+                                />
+                            </div>
+                        </div>
+                    </>
+                    :
+                    <StartProgramView
+                        handleFormProceed={handleStartProgram}
                     />
-                </div>
-            </div>
+            }
         </>
 
     let progressionHTML =

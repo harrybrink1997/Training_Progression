@@ -392,7 +392,8 @@ class ManageAthletesPage extends Component {
                                         handleUpdateExercise: this.handleUpdateExercise,
                                         handleAddExerciseButton: this.handleAddExerciseButton,
                                         handleSubmitButton: this.handleSubmitButton,
-                                        handleNullCheckProceed: this.handleNullCheckProceed
+                                        handleNullCheckProceed: this.handleNullCheckProceed,
+                                        handleStartProgram: this.handleStartProgram
                                     },
                                     nullExerciseData: {
                                         hasNullData: false,
@@ -408,6 +409,21 @@ class ManageAthletesPage extends Component {
                 })
 
         })
+    }
+
+    handleStartProgram = (timestamp, programName) => {
+        console.log(this.state.currAthlete)
+        var path =
+            '/users/'
+            + this.state.currAthlete.uid
+            + '/currentPrograms/'
+            + this.state.currAthlete.currViewedProgramName
+            + '/startDayUTS'
+
+        var payLoad = {}
+        payLoad[path] = timestamp
+
+        this.props.firebase.updateDatabaseFromRootPath(payLoad)
     }
 
     checkAthleteAssignedToTeam = (athleteObject, team) => {
@@ -840,7 +856,6 @@ class ManageAthletesPage extends Component {
                 })
 
                 this.props.firebase.updateDatabaseFromRootPath(payLoad)
-
 
                 this.setState(prevState => ({
                     ...prevState,
