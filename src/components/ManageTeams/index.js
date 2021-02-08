@@ -619,7 +619,6 @@ class ManageTeamsPage extends Component {
         var aboveCount = 0
         var belowCount = 0
 
-
         for (var index in teamData.data) {
             var athlete = teamData.data[index]
             if (athlete.lastDayOverloaded === "") {
@@ -827,6 +826,45 @@ class ManageTeamsPage extends Component {
 
         return payLoad
 
+    }
+
+    handleDayThresholdChange = (threshold) => {
+
+        let currTeamLoadTableData = { ...this.state.currTeam.loadingData }
+
+        let newOverview = this.initOverviewData(currTeamLoadTableData, threshold)
+
+        console.log(currTeamLoadTableData)
+
+        var newLoadData = {
+            columns: currTeamLoadTableData.columns,
+            data: []
+        }
+
+        currTeamLoadTableData.data.forEach(athlete => {
+            if (athlete.modal.props) {
+                let currLogsData = { ...athlete.modal.props.logsData }
+
+                athlete.modal =
+                    <TeamMemberLoadLogModal
+                        logsData={currLogsData}
+                        warningThreshold={parseInt(threshold)}
+                        warnBelowThreshold={true}
+                    />
+            }
+
+            newLoadData.data.push(athlete)
+        })
+
+        this.setState(prevState => ({
+            ...prevState,
+            currTeam: {
+                ...prevState.currTeam,
+                teamLoadOverviewData: newOverview,
+                daysSinceOverloadThreshold: threshold,
+                loadingData: newLoadData
+            }
+        }))
     }
 
     handleViewProgramLoadingLogs = (program, athlete) => {
@@ -1302,6 +1340,7 @@ class ManageTeamsPage extends Component {
                             <TeamLoadingDataOverview
                                 dayThreshold={currTeam.daysSinceOverloadThreshold}
                                 data={currTeam.teamLoadOverviewData}
+                                submitHandler={this.handleDayThresholdChange}
                             />
                         </div>
                         < div className='pageContainerLevel1'>

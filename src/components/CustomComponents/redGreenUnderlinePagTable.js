@@ -102,7 +102,7 @@ const RedGreenUnderlinePagTable = ({ columns, data, warningThreshold, warnBelowT
                         } else {
 
                             if (warnBelowThreshold) {
-                                if (row.original.warningValue < warningThreshold) {
+                                if (row.original.warningValue <= warningThreshold) {
                                     return (
                                         <Table.Row className='redUnderlineTableRow' {...row.getRowProps()}>
                                             {row.cells.map(cell => {
@@ -120,7 +120,7 @@ const RedGreenUnderlinePagTable = ({ columns, data, warningThreshold, warnBelowT
                                     )
                                 }
                             } else {
-                                if (row.original.warningValue > warningThreshold) {
+                                if (row.original.warningValue >= warningThreshold) {
                                     return (
                                         <Table.Row className='redUnderlineTableRow' {...row.getRowProps()}>
                                             {row.cells.map(cell => {

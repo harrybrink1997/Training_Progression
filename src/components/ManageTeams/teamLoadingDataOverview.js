@@ -28,11 +28,11 @@ const TeamLoadingDataOverview = ({ dayThreshold, data, submitHandler }) => {
     }
 
     const handleSubmit = () => {
-        console.log("submit")
         if (threshold === '') {
             setError(true)
         } else {
             setError(false)
+            submitHandler(threshold)
         }
     }
 
