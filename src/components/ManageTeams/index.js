@@ -621,27 +621,23 @@ class ManageTeamsPage extends Component {
 
 
         for (var index in teamData.data) {
-            console.log("hey")
             var athlete = teamData.data[index]
             if (athlete.lastDayOverloaded === "") {
-                console.log("going in ")
                 aboveCount++
             } else if (athlete.lastDayOverloaded <= threshold) {
-                console.log("going in 1")
                 belowCount++
             } else {
-                console.log("going in 2")
                 aboveCount++
             }
         }
 
         return [
             {
-                field: `Green Zone Athletes (Number which haven't overloaded within ${threshold} days)`,
+                field: 'Green Zone Athletes',
                 value: aboveCount
             },
             {
-                field: `Red Zone Athletes (Number which have overloaded within ${threshold} days)`,
+                field: 'Red Zone Athletes',
                 value: belowCount
             },
         ]

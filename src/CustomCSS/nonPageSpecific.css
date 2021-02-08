@@ -123,3 +123,8 @@
     padding-bottom: 10px;
 }
 
+.errorMessageContainer > p {
+    color: #CF6679;
+    margin-bottom: 10px;
+    text-align: center;
+}

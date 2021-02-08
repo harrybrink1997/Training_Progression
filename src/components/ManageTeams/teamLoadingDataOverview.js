@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { Form, Input, Button } from 'semantic-ui-react'
 import BasicTable from '../CustomComponents/basicTable'
-import InputLabel from '../CustomComponents/DarkModeInput'
-
-const TeamLoadingDataOverview = ({ dayThreshold, data }) => {
+import { FooterErrorMessage } from '../CustomComponents/errorMessage'
+const TeamLoadingDataOverview = ({ dayThreshold, data, submitHandler }) => {
 
     const [threshold, setThreshold] = useState(dayThreshold)
+    const [error, setError] = useState(false)
 
     const columns = [
         {
@@ -17,11 +17,23 @@ const TeamLoadingDataOverview = ({ dayThreshold, data }) => {
     ]
 
     const thresholdChange = (e, { value }) => {
-        console.log(value)
+
+        let input = value.slice(-1)
+
+        if (input >= 0 && input <= 9) {
+            if (value <= 60) {
+                setThreshold(value)
+            }
+        }
     }
 
     const handleSubmit = () => {
         console.log("submit")
+        if (threshold === '') {
+            setError(true)
+        } else {
+            setError(false)
+        }
     }
 
 
@@ -36,7 +48,7 @@ const TeamLoadingDataOverview = ({ dayThreshold, data }) => {
                         <Form.Field inline>
                             <label>Days Since Overloading:</label>
                             <Input
-                                value={dayThreshold}
+                                value={threshold}
                                 size='mini'
                                 onChange={thresholdChange}
                             />
@@ -52,12 +64,20 @@ const TeamLoadingDataOverview = ({ dayThreshold, data }) => {
                     </div>
                 </Form>
             </div>
-            <div className='half-width centred-info'>
-                <BasicTable
-                    data={data}
-                    columns={columns}
-                    header={false}
-                />
+            {
+                error &&
+                <FooterErrorMessage>
+                    Please Input Value Before Submitting.
+                </FooterErrorMessage>
+            }
+            <div className='centred-info'>
+                <div className='half-width'>
+                    <BasicTable
+                        data={data}
+                        columns={columns}
+                        header={false}
+                    />
+                </div>
             </div>
 
         </>
