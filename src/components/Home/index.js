@@ -13,6 +13,7 @@ import OnBoarding from './onBoarding'
 import { Dimmer, Loader, Statistic } from 'semantic-ui-react'
 import InputLabel from '../CustomComponents/DarkModeInput';
 import * as ROUTES from '../../constants/routes'
+import User from '../../objects/user'
 
 class HomePage extends Component {
 
@@ -37,8 +38,18 @@ class HomePage extends Component {
         }
     }
 
+
+    // getUserData = (id) => {
+    //     return new Promise(res, rej => {
+    //         this.props.firebase
+    //     })
+    // }
+
     componentDidMount() {
         this.setState({ loading: true });
+
+        var user = new User(this.props.firebase)
+        user.getUserData(this.props.firebase.auth.currentUser.uid)
 
         var currUserUid = this.props.firebase.auth.currentUser.uid
         this.props.firebase.getUserData(currUserUid).on('value', userData => {

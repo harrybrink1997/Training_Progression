@@ -34,15 +34,24 @@ class SignUpPage extends Component {
                     console.log(userPath)
                     var typePath = `userTypes/${authUser.user.uid}`
 
-                    var payLoad = {}
-                    payLoad[userPath] = {
+                    var payLoad = {
                         username: username,
                         email: email,
-                        userType: userType
+                        userType: userType,
+                        permissions: {
+                            admin: false,
+                        }
                     }
-                    await this.props.firebase.grantModeratorRole(authUser.user.uid, userType)
-                    await this.props.firebase.auth.currentUser.getIdTokenResult(true)
-                    this.props.firebase.createUserUpstream(payLoad)
+                    // await this.props.firebase.grantModeratorRole(authUser.user.uid, userType)
+                    // await this.props.firebase.auth.currentUser.getIdTokenResult(true)
+
+                    // TODO DELETE AFTER DB MIGRATION
+                    var rtPL = {}
+                    rtPL[userPath] = payLoad
+                    await this.props.firebase.createUserUpstream(rtPL)
+                    // END OF DELETE
+
+                    await this.props.firebase.createUserDB(authUser.user.uid, payLoad)
                 })
                 .then(() => {
                     this.props.history.push(ROUTES.HOME);

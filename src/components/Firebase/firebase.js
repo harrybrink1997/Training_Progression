@@ -8,6 +8,7 @@ Creates a firebase object with the configuration as set in the .env file.
 import * as app from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
+import 'firebase/firestore'
 import 'firebase/functions'
 import { ADMIN } from '../../constants/routes';
 
@@ -27,6 +28,7 @@ class Firebase {
 
         this.auth = app.auth();
         this.db = app.database();
+        this.database = app.firestore()
         this.functions = app.functions()
 
     }
@@ -96,10 +98,22 @@ class Firebase {
 
     getCoachCurrAthData = (uid) => this.db.ref(`users/${uid}/currentAthletes`)
 
+    // TODO REMOVE AFTER DB MIGRATION
     createUserUpstream = (submitInfo) => {
         return this.db
             .ref('/')
             .update(submitInfo)
+    }
+
+    getUser = (id) => {
+        return this.database.collection('users').doc(id).get()
+    }
+
+    createUserDB = (id, payLoad) => {
+        return this.database
+            .collection("users")
+            .doc(id)
+            .set(payLoad)
     }
 
     acceptTeamRequestUpstream = (submitInfo) => {
