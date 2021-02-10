@@ -56,5 +56,4 @@ const ManageTeamButton = ({ buttonHandler, objectUID }) => {
     )
 }
 
-
 export { AcceptRequestButton, DeclineRequestButton, AcceptReplaceRequestButton, DeclineReplaceRequestButton, ManageAthleteButton, ManageTeamButton }

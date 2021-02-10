@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withAuthorisation } from '../Session';
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
-import { Dimmer, Loader, List } from 'semantic-ui-react'
+import { Dimmer, Loader, List, Button } from 'semantic-ui-react'
 
 import BasicTable from '../CustomComponents/basicTable'
 import ManageProgramsModal from './manageProgramsModal'
@@ -14,7 +14,9 @@ import { AcceptRequestButton, DeclineRequestButton, AcceptReplaceRequestButton, 
 import ReplaceProgramOptionsModal from './replaceProgramOptionsModal'
 import OverrideReplaceProgramModal from './overrideReplaceProgramModal'
 import ReplaceProgramSequenceModal from './replaceProgramSequenceModal'
-
+import { createUserObject } from '../../objects/user'
+import { createProgramObject } from '../../objects/program'
+import { ProgramList } from '../../objects/programList'
 class ManageProgramsPage extends Component {
 
     constructor(props) {
@@ -28,19 +30,69 @@ class ManageProgramsPage extends Component {
     }
 
     componentDidMount() {
-        this.setState({ loading: true });
+        console.log("going in 0")
+        this.setState({ loading: true }, () => {
+            console.log("going in 1")
+            this.props.firebase.getUser(this.props.firebase.auth.currentUser.uid)
+                .then(snapshot => {
+                    var userInfo = snapshot.data()
+                    console.log("going in 1")
 
-        var currUserUid = this.props.firebase.auth.currentUser.uid
-        this.props.firebase.getUserData(currUserUid).on('value', userData => {
-            const userObject = userData.val();
+                    var userObject = createUserObject(
+                        this.props.firebase.auth.currentUser.uid,
+                        userInfo
+                    )
+                    console.log(userObject)
 
-            this.updateObjectState(userObject)
+                    this.props.firebase.getUserPrograms(userObject.getId())
+                        .then(snapshot => {
+                            console.log(userObject)
+                            var nonPendingPrograms = []
+                            var pendingPrograms = []
+                            if (snapshot.empty) {
+                                nonPendingPrograms = []
+                                pendingPrograms = []
+                            } else {
+                                snapshot.forEach(doc => {
+
+                                    var progObj = createProgramObject(doc.data())
+
+                                    if (progObj.getStatus() === 'pending') {
+                                        pendingPrograms.push(progObj)
+                                    } else {
+                                        nonPendingPrograms.push(progObj)
+                                    }
+                                })
+                            }
+
+                            var nonPendingList = new ProgramList(nonPendingPrograms)
+
+                            var pendingList = new ProgramList(pendingPrograms)
+
+                            this.setState({
+                                user: userObject,
+                                nonPendingProgList: nonPendingList,
+                                progManageTableData: this.initProgramTableData(nonPendingList),
+                                progManageTableColumns: this.initProgramTableColumns(userObject.getUserType()),
+
+                                pendingProgList: pendingList,
+                                pendProgsModalFootText: (!pendingList.isEmptyList()) && '',
+                                loading: false
+
+                            })
+                        })
+                })
+                .catch(error => {
+                    console.log(error)
+                })
         });
-    }
 
+        // var currUserUid = this.props.firebase.auth.currentUser.uid
+        // this.props.firebase.getUserData(currUserUid).on('value', userData => {
+        //     const userObject = userData.val();
 
-    componentWillUnmount() {
-        this.props.firebase.getUserData().off();
+        //     this.updateObjectState(userObject)
+        // });
     }
 
     updateObjectState = (userObject) => {
@@ -54,12 +106,38 @@ class ManageProgramsPage extends Component {
             programManagementTableData: programData.tableData,
             programManagementTableColumns: this.initProgramTableColumns(userObject.userType),
             pendingProgramsTableData: this.initPendingProgramsTableData(userObject),
+
             pendingProgramsData: userObject.pendingPrograms,
-            pendProgsModalFootText: (userObject.pendingPrograms) && '',
             currentProgramsData: userObject.currentPrograms,
             userType: userObject.userType,
             loading: false
         })
+    }
+
+    initProgramTableData = (programList) => {
+
+        var payLoad = []
+
+        programList.getProgramList().forEach(prog => {
+            payLoad.push({
+                program: prog.getName(),
+                loadingScheme: loadingSchemeString(prog.getLoadingScheme()),
+                acutePeriod: prog.getAcutePeriod(),
+                chronicPeriod: prog.getChronicPeriod(),
+                buttons:
+                    <Button
+                        className='lightPurpleButton-inverted'
+                        onClick={() => { this.handleProgramClick(prog.generateProgramUID()) }}
+                    />
+
+            })
+        })
+
+        return payLoad
+    }
+
+    handleProgramClick = (programUID) => {
+        console.log(programUID)
     }
 
     initProgramTableColumns = (userType) => {
@@ -89,7 +167,7 @@ class ManageProgramsPage extends Component {
                         accessor: 'programLength',
                     },
                     {
-                        accessor: 'manageModal',
+                        accessor: 'buttons',
                     }
                 ]
             )
@@ -115,7 +193,7 @@ class ManageProgramsPage extends Component {
                         accessor: 'chronicPeriod',
                     },
                     {
-                        accessor: 'manageModal',
+                        accessor: 'buttons',
                     }
                 ]
             )
@@ -645,54 +723,6 @@ class ManageProgramsPage extends Component {
 
     }
 
-    initProgramData = (userObject) => {
-
-        var returnData = {
-            currentProgramList: false,
-            pastProgramList: false,
-            tableData: []
-        }
-
-        if ('currentPrograms' in userObject) {
-            var currentProgramList = []
-
-            for (var program in userObject.currentPrograms) {
-                currentProgramList.push(program)
-            }
-            returnData.currentProgramList = currentProgramList
-
-            Object.keys(userObject.currentPrograms).forEach(programUID => {
-                var program = userObject.currentPrograms[programUID]
-
-                if (userObject.userType === 'coach') {
-                    returnData.tableData.push({
-                        program: programUID.split('_')[0],
-                        programUID: programUID,
-                        loadingScheme: loadingSchemeString(program.loading_scheme),
-                        acutePeriod: program.acutePeriod,
-                        chronicPeriod: program.chronicPeriod,
-                        programLength: program.currentDayInProgram,
-                        manageModal: <ManageProgramsModal programUID={programUID} athleteData={program} />
-                    })
-                }
-            })
-
-        }
-        // Make the list of past programs.
-        if ('pastPrograms' in userObject) {
-            var pastProgramList = []
-
-            for (program in userObject.pastPrograms) {
-                pastProgramList.push(program)
-            }
-
-            returnData.pastProgramList = pastProgramList
-        }
-
-        return returnData
-    }
-
-
     checkIfProgramAlreadyExists(newProgram) {
         var nameToCheck = newProgram.split('_')[0] + '_' + newProgram.split('_')[1]
         if (this.state.currentProgramList.length > 0) {
@@ -724,71 +754,59 @@ class ManageProgramsPage extends Component {
     handleCreateProgram = async (programName, acutePeriod, chronicPeriod, loadingScheme, date, goalList) => {
 
         // Creates a unique name for a program. Input name + coach UID + timestamp of creation.
+        var timestamp = new Date().getTime()
         programName = programName.trim()
-            + '_'
-            + this.props.firebase.auth.currentUser.uid
-            + '_'
-            + new Date().getTime().toString()
-
-        if (this.checkIfProgramAlreadyExists(programName)) {
-            alert('Program with name "' + programName.split('_')[0] + '" already exists in either your current or past programs.')
-        } else {
-
-            var path = `/users/${this.props.firebase.auth.currentUser.uid}/`
-            var payLoad = {}
-
-            if (this.state.userType === 'athlete') {
-                var goalListObject = {}
-                var index = 1
-                Object.values(goalList).forEach(goal => {
-                    goalListObject['Goal_' + index] = goal.getFormattedGoalObject()
-                    index++
-                })
-
-                var dateConversion = date.split('-')
-
-                dateConversion = dateConversion[2] + '-' + dateConversion[1] + '-' + dateConversion[0]
-
-                var startTimestamp = Math.floor(new Date(dateConversion).getTime())
 
 
-                var programObject = {
-                    loading_scheme: loadingScheme,
-                    acutePeriod: acutePeriod,
-                    chronicPeriod: chronicPeriod,
-                    startDayUTS: startTimestamp,
-                    currentDayInProgram: 1,
-                    currentDayUTS: startTimestamp,
-                    goals: goalListObject
-                }
+        // if (this.checkIfProgramAlreadyExists(programName)) {
+        //     alert('Program with name "' + programName.split('_')[0] + '" already exists in either your current or past programs.')
+        // } else {
 
-                payLoad[path + 'currentPrograms/' + programName] = programObject
-
-                payLoad[path + 'activeProgram'] = programName
-
-                this.props.firebase.updateDatabaseFromRootPath(payLoad)
-
-            } else {
-
-                var programObject = {
-                    loading_scheme: loadingScheme,
-                    acutePeriod: acutePeriod,
-                    chronicPeriod: chronicPeriod,
-                    startDayUTS: startTimestamp,
-                    currentDayInProgram: 1,
-                    currentDayUTS: null,
-                    goals: null
-                }
-
-                payLoad[path + 'currentPrograms/' + programName] = programObject
-
-                payLoad[path + 'activeProgram'] = programName
-
-                this.props.firebase.updateDatabaseFromRootPath(payLoad)
-
-            }
+        var payLoad = {
+            name: programName,
+            owner: this.props.firebase.auth.currentUser.uid,
+            acutePeriod: acutePeriod,
+            chronicPeriod: chronicPeriod,
+            loadingScheme: loadingScheme,
+            creationDate: timestamp,
+            currentDay: 1,
+            status: 'current'
 
         }
+
+        var goalListArr = []
+
+        if (this.state.userType === 'athlete') {
+            Object.values(goalList).forEach(goal => {
+                var formattedObj = goal.getFormattedGoalObject()
+                formattedObj.owner = this.props.firebase.auth.currentUser.uid
+                formattedObj.program = programName
+
+                goalListArr.push(formattedObj)
+            })
+
+            var dateConversion = date.split('-')
+
+            dateConversion = dateConversion[2] + '-' + dateConversion[1] + '-' + dateConversion[0]
+
+            const startTimestamp = Math.floor(new Date(dateConversion).getTime())
+
+            payLoad.athlete = this.props.firebase.auth.currentUser.uid
+
+            payLoad.team = 'none'
+
+            payLoad.startDayUTS = startTimestamp
+        }
+
+        if (goalListArr.length === 0) {
+            goalListArr = undefined
+        }
+
+        this.props.firebase.createProgramDB(
+            this.props.firebase.auth.currentUser.uid,
+            payLoad,
+            goalListArr
+        )
     }
 
 
@@ -890,13 +908,13 @@ class ManageProgramsPage extends Component {
     render() {
         const {
             loading,
-            programManagementTableData,
-            programManagementTableColumns,
-            currentProgramList,
-            pendingProgramsTableData,
-            pastProgramList,
-            userType
+            user,
+            nonPendingList,
+            pendingList,
+            progManageTableData,
+            progManageTableColumns
         } = this.state
+        console.log(user)
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
@@ -910,51 +928,52 @@ class ManageProgramsPage extends Component {
                             Program Management
                         </div>
                         <div id='hpBtnContainer' >
-                            <div id='hpLeftBtnContainer'>
+                            {/* <div id='hpLeftBtnContainer'>
                                 <DeleteProgramModal
                                     handleFormSubmit={this.handleDeleteProgram}
                                     currentProgramList={currentProgramList}
                                     pastProgramList={pastProgramList}
                                     userType={userType}
                                 />
-                            </div>
+                            </div> */}
                             <div id='hpMidBtnContainer'>
-                                <CreateProgramModal
-                                    handleFormSubmit={this.handleCreateProgram}
-                                    userType={userType}
-                                />
-
+                                {
+                                    user &&
+                                    <CreateProgramModal
+                                        handleFormSubmit={this.handleCreateProgram}
+                                        userType={user.getUserType()}
+                                    />
+                                }
                             </div>
-                            <div id='hpRightBtnContainer'>
+                            {/* <div id='hpRightBtnContainer'>
                                 <CreateProgramGroupModal
                                     programTableData={programManagementTableData}
                                     handleFormSubmit={this.handleCreateProgramGroup}
                                 />
-                            </div>
+                            </div> */}
 
                         </div>
                         {
-                            pendingProgramsTableData &&
+                            pendingList && !pendingList.isEmptyList() &&
                             <div id='pendingProgramsModalContainer'>
-                                <ManagePendingProgramsModal
+                                {/* <ManagePendingProgramsModal
                                     programTableData={pendingProgramsTableData}
-                                    numPrograms={pendingProgramsTableData.length}
-                                />
+                                    numPrograms={pendingList.countPrograms()}
+                                /> */}
                             </div>
                         }
                     </div>
                 </div>
                 <div className="pageContainerLevel1">
                     <BasicTable
-                        data={programManagementTableData}
-                        columns={programManagementTableColumns}
+                        data={progManageTableData}
+                        columns={progManageTableColumns}
                     />
                 </div>
             </NonLandingPageWrapper>
 
-
-
         return (
+
             <div>
                 {loading && loadingHTML}
                 {!loading && nonLoadingHTML}

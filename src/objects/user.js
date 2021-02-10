@@ -1,47 +1,71 @@
-import Firebase from "../components/Firebase"
 
 class User {
-    constructor(firebase) {
-        this.id = undefined
-        this.username = undefined
-        this.email = undefined
-        this.permissions = undefined
-        this.firebase = firebase
-
-
+    constructor(id, data) {
+        this.id = id
+        this.username = data.username
+        this.email = data.email
+        this.permissions = data.permissions
+        this.userType = data.userType
     }
 
-    getUserData = (id) => {
-        this.firebase.getUser(id)
-            .then(data => {
-                console.log(data)
-            })
-    }
-
-    clientMap(id, data) {
+    userInfoClientMap(id, data) {
         this.id = id
 
     }
 
-
-
-
-
     // Getters and Setters
-    setID(value) {
+    setId(value) {
         this.id = value
     }
 
-    setUsername
+    getId() {
+        return this.id
+    }
+
+    getUsername() {
+        return this.username
+    }
+
+    getUserType() {
+        return this.userType
+    }
+
+    setEmail(value) {
+        this.email = value
+    }
+
+    getEmail() {
+        return this.email
+    }
+
+    setPermissions(value) {
+        this.permissions = value
+    }
+
+    getPermissions() {
+        return this.permissions
+    }
 
 }
 
 class Athlete extends User {
-
+    constructor(id, data) {
+        super(id, data)
+    }
 }
 
 class Coach extends User {
-
+    constructor(id, data) {
+        super(id, data)
+    }
 }
 
-export default User
+const createUserObject = (id, data) => {
+    if (data.userType === 'athlete') {
+        return new Athlete(id, data)
+    } else {
+        return new Coach(id, data)
+    }
+}
+
+export { Athlete, Coach, createUserObject }

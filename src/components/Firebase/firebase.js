@@ -93,7 +93,66 @@ class Firebase {
             .set(email)
     }
 
+    //////////////////////////////////////////////
+    //////////// FIRESTORE FUNCTIONS /////////////
+    //////////////////////////////////////////////
+
+    getUser = (id) => {
+        return this.database
+            .collection('users')
+            .doc(id)
+            .get()
+    }
+
+    createUserDB = (id, payLoad) => {
+        return this.database
+            .collection('users')
+            .doc(id)
+            .set(payLoad)
+    }
+
+    getUserPrograms = (id) => {
+        return this.database
+            .collection('programs')
+            .where('athlete', '==', id)
+            .get()
+    }
+
+    createProgramDB = (id, programData, goalData) => {
+        const batch = this.database.batch()
+
+        batch.set(
+            this.database.collection('programs').doc(),
+            programData
+        )
+
+        batch.update(
+            this.database.collection('users').doc(id),
+            { activeProgram: programData.name }
+        )
+
+        if (goalData) {
+            goalData.forEach(goal => {
+                batch.set(
+                    this.database.collection('goals').doc(),
+                    goal
+                )
+            })
+        }
+
+
+        return batch.commit()
+    }
+
+
+    //////////////////////////////////////////////
+    //////////////////////////////////////////////
+    //////////////////////////////////////////////
+
+
+
     // USER API
+    // TODO REMOVE AFTER DATABASE MIGRATION
     getUserData = (uid) => this.db.ref(`users/${uid}`);
 
     getCoachCurrAthData = (uid) => this.db.ref(`users/${uid}/currentAthletes`)
@@ -105,16 +164,8 @@ class Firebase {
             .update(submitInfo)
     }
 
-    getUser = (id) => {
-        return this.database.collection('users').doc(id).get()
-    }
 
-    createUserDB = (id, payLoad) => {
-        return this.database
-            .collection("users")
-            .doc(id)
-            .set(payLoad)
-    }
+
 
     acceptTeamRequestUpstream = (submitInfo) => {
         return this.db

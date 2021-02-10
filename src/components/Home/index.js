@@ -10,10 +10,11 @@ import { AcceptRequestButton, DeclineRequestButton } from '../CustomComponents/c
 
 import OnBoarding from './onBoarding'
 
-import { Dimmer, Loader, Statistic } from 'semantic-ui-react'
+import { Dimmer, Loader, Card, Icon } from 'semantic-ui-react'
 import InputLabel from '../CustomComponents/DarkModeInput';
 import * as ROUTES from '../../constants/routes'
-import User from '../../objects/user'
+import { createUserObject } from '../../objects/user'
+
 
 class HomePage extends Component {
 
@@ -38,42 +39,29 @@ class HomePage extends Component {
         }
     }
 
-
-    // getUserData = (id) => {
-    //     return new Promise(res, rej => {
-    //         this.props.firebase
-    //     })
-    // }
-
     componentDidMount() {
-        this.setState({ loading: true });
+        this.setState({ loading: true }, () => {
+            this.props.firebase.getUser(this.props.firebase.auth.currentUser.uid)
+                .then(snapshot => {
+                    var userInfo = snapshot.data()
 
-        var user = new User(this.props.firebase)
-        user.getUserData(this.props.firebase.auth.currentUser.uid)
+                    var user = createUserObject(
+                        this.props.firebase.auth.currentUser.uid,
+                        userInfo
+                    )
 
-        var currUserUid = this.props.firebase.auth.currentUser.uid
-        this.props.firebase.getUserData(currUserUid).on('value', userData => {
-            const userObject = userData.val();
+                    this.setState({
+                        user: user,
+                        greeting: this.getCurrentGreeting(user.getUsername()),
+                        firstTimeUser: this.determineFirstTimeLogin(this.props.firebase.auth.currentUser.metadata), //TODO FIX THIS lol
+                        loading: false,
+                    })
 
-            this.props.firebase.anatomy().once('value', async snapshot => {
-
-                const anatomyObject = snapshot.val();
-
-                this.setState({
-                    userInformation: {
-                        uid: currUserUid,
-                        data: userObject
-                    },
-                    greeting: this.getCurrentGreeting(userObject),
-                    // currentProgramList: currentProgramList,
-                    // pastProgramList: pastProgramList,
-                    anatomyObject: anatomyObject,
-                    firstTimeUser: this.determineFirstTimeLogin(this.props.firebase.auth.currentUser.metadata),
-                    loading: false,
-                    userType: userObject.userType,
-                    coachTeamAthleteData: this.initTeamData(userObject)
+                    console.log(user)
                 })
-            })
+                .catch(error => {
+                    console.log(error)
+                })
         });
     }
 
@@ -260,13 +248,9 @@ class HomePage extends Component {
         })
     }
 
-    componentWillUnmount() {
-        this.props.firebase.getUserData().off();
-    }
-
-    getCurrentGreeting = (userInformation) => {
+    getCurrentGreeting = (username) => {
         var currTime = new Date().toLocaleTimeString()
-        var name = userInformation.username.split(" ")[0]
+        var name = username.split(" ")[0]
         if (parseInt(currTime.split(":")[0]) < 12) {
             return "Good Morning" + " " + name
         } else {
@@ -285,15 +269,10 @@ class HomePage extends Component {
         const {
             // pastProgramList,
             // currentProgramList,
-            userInformation,
             loading,
             greeting,
-            anatomyObject,
             firstTimeUser,
-            userType,
-            coachTeamAthleteData
         } = this.state
-        console.log(coachTeamAthleteData)
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
@@ -311,7 +290,7 @@ class HomePage extends Component {
                                 greeting
                             }
                         </div>
-                        <div id='hpBtnContainer' >
+                        {/* <div id='hpBtnContainer' >
                             <div id='hpRightBtnContainer'>
                                 <CreateExerciseModal
                                     handleFormSubmit={this.handleCreateExercise}
@@ -319,32 +298,36 @@ class HomePage extends Component {
                                 />
                             </div>
 
-                        </div>
+                        </div> */}
                     </div>
                 </div>
-                <div className='rowContainer'>
-                    <div className="pageContainerLevel1 half-width">
-                        <InputLabel
-                            custID='myTeamsHeader'
-                            text='My Teams'
-                        />
-                        <CoachTeamAthleteDataContainer
-                            userType={userType}
-                            teamData={coachTeamAthleteData.teamData}
-                            requestData={coachTeamAthleteData.requestData}
-                            athleteData={coachTeamAthleteData.athleteData}
-                            manageAthleteHandler={this.handleManageAthletesRedirect}
-                            manageTeamsHandler={this.handleManageTeamsRedirect}
-                            manageProgramsHandler={this.handleManageProgramsRedirect}
-                        />
-                    </div>
+                <div id='programAssignmentCardGroupContainer'>
+                    <Card.Group>
+                        <div>
+                            <Card onClick={() => { this.handleManageProgramsRedirect() }}>
+                                <Card.Content className='iconContent'>
+                                    <Icon name='file alternate outline' size='huge' />
+                                </Card.Content>
+                                <Card.Content>
+                                    <Card.Header textAlign='center'>My <br /> Programs</Card.Header>
+                                </Card.Content>
+                            </Card>
+                        </div>
+                        <div>
+                            <Card onClick={() => { this.handleManageTeamsRedirect() }}>
+                                <Card.Content className='iconContent'>
+                                    <Icon name='group' size='huge' />
+                                </Card.Content>
+                                <Card.Content>
+                                    <Card.Header textAlign='center'>My <br /> Teams</Card.Header>
+                                </Card.Content>
+                            </Card>
+                        </div>
+                    </Card.Group>
                 </div>
 
             </NonLandingPageWrapper>
 
-
-
-        console.log(userInformation)
         return (
             <div>
                 {loading && loadingHTML}
