@@ -170,7 +170,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         newRawData[day][updateObject.exUid].sets = updateObject.sets
         newRawData[day][updateObject.exUid].rpe = updateObject.rpe
 
-        if (updateObject.loadingScheme === 'weight-reps') {
+        if (programData.loadingScheme === 'weight_reps') {
             newRawData[day][updateObject.exUid].weight = updateObject.weight
         }
 

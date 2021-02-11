@@ -154,6 +154,26 @@ class Firebase {
             .get()
     }
 
+    submitDayDB = (programUID, day, loadingData) => {
+        return this.database
+            .collection('programs')
+            .doc(programUID)
+            .collection('exercises')
+            .doc(day.toString())
+            .set({ loadingData: loadingData }, { merge: true })
+            .then(res => {
+                return this.database
+                    .collection('programs')
+                    .doc(programUID)
+                    .update({
+                        currentDay: day + 1
+                    })
+            })
+            .catch(error => {
+                return error
+            })
+    }
+
     getAnatomyData = () => {
         return this.database
             .collection('anatomy')
@@ -179,7 +199,7 @@ class Firebase {
 
     deleteExerciseDB = (programID, day, exUID) => {
 
-        this.database
+        return this.database
             .collection('programs')
             .doc(programID)
             .collection('exercises')
@@ -212,6 +232,17 @@ class Firebase {
 
 
 
+    }
+
+    updateExerciseDB = (programID, day, exUID, exData) => {
+        return this.database
+            .collection('programs')
+            .doc(programID)
+            .collection('exercises')
+            .doc(day)
+            .update({
+                [exUID]: exData
+            })
     }
     //////////////////////////////////////////////
     //////////////////////////////////////////////

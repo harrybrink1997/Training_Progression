@@ -112,6 +112,10 @@ class CurrentProgram extends Program {
         this.startDayUTS = data.startDayUTS
     }
 
+    iterateCurrentDay = (num) => {
+        this.setCurrentDay(this.getCurrentDay() + num)
+    }
+
     generateCompleteJSONObject() {
         var baseObj = super.generateCompleteJSONObject()
         baseObj.startDayUTS = this.getStartDayUTS()
@@ -122,7 +126,6 @@ class CurrentProgram extends Program {
     getStartDayUTS() {
         return this.startDayUTS
     }
-
 }
 
 class PastProgram extends Program {
