@@ -244,6 +244,14 @@ class Firebase {
                 [exUID]: exData
             })
     }
+
+    startProgramDB = (programUID, timestamp) => {
+
+        return this.database
+            .collection('programs')
+            .doc(programUID)
+            .update({ startDayUTS: timestamp })
+    }
     //////////////////////////////////////////////
     //////////////////////////////////////////////
     //////////////////////////////////////////////

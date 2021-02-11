@@ -507,8 +507,12 @@ class ManageProgramsPage extends Component {
         }
     }
 
-    handleStartProgram = () => {
+    handleStartProgram = (startDateUTS) => {
         console.log('start program')
+        this.props.firebase.startProgramDB(
+            this.state.currProgram.programUID,
+            startDateUTS
+        )
     }
 
     initProgramTableColumns = (userType) => {
