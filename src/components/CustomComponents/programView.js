@@ -1,21 +1,21 @@
 import React, { useEffect, useState, useReducer, useRef } from 'react'
 import { Loader, Button, Icon, Popup } from 'semantic-ui-react'
 import { capitaliseFirstLetter } from '../../constants/stringManipulation'
-import BasicTable from '../CustomComponents/basicTable'
+import BasicTable from './basicTable'
 import CurrentWeekExercisesContainer from '../CurrentProgram/currentWeekExercisesContainer'
 import AvailableExercisesList from '../CurrentProgram/availableExercisesList'
 import { convertTotalDaysToUIDay, convertUIDayToTotalDays, currentWeekInProgram } from '../../constants/dayCalculations'
 import SubmitDayModal from '../CurrentProgram/submitDayModal'
 import ConfirmNullExerciseData from '../CurrentProgram/confirmNullExerciseData'
 import ViewPrevWeeksData from '../CurrentProgram/viewPrevWeeksData'
-import BodyPartListGroup from '../CustomComponents/bodyPartListGroup'
-import InputLabel from '../CustomComponents/DarkModeInput'
+import BodyPartListGroup from './bodyPartListGroup'
+import InputLabel from './DarkModeInput'
 import { ACWEGraph, RollChronicACWRGraph } from '../ProgressionData/ACWRGraph'
 import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID, generateACWRGraphData, generateSafeLoadGraphProps } from '../../constants/viewProgramPagesFunctions'
-import StartProgramView from '../CustomComponents/startProgramView'
+import StartProgramView from './startProgramView'
 
 
-const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseList, availExerciseColumns, nullExerciseData, submitProcessingBackend, rawAnatomyData }) => {
+const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, nullExerciseData, submitProcessingBackend, rawAnatomyData }) => {
 
     // Loading variables.
     const [firstRender, setFirstRender] = useState(true)
@@ -52,7 +52,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         var exUID = generateExerciseUID(
             exerciseObject,
             currProgramDataObj.exerciseListPerDay,
-            currProgramDataObj.currentDayInProgram
+            currProgramDataObj.currentDay
         )
 
         var insertionDay = exUID.split('_').reverse()[1]
@@ -61,7 +61,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
             exerciseObject,
             exUID,
             currProgramDataObj.loadingScheme,
-            currProgramDataObj.currentDayInProgram,
+            currProgramDataObj.currentDay,
             handleUpdateExercise,
             handleDeleteExerciseButton
         )
@@ -189,7 +189,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         // Get a copy of the program data.
         let programDataCopy = { ...programData }
         var rawDataCopy = programDataCopy.rawData
-        var currDay = programDataCopy.currentDayInProgram
+        var currDay = programDataCopy.currentDay
 
         if (nextWeek) {
             var newDay = currDay + 7
@@ -197,7 +197,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
             newDay = currDay - 7
         }
 
-        rawDataCopy.currentDayInProgram = newDay
+        rawDataCopy.currentDay = newDay
 
         setProgramData({
             type: PROGRAM_ACTIONS.CHANGE_WEEK,
@@ -217,12 +217,12 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         var payLoad = {
             rawData: rawProgramData,
             exerciseListPerDay: updatedDailyExerciseList(rawProgramData, handleDeleteExerciseButton, handleUpdateExercise),
-            loadingScheme: rawProgramData.loading_scheme,
-            daysInWeekScope: generateDaysInWeekScope(rawProgramData.currentDayInProgram),
-            currentDayInProgram: rawProgramData.currentDayInProgram,
-            currentDayUI: rawProgramData.currentDayInProgram,
+            loadingScheme: rawProgramData.loadingScheme,
+            daysInWeekScope: generateDaysInWeekScope(rawProgramData.currentDay),
+            currentDay: rawProgramData.currentDay,
+            currentDayUI: rawProgramData.currentDay,
             openDaysUI: [false, false, false, false, false, false, false],
-            currButtonView: initCurrButtonView(rawProgramData.order, rawProgramData.isActiveInSequence, rawProgramData.currentDayInProgram),
+            currButtonView: initCurrButtonView(rawProgramData.order, rawProgramData.isActiveInSequence, rawProgramData.currentDay),
             startDayUTS: rawProgramData.startDayUTS
         }
 
@@ -314,7 +314,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
             case PROGRAM_ACTIONS.CHANGE_WEEK:
                 return {
                     ...state,
-                    currentDayInProgram: action.payLoad.currDay,
+                    currentDay: action.payLoad.currDay,
                     rawData: action.payLoad.rawData
                 }
 
@@ -336,7 +336,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         }
     }
 
-    const initCurrButtonView = (order, isActiveInSequence, currentDayInProgram) => {
+    const initCurrButtonView = (order, isActiveInSequence, currentDay) => {
         if (!order || isActiveInSequence) {
 
             return {
@@ -347,7 +347,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
 
         } else {
 
-            if (currentDayInProgram > 7) {
+            if (currentDay > 7) {
                 return {
                     nextWeek: true,
                     prevWeek: true,
@@ -371,7 +371,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
 
         payLoad.data.push({
             parameter: 'Day In Program',
-            value: rawProgramData.currentDayInProgram
+            value: rawProgramData.currentDay
         })
         payLoad.data.push({
             parameter: 'Acute Timeframe',
@@ -410,9 +410,9 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
             rawData: exerciseData,
             chartData: setAvailExerciseChartData(
                 exerciseData,
-                convertTotalDaysToUIDay(rawProgramData.currentDayInProgram),
+                convertTotalDaysToUIDay(rawProgramData.currentDay),
                 rawProgramData.loadingScheme,
-                convertTotalDaysToUIDay(rawProgramData.currentDayInProgram),
+                convertTotalDaysToUIDay(rawProgramData.currentDay),
                 handleAddExerciseButton
             )
         }
@@ -422,7 +422,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
 
     const initialiseProgressionData = (rawProgramData) => {
         console.log(rawProgramData)
-        if (rawProgramData.currentDayInProgram === 1) {
+        if (rawProgramData.currentDay === 1) {
             return undefined
         } else if (rawProgramData.order && !rawProgramData.isActiveInSequence) {
             return undefined
@@ -437,7 +437,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         }
     }
     const anatomyData = rawAnatomyData
-    const [exerciseData, setExerciseData] = useState(() => initialiseAvailableExerciseData(data, combinedAvailExerciseList))
+    const [exerciseData, setExerciseData] = useState(() => initialiseAvailableExerciseData(data, availExData))
     const [overviewData, setOverviewData] = useState(() => initialiseOverviewData(data))
 
     const [progressionData, setProgressionData] = useReducer(progressionDataReducer, data, initialiseProgressionData)
@@ -450,7 +450,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
         if (programLoaded && exercisesLoaded) {
             console.log(programData)
             let newProgramData = { ...programData }
-            const currDay = newProgramData.currentDayInProgram
+            const currDay = newProgramData.currentDay
 
             setProgramData({
                 type: PROGRAM_ACTIONS.UPDATE_ON_WEEK_CHANGE,
@@ -465,7 +465,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
                 }
             })
         }
-    }, [programData.currentDayInProgram])
+    }, [programData.currentDay])
 
     const programDataRef = useRef();
 
@@ -590,7 +590,7 @@ const CoachProgramView = ({ data, name, handlerFunctions, combinedAvailExerciseL
                         clickHandler={(newView) => { setCurrExerciseView(newView) }}
                     /> */}
                                 <AvailableExercisesList
-                                    columns={availExerciseColumns}
+                                    columns={availExColumns}
                                     data={exerciseData.chartData}
                                 />
 
@@ -694,7 +694,7 @@ const CoachProgramViewPageSubHeader = ({ data, name }) => {
                 Current Program: {capitaliseFirstLetter(name.split('_')[0])}
             </div>
             <div className='pageSubHeader2'>
-                Week {currentWeekInProgram(data.currentDayInProgram)}, Day {convertTotalDaysToUIDay(data.currentDayInProgram)}
+                Week {currentWeekInProgram(data.currentDay)}, Day {convertTotalDaysToUIDay(data.currentDay)}
             </div>
         </>
     )
@@ -810,5 +810,5 @@ const CoachAvailExProgHistToggle = ({ currentView, clickHandler }) => {
 }
 
 
-export default CoachProgramView
+export default ProgramView
 export { CoachProgramViewPageSubHeader }

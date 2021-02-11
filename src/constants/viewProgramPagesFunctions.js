@@ -86,7 +86,7 @@ const generateExerciseUID = (exerciseObject, exerciseListPerDay, currentDayInPro
 const updatedDailyExerciseList = (programObject, handleDeleteExerciseButton, handleUpdateExercise) => {
     // Introduce a call back to show the current exercises. 
     // Can only be done once the other parameters above have been set. 
-    var currWeek = Math.ceil(programObject.currentDayInProgram / 7)
+    var currWeek = Math.ceil(programObject.currentDay / 7)
 
     var firstDayOfWeek = 1 + 7 * (currWeek - 1)
     var lastDayOfWeek = firstDayOfWeek + 6
@@ -112,7 +112,7 @@ const updatedDailyExerciseList = (programObject, handleDeleteExerciseButton, han
                     renderObj.deleteButton =
                         (shouldRenderExerciseButtons(
                             exercise,
-                            programObject.currentDayInProgram
+                            programObject.currentDay
                         )) ? (programObject.loading_scheme === 'rpe_time') ?
                                 <div className='currDayExBtnContainer'>
                                     <EditExerciseModalRpeTime submitHandler={handleUpdateExercise} exUid={exercise} currentData={renderObj} />
@@ -191,6 +191,18 @@ const setAvailExerciseChartData = (exerciseList, currDay, loadingScheme, currDay
         })
     })
     return tableData
+}
+
+const listAndFormatExercises = (exercises) => {
+    const exerciseList = exercises.map(exercise => ({
+        uid: exercise.name,
+        primary: exercise.primary,
+        secondary: exercise.secondary,
+        experience: exercise.experience,
+        name: underscoreToSpaced(exercise.name)
+    }))
+
+    return exerciseList
 }
 
 const listAndFormatLocalGlobalExercises = (globalExercises, localExercises) => {
@@ -941,5 +953,6 @@ export {
     generateACWRGraphData,
     generateSafeLoadGraphProps,
     generateCurrDaySafeLoadData,
-    generateHistoricalTableData
+    generateHistoricalTableData,
+    listAndFormatExercises
 }

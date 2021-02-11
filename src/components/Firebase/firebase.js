@@ -118,17 +118,12 @@ class Firebase {
             .get()
     }
 
-    createProgramDB = (id, programData, goalData) => {
+    createProgramDB = (programUID, programData, goalData) => {
         const batch = this.database.batch()
 
         batch.set(
-            this.database.collection('programs').doc(),
+            this.database.collection('programs').doc(programUID),
             programData
-        )
-
-        batch.update(
-            this.database.collection('users').doc(id),
-            { activeProgram: programData.name }
         )
 
         if (goalData) {
@@ -140,11 +135,46 @@ class Firebase {
             })
         }
 
-
         return batch.commit()
     }
 
+    deleteProgramDB = (programUID) => {
+        return this.database
+            .collection('programs')
+            .doc(programUID)
+            .delete()
+    }
 
+    getProgramExData = (programUID) => {
+        return this.database
+            .collection('programs')
+            .doc(programUID)
+            .collection('exercises')
+            .get()
+    }
+
+    getAnatomyData = () => {
+        return this.database
+            .collection('anatomy')
+            .doc('ykgEqKnLxEgp3SHiOe8W')
+            .get()
+    }
+
+    getExData = (owners) => {
+        return this.database
+            .collection('exercises')
+            .where('owner', 'in', owners)
+            .get()
+    }
+
+    addExerciseDB = (programID, day, exData) => {
+        return this.database
+            .collection('programs')
+            .doc(programID)
+            .collection('exercises')
+            .doc(day)
+            .set(exData, { merge: true })
+    }
     //////////////////////////////////////////////
     //////////////////////////////////////////////
     //////////////////////////////////////////////

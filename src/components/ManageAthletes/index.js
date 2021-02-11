@@ -13,7 +13,7 @@ import InputLabel from '../CustomComponents/DarkModeInput'
 import ManageCurrAthleteHome from './manageCurrAthleteHome'
 import ProgramDeployment, { initProgDeployCoachProgGroupTableData, initProgDeployCoachProgramTableData } from '../CustomComponents/programDeployment'
 import ViewProgramErrorModal from './viewProgramErrorModal'
-import CoachProgramView, { CoachProgramViewPageSubHeader } from '../CustomComponents/coachProgramView'
+import ProgramView, { CoachProgramViewPageSubHeader } from '../CustomComponents/programView'
 import { capitaliseFirstLetter, underscoreToSpaced } from '../../constants/stringManipulation';
 import { convertUIDayToTotalDays } from '../../constants/dayCalculations';
 import { setAvailExerciseCols, listAndFormatLocalGlobalExercises, checkNullExerciseData } from '../../constants/viewProgramPagesFunctions'
@@ -121,7 +121,6 @@ class ManageAthletesPage extends Component {
                             this.props.firebase.auth.currentUser.uid
                         ).once('value', snapshot => {
                             const localExObject = snapshot.val()
-                            console.log(listAndFormatLocalGlobalExercises(globalExObject, localExObject))
 
                             this.state.currAthlete.pageHistory.next(this.state.currAthlete.view)
 
@@ -1247,12 +1246,11 @@ class ManageAthletesPage extends Component {
                 }
                 {
                     currAthlete && currAthlete.view === 'viewProgram' && currAthlete.currViewedProgramData &&
-                    <CoachProgramView
+                    <ProgramView
                         data={currAthlete.currViewedProgramData}
-                        name={currAthlete.currViewedProgramName}
                         handlerFunctions={currAthlete.viewProgramFunctions}
-                        combinedAvailExerciseList={currAthlete.combinedAvailExerciseList}
-                        availExerciseColumns={currAthlete.availExerciseColumns}
+                        availExData={currAthlete.combinedAvailExerciseList}
+                        availExColumns={currAthlete.availExerciseColumns}
                         nullExerciseData={currAthlete.nullExerciseData}
                         submitProcessingBackend={currAthlete.submitProcessingBackend}
                         rawAnatomyData={currAthlete.rawAnatomyData}

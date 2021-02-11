@@ -11,6 +11,8 @@ class Program {
         this.currentDay = data.currentDay
         this.acutePeriod = data.acutePeriod
         this.chronicPeriod = data.chronicPeriod
+        this.order = data.order
+        this.isActiveInSequence = data.isActiveInSequence
     }
 
     programEqualToUID = (uid) => {
@@ -25,14 +27,15 @@ class Program {
         return this.getName() + '_' + this.getOwner() + '_' + this.getCreationDate()
     }
 
-    generateCompleteProgTableData = () => {
+    generateCompleteJSONObject() {
         return {
-            program: this.getName(),
-            programUID: this.generateProgramUID(),
-            loadingScheme: this.getLoadingScheme(),
+            order: this.getOrder(),
+            isActiveInSequence: this.getIsActiveInSequence(),
             acutePeriod: this.getAcutePeriod(),
             chronicPeriod: this.getChronicPeriod(),
-            buttons: ''
+            loadingScheme: this.getLoadingScheme(),
+            currentDay: this.getCurrentDay(),
+            name: this.getName()
         }
     }
 
@@ -51,6 +54,14 @@ class Program {
 
     getTeam() {
         return this.team
+    }
+
+    getOrder() {
+        return this.order
+    }
+
+    getIsActiveInSequence() {
+        return this.isActiveInSequence
     }
 
     getCreationDate() {
@@ -77,6 +88,14 @@ class Program {
         return this.status
     }
 
+    getCurrentDay() {
+        return this.currentDay
+    }
+
+    setCurrentDay(value) {
+        this.currentDay = value
+    }
+
 }
 
 class PendingProgram extends Program {
@@ -92,6 +111,18 @@ class CurrentProgram extends Program {
         super(data)
         this.startDayUTS = data.startDayUTS
     }
+
+    generateCompleteJSONObject() {
+        var baseObj = super.generateCompleteJSONObject()
+        baseObj.startDayUTS = this.getStartDayUTS()
+
+        return baseObj
+    }
+
+    getStartDayUTS() {
+        return this.startDayUTS
+    }
+
 }
 
 class PastProgram extends Program {
@@ -112,4 +143,4 @@ const createProgramObject = (data) => {
     }
 }
 
-export { createProgramObject }
+export { createProgramObject, CurrentProgram, PastProgram, PendingProgram }
