@@ -10,7 +10,8 @@ import 'firebase/auth'
 import 'firebase/database'
 import 'firebase/firestore'
 import 'firebase/functions'
-import { ADMIN } from '../../constants/routes';
+import 'firebase/'
+const FieldValue = app.firestore.FieldValue
 
 const config = {
     apiKey: process.env.REACT_APP_API_KEY,
@@ -174,6 +175,43 @@ class Firebase {
             .collection('exercises')
             .doc(day)
             .set(exData, { merge: true })
+    }
+
+    deleteExerciseDB = (programID, day, exUID) => {
+
+        this.database
+            .collection('programs')
+            .doc(programID)
+            .collection('exercises')
+            .doc(day)
+            .get()
+            .then(snapshot => {
+                const data = snapshot.data()
+                console.log(data)
+                if (Object.keys(data).length > 1) {
+                    this.database
+                        .collection('programs')
+                        .doc(programID)
+                        .collection('exercises')
+                        .doc(day)
+                        .update({
+                            [exUID]: FieldValue.delete()
+                        })
+                        .then(res => {
+                            console.log(res)
+                        })
+                } else {
+                    this.database
+                        .collection('programs')
+                        .doc(programID)
+                        .collection('exercises')
+                        .doc(day)
+                        .delete()
+                }
+            })
+
+
+
     }
     //////////////////////////////////////////////
     //////////////////////////////////////////////
