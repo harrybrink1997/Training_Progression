@@ -7,6 +7,8 @@ import { AddExerciseModalWeightReps, AddExerciseModalRpeTime } from '../componen
 import { convertUIDayToTotalDays, currentWeekInProgram, convertTotalDaysToUIDay } from './dayCalculations'
 import { max } from 'mathjs'
 import { render } from '@testing-library/react'
+import EditGoalModal from '../components/CustomComponents/editGoalModal'
+import AddSubGoalModal from '../components/CustomComponents/addSubGoalsModal'
 
 
 const generateDaysInWeekScope = (currentDayInProgram) => {
@@ -86,7 +88,7 @@ const generateExerciseUID = (exerciseObject, exerciseListPerDay, currentDayInPro
 const updatedDailyExerciseList = (programObject, handleDeleteExerciseButton, handleUpdateExercise) => {
     // Introduce a call back to show the current exercises. 
     // Can only be done once the other parameters above have been set. 
-    var currWeek = Math.ceil(programObject.currentDay / 7)
+    var currWeek = currentWeekInProgram(programObject.currentDay)
 
     var firstDayOfWeek = 1 + 7 * (currWeek - 1)
     var lastDayOfWeek = firstDayOfWeek + 6
@@ -943,6 +945,93 @@ const generateHistoricalTableData = (dayData, scheme) => {
 
 }
 
+const generateSubGoalData = (
+    subGoalList,
+    handleEditGoal,
+    handleDeleteGoal,
+    handleCompleteGoal
+) => {
+    var returnArray = []
+    Object.keys(subGoalList).forEach(subGoalKey => {
+        var subGoal = subGoalList[subGoalKey]
+        returnArray.push({
+            description: subGoal.description,
+            progressString: (subGoal.completed) ? 'Complete' : 'In Progress',
+            completed: subGoal.completed,
+            targetCloseDate: subGoal.closeOffDate,
+            goalUID: subGoalKey,
+            difficulty: subGoal.difficulty,
+            btns: <div className='editGoalTableBtnContainer'>
+                <CompleteGoalButton buttonHandler={handleCompleteGoal} uid={'sg_' + subGoalKey} currProgress={subGoal.completed} />
+                <EditGoalModal
+                    submitHandler={handleEditGoal} uid={'sg_' + subGoalKey}
+                    isSubGoal={true}
+                    currentData={subGoal}
+                />
+                <DeleteGoalButton buttonHandler={handleDeleteGoal} uid={'sg_' + subGoalKey} />
+            </div>
+        })
+    })
+
+    return returnArray
+}
+
+const generateGoalTableData = (
+    programObject,
+    handleCreateSubGoal,
+    handleEditGoal,
+    handleCompleteGoal,
+    handleDeleteGoal
+) => {
+
+    if (programObject.goals) {
+        if (Object.keys(programObject.goals).length > 0) {
+            var tableData = []
+
+            Object.keys(programObject.goals).forEach(goalKey => {
+                var goal = programObject.goals[goalKey]
+                if (goal.subGoals) {
+                    tableData.push({
+                        description: goal.mainGoal.description,
+                        progressString: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
+                        completed: goal.mainGoal.completed,
+                        subRows: generateSubGoalData(goal.subGoals),
+                        goalUID: goalKey,
+                        targetCloseDate: goal.mainGoal.closeOffDate,
+                        difficulty: goal.mainGoal.difficulty,
+                        btns:
+                            <div className='editGoalTableBtnContainer'>
+                                <AddSubGoalModal submitHandler={handleCreateSubGoal} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
+                                <EditGoalModal submitHandler={handleEditGoal} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
+                            </div>
+                    })
+                } else {
+                    tableData.push({
+                        description: goal.mainGoal.description,
+                        progressString: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
+                        targetCloseDate: goal.mainGoal.closeOffDate,
+                        completed: goal.mainGoal.completed,
+                        goalUID: goalKey,
+                        difficulty: goal.mainGoal.difficulty,
+                        btns:
+                            <div className='editGoalTableBtnContainer'>
+                                <AddSubGoalModal submitHandler={handleCreateSubGoal} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
+                                <CompleteGoalButton buttonHandler={handleCompleteGoal} uid={'mg_' + goalKey} currProgress={goal.mainGoal.completed} />
+                                <EditGoalModal submitHandler={handleEditGoal} uid={'mg_' + goalKey} isSubGoal={false} currentData={goal.mainGoal} />
+                                <DeleteGoalButton buttonHandler={handleDeleteGoal} uid={'mg_' + goalKey} />
+                            </div>
+
+                    })
+                }
+            })
+            return tableData
+        } else {
+            return []
+        }
+    }
+    return []
+}
+
 export {
     generateDaysInWeekScope,
     updatedDailyExerciseList,
@@ -956,5 +1045,6 @@ export {
     generateSafeLoadGraphProps,
     generateCurrDaySafeLoadData,
     generateHistoricalTableData,
-    listAndFormatExercises
+    listAndFormatExercises,
+    generateGoalTableData
 }

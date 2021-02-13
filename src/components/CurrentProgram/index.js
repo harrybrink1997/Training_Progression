@@ -480,22 +480,6 @@ class CurrentProgramPage extends Component {
         return []
     }
 
-    // TO REMOVE ONCE TESTED ON CURR PROGRAMS PAGE
-    // generateDaysInWeekScope = (currentDayInProgram) => {
-    //     var currWeek = Math.ceil(currentDayInProgram / 7)
-
-    //     var firstDayOfWeek = 1 + 7 * (currWeek - 1)
-    //     var lastDayOfWeek = firstDayOfWeek + 6
-
-    //     var programDaysInCurrWeek = []
-
-    //     for (var day = firstDayOfWeek; day <= lastDayOfWeek; day++) {
-    //         programDaysInCurrWeek.push(day)
-    //     }
-
-    //     return programDaysInCurrWeek
-    // }
-
     // Updated with new ratio calcs format
     handleUpdateExercise = async (updateObject) => {
 

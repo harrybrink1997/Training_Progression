@@ -1161,12 +1161,14 @@ class ManageProgramsPage extends Component {
             var goalListArr = []
 
             if (this.state.user.getUserType() === 'athlete') {
+                var index = 1
                 Object.values(goalList).forEach(goal => {
                     var formattedObj = goal.getFormattedGoalObject()
                     formattedObj.programUID =
                         programName + '_' + this.props.firebase.auth.currentUser.uid + '_' + timestamp
-
+                    formattedObj.goalProgUID = 'Goal_' + index.toString()
                     goalListArr.push(formattedObj)
+                    index++
                 })
 
                 var dateConversion = date.split('-')
