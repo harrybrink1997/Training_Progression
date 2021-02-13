@@ -13,7 +13,7 @@ import InputLabel from '../CustomComponents/DarkModeInput'
 import ManageCurrAthleteHome from './manageCurrAthleteHome'
 import ProgramDeployment, { initProgDeployCoachProgGroupTableData, initProgDeployCoachProgramTableData } from '../CustomComponents/programDeployment'
 import ViewProgramErrorModal from './viewProgramErrorModal'
-import ProgramView, { CoachProgramViewPageSubHeader } from '../CustomComponents/programView'
+import ProgramView, { ProgramViewPageSubHeader } from '../CustomComponents/programView'
 import { capitaliseFirstLetter, underscoreToSpaced } from '../../constants/stringManipulation';
 import { convertUIDayToTotalDays } from '../../constants/dayCalculations';
 import { setAvailExerciseCols, listAndFormatLocalGlobalExercises, checkNullExerciseData } from '../../constants/viewProgramPagesFunctions'
@@ -1189,8 +1189,8 @@ class ManageAthletesPage extends Component {
                             }
                             {
                                 currAthlete.view === 'viewProgram' &&
-                                <CoachProgramViewPageSubHeader
-                                    name={currAthlete.currViewedProgramName}
+                                <ProgramViewPageSubHeader
+                                    programUID={currAthlete.currViewedProgramName}
                                     data={currAthlete.currViewedProgramData}
                                 />
                             }

@@ -6,25 +6,31 @@ exports.setUserPrivledges = functions.https.onCall((data, context) => {
     return admin.auth().setCustomUserClaims(context.auth.uid, { userType: data.userType })
 })
 
-// exports.setUserPrivledges = functions.database.ref('/users/{userid}/userType').onWrite(event => {
-//     const type = event.data.val();
-// })
+exports.cleanUpDBPostProgDelete = functions.firestore
+    .document('programs/{programUID}')
+    .onDelete((snapshot, context) => {
+        admin.firestore()
+            .collection('goals')
+            .where('programUID', '==', context.params.programUID)
+            .get()
+            .then(goalSnap => {
+                if (!goalSnap.empty) {
+                    console.log('going in correct location')
 
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//     response.send("Hello from Firebase!");
-// });
+                    var batch = admin.firestore().batch()
+                    var goalRef = admin.firestore().collection('goals')
 
-exports.insertIntoDB = functions.https.onRequest((req, res) => {
-    const text = req.query.text;
-    return admin.database().ref('/test').push({ text: text }).then(snapshot => {
-        res.redirect(303, snapshot.ref);
-        return null
+                    goalSnap.docs.forEach(doc => {
+                        console.log(doc.id)
+                        batch.delete(goalRef.doc(doc.id))
+                    })
+
+                    batch.commit()
+                }
+                return
+            })
+            .catch(error => {
+                console.log(error)
+            })
+
     })
-})
-
-exports.convertToUppercase = functions.database.ref('/test/{pushid}/text').onWrite(event => {
-    const text = event.data.val();
-    const uppercaseText = text.toUpperCase();
-    return event.data.ref.parent.child('uppercaseText').set(uppercaseText)
-
-})

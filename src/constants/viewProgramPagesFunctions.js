@@ -292,10 +292,12 @@ const checkNullExerciseData = (data, scheme) => {
 
 const generateACWRGraphData = (programData, muscleGroups) => {
 
+    console.log(muscleGroups)
+    console.log(programData)
 
     var dataToGraph = {}
 
-    for (var day = 1; day < programData.currentDayInProgram; day++) {
+    for (var day = 1; day < programData.currentDay; day++) {
 
         var dateString = stripDateFromTSString(new Date((programData.startDayUTS + 86400000 * (day - 1))))
 
@@ -404,7 +406,7 @@ const generateSafeLoadGraphProps = (programData, muscleGroups) => {
         var upperSeries = 'Threshold - (+' + threshold + '%)'
 
 
-        for (var day = 1; day < programData.currentDayInProgram; day++) {
+        for (var day = 1; day < programData.currentDay; day++) {
 
 
 
@@ -526,16 +528,16 @@ const generateCurrDaySafeLoadData = (programData, anatomyObject) => {
 
     var returnData = []
 
-    if (programData.currentDayInProgram !== 1) {
+    if (programData.currentDay !== 1) {
         var currDayData = dailyLoadCalcs(
-            programData[programData.currentDayInProgram],
+            programData[programData.currentDay],
             anatomyObject,
             programData.loading_scheme
         )
         Object.keys(anatomyObject).forEach(muscleGroup => {
 
-            var prevDayChronicLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscleGroup]['Total']['chronicEWMA']
-            var prevDayAcuteLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscleGroup]['Total']['acuteEWMA']
+            var prevDayChronicLoad = programData[programData.currentDay - 1]['loadingData'][muscleGroup]['Total']['chronicEWMA']
+            var prevDayAcuteLoad = programData[programData.currentDay - 1]['loadingData'][muscleGroup]['Total']['acuteEWMA']
             var maxLoadData = 0;
             (prevDayAcuteLoad * 1.1 > prevDayChronicLoad * 1.2) ? maxLoadData = prevDayAcuteLoad : maxLoadData = prevDayChronicLoad
             if (maxLoadData !== 0 || prevDayChronicLoad !== 0) {
@@ -562,8 +564,8 @@ const generateSpecificMuscleSafeLoadData = (programData, muscleGroup, currDayDat
 
     var returnData = []
     specificMuscleData.forEach(muscle => {
-        var prevDayChronicLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscleGroup][muscle]['chronicEWMA']
-        var prevDayAcuteLoad = programData[programData.currentDayInProgram - 1]['loadingData'][muscleGroup][muscle]['acuteEWMA']
+        var prevDayChronicLoad = programData[programData.currentDay - 1]['loadingData'][muscleGroup][muscle]['chronicEWMA']
+        var prevDayAcuteLoad = programData[programData.currentDay - 1]['loadingData'][muscleGroup][muscle]['acuteEWMA']
         var maxLoadData = 0;
         (prevDayAcuteLoad * 1.1 > prevDayChronicLoad * 1.2) ? maxLoadData = prevDayAcuteLoad : maxLoadData = prevDayChronicLoad
 

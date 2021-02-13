@@ -15,7 +15,7 @@ import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChar
 import StartProgramView from './startProgramView'
 
 
-const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, nullExerciseData, submitProcessingBackend, rawAnatomyData }) => {
+const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, nullExerciseData, submitProcessingBackend, rawAnatomyData, userType }) => {
 
     // Loading variables.
     const [firstRender, setFirstRender] = useState(true)
@@ -28,7 +28,10 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
     const [progressionLoaded, setProgressionLoaded] = useState(true)
 
-    const [pageView, setPageView] = useState('overview')
+
+    const [pageView, setPageView] = useState(
+        userType === 'athlete' ? 'program' : 'overview'
+    )
     // const [currExerciseView, setCurrExerciseView] = useState('availExercises')
 
     const handleChangeDaysOpenView = (day) => {
@@ -427,6 +430,15 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         } else if (rawProgramData.order && !rawProgramData.isActiveInSequence) {
             return undefined
         } else {
+
+            console.log({
+                ACWRGraphProps: generateACWRGraphData(rawProgramData, rawAnatomyData),
+                rollingAverageGraphProps: generateSafeLoadGraphProps(rawProgramData, rawAnatomyData),
+                currentBodyPart: 'Overall_Total',
+                currMuscleGroupOpen: 'Arms',
+
+            })
+
             return {
                 ACWRGraphProps: generateACWRGraphData(rawProgramData, rawAnatomyData),
                 rollingAverageGraphProps: generateSafeLoadGraphProps(rawProgramData, rawAnatomyData),
@@ -526,7 +538,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
     let navHTML =
         <div className='centred-info'>
-            <CoachProgramViewNavButtons
+            <ProgramViewNavButtons
+                userType={userType}
                 currentView={pageView}
                 clickHandler={(newView) => { setPageView(newView) }}
             />
@@ -585,10 +598,6 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                         </div>
                         <div className='rowContainer'>
                             <div className='pageContainerLevel1 half-width'>
-                                {/* <CoachAvailExProgHistToggle
-                        currentView={currExerciseView}
-                        clickHandler={(newView) => { setCurrExerciseView(newView) }}
-                    /> */}
                                 <AvailableExercisesList
                                     columns={availExColumns}
                                     data={exerciseData.chartData}
@@ -686,12 +695,12 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     )
 }
 
-const CoachProgramViewPageSubHeader = ({ data, name }) => {
+const ProgramViewPageSubHeader = ({ data, programUID }) => {
 
     return (
         <>
             <div className='pageSubHeader2'>
-                Current Program: {capitaliseFirstLetter(name.split('_')[0])}
+                Current Program: {capitaliseFirstLetter(programUID.split('_')[0])}
             </div>
             <div className='pageSubHeader2'>
                 Week {currentWeekInProgram(data.currentDay)}, Day {convertTotalDaysToUIDay(data.currentDay)}
@@ -717,7 +726,7 @@ const CoachProgramViewOverviewTable = ({ data, columns }) => {
     )
 }
 
-const CoachProgramViewNavButtons = ({ currentView, clickHandler }) => {
+const ProgramViewNavButtons = ({ currentView, clickHandler, userType }) => {
     return (
         <Button.Group size='tiny'>
             {
@@ -811,4 +820,4 @@ const CoachAvailExProgHistToggle = ({ currentView, clickHandler }) => {
 
 
 export default ProgramView
-export { CoachProgramViewPageSubHeader }
+export { ProgramViewPageSubHeader }

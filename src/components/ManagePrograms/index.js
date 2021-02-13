@@ -19,15 +19,19 @@ import { createProgramObject } from '../../objects/program'
 import { ProgramList } from '../../objects/programList'
 import PageHistory from '../CustomComponents/pageHistory'
 import { listAndFormatExercises, checkNullExerciseData, setAvailExerciseCols } from '../../constants/viewProgramPagesFunctions'
-import ProgramView from '../CustomComponents/programView'
+import ProgramView, { ProgramViewPageSubHeader } from '../CustomComponents/programView'
 import { capitaliseFirstLetter, underscoreToSpaced } from '../../constants/stringManipulation';
 import { calculateDailyLoads } from '../CurrentProgram/calculateWeeklyLoads'
-
 
 class ManageProgramsPage extends Component {
 
     constructor(props) {
         super(props)
+
+        this.PAGE_VIEWS = {
+            HOME: 'home',
+            PROG_VIEW_HOME: 'programHomeView'
+        }
 
         this.state = {
             programManagementTableData: [],
@@ -97,7 +101,7 @@ class ManageProgramsPage extends Component {
                                 progManageTableColumns: this.initProgramTableColumns(userObject.getUserType()),
                                 pendingProgList: pendingList,
                                 pendProgsModalFootText: (!pendingList.isEmptyList()) && '',
-                                view: 'home',
+                                view: this.PAGE_VIEWS.HOME,
                                 pageHistory: new PageHistory(),
                                 editMode: false,
                                 currProgram: undefined,
@@ -235,7 +239,7 @@ class ManageProgramsPage extends Component {
 
                                     this.setState(prev => ({
                                         ...prev,
-                                        view: 'programHomeView',
+                                        view: this.PAGE_VIEWS.PROG_VIEW_HOME,
                                         pageBodyContentLoading: false,
                                         currProgram: {
                                             programUID: programUID,
@@ -1318,7 +1322,7 @@ class ManageProgramsPage extends Component {
             pageBodyContentLoading,
             currProgram
         } = this.state
-        console.log(user)
+        console.log(currProgram)
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
@@ -1332,7 +1336,7 @@ class ManageProgramsPage extends Component {
                             Program Management
                         </div>
                         {
-                            view === 'home' &&
+                            view === this.PAGE_VIEWS.HOME &&
                             <div id='hpBtnContainer' >
                                 <div id='hpLeftBtnContainer'>
                                     <Button
@@ -1363,7 +1367,13 @@ class ManageProgramsPage extends Component {
 
                             </div>
                         }
-
+                        {
+                            view === this.PAGE_VIEWS.PROG_VIEW_HOME &&
+                            <ProgramViewPageSubHeader
+                                data={currProgram.programData}
+                                programUID={currProgram.programUID}
+                            />
+                        }
                         {
                             pendingList && !pendingList.isEmptyList() &&
                             <div id='pendingProgramsModalContainer'>
@@ -1376,7 +1386,7 @@ class ManageProgramsPage extends Component {
                     </div>
                 </div>
                 {
-                    view !== 'home' &&
+                    view !== this.PAGE_VIEWS.HOME &&
                     <div className='rowContainer clickableDiv'>
                         <Button
                             content='Back'
@@ -1388,7 +1398,7 @@ class ManageProgramsPage extends Component {
                     </div>
                 }
                 {
-                    view === 'home' &&
+                    view === this.PAGE_VIEWS.HOME &&
                     <div className="pageContainerLevel1">
                         <BasicTable
                             data={progManageTableData}
@@ -1397,8 +1407,9 @@ class ManageProgramsPage extends Component {
                     </div>
                 }
                 {
-                    view === 'programHomeView' && currProgram &&
+                    view === this.PAGE_VIEWS.PROG_VIEW_HOME && currProgram &&
                     <ProgramView
+                        userType={user.getUserType()}
                         data={currProgram.programData}
                         availExData={currProgram.availExData}
                         availExColumns={currProgram.availExColumns}
