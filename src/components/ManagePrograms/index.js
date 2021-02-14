@@ -221,19 +221,18 @@ class ManageProgramsPage extends Component {
                             )
 
                             // Get the program exercise data
-                            this.props.firebase.getProgramExData(programUID)
-                                .then(snapshot => {
-                                    var exData = {}
 
+                            Promise.all(this.props.firebase.getProgramExGoalData(programUID))
+                                .then(snapshot => {
                                     var progData = this.state.nonPendingProgList.getProgram(programUID).generateCompleteJSONObject()
 
-                                    if (!snapshot.empty) {
-                                        snapshot.docs.forEach(doc => {
-
-                                            progData[doc.id] = { ...doc.data() }
-
-                                        })
+                                    if (Object.keys(snapshot[0]).length > 0) {
+                                        progData.goals = snapshot[0]
                                     }
+
+                                    progData = { ...progData, ...snapshot[1] }
+
+                                    console.log(progData)
 
                                     this.state.pageHistory.next(this.state.view)
 
@@ -258,7 +257,11 @@ class ManageProgramsPage extends Component {
                                                 handleAddExerciseButton: this.handleAddExerciseButton,
                                                 handleSubmitButton: this.handleSubmitButton,
                                                 handleNullCheckProceed: this.handleNullCheckProceed,
-                                                handleStartProgram: this.handleStartProgram
+                                                handleStartProgram: this.handleStartProgram,
+                                                handleEditGoal: this.handleEditGoal,
+                                                handleDeleteGoal: this.handleDeleteGoal,
+                                                handleCompleteGoal: this.handleCompleteGoal,
+                                                handleCreateSubGoal: this.handleCreateSubGoal
                                             },
                                         }
                                     }))
@@ -273,6 +276,24 @@ class ManageProgramsPage extends Component {
                 })
         })
     }
+
+    handleCompleteGoal = () => {
+        console.log('complete goal')
+    }
+
+    handleDeleteGoal = () => {
+        console.log('delete goal')
+    }
+
+    handleEditGoal = () => {
+        console.log('Edit goal')
+
+    }
+
+    handleCreateSubGoal = () => {
+        console.log('create sub goal')
+    }
+
 
     handleDeleteExerciseButton = (id) => {
 

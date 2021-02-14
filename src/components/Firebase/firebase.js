@@ -146,14 +146,6 @@ class Firebase {
             .delete()
     }
 
-    getProgramExData = (programUID) => {
-        return this.database
-            .collection('programs')
-            .doc(programUID)
-            .collection('exercises')
-            .get()
-    }
-
     submitDayDB = (programUID, day, loadingData) => {
         return this.database
             .collection('programs')
@@ -251,6 +243,70 @@ class Firebase {
             .collection('programs')
             .doc(programUID)
             .update({ startDayUTS: timestamp })
+    }
+
+    getProgGoalData = (programUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('goals')
+                .where('programUID', '==', programUID)
+                .get()
+                .then(snapshot => {
+
+                    var payLoad = {}
+
+                    if (!snapshot.empty) {
+                        snapshot.docs.forEach(doc => {
+                            let data = doc.data()
+                            let goalUID = data.goalProgUID
+                            delete data.goalProgUID
+                            payLoad[goalUID] = data
+                        })
+                        res(payLoad)
+                    } else {
+                        res(payLoad)
+                    }
+
+                })
+                .catch(error => {
+                    rej(error)
+                })
+        })
+
+    }
+
+    getProgramExData = (programUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('programs')
+                .doc(programUID)
+                .collection('exercises')
+                .get()
+                .then(snapshot => {
+                    if (!snapshot.empty) {
+                        var payLoad = {}
+                        snapshot.docs.forEach(doc => {
+
+                            payLoad[doc.id] = { ...doc.data() }
+
+                        })
+                        res(payLoad)
+                    } else {
+                        return res({})
+                    }
+                })
+                .catch(error => {
+                    rej(error)
+                })
+
+        })
+    }
+
+    getProgramExGoalData = (programUID) => {
+
+        var promises = [this.getProgGoalData(programUID), this.getProgramExData(programUID)]
+
+        return promises
     }
     //////////////////////////////////////////////
     //////////////////////////////////////////////
