@@ -11,8 +11,11 @@ import ViewPrevWeeksData from '../CurrentProgram/viewPrevWeeksData'
 import BodyPartListGroup from './bodyPartListGroup'
 import InputLabel from './DarkModeInput'
 import { ACWEGraph, RollChronicACWRGraph } from '../ProgressionData/ACWRGraph'
-import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID, generateACWRGraphData, generateSafeLoadGraphProps } from '../../constants/viewProgramPagesFunctions'
+import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID, generateACWRGraphData, generateSafeLoadGraphProps, generateGoalTableData } from '../../constants/viewProgramPagesFunctions'
 import StartProgramView from './startProgramView'
+import GoalsTable from './currentGoalTable'
+import * as goalFunctions from '../../constants/goalFunctions'
+import AddGoalsForm from './addGoalsForm'
 
 
 const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, nullExerciseData, submitProcessingBackend, rawAnatomyData, userType }) => {
@@ -22,6 +25,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     const [loading, setLoading] = useState(true)
     const [overviewLoaded, setOverviewLoaded] = useState(false)
     const [programLoaded, setProgramLoaded] = useState(false)
+    const [goalLoaded, setGoalLoaded] = useState(false)
     const [exercisesLoaded, setExercisesLoaded] = useState(false)
     const [submitDailyExDataProcessing, setSubmitDailyExDataProcessing] = useState(false)
 
@@ -288,6 +292,101 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         }
     }
 
+
+    const handleGoalTableExpRowUpdate = (rows) => {
+        setGoalData({
+            type: GOAL_ACTIONS.UPDATE_EXPANDED_ROWS,
+            payLoad: rows
+        })
+    }
+
+    const GOAL_ACTIONS = {
+        UPDATE_EXPANDED_ROWS: 'updateExpandedRows',
+        DELETE_GOAL: 'deleteGoal',
+        COMPLETE_GOAL: 'completeGoal',
+        UPDATE_GOAL: 'updateGoal',
+        ADD_SUBGOAL: 'addSubGoal',
+        ADD_MAINGOAL: 'addMainGoal'
+    }
+
+    const goalDataReducer = (state, action) => {
+        switch (action.type) {
+            case GOAL_ACTIONS.DELETE_GOAL:
+                return {
+                    ...state,
+                    rawData: action.payLoad,
+                    tableData: generateGoalTableData(
+                        action.payLoad,
+                        handleCreateSubGoal,
+                        handleEditGoal,
+                        handleCompleteGoal,
+                        handleDeleteGoal
+                    ),
+                }
+
+            case GOAL_ACTIONS.COMPLETE_GOAL:
+                return {
+                    ...state,
+                    rawData: action.payLoad,
+                    tableData: generateGoalTableData(
+                        action.payLoad,
+                        handleCreateSubGoal,
+                        handleEditGoal,
+                        handleCompleteGoal,
+                        handleDeleteGoal
+                    ),
+                }
+
+            case GOAL_ACTIONS.UPDATE_GOAL:
+                return {
+                    ...state,
+                    rawData: action.payLoad,
+                    tableData: generateGoalTableData(
+                        action.payLoad,
+                        handleCreateSubGoal,
+                        handleEditGoal,
+                        handleCompleteGoal,
+                        handleDeleteGoal
+                    ),
+                }
+
+            case GOAL_ACTIONS.ADD_SUBGOAL:
+                return {
+                    ...state,
+                    rawData: action.payLoad,
+                    tableData: generateGoalTableData(
+                        action.payLoad,
+                        handleCreateSubGoal,
+                        handleEditGoal,
+                        handleCompleteGoal,
+                        handleDeleteGoal
+                    ),
+                }
+
+            case GOAL_ACTIONS.ADD_MAINGOAL:
+                console.log('new ID ' + action.payLoad.newMainGoalUID)
+                return {
+                    ...state,
+                    rawData: action.payLoad.data,
+                    tableData: generateGoalTableData(
+                        action.payLoad.data,
+                        handleCreateSubGoal,
+                        handleEditGoal,
+                        handleCompleteGoal,
+                        handleDeleteGoal
+                    ),
+                    newMainGoalUID: action.payLoad.newMainGoalUID
+                }
+
+            case GOAL_ACTIONS.UPDATE_EXPANDED_ROWS:
+                return {
+                    ...state,
+                    expandedRows: action.payLoad
+                }
+        }
+    }
+
+
     const PROGRAM_ACTIONS = {
         CHANGE_CURRENT_EXERCISE_LIST: 'changeCurrentExerciseList',
         UPDATE_ON_WEEK_CHANGE: 'updateOnWeekChange',
@@ -424,7 +523,6 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     }
 
     const initialiseProgressionData = (rawProgramData) => {
-        console.log(rawProgramData)
         if (rawProgramData.currentDay === 1) {
             return undefined
         } else if (rawProgramData.order && !rawProgramData.isActiveInSequence) {
@@ -448,9 +546,222 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             }
         }
     }
+
+    const handleCreateSubGoal = (goalObj, mainGoalID) => {
+
+        let rawData = { ...goalData.rawData }
+        var mainGoalIndex = goalFunctions.goalDBUID(mainGoalID).split('_')[1]
+        console.log(rawData)
+        console.log(goalFunctions.goalDBUID(mainGoalID))
+
+
+
+        if (rawData[goalFunctions.goalDBUID(mainGoalID)].subGoals) {
+
+            const currSubGoals = Object.keys(rawData[goalFunctions.goalDBUID(mainGoalID)].subGoals)
+
+            console.log(currSubGoals)
+
+            var index = 1
+            while (currSubGoals.includes(mainGoalIndex + '_' + index.toString())) {
+                index++
+            }
+
+            var newDBUID = mainGoalIndex + '_' + index.toString()
+
+            rawData[goalFunctions.goalDBUID(mainGoalID)].subGoals[newDBUID] = goalObj.getFormattedGoalObject()
+
+        } else {
+            var newDBUID = mainGoalIndex + '_1'
+
+            rawData[goalFunctions.goalDBUID(mainGoalID)].subGoals = {
+                [newDBUID]: goalObj.getFormattedGoalObject()
+            }
+        }
+
+        if (rawData[goalFunctions.goalDBUID(mainGoalID)].mainGoal.completed) {
+            rawData[goalFunctions.goalDBUID(mainGoalID)].mainGoal.completed = false
+        }
+        setGoalData({
+            type: GOAL_ACTIONS.ADD_SUBGOAL,
+            payLoad: rawData
+        })
+    }
+
+    const handleEditGoal = (id, changes) => {
+        console.log('edit')
+        let rawData = { ...goalData.rawData }
+        var changesObj = changes.getFormattedGoalObject()
+        console.log(rawData)
+        if (goalFunctions.isMainGoal(id)) {
+
+            rawData[goalFunctions.goalDBUID(id)].mainGoal = changesObj.mainGoal
+            console.log(changesObj)
+            var dbPayload = {
+                mainGoal: {
+                    dbUID: goalFunctions.goalDBUID(id),
+                    data: changesObj.mainGoal
+                }
+            }
+        } else {
+            console.log(id)
+            console.log(changesObj)
+
+            rawData[goalFunctions.subGoalParent(id)].subGoals[goalFunctions.goalDBUID(id)] = changesObj
+
+            var dbPayload = {
+                subGoal: {
+                    dbUID: goalFunctions.goalDBUID(id),
+                    data: changesObj
+                }
+            }
+
+        }
+
+        setGoalData({
+            type: GOAL_ACTIONS.UPDATE_GOAL,
+            payLoad: rawData
+        })
+    }
+
+    const handleCompleteGoal = (id, currProgress) => {
+        console.log('complete')
+        console.log(id)
+        var goalInfo = goalFunctions.generateGoalParentIDFromSubgoalID(id)
+        console.log(goalInfo)
+        var rawData = { ...goalData.rawData }
+        console.log(rawData)
+        // If the goal selected is a sub goal. Progress of main goal must be assessed as well.
+        // For each of the main goals find the correct parent goal, then check if all sub goals are completed. 
+        // If all subgoals are completed check the main goal as completed as well, else main goal remains incomplete.
+
+        var dbPayload = {}
+
+        if (!goalFunctions.isMainGoal(id)) {
+
+            rawData[goalFunctions.subGoalParent(id)].subGoals[goalFunctions.goalDBUID(id)].completed = !currProgress
+
+            var subGoalsCompleted = true
+
+            Object.values(rawData[goalFunctions.subGoalParent(id)].subGoals).forEach(subGoal => {
+                if (subGoal.completed === false) {
+                    subGoalsCompleted = false
+                }
+            })
+
+            if (rawData[goalFunctions.subGoalParent(id)].mainGoal.completed !== subGoalsCompleted) {
+                rawData[goalFunctions.subGoalParent(id)].mainGoal.completed = subGoalsCompleted
+
+                dbPayload.mainGoal = {
+                    dbUID: goalFunctions.subGoalParent(id),
+                    completed: subGoalsCompleted
+                }
+            }
+
+
+            dbPayload.subGoal = {
+                dbUID: goalFunctions.goalDBUID(id),
+                completed: !currProgress
+            }
+
+        } else {
+
+            rawData[goalFunctions.goalDBUID(id)].mainGoal.completed = !currProgress
+
+            dbPayload.mainGoal = {
+                dbUID: goalFunctions.goalDBUID(id),
+                completed: !currProgress
+            }
+        }
+
+        setGoalData({
+            type: GOAL_ACTIONS.COMPLETE_GOAL,
+            payLoad: rawData
+        })
+
+    }
+
+    const handleAddMainGoal = (goalObj) => {
+        const mainGoalDBUID = 'Goal_' + (goalObj.uid + 1).toString()
+        const goalPayload = goalObj.getFormattedGoalObject()
+
+        let rawData = { ...goalData.rawData }
+        rawData[mainGoalDBUID] = goalPayload
+
+        console.log(rawData)
+        console.log(goalPayload)
+        console.log(mainGoalDBUID)
+
+
+        setGoalData({
+            type: GOAL_ACTIONS.ADD_MAINGOAL,
+            payLoad: {
+                data: rawData,
+                newMainGoalUID: goalObj.uid + 1
+            }
+        })
+
+    }
+
+    const handleDeleteGoal = (id) => {
+        let rawData = { ...goalData.rawData }
+
+        if (goalFunctions.isMainGoal(id)) {
+            delete rawData[goalFunctions.goalDBUID(id)]
+        } else {
+            const mainGoal = goalFunctions.subGoalParent(id)
+            if (Object.keys(rawData[mainGoal].subGoals).length === 1) {
+                delete rawData[mainGoal].subGoals
+            } else {
+                delete rawData[mainGoal].subGoals[goalFunctions.goalDBUID(id)]
+            }
+
+        }
+        setGoalData({
+            type: GOAL_ACTIONS.DELETE_GOAL,
+            payLoad: rawData
+        })
+
+    }
+
+    const generateNewMainGoalUID = (rawGoalData) => {
+        var index = 1
+        while (Object.keys(rawGoalData).includes('Goal_' + index.toString())) {
+            index++
+        }
+
+        return index - 1
+    }
+
+    const initialiseGoalData = (rawProgramData) => {
+        console.log(rawProgramData)
+        if (rawProgramData.goals) {
+
+            return {
+                rawData: rawProgramData.goals,
+                newMainGoalUID: generateNewMainGoalUID(rawProgramData.goals),
+                tableData: generateGoalTableData(
+                    rawProgramData.goals,
+                    handleCreateSubGoal,
+                    handleEditGoal,
+                    handleCompleteGoal,
+                    handleDeleteGoal
+                ),
+                expandedRows: {}
+            }
+        } else {
+            return {
+                tableData: [],
+                expandedRows: {}
+            }
+        }
+    }
+
     const anatomyData = rawAnatomyData
     const [exerciseData, setExerciseData] = useState(() => initialiseAvailableExerciseData(data, availExData))
     const [overviewData, setOverviewData] = useState(() => initialiseOverviewData(data))
+
+    const [goalData, setGoalData] = useReducer(goalDataReducer, data, initialiseGoalData)
 
     const [progressionData, setProgressionData] = useReducer(progressionDataReducer, data, initialiseProgressionData)
 
@@ -523,7 +834,13 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     }, [programData])
 
     useEffect(() => {
-        if (overviewLoaded && programLoaded && progressionLoaded && exercisesLoaded) {
+        if (goalData) {
+            setGoalLoaded(true)
+        }
+    }, [goalData])
+
+    useEffect(() => {
+        if (overviewLoaded && programLoaded && progressionLoaded && exercisesLoaded && goalLoaded) {
             setLoading(false)
             setFirstRender(false)
         }
@@ -595,6 +912,31 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                                             Next Week
                             </Button>
                             }
+                        </div>
+                        <div className='rowContainer'>
+                            <div className='pageContainerLevel1 half-width'>
+                                <div>
+                                    <GoalsTable
+                                        data={goalData.tableData}
+                                        expandedRowsHandler={handleGoalTableExpRowUpdate}
+                                        expandedRows={goalData.expandedRows}
+                                    />
+                                    <div className='goalsPromptBtnContainer'>
+                                        <AddGoalsForm
+                                            buttonText='Create More Goals'
+                                            headerText='Create More Goals'
+                                            handleFormSubmit={handleAddMainGoal}
+                                            newMainGoalUID={goalData.newMainGoalUID}
+                                            triggerElement={
+                                                <Button
+                                                    className='lightPurpleButton-inverted'>
+                                                    Add More Goals
+                                            </Button>
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div className='rowContainer'>
                             <div className='pageContainerLevel1 half-width'>

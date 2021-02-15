@@ -13,15 +13,25 @@ const EditGoalModal = ({ submitHandler, uid, currentData, isSubGoal }) => {
     const goalUID = uid + '_editGoal'
 
     const initialiseGoalData = (data) => {
-        if (data != undefined) {
-            let goal = new SubGoal(uid, undefined, undefined)
-            goal.setDate(convertDateStringToObject(data.closeOffDate, '.'))
-            goal.setDescription(data.description)
-            goal.setDifficulty(data.difficulty)
-            goal.setCompleted(data.completed)
+        if (data) {
+            if (isSubGoal) {
+                var goal = new SubGoal(uid, undefined, undefined)
+                goal.setDate(convertDateStringToObject(data.closeOffDate, '.'))
+                goal.setDescription(data.description)
+                goal.setDifficulty(data.difficulty)
+                goal.setCompleted(data.completed)
+
+            } else {
+                goal = new Goal(uid, undefined, undefined, false)
+                goal.setDate(convertDateStringToObject(data.closeOffDate, '.'))
+                goal.setDescription(data.description)
+                goal.setDifficulty(data.difficulty)
+                goal.setCompleted(data.completed)
+
+            }
             return goal
         }
-        return false
+        return undefined
     }
 
     const [goal, setGoal] = useState(() => initialiseGoalData(currentData))
@@ -52,7 +62,7 @@ const EditGoalModal = ({ submitHandler, uid, currentData, isSubGoal }) => {
             <Form onSubmit={handleSubmit}>
                 <Modal.Content className='editModalContent'>
                     {
-                        goal != false && goal.formHTML()
+                        goal && goal.formHTML()
                     }
                 </Modal.Content>
                 <Modal.Actions className='editModalActions'>

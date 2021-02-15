@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Modal, Button, Form, Input, Container, Icon } from 'semantic-ui-react'
 
 import { Goal } from './goalFieldForm'
@@ -13,6 +13,12 @@ const AddGoalsForm = ({ handleFormSubmit, buttonText, headerText, triggerElement
         setNumRenders(prevState => prevState + 1)
     }
 
+    // const initMainGoalUID = (uid) => {
+    //     console.log(newMainGoalUID)
+    // }
+
+    // const [mainGoalUID, setMainGoalUID] = useState(initMainGoalUID(newMainGoalUID))
+
     const [goal, setGoal] = useState(new Goal(newMainGoalUID, updateGoal, undefined))
     const [numRenders, setNumRenders] = useState(true)
     const handleSubmit = (event) => {
@@ -20,7 +26,9 @@ const AddGoalsForm = ({ handleFormSubmit, buttonText, headerText, triggerElement
         handleFormSubmit(goal)
     }
 
-
+    useEffect(() => {
+        setGoal(new Goal(newMainGoalUID, updateGoal, undefined))
+    }, [newMainGoalUID])
 
     return (
         <Modal

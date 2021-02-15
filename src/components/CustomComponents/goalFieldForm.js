@@ -12,7 +12,7 @@ import GoalDifficultyDropdown from '../CustomComponents/goalDifficultyDropDown'
 import datePickerToString from '../../constants/datePickerToString'
 
 class Goal {
-    constructor(uid, updateParentList, currentGoalList) {
+    constructor(uid, updateParentList, currentGoalList, renderAddSubGoals = true) {
         this.description = ''
         this.difficulty = 'Easy'
         this.closeOffDate = new Date()
@@ -21,6 +21,7 @@ class Goal {
         this.uid = uid
         this.updateParentList = updateParentList
         this.currentGoalList = currentGoalList
+        this.renderAddSubGoals = renderAddSubGoals
     }
 
     setCurrentGoalList(list) {
@@ -104,6 +105,7 @@ class Goal {
                     goalObj={this}
                     headerText='Goal Description'
                     isSubGoal={false}
+                    renderAddSubGoals={this.renderAddSubGoals}
                 />
                 { Object.keys(this.subGoals).length > 0 &&
                     Object.values(this.subGoals).map(value => {
@@ -119,7 +121,7 @@ class Goal {
 
 }
 
-const GoalFormInput = ({ goalUID, goalObj, headerText, isSubGoal }) => {
+const GoalFormInput = ({ goalUID, goalObj, headerText, isSubGoal, renderAddSubGoals }) => {
 
     const [description, setDescription] = useState(goalObj.getDescription())
 
@@ -179,7 +181,7 @@ const GoalFormInput = ({ goalUID, goalObj, headerText, isSubGoal }) => {
                 </div>
             </div>
 
-            {!isSubGoal &&
+            {!isSubGoal && renderAddSubGoals &&
                 <div id='hpModalSubGoalsLabelContainer'>
                     <InputLabel
                         text='Add Sub Goals &nbsp;'

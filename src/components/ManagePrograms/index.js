@@ -1185,6 +1185,11 @@ class ManageProgramsPage extends Component {
                 var index = 1
                 Object.values(goalList).forEach(goal => {
                     var formattedObj = goal.getFormattedGoalObject()
+
+                    if (Object.keys(formattedObj.subGoals).length === 0) {
+                        delete formattedObj.subGoals
+                    }
+
                     formattedObj.programUID =
                         programName + '_' + this.props.firebase.auth.currentUser.uid + '_' + timestamp
                     formattedObj.goalProgUID = 'Goal_' + index.toString()

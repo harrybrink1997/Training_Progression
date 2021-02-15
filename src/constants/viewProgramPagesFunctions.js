@@ -977,25 +977,30 @@ const generateSubGoalData = (
 }
 
 const generateGoalTableData = (
-    programObject,
+    goalObject,
     handleCreateSubGoal,
     handleEditGoal,
     handleCompleteGoal,
     handleDeleteGoal
 ) => {
 
-    if (programObject.goals) {
-        if (Object.keys(programObject.goals).length > 0) {
+    if (goalObject) {
+        if (Object.keys(goalObject).length > 0) {
             var tableData = []
 
-            Object.keys(programObject.goals).forEach(goalKey => {
-                var goal = programObject.goals[goalKey]
+            Object.keys(goalObject).forEach(goalKey => {
+                var goal = goalObject[goalKey]
                 if (goal.subGoals) {
                     tableData.push({
                         description: goal.mainGoal.description,
                         progressString: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
                         completed: goal.mainGoal.completed,
-                        subRows: generateSubGoalData(goal.subGoals),
+                        subRows: generateSubGoalData(
+                            goal.subGoals,
+                            handleEditGoal,
+                            handleDeleteGoal,
+                            handleCompleteGoal
+                        ),
                         goalUID: goalKey,
                         targetCloseDate: goal.mainGoal.closeOffDate,
                         difficulty: goal.mainGoal.difficulty,
