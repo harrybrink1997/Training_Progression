@@ -11,11 +11,12 @@ import ViewPrevWeeksData from '../CurrentProgram/viewPrevWeeksData'
 import BodyPartListGroup from './bodyPartListGroup'
 import InputLabel from './DarkModeInput'
 import { ACWEGraph, RollChronicACWRGraph } from '../ProgressionData/ACWRGraph'
-import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID, generateACWRGraphData, generateSafeLoadGraphProps, generateGoalTableData } from '../../constants/viewProgramPagesFunctions'
+import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID, generateACWRGraphData, generateSafeLoadGraphProps, generateGoalTableData, generateCurrDaySafeLoadData } from '../../constants/viewProgramPagesFunctions'
 import StartProgramView from './startProgramView'
 import GoalsTable from './currentGoalTable'
 import * as goalFunctions from '../../constants/goalFunctions'
 import AddGoalsForm from './addGoalsForm'
+import { LoadingSpreadStatsTable } from '../CurrentProgram/statsTable'
 
 
 const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, nullExerciseData, submitProcessingBackend, rawAnatomyData, userType }) => {
@@ -50,7 +51,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
         setProgramData({
             type: PROGRAM_ACTIONS.CHANGE_DAYS_OPEN_VIEW,
-            payLoad: newArray
+            payload: newArray
         })
     }
 
@@ -107,7 +108,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
         setProgramData({
             type: PROGRAM_ACTIONS.CHANGE_CURRENT_EXERCISE_LIST,
-            payLoad: {
+            payload: {
                 rawData: newRawData,
                 exerciseListPerDay: updatedDailyExerciseList(newRawData, handleDeleteExerciseButton, handleUpdateExercise)
             }
@@ -143,7 +144,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
         setProgramData({
             type: PROGRAM_ACTIONS.CHANGE_CURRENT_EXERCISE_LIST,
-            payLoad: {
+            payload: {
                 rawData: newRawData,
                 exerciseListPerDay: updatedDailyExerciseList(newRawData, handleDeleteExerciseButton, handleUpdateExercise)
             }
@@ -158,7 +159,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
         setProgramData({
             type: PROGRAM_ACTIONS.START_PROGRAM,
-            payLoad: startDateUTS
+            payload: startDateUTS
         })
 
     }
@@ -184,7 +185,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
         setProgramData({
             type: PROGRAM_ACTIONS.CHANGE_CURRENT_EXERCISE_LIST,
-            payLoad: {
+            payload: {
                 rawData: newRawData,
                 exerciseListPerDay: updatedDailyExerciseList(newRawData, handleDeleteExerciseButton, handleUpdateExercise)
             }
@@ -209,7 +210,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
         setProgramData({
             type: PROGRAM_ACTIONS.CHANGE_WEEK,
-            payLoad: {
+            payload: {
                 currDay: newDay,
                 rawData: rawDataCopy
             }
@@ -222,7 +223,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     }
 
     const initialiseProgramData = (rawProgramData) => {
-        var payLoad = {
+        var payload = {
             rawData: rawProgramData,
             exerciseListPerDay: updatedDailyExerciseList(rawProgramData, handleDeleteExerciseButton, handleUpdateExercise),
             loadingScheme: rawProgramData.loadingScheme,
@@ -234,7 +235,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             startDayUTS: rawProgramData.startDayUTS
         }
 
-        return payLoad
+        return payload
     }
 
 
@@ -242,14 +243,14 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     const handleSelectBodyPart = (value) => {
         setProgressionData({
             type: PROGRESSION_ACTIONS.CHANGE_BODY_PART,
-            payLoad: value
+            payload: value
         })
     }
 
     const handleOpenMuscleGroup = (value) => {
         setProgressionData({
             type: PROGRESSION_ACTIONS.CHANGE_OPEN_BODY_GROUP,
-            payLoad: value
+            payload: value
         })
     }
 
@@ -266,25 +267,25 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             case PROGRESSION_ACTIONS.CHANGE_BODY_PART:
                 return {
                     ...state,
-                    currentBodyPart: action.payLoad
+                    currentBodyPart: action.payload
                 }
 
             case PROGRESSION_ACTIONS.CHANGE_OPEN_BODY_GROUP:
                 return {
                     ...state,
-                    currMuscleGroupOpen: action.payLoad
+                    currMuscleGroupOpen: action.payload
                 }
 
             case PROGRESSION_ACTIONS.UPDATE_GRAPH_DATA:
                 return {
                     ...state,
                     ACWRGraphProps: generateACWRGraphData(
-                        action.payLoad.rawProgramData,
-                        action.payLoad.anatomyData
+                        action.payload.rawProgramData,
+                        action.payload.anatomyData
                     ),
                     rollingAverageGraphProps: generateSafeLoadGraphProps(
-                        action.payLoad.rawProgramData,
-                        action.payLoad.anatomyData
+                        action.payload.rawProgramData,
+                        action.payload.anatomyData
                     ),
                 }
 
@@ -297,7 +298,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     const handleGoalTableExpRowUpdate = (rows) => {
         setGoalData({
             type: GOAL_ACTIONS.UPDATE_EXPANDED_ROWS,
-            payLoad: rows
+            payload: rows
         })
     }
 
@@ -315,9 +316,9 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             case GOAL_ACTIONS.DELETE_GOAL:
                 return {
                     ...state,
-                    rawData: action.payLoad,
+                    rawData: action.payload,
                     tableData: generateGoalTableData(
-                        action.payLoad,
+                        action.payload,
                         handleCreateSubGoal,
                         handleEditGoal,
                         handleCompleteGoal,
@@ -328,9 +329,9 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             case GOAL_ACTIONS.COMPLETE_GOAL:
                 return {
                     ...state,
-                    rawData: action.payLoad,
+                    rawData: action.payload,
                     tableData: generateGoalTableData(
-                        action.payLoad,
+                        action.payload,
                         handleCreateSubGoal,
                         handleEditGoal,
                         handleCompleteGoal,
@@ -341,9 +342,9 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             case GOAL_ACTIONS.UPDATE_GOAL:
                 return {
                     ...state,
-                    rawData: action.payLoad,
+                    rawData: action.payload,
                     tableData: generateGoalTableData(
-                        action.payLoad,
+                        action.payload,
                         handleCreateSubGoal,
                         handleEditGoal,
                         handleCompleteGoal,
@@ -354,9 +355,9 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             case GOAL_ACTIONS.ADD_SUBGOAL:
                 return {
                     ...state,
-                    rawData: action.payLoad,
+                    rawData: action.payload,
                     tableData: generateGoalTableData(
-                        action.payLoad,
+                        action.payload,
                         handleCreateSubGoal,
                         handleEditGoal,
                         handleCompleteGoal,
@@ -365,24 +366,24 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                 }
 
             case GOAL_ACTIONS.ADD_MAINGOAL:
-                console.log('new ID ' + action.payLoad.newMainGoalUID)
+                console.log('new ID ' + action.payload.newMainGoalUID)
                 return {
                     ...state,
-                    rawData: action.payLoad.data,
+                    rawData: action.payload.data,
                     tableData: generateGoalTableData(
-                        action.payLoad.data,
+                        action.payload.data,
                         handleCreateSubGoal,
                         handleEditGoal,
                         handleCompleteGoal,
                         handleDeleteGoal
                     ),
-                    newMainGoalUID: action.payLoad.newMainGoalUID
+                    newMainGoalUID: action.payload.newMainGoalUID
                 }
 
             case GOAL_ACTIONS.UPDATE_EXPANDED_ROWS:
                 return {
                     ...state,
-                    expandedRows: action.payLoad
+                    expandedRows: action.payload
                 }
         }
     }
@@ -402,36 +403,58 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             case PROGRAM_ACTIONS.CHANGE_CURRENT_EXERCISE_LIST:
                 return {
                     ...state,
-                    rawData: action.payLoad.rawData,
-                    exerciseListPerDay: action.payLoad.exerciseListPerDay
+                    rawData: action.payload.rawData,
+                    exerciseListPerDay: action.payload.exerciseListPerDay
                 }
 
             case PROGRAM_ACTIONS.UPDATE_ON_WEEK_CHANGE:
                 return {
                     ...state,
-                    daysInWeekScope: action.payLoad.daysInWeekScope,
-                    currButtonView: action.payLoad.currButtonView,
-                    exerciseListPerDay: action.payLoad.exerciseListPerDay
+                    daysInWeekScope: action.payload.daysInWeekScope,
+                    currButtonView: action.payload.currButtonView,
+                    exerciseListPerDay: action.payload.exerciseListPerDay
                 }
 
             case PROGRAM_ACTIONS.CHANGE_WEEK:
                 return {
                     ...state,
-                    currentDay: action.payLoad.currDay,
-                    rawData: action.payLoad.rawData
+                    currentDay: action.payload.currDay,
+                    rawData: action.payload.rawData
                 }
 
             case PROGRAM_ACTIONS.CHANGE_DAYS_OPEN_VIEW:
                 return {
                     ...state,
-                    openDaysUI: action.payLoad
+                    openDaysUI: action.payload
                 }
 
             case PROGRAM_ACTIONS.START_PROGRAM:
                 return {
                     ...state,
-                    startDayUTS: action.payLoad
+                    startDayUTS: action.payload
 
+                }
+            default:
+                return state
+
+        }
+    }
+
+    const SAFE_LOAD_ACTIONS = {
+        REFRESH: 'refresh'
+    }
+
+    const safeLoadDataReducer = (state, action) => {
+        switch (action.type) {
+            case SAFE_LOAD_ACTIONS.REFRESH:
+                console.log('going in')
+                console.log(action.payload)
+                return {
+                    ...state,
+                    tableData: generateCurrDaySafeLoadData(
+                        action.payload,
+                        anatomyData
+                    )
                 }
             default:
                 return state
@@ -467,44 +490,44 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     }
 
     const initialiseOverviewData = (rawProgramData) => {
-        var payLoad = {
+        var payload = {
             data: [],
             columns: [{ accessor: 'parameter' }, { accessor: 'value' }]
         }
 
-        payLoad.data.push({
+        payload.data.push({
             parameter: 'Day In Program',
             value: rawProgramData.currentDay
         })
-        payLoad.data.push({
+        payload.data.push({
             parameter: 'Acute Timeframe',
             value: rawProgramData.acutePeriod
         })
-        payLoad.data.push({
+        payload.data.push({
             parameter: 'Chronic Timeframe',
             value: rawProgramData.chronicPeriod
         })
-        payLoad.data.push({
+        payload.data.push({
             parameter: 'Program Type',
             value: rawProgramData.order ? 'Sequential' : 'Unlimited'
         })
 
         if (rawProgramData.order) {
-            payLoad.data.push({
+            payload.data.push({
                 parameter: 'Sequence Name',
                 value: rawProgramData.order.split('_')[1]
             })
-            payLoad.data.push({
+            payload.data.push({
                 parameter: 'Order In Sequence',
                 value: rawProgramData.order.split('_')[0]
             })
-            payLoad.data.push({
+            payload.data.push({
                 parameter: 'Currently Active In Sequence',
                 value: rawProgramData.isActiveInSequence ? 'Yes' : 'No'
             })
         }
 
-        return payLoad
+        return payload
     }
 
     const initialiseAvailableExerciseData = (rawProgramData, exerciseData) => {
@@ -585,7 +608,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         }
         setGoalData({
             type: GOAL_ACTIONS.ADD_SUBGOAL,
-            payLoad: rawData
+            payload: rawData
         })
 
         handlerFunctions.handleCreateSubGoal(dbPayload)
@@ -622,7 +645,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
         setGoalData({
             type: GOAL_ACTIONS.UPDATE_GOAL,
-            payLoad: rawData
+            payload: rawData
         })
         handlerFunctions.handleEditGoal(dbPayload)
     }
@@ -675,7 +698,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
         setGoalData({
             type: GOAL_ACTIONS.COMPLETE_GOAL,
-            payLoad: rawData
+            payload: rawData
         })
         handlerFunctions.handleCompleteGoal(dbPayload)
 
@@ -690,7 +713,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
         setGoalData({
             type: GOAL_ACTIONS.ADD_MAINGOAL,
-            payLoad: {
+            payload: {
                 data: rawData,
                 newMainGoalUID: goalObj.uid + 1
             }
@@ -723,7 +746,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         }
         setGoalData({
             type: GOAL_ACTIONS.DELETE_GOAL,
-            payLoad: rawData
+            payload: rawData
         })
 
         handlerFunctions.handleDeleteGoal(dbPayload)
@@ -763,6 +786,16 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         }
     }
 
+    const initialiseSafeLoadData = (rawProgramData) => {
+        console.log(rawProgramData)
+        return {
+            tableData: generateCurrDaySafeLoadData(
+                rawProgramData,
+                anatomyData
+            )
+        }
+    }
+
     const anatomyData = rawAnatomyData
     const [exerciseData, setExerciseData] = useState(() => initialiseAvailableExerciseData(data, availExData))
     const [overviewData, setOverviewData] = useState(() => initialiseOverviewData(data))
@@ -772,6 +805,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     const [progressionData, setProgressionData] = useReducer(progressionDataReducer, data, initialiseProgressionData)
 
     const [programData, setProgramData] = useReducer(programDataReducer, data, initialiseProgramData)
+
+    const [safeLoadData, setSafeLoadData] = useReducer(safeLoadDataReducer, data, initialiseSafeLoadData)
 
     // Use Effects to monitor the loading state of the program page.
 
@@ -783,7 +818,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
             setProgramData({
                 type: PROGRAM_ACTIONS.UPDATE_ON_WEEK_CHANGE,
-                payLoad: {
+                payload: {
                     daysInWeekScope: generateDaysInWeekScope(currDay),
                     currButtonView: initCurrButtonView(
                         true,
@@ -810,12 +845,10 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         } else {
             setSubmitDailyExDataProcessing(false)
             if (!firstRender) {
-                console.log("udpating progression data")
-                console.log(data)
-                console.log(programDataRef.current.rawData)
+
                 setProgressionData({
                     type: PROGRESSION_ACTIONS.UPDATE_GRAPH_DATA,
-                    payLoad: {
+                    payload: {
                         rawProgramData: data,
                         anatomyData: anatomyData
                     }
@@ -823,6 +856,16 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             }
         }
     }, [submitProcessingBackend])
+
+    useEffect(() => {
+        console.log('rawData updated')
+        if (programData.rawData) {
+            setSafeLoadData({
+                type: SAFE_LOAD_ACTIONS.REFRESH,
+                payload: programData.rawData
+            })
+        }
+    }, [programData])
 
     useEffect(() => {
         if (exerciseData) {
@@ -960,6 +1003,9 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                                         </div>
                                     </div>
                                 }
+                            </div>
+                            <div className='pageContainerLevel1 half-width'>
+                                <LoadingSpreadStatsTable data={safeLoadData.tableData} />
                             </div>
                         </div>
                         <div className='rowContainer'>
@@ -1144,7 +1190,7 @@ const ProgramViewNavButtons = ({ currentView, clickHandler, userType }) => {
 }
 
 
-const CoachAvailExProgHistToggle = ({ currentView, clickHandler }) => {
+const ProgramHistToggle = ({ currentView, clickHandler }) => {
     return (
         <div className='availExercises-ExData-toggleContainer centred-info'>
             <Button.Group size='tiny'>
