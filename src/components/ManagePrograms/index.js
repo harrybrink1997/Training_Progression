@@ -300,8 +300,6 @@ class ManageProgramsPage extends Component {
     }
 
     handleDeleteGoal = (payload) => {
-        console.log('delete goal')
-        console.log(payload)
         this.props.firebase.deleteGoalDB(
             this.state.currProgram.programUID,
             payload
@@ -309,16 +307,17 @@ class ManageProgramsPage extends Component {
     }
 
     handleEditGoal = (payload) => {
-        console.log('Edit goal')
-        console.log(payload)
         this.props.firebase.editGoalDB(
             this.state.currProgram.programUID,
             payload
         )
     }
 
-    handleCreateSubGoal = () => {
-        console.log('create sub goal')
+    handleCreateSubGoal = (payload) => {
+        this.props.firebase.createSubGoalDB(
+            this.state.currProgram.programUID,
+            payload
+        )
     }
 
 

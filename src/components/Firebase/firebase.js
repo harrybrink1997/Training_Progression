@@ -335,6 +335,23 @@ class Firebase {
         return this.database.collection('goals').doc().set(payload)
     }
 
+    createSubGoalDB = (programUID, payload) => {
+        this.database
+            .collection('goals')
+            .where('programUID', '==', programUID)
+            .where('goalProgUID', '==', payload.parentGoal)
+            .get()
+            .then(snap => {
+                var docRef = this.database.collection('goals').doc(snap.docs[0].id)
+
+                var subGoalPath = `subGoals.${payload.goalDBUID}`
+
+                docRef.update({
+                    [subGoalPath]: payload.data
+                })
+            })
+    }
+
     deleteGoalDB = (programUID, payload) => {
         if (payload.isMainGoal) {
             this.database

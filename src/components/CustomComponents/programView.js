@@ -551,16 +551,10 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
         let rawData = { ...goalData.rawData }
         var mainGoalIndex = goalFunctions.goalDBUID(mainGoalID).split('_')[1]
-        console.log(rawData)
-        console.log(goalFunctions.goalDBUID(mainGoalID))
-
-
 
         if (rawData[goalFunctions.goalDBUID(mainGoalID)].subGoals) {
 
             const currSubGoals = Object.keys(rawData[goalFunctions.goalDBUID(mainGoalID)].subGoals)
-
-            console.log(currSubGoals)
 
             var index = 1
             while (currSubGoals.includes(mainGoalIndex + '_' + index.toString())) {
@@ -582,10 +576,18 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         if (rawData[goalFunctions.goalDBUID(mainGoalID)].mainGoal.completed) {
             rawData[goalFunctions.goalDBUID(mainGoalID)].mainGoal.completed = false
         }
+
+        var dbPayload = {
+            parentGoal: goalFunctions.goalDBUID(mainGoalID),
+            goalDBUID: newDBUID,
+            data: goalObj.getFormattedGoalObject()
+        }
         setGoalData({
             type: GOAL_ACTIONS.ADD_SUBGOAL,
             payLoad: rawData
         })
+
+        handlerFunctions.handleCreateSubGoal(dbPayload)
     }
 
     const handleEditGoal = (id, changes) => {
