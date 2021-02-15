@@ -308,6 +308,28 @@ class Firebase {
 
         return promises
     }
+
+    changeGoalCompletionStatusDB = (programUID, goalProgUID, goalData) => {
+        return this.database
+            .collection('goals')
+            .where('programUID', '==', programUID)
+            .where('goalProgUID', '==', goalProgUID)
+            .get()
+            .then(snap => {
+                var docRef = this.database.collection('goals').doc(snap.docs[0].id)
+                const batch = this.database.batch()
+                if (goalData.mainGoal) {
+                    batch.update(docRef, { 'mainGoal.completed': goalData.mainGoal.completed })
+                }
+
+                if (goalData.subGoal) {
+                    var subGoalPath = `subGoals.${goalData.subGoal.dbUID}.completed`
+                    batch.update(docRef, { [subGoalPath]: goalData.subGoal.completed })
+                }
+
+                batch.commit()
+            })
+    }
     //////////////////////////////////////////////
     //////////////////////////////////////////////
     //////////////////////////////////////////////

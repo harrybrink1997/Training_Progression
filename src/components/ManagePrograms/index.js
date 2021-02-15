@@ -261,7 +261,8 @@ class ManageProgramsPage extends Component {
                                                 handleEditGoal: this.handleEditGoal,
                                                 handleDeleteGoal: this.handleDeleteGoal,
                                                 handleCompleteGoal: this.handleCompleteGoal,
-                                                handleCreateSubGoal: this.handleCreateSubGoal
+                                                handleCreateSubGoal: this.handleCreateSubGoal,
+                                                handleCreateMainGoal: this.handleCreateMainGoal
                                             },
                                         }
                                     }))
@@ -277,8 +278,19 @@ class ManageProgramsPage extends Component {
         })
     }
 
-    handleCompleteGoal = () => {
-        console.log('complete goal')
+    handleCreateMainGoal = () => {
+
+    }
+
+    handleCompleteGoal = (payload) => {
+        console.log(payload)
+        console.log(this.state.currProgram.programUID)
+        console.log(payload.mainGoalDBUID)
+        this.props.firebase.changeGoalCompletionStatusDB(
+            this.state.currProgram.programUID,
+            payload.mainGoalDBUID,
+            payload
+        )
     }
 
     handleDeleteGoal = () => {

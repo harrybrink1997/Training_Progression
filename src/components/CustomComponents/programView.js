@@ -625,12 +625,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     }
 
     const handleCompleteGoal = (id, currProgress) => {
-        console.log('complete')
-        console.log(id)
-        var goalInfo = goalFunctions.generateGoalParentIDFromSubgoalID(id)
-        console.log(goalInfo)
         var rawData = { ...goalData.rawData }
-        console.log(rawData)
         // If the goal selected is a sub goal. Progress of main goal must be assessed as well.
         // For each of the main goals find the correct parent goal, then check if all sub goals are completed. 
         // If all subgoals are completed check the main goal as completed as well, else main goal remains incomplete.
@@ -638,6 +633,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         var dbPayload = {}
 
         if (!goalFunctions.isMainGoal(id)) {
+
+            dbPayload.mainGoalDBUID = goalFunctions.subGoalParent(id)
 
             rawData[goalFunctions.subGoalParent(id)].subGoals[goalFunctions.goalDBUID(id)].completed = !currProgress
 
@@ -652,8 +649,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             if (rawData[goalFunctions.subGoalParent(id)].mainGoal.completed !== subGoalsCompleted) {
                 rawData[goalFunctions.subGoalParent(id)].mainGoal.completed = subGoalsCompleted
 
+
                 dbPayload.mainGoal = {
-                    dbUID: goalFunctions.subGoalParent(id),
                     completed: subGoalsCompleted
                 }
             }
@@ -667,9 +664,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         } else {
 
             rawData[goalFunctions.goalDBUID(id)].mainGoal.completed = !currProgress
-
+            dbPayload.mainGoalDBUID = goalFunctions.goalDBUID(id)
             dbPayload.mainGoal = {
-                dbUID: goalFunctions.goalDBUID(id),
                 completed: !currProgress
             }
         }
@@ -678,6 +674,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             type: GOAL_ACTIONS.COMPLETE_GOAL,
             payLoad: rawData
         })
+        handlerFunctions.handleCompleteGoal(dbPayload)
 
     }
 
