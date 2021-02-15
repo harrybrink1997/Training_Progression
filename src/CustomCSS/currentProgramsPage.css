@@ -82,19 +82,11 @@
     padding: 10px;
 }
 
-/* #noGoalsPromptLabelContainer {
-    margin-bottom: 10px;
-} */
 .goalsPromptBtnContainer {
     display: flex;
     justify-content: center;
     margin-top: 10px;
     margin-bottom: 10px;
-}
-
-.editGoalTableBtnContainer {
-    display: flex;
-    flex-direction: row;
 }
 
 .currDayExerciseBtnCol {
@@ -114,6 +106,8 @@
 }
 
 .editGoalTableBtnContainer {
+    display: flex;
+    flex-direction: row;
     padding-top: 5px;
     width: fit-content;
     padding-bottom: 5px;

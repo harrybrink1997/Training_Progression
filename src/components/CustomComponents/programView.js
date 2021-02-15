@@ -28,7 +28,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     const [goalLoaded, setGoalLoaded] = useState(false)
     const [exercisesLoaded, setExercisesLoaded] = useState(false)
     const [submitDailyExDataProcessing, setSubmitDailyExDataProcessing] = useState(false)
-    const [goalTableVisible, setGoalTableVisible] = useState(true)
+    const [goalTableVisible, setGoalTableVisible] = useState(false)
 
 
     const [progressionLoaded, setProgressionLoaded] = useState(true)
@@ -921,16 +921,20 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                         </div>
                         <div className='rowContainer'>
                             <div className='pageContainerLevel1 half-width'>
-                                <div onClick={() => setGoalTableVisible(!goalTableVisible)}>
-                                    {
-                                        goalTableVisible &&
-                                        <Icon name='toggle on' style={{ fontSize: '20px' }} />
-                                    }
-                                    {
-                                        !goalTableVisible &&
-                                        <Icon name='toggle off' style={{ fontSize: '20px' }} />
-
-                                    }
+                                <div >
+                                    <div className='graphTitle'>
+                                        Goals
+                                    </div>
+                                    <div onClick={() => setGoalTableVisible(!goalTableVisible)}>
+                                        {
+                                            goalTableVisible &&
+                                            <Icon name='toggle on' style={{ fontSize: '20px' }} />
+                                        }
+                                        {
+                                            !goalTableVisible &&
+                                            <Icon name='toggle off' style={{ fontSize: '20px' }} />
+                                        }
+                                    </div>
                                 </div>
                                 {
                                     goalTableVisible &&

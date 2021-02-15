@@ -106,6 +106,7 @@
 
 .ui.circular.icon.button.completeGoal {
     background: #8cfc86;
+    margin-right: 15px;
 }
 
 .ui.circular.icon.button.addSubGoal {
