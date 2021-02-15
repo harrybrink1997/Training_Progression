@@ -22,7 +22,6 @@ import { listAndFormatExercises, checkNullExerciseData, setAvailExerciseCols } f
 import ProgramView, { ProgramViewPageSubHeader } from '../CustomComponents/programView'
 import { capitaliseFirstLetter, underscoreToSpaced } from '../../constants/stringManipulation';
 import { calculateDailyLoads } from '../CurrentProgram/calculateWeeklyLoads'
-import { planckChargeDependencies } from 'mathjs';
 
 class ManageProgramsPage extends Component {
 

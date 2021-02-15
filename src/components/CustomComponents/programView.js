@@ -28,6 +28,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     const [goalLoaded, setGoalLoaded] = useState(false)
     const [exercisesLoaded, setExercisesLoaded] = useState(false)
     const [submitDailyExDataProcessing, setSubmitDailyExDataProcessing] = useState(false)
+    const [goalTableVisible, setGoalTableVisible] = useState(true)
 
 
     const [progressionLoaded, setProgressionLoaded] = useState(true)
@@ -920,27 +921,41 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                         </div>
                         <div className='rowContainer'>
                             <div className='pageContainerLevel1 half-width'>
-                                <div>
-                                    <GoalsTable
-                                        data={goalData.tableData}
-                                        expandedRowsHandler={handleGoalTableExpRowUpdate}
-                                        expandedRows={goalData.expandedRows}
-                                    />
-                                    <div className='goalsPromptBtnContainer'>
-                                        <AddGoalsForm
-                                            buttonText='Create More Goals'
-                                            headerText='Create More Goals'
-                                            handleFormSubmit={handleAddMainGoal}
-                                            newMainGoalUID={goalData.newMainGoalUID}
-                                            triggerElement={
-                                                <Button
-                                                    className='lightPurpleButton-inverted'>
-                                                    Add More Goals
-                                            </Button>
-                                            }
-                                        />
-                                    </div>
+                                <div onClick={() => setGoalTableVisible(!goalTableVisible)}>
+                                    {
+                                        goalTableVisible &&
+                                        <Icon name='toggle on' style={{ fontSize: '20px' }} />
+                                    }
+                                    {
+                                        !goalTableVisible &&
+                                        <Icon name='toggle off' style={{ fontSize: '20px' }} />
+
+                                    }
                                 </div>
+                                {
+                                    goalTableVisible &&
+                                    <div>
+                                        <GoalsTable
+                                            data={goalData.tableData}
+                                            expandedRowsHandler={handleGoalTableExpRowUpdate}
+                                            expandedRows={goalData.expandedRows}
+                                        />
+                                        <div className='goalsPromptBtnContainer'>
+                                            <AddGoalsForm
+                                                buttonText='Create More Goals'
+                                                headerText='Create More Goals'
+                                                handleFormSubmit={handleAddMainGoal}
+                                                newMainGoalUID={goalData.newMainGoalUID}
+                                                triggerElement={
+                                                    <Button
+                                                        className='lightPurpleButton-inverted'>
+                                                        Add More Goals
+                                            </Button>
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         </div>
                         <div className='rowContainer'>
