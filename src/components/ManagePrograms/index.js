@@ -22,6 +22,7 @@ import { listAndFormatExercises, checkNullExerciseData, setAvailExerciseCols } f
 import ProgramView, { ProgramViewPageSubHeader } from '../CustomComponents/programView'
 import { capitaliseFirstLetter, underscoreToSpaced } from '../../constants/stringManipulation';
 import { calculateDailyLoads } from '../CurrentProgram/calculateWeeklyLoads'
+import { planckChargeDependencies } from 'mathjs';
 
 class ManageProgramsPage extends Component {
 
@@ -278,14 +279,19 @@ class ManageProgramsPage extends Component {
         })
     }
 
-    handleCreateMainGoal = () => {
+    handleCreateMainGoal = (mainGoalDBUID, payload) => {
+        payload.goalProgUID = mainGoalDBUID
+        payload.programUID = this.state.currProgram.programUID
+
+        if (Object.keys(payload.subGoals).length === 0) {
+            delete payload.subGoals
+        }
+
+        this.props.firebase.createMainGoalDB(payload)
 
     }
 
     handleCompleteGoal = (payload) => {
-        console.log(payload)
-        console.log(this.state.currProgram.programUID)
-        console.log(payload.mainGoalDBUID)
         this.props.firebase.changeGoalCompletionStatusDB(
             this.state.currProgram.programUID,
             payload.mainGoalDBUID,
@@ -293,13 +299,22 @@ class ManageProgramsPage extends Component {
         )
     }
 
-    handleDeleteGoal = () => {
+    handleDeleteGoal = (payload) => {
         console.log('delete goal')
+        console.log(payload)
+        this.props.firebase.deleteGoalDB(
+            this.state.currProgram.programUID,
+            payload
+        )
     }
 
-    handleEditGoal = () => {
+    handleEditGoal = (payload) => {
         console.log('Edit goal')
-
+        console.log(payload)
+        this.props.firebase.editGoalDB(
+            this.state.currProgram.programUID,
+            payload
+        )
     }
 
     handleCreateSubGoal = () => {

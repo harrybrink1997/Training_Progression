@@ -330,6 +330,73 @@ class Firebase {
                 batch.commit()
             })
     }
+
+    createMainGoalDB = (payload) => {
+        return this.database.collection('goals').doc().set(payload)
+    }
+
+    deleteGoalDB = (programUID, payload) => {
+        if (payload.isMainGoal) {
+            this.database
+                .collection('goals')
+                .where('programUID', '==', programUID)
+                .where('goalProgUID', '==', payload.goalDBUID)
+                .get()
+                .then(snap => {
+                    this.database.collection('goals').doc(snap.docs[0].id).delete()
+                })
+        } else {
+            this.database
+                .collection('goals')
+                .where('programUID', '==', programUID)
+                .where('goalProgUID', '==', payload.parentGoal)
+                .get()
+                .then(snap => {
+                    var docRef = this.database.collection('goals').doc(snap.docs[0].id)
+                    var docData = snap.docs[0].data()
+                    if (Object.keys(docData.subGoals).length === 1) {
+                        docRef.update({
+                            subGoals: FieldValue.delete()
+                        })
+                    } else {
+                        var subGoalPath = `subGoals.${payload.goalDBUID}`
+                        docRef.update({
+                            [subGoalPath]: FieldValue.delete()
+                        })
+                    }
+                })
+        }
+    }
+
+    editGoalDB = (programUID, payload) => {
+        if (payload.isMainGoal) {
+            this.database
+                .collection('goals')
+                .where('programUID', '==', programUID)
+                .where('goalProgUID', '==', payload.goalDBUID)
+                .get()
+                .then(snap => {
+                    this.database.collection('goals').doc(snap.docs[0].id).update({
+                        mainGoal: payload.data
+                    })
+                })
+        } else {
+            this.database
+                .collection('goals')
+                .where('programUID', '==', programUID)
+                .where('goalProgUID', '==', payload.parentGoal)
+                .get()
+                .then(snap => {
+                    var docRef = this.database.collection('goals').doc(snap.docs[0].id)
+
+                    var subGoalPath = `subGoals.${payload.goalDBUID}`
+
+                    docRef.update({
+                        [subGoalPath]: payload.data
+                    })
+                })
+        }
+    }
     //////////////////////////////////////////////
     //////////////////////////////////////////////
     //////////////////////////////////////////////

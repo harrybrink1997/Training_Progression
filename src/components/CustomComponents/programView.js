@@ -598,10 +598,9 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             rawData[goalFunctions.goalDBUID(id)].mainGoal = changesObj.mainGoal
             console.log(changesObj)
             var dbPayload = {
-                mainGoal: {
-                    dbUID: goalFunctions.goalDBUID(id),
-                    data: changesObj.mainGoal
-                }
+                isMainGoal: true,
+                goalDBUID: goalFunctions.goalDBUID(id),
+                data: changesObj.mainGoal
             }
         } else {
             console.log(id)
@@ -610,10 +609,10 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             rawData[goalFunctions.subGoalParent(id)].subGoals[goalFunctions.goalDBUID(id)] = changesObj
 
             var dbPayload = {
-                subGoal: {
-                    dbUID: goalFunctions.goalDBUID(id),
-                    data: changesObj
-                }
+                isMainGoal: false,
+                parentGoal: goalFunctions.subGoalParent(id),
+                goalDBUID: goalFunctions.goalDBUID(id),
+                data: changesObj
             }
 
         }
@@ -622,6 +621,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             type: GOAL_ACTIONS.UPDATE_GOAL,
             payLoad: rawData
         })
+        handlerFunctions.handleEditGoal(dbPayload)
     }
 
     const handleCompleteGoal = (id, currProgress) => {
@@ -685,11 +685,6 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         let rawData = { ...goalData.rawData }
         rawData[mainGoalDBUID] = goalPayload
 
-        console.log(rawData)
-        console.log(goalPayload)
-        console.log(mainGoalDBUID)
-
-
         setGoalData({
             type: GOAL_ACTIONS.ADD_MAINGOAL,
             payLoad: {
@@ -698,14 +693,23 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             }
         })
 
+        handlerFunctions.handleCreateMainGoal(mainGoalDBUID, goalPayload)
+
     }
 
     const handleDeleteGoal = (id) => {
         let rawData = { ...goalData.rawData }
 
+        var dbPayload = {}
+
         if (goalFunctions.isMainGoal(id)) {
+            dbPayload.isMainGoal = true
+            dbPayload.goalDBUID = goalFunctions.goalDBUID(id)
             delete rawData[goalFunctions.goalDBUID(id)]
         } else {
+            dbPayload.isMainGoal = false
+            dbPayload.parentGoal = goalFunctions.subGoalParent(id)
+            dbPayload.goalDBUID = goalFunctions.goalDBUID(id)
             const mainGoal = goalFunctions.subGoalParent(id)
             if (Object.keys(rawData[mainGoal].subGoals).length === 1) {
                 delete rawData[mainGoal].subGoals
@@ -718,6 +722,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             type: GOAL_ACTIONS.DELETE_GOAL,
             payLoad: rawData
         })
+
+        handlerFunctions.handleDeleteGoal(dbPayload)
 
     }
 
