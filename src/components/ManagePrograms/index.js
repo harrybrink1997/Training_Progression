@@ -43,11 +43,9 @@ class ManageProgramsPage extends Component {
     componentDidMount() {
         console.log("going in 0")
         this.setState({ loading: true }, () => {
-            console.log("going in 1")
             this.props.firebase.getUser(this.props.firebase.auth.currentUser.uid)
                 .then(snapshot => {
                     var userInfo = snapshot.data()
-                    console.log("going in 1")
 
                     var userObject = createUserObject(
                         this.props.firebase.auth.currentUser.uid,
@@ -105,7 +103,7 @@ class ManageProgramsPage extends Component {
                                 pageHistory: new PageHistory(),
                                 editMode: false,
                                 currProgram: undefined,
-                                pageContentLoading: false,
+                                pageBodyContentLoading: false,
                                 loading: false
 
                             })
@@ -118,9 +116,7 @@ class ManageProgramsPage extends Component {
     }
 
 
-    handleBackClick = (pageView) => {
-
-
+    handleBackClick = () => {
         this.setState({
             pageBodyContentLoading: true
         }, () => {
@@ -421,11 +417,8 @@ class ManageProgramsPage extends Component {
 
                     var programObject = programClass.generateCompleteJSONObject()
 
-                    if (!snapshot.empty) {
-                        snapshot.docs.forEach(doc => {
-                            programObject[doc.id] = { ...doc.data() }
-                        })
-                    }
+                    programObject = { ...programObject, ...snapshot }
+                    console.log(programObject)
 
                     var dataCheck = checkNullExerciseData(
                         programObject[programObject.currentDay],
@@ -441,7 +434,7 @@ class ManageProgramsPage extends Component {
                             programObject.chronicPeriod,
                             this.state.currProgram.rawAnatomyData
                         )
-                        console.log('in')
+
                         this.props.firebase.submitDayDB(
                             this.state.currProgram.programUID,
                             programObject.currentDay,
@@ -450,7 +443,6 @@ class ManageProgramsPage extends Component {
                             .then(() => {
 
                                 this.state.nonPendingProgList.getProgram(this.state.currProgram.programUID).iterateCurrentDay(1)
-                                this.state.currProgList.getProgram(this.state.currProgram.programUID).iterateCurrentDay(1)
 
                                 var frontEndProgData = { ...programObject }
 
@@ -459,6 +451,7 @@ class ManageProgramsPage extends Component {
                                 frontEndProgData.currentDay += 1
 
                                 this.setState(prevState => ({
+                                    ...prevState,
                                     currProgram: {
                                         ...prevState.currProgram,
                                         submitProcessingBackend: false,
@@ -470,11 +463,12 @@ class ManageProgramsPage extends Component {
                                 console.log(error)
                             })
                     } else {
-                        console.log('going in ')
 
                         this.setState(prevState => ({
+                            ...prevState,
                             currProgram: {
                                 ...prevState.currProgram,
+                                submitProcessingBackend: false,
                                 nullExerciseData: {
                                     hasNullData: true,
                                     nullTableData: dataCheck.exercisesToCheck
@@ -514,7 +508,6 @@ class ManageProgramsPage extends Component {
                 .then(() => {
 
                     this.state.nonPendingProgList.getProgram(this.state.currProgram.programUID).iterateCurrentDay(1)
-                    this.state.currProgList.getProgram(this.state.currProgram.programUID).iterateCurrentDay(1)
 
                     var frontEndProgData = { ...programObject }
 

@@ -178,7 +178,7 @@ const setAvailExerciseCols = () => {
 
 
 // Updated with new ratio calcs format
-const setAvailExerciseChartData = (exerciseList, currDay, loadingScheme, currDayInProg, handleAddExerciseButton) => {
+const setAvailExerciseChartData = (exerciseList, loadingScheme, handleAddExerciseButton) => {
     var tableData = []
     exerciseList.forEach(exercise => {
         tableData.push({
@@ -187,9 +187,9 @@ const setAvailExerciseChartData = (exerciseList, currDay, loadingScheme, currDay
             secMusc: exercise.secondary.join(', '),
             expLevel: exercise.experience,
             addExerciseBtn: (loadingScheme === 'rpe_time') ?
-                <AddExerciseModalRpeTime submitHandler={handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} currDayInProg={currDayInProg}
+                <AddExerciseModalRpeTime submitHandler={handleAddExerciseButton} name={exercise.uid} primMusc={exercise.primary}
                 />
-                : <AddExerciseModalWeightReps submitHandler={handleAddExerciseButton} name={exercise.uid} currDay={currDay} primMusc={exercise.primary} currDayInProg={currDayInProg} />
+                : <AddExerciseModalWeightReps submitHandler={handleAddExerciseButton} name={exercise.uid} primMusc={exercise.primary} />
         })
     })
     return tableData
@@ -1037,6 +1037,37 @@ const generateGoalTableData = (
     return []
 }
 
+const generatePrevWeeksData = (programObject) => {
+
+    var currWeek = currentWeekInProgram(programObject.currentDay)
+
+    var dataObject = {}
+
+    if (currWeek == 1) {
+        return {}
+    } else {
+        for (var prevWeekNum = 1; prevWeekNum < currWeek; prevWeekNum++) {
+            dataObject[prevWeekNum] = {}
+
+            for (var day = 1; day < 8; day++) {
+
+                var dayInProgram = (prevWeekNum - 1) * 7 + day
+                var dayObject = {}
+                if (programObject[dayInProgram]) {
+                    Object.keys(programObject[dayInProgram]).forEach(exercise => {
+                        if (exercise != 'loadingData') {
+                            dayObject[exercise] = programObject[dayInProgram][exercise]
+                        }
+                    })
+                }
+
+                dataObject[prevWeekNum][day] = dayObject
+            }
+        }
+    }
+    return dataObject
+}
+
 export {
     generateDaysInWeekScope,
     updatedDailyExerciseList,
@@ -1051,5 +1082,6 @@ export {
     generateCurrDaySafeLoadData,
     generateHistoricalTableData,
     listAndFormatExercises,
-    generateGoalTableData
+    generateGoalTableData,
+    generatePrevWeeksData
 }

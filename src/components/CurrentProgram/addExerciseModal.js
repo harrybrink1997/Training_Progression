@@ -3,24 +3,14 @@ import { Dropdown, Button, Input, Modal, Form, Segment, Grid } from 'semantic-ui
 import InputLabel from '../CustomComponents/DarkModeInput'
 
 
-const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc, currDayInProg }) => {
-
-    const initDayInsert = (currUIDay, currentDayInProgram) => {
-        if (currentDayInProgram > currUIDay) {
-            return currentDayInProgram
-        } else {
-            return currUIDay
-        }
-    }
-
+const AddExerciseModalRpeTime = ({ submitHandler, name, primMusc }) => {
 
     const [show, setShow] = useState(false);
     const [rpe, setRpe] = useState('')
     const [time, setTime] = useState('')
     const [reps, setReps] = useState('')
     const [sets, setSets] = useState('')
-    const [dayInsert, setDayInsert] = useState(() => initDayInsert(currDay, currDayInProg))
-    const [dropDownStart, setDropDownStart] = useState(currDayInProg)
+    const [dayInsert, setDayInsert] = useState(1)
 
     const handleSubmit = (event) => {
         event.preventDefault()
@@ -117,7 +107,6 @@ const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc, currD
                             <DayDropdown
                                 buttonHandler={handleInsertDay}
                                 currDay={dayInsert}
-                                dayStart={dropDownStart}
                             />
                         </Grid.Column>
                     </Grid>
@@ -131,15 +120,8 @@ const AddExerciseModalRpeTime = ({ submitHandler, name, currDay, primMusc, currD
     );
 }
 
-const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc, currDayInProg }) => {
+const AddExerciseModalWeightReps = ({ submitHandler, name, primMusc }) => {
 
-    const initDayInsert = (currUIDay, currentDayInProgram) => {
-        if (currentDayInProgram > currUIDay) {
-            return currentDayInProgram
-        } else {
-            return currUIDay
-        }
-    }
 
     const [show, setShow] = useState(false);
     const [time, setTime] = useState('')
@@ -147,8 +129,7 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc, cu
     const [reps, setReps] = useState('')
     const [weight, setWeight] = useState('')
     const [sets, setSets] = useState('')
-    const [dayInsert, setDayInsert] = useState(() => initDayInsert(currDay, currDayInProg))
-    const [dropDownStart, setDropDownStart] = useState(currDayInProg)
+    const [dayInsert, setDayInsert] = useState(1)
 
     const handleSubmit = (event) => {
         event.preventDefault()
@@ -263,7 +244,6 @@ const AddExerciseModalWeightReps = ({ submitHandler, name, currDay, primMusc, cu
                             <DayDropdown
                                 buttonHandler={handleInsertDay}
                                 currDay={dayInsert}
-                                dayStart={dropDownStart}
                             />
                         </Grid.Column>
                     </Grid>
@@ -321,7 +301,7 @@ const RPEDropdown = ({ buttonHandler }) => {
     )
 }
 
-const DayDropdown = ({ buttonHandler, currDay, dayStart }) => {
+const DayDropdown = ({ buttonHandler, currDay }) => {
 
     const [currentDay, setCurrentDay] = useState(currDay)
 
@@ -338,7 +318,7 @@ const DayDropdown = ({ buttonHandler, currDay, dayStart }) => {
 
         var dataArray = []
 
-        for (var day = dayStart; day <= 7; day++) {
+        for (var day = 1; day <= 7; day++) {
             dataArray.push(day.toString())
         }
 

@@ -128,3 +128,29 @@
     margin-bottom: 10px;
     text-align: center;
 }
+
+.errorBannerContainer {
+    display: flex;
+    justify-content: center;
+}
+
+.errorBanner {
+    display: flex;
+    justify-content: space-between;
+    position: fixed;
+    top: 0px;
+    background: #CF6679;
+    width: 50%;
+    /* border-radius: 5px; */
+    border-bottom-left-radius: 5px 5px;
+    border-bottom-right-radius: 5px 5px;
+    padding: 15px;
+    border: 1px solid #db2828;
+}
+
+.errorBannerClose:hover {
+    cursor: pointer;
+}
+
+
+

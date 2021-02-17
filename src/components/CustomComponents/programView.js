@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useReducer, useRef } from 'react'
-import { Loader, Button, Icon, Popup } from 'semantic-ui-react'
+import { Loader, Button, Icon, Popup, Header } from 'semantic-ui-react'
 import { capitaliseFirstLetter } from '../../constants/stringManipulation'
 import BasicTable from './basicTable'
 import CurrentWeekExercisesContainer from '../CurrentProgram/currentWeekExercisesContainer'
@@ -11,13 +11,13 @@ import ViewPrevWeeksData from '../CurrentProgram/viewPrevWeeksData'
 import BodyPartListGroup from './bodyPartListGroup'
 import InputLabel from './DarkModeInput'
 import { ACWEGraph, RollChronicACWRGraph } from '../ProgressionData/ACWRGraph'
-import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID, generateACWRGraphData, generateSafeLoadGraphProps, generateGoalTableData, generateCurrDaySafeLoadData } from '../../constants/viewProgramPagesFunctions'
+import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID, generateACWRGraphData, generateSafeLoadGraphProps, generateGoalTableData, generateCurrDaySafeLoadData, generatePrevWeeksData } from '../../constants/viewProgramPagesFunctions'
 import StartProgramView from './startProgramView'
 import GoalsTable from './currentGoalTable'
 import * as goalFunctions from '../../constants/goalFunctions'
 import AddGoalsForm from './addGoalsForm'
 import { LoadingSpreadStatsTable } from '../CurrentProgram/statsTable'
-
+import ErrorBanner from '../CustomComponents/errorBanner'
 
 const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, nullExerciseData, submitProcessingBackend, rawAnatomyData, userType }) => {
 
@@ -30,11 +30,11 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     const [exercisesLoaded, setExercisesLoaded] = useState(false)
     const [submitDailyExDataProcessing, setSubmitDailyExDataProcessing] = useState(false)
     const [goalTableVisible, setGoalTableVisible] = useState(false)
-
-
+    const [safeLoadTableVisible, setSafeLoadTableVisible] = useState(false)
+    const [exTableView, setExTableView] = useState('available')
     const [progressionLoaded, setProgressionLoaded] = useState(true)
-
-
+    const [exContRefesh, setExContRefresh] = useState(false)
+    const [insertionDayError, setInsertionDayError] = useState(false)
     const [pageView, setPageView] = useState(
         userType === 'athlete' ? 'program' : 'overview'
     )
@@ -55,71 +55,79 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         })
     }
 
+    // TODO FIX THIS AND ERROR IF DAY IS OUT OF REACH....
     const handleAddExerciseButton = (exerciseObject) => {
         var currProgramDataObj = programDataRef.current
+        var insertionDayUI = exerciseObject.day
+        var insertionDayTotal = convertUIDayToTotalDays(insertionDayUI, currProgramDataObj.currentDay)
 
-        var exUID = generateExerciseUID(
-            exerciseObject,
-            currProgramDataObj.exerciseListPerDay,
-            currProgramDataObj.currentDay
-        )
-
-        var insertionDay = exUID.split('_').reverse()[1]
-
-        var frontEndRenderObj = formatExerciseObjectForLocalInsertion(
-            exerciseObject,
-            exUID,
-            currProgramDataObj.loadingScheme,
-            currProgramDataObj.currentDay,
-            handleUpdateExercise,
-            handleDeleteExerciseButton
-        )
-
-
-
-        var rawDataInsertionObj = { ...frontEndRenderObj }
-
-        rawDataInsertionObj.exercise = rawDataInsertionObj.name
-        delete rawDataInsertionObj.name
-        delete rawDataInsertionObj.day
-
-        if (currProgramDataObj.loadingScheme === 'rpe_time') {
-            delete rawDataInsertionObj.weight
-        }
-
-        let newProgramData = { ...currProgramDataObj }
-        var newRawData = newProgramData.rawData
-
-        console.log(exUID)
-        console.log(insertionDay)
-
-
-        if (newRawData[insertionDay]) {
-            newRawData[insertionDay][exUID] = rawDataInsertionObj
-
+        if (insertionDayTotal < currProgramDataObj.currentDay) {
+            setInsertionDayError(true)
         } else {
-            var dayObj = {}
-            dayObj[exUID] = rawDataInsertionObj
-            newRawData[insertionDay] = dayObj
+            var exUID = generateExerciseUID(
+                exerciseObject,
+                currProgramDataObj.exerciseListPerDay,
+                insertionDayTotal
+            )
 
-        }
+            var insertionDay = exUID.split('_').reverse()[1]
 
-        newProgramData.rawData = newRawData
+            var frontEndRenderObj = formatExerciseObjectForLocalInsertion(
+                exerciseObject,
+                exUID,
+                currProgramDataObj.loadingScheme,
+                currProgramDataObj.currentDay,
+                handleUpdateExercise,
+                handleDeleteExerciseButton
+            )
 
-        setProgramData({
-            type: PROGRAM_ACTIONS.CHANGE_CURRENT_EXERCISE_LIST,
-            payload: {
-                rawData: newRawData,
-                exerciseListPerDay: updatedDailyExerciseList(newRawData, handleDeleteExerciseButton, handleUpdateExercise)
+
+
+            var rawDataInsertionObj = { ...frontEndRenderObj }
+
+            rawDataInsertionObj.exercise = rawDataInsertionObj.name
+            delete rawDataInsertionObj.name
+            delete rawDataInsertionObj.day
+
+            if (currProgramDataObj.loadingScheme === 'rpe_time') {
+                delete rawDataInsertionObj.weight
             }
-        })
 
-        handlerFunctions.handleAddExerciseButton(
-            exerciseObject,
-            exUID,
-            programData.loadingScheme,
-            insertionDay
-        )
+            let newProgramData = { ...currProgramDataObj }
+            var newRawData = newProgramData.rawData
+
+            console.log(exUID)
+            console.log(insertionDay)
+            console.log(currProgramDataObj.currentDay)
+
+
+            if (newRawData[insertionDay]) {
+                newRawData[insertionDay][exUID] = rawDataInsertionObj
+
+            } else {
+                var dayObj = {}
+                dayObj[exUID] = rawDataInsertionObj
+                newRawData[insertionDay] = dayObj
+
+            }
+
+            newProgramData.rawData = newRawData
+
+            setProgramData({
+                type: PROGRAM_ACTIONS.CHANGE_CURRENT_EXERCISE_LIST,
+                payload: {
+                    rawData: newRawData,
+                    exerciseListPerDay: updatedDailyExerciseList(newRawData, handleDeleteExerciseButton, handleUpdateExercise)
+                }
+            })
+
+            handlerFunctions.handleAddExerciseButton(
+                exerciseObject,
+                exUID,
+                programData.loadingScheme,
+                insertionDay
+            )
+        }
     }
 
     const handleDeleteExerciseButton = (event, { id }) => {
@@ -228,6 +236,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             exerciseListPerDay: updatedDailyExerciseList(rawProgramData, handleDeleteExerciseButton, handleUpdateExercise),
             loadingScheme: rawProgramData.loadingScheme,
             daysInWeekScope: generateDaysInWeekScope(rawProgramData.currentDay),
+            prevWeekExData: generatePrevWeeksData(rawProgramData),
             currentDay: rawProgramData.currentDay,
             currentDayUI: rawProgramData.currentDay,
             openDaysUI: [false, false, false, false, false, false, false],
@@ -261,8 +270,6 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     }
 
     const progressionDataReducer = (state, action) => {
-        console.log(action)
-        console.log(state)
         switch (action.type) {
             case PROGRESSION_ACTIONS.CHANGE_BODY_PART:
                 return {
@@ -536,9 +543,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             rawData: exerciseData,
             chartData: setAvailExerciseChartData(
                 exerciseData,
-                convertTotalDaysToUIDay(rawProgramData.currentDay),
                 rawProgramData.loadingScheme,
-                convertTotalDaysToUIDay(rawProgramData.currentDay),
                 handleAddExerciseButton
             )
         }
@@ -762,6 +767,53 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         return index - 1
     }
 
+    const handleCopyPrevWeeksExData = (weekData, insertionDay) => {
+        var insertData = {}
+
+        if (insertionDay === undefined) {
+            Object.keys(weekData).forEach(day => {
+                insertData[this.convertUIDayToTotalDays(day)] = {}
+
+                Object.keys(weekData[day]).forEach(exercise => {
+                    var reverseExComp = exercise.split("_").reverse()
+                    reverseExComp[2] = this.state.currentWeekInProgram
+
+                    var currExDay = reverseExComp[1]
+
+                    reverseExComp[1] = this.convertUIDayToTotalDays(convertTotalDaysToUIDay(currExDay))
+
+                    var newExID = reverseExComp.reverse().join("_")
+
+                    insertData[this.convertUIDayToTotalDays(day)][newExID] = weekData[day][exercise]
+
+                })
+
+            })
+        } else {
+            insertData[this.convertUIDayToTotalDays(insertionDay)] = {}
+            Object.keys(weekData).forEach(exercise => {
+                var reverseExComp = exercise.split("_").reverse()
+                reverseExComp[2] = this.state.currentWeekInProgram
+
+                reverseExComp[1] = this.convertUIDayToTotalDays(convertTotalDaysToUIDay(insertionDay))
+
+
+                var newExID = reverseExComp.reverse().join("_")
+
+                insertData[this.convertUIDayToTotalDays(insertionDay)][newExID] = weekData[exercise]
+            })
+        }
+
+        console.log('going in ')
+        console.log(insertData)
+        // this.props.firebase.createBulkExercisesUpstream(
+        //     this.props.firebase.auth.currentUser.uid,
+        //     this.state.activeProgram,
+        //     insertData,
+        // )
+    }
+
+
     const initialiseGoalData = (rawProgramData) => {
         console.log(rawProgramData)
         if (rawProgramData.goals) {
@@ -843,8 +895,14 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         if (submitProcessingBackend) {
             setSubmitDailyExDataProcessing(true)
         } else {
-            setSubmitDailyExDataProcessing(false)
             if (!firstRender) {
+                setProgramData({
+                    type: PROGRAM_ACTIONS.CHANGE_CURRENT_EXERCISE_LIST,
+                    payload: {
+                        rawData: data,
+                        exerciseListPerDay: updatedDailyExerciseList(data, handleDeleteExerciseButton, handleUpdateExercise)
+                    }
+                })
 
                 setProgressionData({
                     type: PROGRESSION_ACTIONS.UPDATE_GRAPH_DATA,
@@ -853,12 +911,13 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                         anatomyData: anatomyData
                     }
                 })
+
+                setSubmitDailyExDataProcessing(false)
             }
         }
     }, [submitProcessingBackend])
 
     useEffect(() => {
-        console.log('rawData updated')
         if (programData.rawData) {
             setSafeLoadData({
                 type: SAFE_LOAD_ACTIONS.REFRESH,
@@ -870,6 +929,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     useEffect(() => {
         if (exerciseData) {
             setExercisesLoaded(true)
+
         }
     }, [exerciseData])
 
@@ -927,6 +987,14 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                 nullExTableData={nullExerciseData.nullTableData}
                 scheme={programData.loadingScheme}
             />
+            {
+                insertionDayError &&
+                <ErrorBanner clickHandler={() => { setInsertionDayError(false) }}>
+                    <p>
+                        Your request cannot be completed. You tried to insert an exercise into a day you've already completed.
+                    </p>
+                </ErrorBanner>
+            }
             {
                 programData.startDayUTS ?
                     <>
@@ -1005,16 +1073,48 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                                 }
                             </div>
                             <div className='pageContainerLevel1 half-width'>
-                                <LoadingSpreadStatsTable data={safeLoadData.tableData} />
+                                <div >
+                                    <div className='graphTitle'>
+                                        Predicted Safe Loads
+                                    </div>
+                                    <div onClick={() => setSafeLoadTableVisible(!safeLoadTableVisible)}>
+                                        {
+                                            safeLoadTableVisible &&
+                                            <Icon name='toggle on' style={{ fontSize: '20px' }} />
+                                        }
+                                        {
+                                            !safeLoadTableVisible &&
+                                            <Icon name='toggle off' style={{ fontSize: '20px' }} />
+                                        }
+                                    </div>
+                                </div>
+                                {
+                                    safeLoadTableVisible &&
+                                    <LoadingSpreadStatsTable data={safeLoadData.tableData} />
+                                }
                             </div>
                         </div>
                         <div className='rowContainer'>
                             <div className='pageContainerLevel1 half-width'>
-                                <AvailableExercisesList
-                                    columns={availExColumns}
-                                    data={exerciseData.chartData}
+                                <ProgramHistToggle
+                                    currentView={exTableView}
+                                    clickHandler={setExTableView}
                                 />
+                                {
 
+                                    exTableView === 'available' ?
+                                        <AvailableExercisesList
+                                            columns={availExColumns}
+                                            data={exerciseData.chartData}
+                                        />
+                                        :
+                                        <ViewPrevWeeksData
+                                            data={programData.prevWeekExData}
+                                            defaultWeek={currentWeekInProgram(programData.currentDay) - 1}
+                                            progScheme={programData.loadingScheme}
+                                            handleFormSubmit={handleCopyPrevWeeksExData}
+                                        />
+                                }
                             </div>
                             <div className='pageContainerLevel1 half-width'>
                                 <CurrentWeekExercisesContainer
@@ -1195,7 +1295,7 @@ const ProgramHistToggle = ({ currentView, clickHandler }) => {
         <div className='availExercises-ExData-toggleContainer centred-info'>
             <Button.Group size='tiny'>
                 {
-                    currentView === 'availExercises' ?
+                    currentView === 'available' ?
                         <Button
                             className='smallerBtn'
                             active
@@ -1205,13 +1305,13 @@ const ProgramHistToggle = ({ currentView, clickHandler }) => {
                         :
                         <Button
                             className='smallerBtn'
-                            onClick={() => { { clickHandler('availExercises') } }}
+                            onClick={() => { { clickHandler('available') } }}
                         >
                             Available Exercises
                     </Button>
                 }
                 {
-                    currentView === 'progHistory' ?
+                    currentView === 'history' ?
                         <Button
 
                             active
@@ -1220,7 +1320,7 @@ const ProgramHistToggle = ({ currentView, clickHandler }) => {
                                         </Button>
                         :
                         <Button
-                            onClick={() => { clickHandler('progHistory') }}
+                            onClick={() => { clickHandler('history') }}
                         >
                             Program Exercise History
                     </Button>
