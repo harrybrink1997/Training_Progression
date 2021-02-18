@@ -18,7 +18,7 @@ class User {
         this.id = value
     }
 
-    getId() {
+    getID() {
         return this.id
     }
 

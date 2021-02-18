@@ -60,7 +60,6 @@ class JoinTeamPage extends Component {
                 this.props.firebase.auth.currentUser.uid
             )
                 .then(res => {
-                    console.log(res)
                     if (res.success) {
                         var payload = {
                             message: message,

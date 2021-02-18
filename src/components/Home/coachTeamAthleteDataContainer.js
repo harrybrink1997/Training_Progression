@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import InputLabel from '../CustomComponents/DarkModeInput'
-import TeamRequestModal from './teamRequestModal'
+import CoachRequestModal from './coachRequestModal'
 import { Popup, Icon } from 'semantic-ui-react'
 import { Button } from 'semantic-ui-react'
 
@@ -19,7 +19,7 @@ const CoachTeamAthleteDataContainer = ({ requestData, userType, athleteData, man
                     />
                     :
                     <div>
-                        <TeamRequestModal
+                        <CoachRequestModal
                             requestTableData={requestData}
                         />
                     </div>

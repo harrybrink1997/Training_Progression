@@ -151,6 +151,42 @@ class Firebase {
 
     }
 
+    createCurrentCoachAthlete = (coachUID, athleteUID, payload) => {
+        return this.database
+            .collection('coachRequests')
+            .where('coachUID', '==', coachUID)
+            .where('athleteUID', '==', athleteUID)
+            .get()
+            .then(snap => {
+                const docID = snap.docs[0].id
+                const batch = this.database.batch()
+                const currAthRef = this.database.collection('currentCoachAthletes').doc()
+                const requestRef = this.database.collection('coachRequests').doc(docID)
+
+                batch.delete(requestRef)
+                batch.set(currAthRef, payload)
+
+                batch.commit()
+            })
+
+    }
+
+    getCoachRequestData = (uid, idType) => {
+        return this.database
+            .collection('coachRequests')
+            .where(idType, '==', uid)
+            .get()
+            .then(snap => {
+                if (snap.empty) {
+                    return []
+                } else {
+                    return snap.docs.map(doc => {
+                        return doc.data()
+                    })
+                }
+            })
+    }
+
     createCoachRequestDB = (payload) => {
         return this.database
             .collection('coachRequests')

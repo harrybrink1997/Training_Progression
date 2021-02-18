@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withCoachAuthorisation } from '../Session';
+import { withAuthorisation } from '../Session';
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import { Dimmer, Loader, List, Button, Form, Input } from 'semantic-ui-react'
 import CreateTeamModal from './createTeamModal'
@@ -1483,5 +1483,5 @@ class ManageCoachTeamsPage extends Component {
     }
 }
 
-const condition = role => role === 'coach';
-export default withCoachAuthorisation(condition)(ManageCoachTeamsPage);
+const condition = authUser => !!authUser;
+export default withAuthorisation(condition)(ManageCoachTeamsPage)

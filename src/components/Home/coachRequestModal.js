@@ -5,14 +5,12 @@ import { useTable } from 'react-table'
 
 
 
-const TeamRequestModal = ({ requestTableData }) => {
+const CoachRequestModal = ({ requestTableData }) => {
 
     const [show, setShow] = useState(false);
     const handleSubmit = (event) => {
         event.preventDefault();
         setShow(false);
-
-        // handleRequestSubmit(selectedCurrPrograms, selectedPastPrograms)
     }
 
     const pendingTeamRequests = requestTableData
@@ -112,4 +110,4 @@ const RequestModalTable = ({ data }) => {
     )
 }
 
-export default TeamRequestModal;
+export default CoachRequestModal;

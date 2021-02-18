@@ -3,7 +3,7 @@ import { withAuthorisation } from '../Session';
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import { Dimmer, Loader } from 'semantic-ui-react';
 
-class ManageCoachTeamsPage extends Component {
+class ManageAthleteTeamsPage extends Component {
 
     constructor(props) {
         super(props)
@@ -39,4 +39,4 @@ class ManageCoachTeamsPage extends Component {
 }
 
 const condition = authUser => !!authUser;
-export default withAuthorisation(condition)(ManageCoachTeamsPage)
+export default withAuthorisation(condition)(ManageAthleteTeamsPage)

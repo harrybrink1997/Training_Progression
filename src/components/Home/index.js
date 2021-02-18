@@ -14,6 +14,7 @@ import { Dimmer, Loader, Card, Icon } from 'semantic-ui-react'
 import InputLabel from '../CustomComponents/DarkModeInput';
 import * as ROUTES from '../../constants/routes'
 import { createUserObject } from '../../objects/user'
+import CoachRequestModal from './coachRequestModal';
 
 
 class HomePage extends Component {
@@ -49,15 +50,38 @@ class HomePage extends Component {
                         this.props.firebase.auth.currentUser.uid,
                         userInfo
                     )
-
-                    this.setState({
-                        user: user,
-                        greeting: this.getCurrentGreeting(user.getUsername()),
-                        firstTimeUser: this.determineFirstTimeLogin(this.props.firebase.auth.currentUser.metadata), //TODO FIX THIS lol
-                        loading: false,
-                    })
-
-                    console.log(user)
+                    if (user.getUserType() !== 'coach') {
+                        this.setState({
+                            user: user,
+                            greeting: this.getCurrentGreeting(user.getUsername()),
+                            firstTimeUser: this.determineFirstTimeLogin(this.props.firebase.auth.currentUser.metadata), //TODO FIX THIS lol
+                            loading: false,
+                        })
+                    } else {
+                        this.props.firebase.getCoachRequestData(
+                            this.props.firebase.auth.currentUser.uid,
+                            'coachUID'
+                        )
+                            .then(requests => {
+                                console.log(requests)
+                                if (requests.length === 0) {
+                                    this.setState({
+                                        user: user,
+                                        greeting: this.getCurrentGreeting(user.getUsername()),
+                                        firstTimeUser: this.determineFirstTimeLogin(this.props.firebase.auth.currentUser.metadata), //TODO FIX THIS lol
+                                        loading: false,
+                                    })
+                                } else {
+                                    this.setState({
+                                        user: user,
+                                        greeting: this.getCurrentGreeting(user.getUsername()),
+                                        firstTimeUser: this.determineFirstTimeLogin(this.props.firebase.auth.currentUser.metadata), //TODO FIX THIS lol
+                                        coachRequestTableData: this.initCoachRequestTableData(requests),
+                                        loading: false,
+                                    })
+                                }
+                            })
+                    }
                 })
                 .catch(error => {
                     console.log(error)
@@ -65,105 +89,69 @@ class HomePage extends Component {
         });
     }
 
-    handlePendingTeamRequestAcceptence = (athleteUID, accepted) => {
-        console.log(athleteUID)
-        console.log(accepted)
-        var payLoad = {}
 
-        var coachPendingPath = `users/${this.props.firebase.auth.currentUser.uid}/teamRequests/${athleteUID}`
+    initCoachRequestTableData = (requestDocs) => {
+        var payload = []
+        console.log("gonig in right function")
+        console.log(requestDocs)
+        requestDocs.forEach(requestData => {
+            const athleteData = {
+                username: requestData.athleteUsername,
+                athleteUID: requestData.athleteUID,
+                email: requestData.athleteEmail
+            }
+            payload.push({
+                username: requestData.athleteUsername,
+                notes: requestData.message,
+                athleteUID: requestData.athleteUID,
+                email: requestData.athleteEmail,
+                buttons:
+                    <div>
+                        <AcceptRequestButton buttonHandler={this.handlePendingTeamRequestAcceptence} objectUID={athleteData} />
+                        <DeclineRequestButton buttonHandler={this.handlePendingTeamRequestAcceptence} objectUID={athleteData} />
+                    </div>
 
-        if (accepted) {
-            var coachPath = `users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/${athleteUID}`
-            var athletePath = `users/${athleteUID}/teams/${this.props.firebase.auth.currentUser.uid}`
-            this.props.firebase.getUserData(athleteUID).once('value', snapshot => {
-                var athleteData = snapshot.val()
-
-                var joinDate = new Date().getTime()
-
-                payLoad[coachPath] = {
-                    email: athleteData.email,
-                    username: athleteData.username,
-                    joinDate: joinDate
-                }
-
-                payLoad[athletePath] = {
-                    email: this.state.userInformation.data.email,
-                    username: this.state.userInformation.data.username,
-                    joinDate: joinDate
-                }
-
-                payLoad[coachPendingPath] = null
-
-                this.props.firebase.acceptTeamRequestUpstream(payLoad)
-                console.log(payLoad)
             })
-        } else {
-            payLoad[coachPendingPath] = null
+        })
 
-            this.props.firebase.acceptTeamRequestUpstream(payLoad)
-        }
+        return payload
     }
 
-    initTeamData = (userObject) => {
-        var payLoad = {
-            hasTeamData: false
-        }
-        // This might need to change.
-        if (userObject.teamRequests !== undefined || userObject.teams !== undefined || userObject.currentAthletes !== undefined) {
-            payLoad.hasTeamData = true
-        } else {
-            return payLoad
+    handlePendingTeamRequestAcceptence = (athlete, accepted) => {
+        console.log(athlete)
+        console.log(accepted)
+        var payload = {
+            coachUID: this.state.user.getID(),
+            athleteUID: athlete.athleteUID,
+            joiningDate: new Date().getTime()
         }
 
-        if (userObject.userType === 'coach') {
-            // Get the current requests for the coach.
-            if (userObject.teamRequests !== undefined) {
+        this.props.firebase.createCurrentCoachAthlete(
+            this.state.user.getID(),
+            athlete.athleteUID,
+            payload
+        )
+            .then(res => {
+                let newCoachRequests = [...this.state.coachRequestTableData]
 
-                var requestData = []
-                Object.keys(userObject.teamRequests).forEach(request => {
-                    requestData.push({
-                        username: userObject.teamRequests[request].username,
-                        notes: userObject.teamRequests[request].message,
-                        athleteUID: request,
-                        email: userObject.teamRequests[request].email,
-                        buttons:
-                            <div>
-                                <AcceptRequestButton buttonHandler={this.handlePendingTeamRequestAcceptence} objectUID={request} />
-                                <DeclineRequestButton buttonHandler={this.handlePendingTeamRequestAcceptence} objectUID={request} />
-                            </div>
-
+                if (newCoachRequests.length === 1) {
+                    this.setState({
+                        coachRequestTableData: undefined
                     })
-                })
-                payLoad.requestData = requestData
-            } else {
-                payLoad.requestData = undefined
-            }
+                } else {
+                    for (var i in newCoachRequests) {
+                        if (newCoachRequests[i].athleteUID === athlete.athleteUID) {
+                            newCoachRequests.splice(i, 1)
+                            break
+                        }
+                    }
 
-            // Get the current athletes for the coach.
-            if (userObject.currentAthletes !== undefined) {
-
-                var athleteData = []
-                Object.keys(userObject.currentAthletes).forEach(athlete => {
-                    athleteData.push({
-                        username: userObject.currentAthletes[athlete].username,
-                        notes: userObject.currentAthletes[athlete].message,
-                        athleteUID: athlete,
-                        email: userObject.currentAthletes[athlete].email,
-                        buttons:
-                            <div>
-                                <AcceptRequestButton buttonHandler={this.handlePendingTeamRequestAcceptence} athleteUID={athlete} />
-                                <DeclineRequestButton buttonHandler={this.handlePendingTeamRequestAcceptence} athleteUID={athlete} />
-                            </div>
-
+                    this.setState({
+                        coachRequestTableData: newCoachRequests
                     })
-                })
-                payLoad.athleteData = athleteData
-            } else {
-                payLoad.athleteData = undefined
-            }
-        }
-        console.log(payLoad)
-        return payLoad
+                }
+
+            })
     }
 
     determineFirstTimeLogin = (metadata) => {
@@ -276,6 +264,7 @@ class HomePage extends Component {
             loading,
             greeting,
             firstTimeUser,
+            coachRequestTableData
         } = this.state
         let loadingHTML =
             <Dimmer active>
@@ -303,6 +292,14 @@ class HomePage extends Component {
                             </div>
 
                         </div> */}
+                        {
+                            coachRequestTableData &&
+                            <div className="centred-info">
+                                <CoachRequestModal
+                                    requestTableData={coachRequestTableData}
+                                />
+                            </div>
+                        }
                     </div>
                 </div>
                 <div id='programAssignmentCardGroupContainer'>
