@@ -181,6 +181,7 @@ class Firebase {
     }
 
     addExerciseDB = (programID, day, exData) => {
+        console.log(exData)
         return this.database
             .collection('programs')
             .doc(programID)
@@ -221,9 +222,6 @@ class Firebase {
                         .delete()
                 }
             })
-
-
-
     }
 
     updateExerciseDB = (programID, day, exUID, exData) => {
@@ -414,6 +412,25 @@ class Firebase {
                 })
         }
     }
+
+    copyExerciseDataDB = (programUID, payload) => {
+
+        console.log(payload)
+        const batch = this.database.batch()
+
+        Object.keys(payload).forEach(day => {
+            var docRef = this.database
+                .collection('programs')
+                .doc(programUID)
+                .collection('exercises')
+                .doc(day.toString())
+
+            batch.set(docRef, payload[day])
+        })
+        return batch.commit()
+    }
+
+
     //////////////////////////////////////////////
     //////////////////////////////////////////////
     //////////////////////////////////////////////

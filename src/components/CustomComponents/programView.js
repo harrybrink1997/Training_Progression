@@ -96,11 +96,6 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             let newProgramData = { ...currProgramDataObj }
             var newRawData = newProgramData.rawData
 
-            console.log(exUID)
-            console.log(insertionDay)
-            console.log(currProgramDataObj.currentDay)
-
-
             if (newRawData[insertionDay]) {
                 newRawData[insertionDay][exUID] = rawDataInsertionObj
 
@@ -401,7 +396,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         UPDATE_ON_WEEK_CHANGE: 'updateOnWeekChange',
         CHANGE_WEEK: 'changeWeek',
         CHANGE_DAYS_OPEN_VIEW: 'changeDaysOpenView',
-        START_PROGRAM: 'startProgram'
+        START_PROGRAM: 'startProgram',
+        COPY_EXERCISE_DATA: 'cpyExData'
 
     }
 
@@ -440,6 +436,12 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                     ...state,
                     startDayUTS: action.payload
 
+                }
+            case PROGRAM_ACTIONS.COPY_EXERCISE_DATA:
+                return {
+                    ...state,
+                    rawData: action.payload.rawData,
+                    exerciseListPerDay: action.payload.exerciseListPerDay
                 }
             default:
                 return state
@@ -769,50 +771,88 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
     const handleCopyPrevWeeksExData = (weekData, insertionDay) => {
         var insertData = {}
+        var frontEndData = {}
+        // If insertionDay is not undefined then copy just the specific day. Else copy the entire week. 
+        if (insertionDay) {
+            if (insertionDay < convertTotalDaysToUIDay(programData.currentDay)) {
+                setInsertionDayError(true)
+                return
+            } else {
 
-        if (insertionDay === undefined) {
-            Object.keys(weekData).forEach(day => {
-                insertData[this.convertUIDayToTotalDays(day)] = {}
-
-                Object.keys(weekData[day]).forEach(exercise => {
+                insertData[convertUIDayToTotalDays(insertionDay, programData.currentDay)] = {}
+                frontEndData[convertUIDayToTotalDays(insertionDay, programData.currentDay)] = {}
+                Object.keys(weekData).forEach(exercise => {
                     var reverseExComp = exercise.split("_").reverse()
-                    reverseExComp[2] = this.state.currentWeekInProgram
+                    reverseExComp[2] = currentWeekInProgram(programData.currentDay)
 
-                    var currExDay = reverseExComp[1]
+                    reverseExComp[1] = convertUIDayToTotalDays(convertTotalDaysToUIDay(insertionDay), programData.currentDay)
 
-                    reverseExComp[1] = this.convertUIDayToTotalDays(convertTotalDaysToUIDay(currExDay))
 
                     var newExID = reverseExComp.reverse().join("_")
 
-                    insertData[this.convertUIDayToTotalDays(day)][newExID] = weekData[day][exercise]
+                    var dbObject = { ...weekData[exercise] }
+                    // delete dbObject.deleteButton
+                    // delete dbObject.uid
 
+                    insertData[convertUIDayToTotalDays(insertionDay, programData.currentDay)][newExID] = dbObject
+                    frontEndData[convertUIDayToTotalDays(insertionDay, programData.currentDay)][newExID] = weekData[exercise]
                 })
-
-            })
+            }
         } else {
-            insertData[this.convertUIDayToTotalDays(insertionDay)] = {}
-            Object.keys(weekData).forEach(exercise => {
-                var reverseExComp = exercise.split("_").reverse()
-                reverseExComp[2] = this.state.currentWeekInProgram
+            if (convertTotalDaysToUIDay(programData.currentDay) > 1) {
+                setInsertionDayError(true)
+                return
+            } else {
 
-                reverseExComp[1] = this.convertUIDayToTotalDays(convertTotalDaysToUIDay(insertionDay))
+                Object.keys(weekData).forEach(day => {
+                    insertData[convertUIDayToTotalDays(day, programData.currentDay)] = {}
+                    frontEndData[convertUIDayToTotalDays(day, programData.currentDay)] = {}
 
+                    Object.keys(weekData[day]).forEach(exercise => {
+                        var reverseExComp = exercise.split("_").reverse()
+                        reverseExComp[2] = currentWeekInProgram(programData.currentDay)
 
-                var newExID = reverseExComp.reverse().join("_")
+                        var currExDay = reverseExComp[1]
 
-                insertData[this.convertUIDayToTotalDays(insertionDay)][newExID] = weekData[exercise]
-            })
+                        reverseExComp[1] = convertUIDayToTotalDays(convertTotalDaysToUIDay(currExDay), programData.currentDay)
+
+                        var newExID = reverseExComp.reverse().join("_")
+
+                        var dbObject = { ...weekData[day][exercise] }
+                        console.log(Object.keys(dbObject))
+                        // delete dbObject.deleteButton
+                        // delete dbObject.uid
+
+                        insertData[convertUIDayToTotalDays(day, programData.currentDay)][newExID] = dbObject
+                        frontEndData[convertUIDayToTotalDays(day, programData.currentDay)][newExID] = weekData[day][exercise]
+
+                    })
+                })
+            }
         }
 
-        console.log('going in ')
-        console.log(insertData)
-        // this.props.firebase.createBulkExercisesUpstream(
-        //     this.props.firebase.auth.currentUser.uid,
-        //     this.state.activeProgram,
-        //     insertData,
-        // )
-    }
+        let newProgData = { ...programData }
 
+        let newRawData = newProgData.rawData
+
+        Object.keys(frontEndData).forEach(day => {
+            newRawData[day] = frontEndData[day]
+        })
+
+        let newExerciseListPerDay = updatedDailyExerciseList(newRawData, handleDeleteExerciseButton, handleUpdateExercise)
+
+        setProgramData({
+            type: PROGRAM_ACTIONS.COPY_EXERCISE_DATA,
+            payload: {
+                rawData: newRawData,
+                exerciseListPerDay: newExerciseListPerDay
+            }
+        })
+
+        console.log(insertData)
+
+        handlerFunctions.handleCopyPrevWeekExData(insertData)
+    }
 
     const initialiseGoalData = (rawProgramData) => {
         console.log(rawProgramData)

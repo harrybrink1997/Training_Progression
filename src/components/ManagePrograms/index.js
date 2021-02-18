@@ -258,7 +258,8 @@ class ManageProgramsPage extends Component {
                                                 handleDeleteGoal: this.handleDeleteGoal,
                                                 handleCompleteGoal: this.handleCompleteGoal,
                                                 handleCreateSubGoal: this.handleCreateSubGoal,
-                                                handleCreateMainGoal: this.handleCreateMainGoal
+                                                handleCreateMainGoal: this.handleCreateMainGoal,
+                                                handleCopyPrevWeekExData: this.handleCopyPrevWeekExData
                                             },
                                         }
                                     }))
@@ -272,6 +273,13 @@ class ManageProgramsPage extends Component {
                     console.log(error)
                 })
         })
+    }
+
+    handleCopyPrevWeekExData = (payload) => {
+        this.props.firebase.copyExerciseDataDB(
+            this.state.currProgram.programUID,
+            payload
+        )
     }
 
     handleCreateMainGoal = (mainGoalDBUID, payload) => {
