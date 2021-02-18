@@ -534,7 +534,7 @@ const generateCurrDaySafeLoadData = (programData, anatomyObject) => {
         var currDayData = dailyLoadCalcs(
             programData[programData.currentDay],
             anatomyObject,
-            programData.loading_scheme
+            programData.loadingScheme
         )
         Object.keys(anatomyObject).forEach(muscleGroup => {
 
@@ -558,6 +558,7 @@ const generateCurrDaySafeLoadData = (programData, anatomyObject) => {
             }
         })
     }
+    console.log(returnData)
     return returnData
 
 }

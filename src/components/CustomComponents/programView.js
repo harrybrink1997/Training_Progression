@@ -456,7 +456,6 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     const safeLoadDataReducer = (state, action) => {
         switch (action.type) {
             case SAFE_LOAD_ACTIONS.REFRESH:
-                console.log('going in')
                 console.log(action.payload)
                 return {
                     ...state,
@@ -958,15 +957,6 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     }, [submitProcessingBackend])
 
     useEffect(() => {
-        if (programData.rawData) {
-            setSafeLoadData({
-                type: SAFE_LOAD_ACTIONS.REFRESH,
-                payload: programData.rawData
-            })
-        }
-    }, [programData])
-
-    useEffect(() => {
         if (exerciseData) {
             setExercisesLoaded(true)
 
@@ -976,6 +966,11 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     useEffect(() => {
         if (programData) {
             programDataRef.current = programData
+            console.log(programData.rawData)
+            setSafeLoadData({
+                type: SAFE_LOAD_ACTIONS.REFRESH,
+                payload: programData.rawData
+            })
             if (!programLoaded) {
                 setProgramLoaded(true)
             }
