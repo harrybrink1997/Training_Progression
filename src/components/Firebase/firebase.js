@@ -98,6 +98,100 @@ class Firebase {
     //////////// FIRESTORE FUNCTIONS /////////////
     //////////////////////////////////////////////
 
+    validCoachRequest = (email, athleteUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('users')
+                .where('email', '==', email)
+                .get()
+                .then(snap => {
+                    if (snap.empty) {
+                        res({
+                            success: false,
+                            error: 'invalidEmail'
+                        })
+                    } else {
+                        const userData = snap.docs[0].data()
+                        const coachUID = snap.docs[0].id
+
+                        if (userData.userType !== 'coach') {
+                            res({
+                                success: false,
+                                error: 'invalidEmail'
+                            })
+                        } else {
+
+                            Promise.all([
+                                this.currCoachAthleteRel(coachUID, athleteUID),
+                                this.currCoachRequest(coachUID, athleteUID),
+                            ]).then(snap => {
+                                if (!snap[0]) {
+                                    res({
+                                        success: false,
+                                        error: 'alreadyMember'
+                                    })
+                                } else if (!snap[1]) {
+                                    res({
+                                        success: false,
+                                        error: 'alreadyRequested'
+                                    })
+                                } else {
+                                    res({
+                                        success: true,
+                                        error: undefined,
+                                        coachUID: coachUID,
+                                        coachUsername: userData.username
+                                    })
+                                }
+                            })
+                        }
+                    }
+                })
+        })
+
+    }
+
+    createCoachRequestDB = (payload) => {
+        return this.database
+            .collection('coachRequests')
+            .doc()
+            .set(payload)
+    }
+
+    currCoachAthleteRel = (coachUID, athleteUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('currentCoachAthletes')
+                .where('athleteUID', '==', athleteUID)
+                .where('coachUID', '==', coachUID)
+                .get()
+                .then(snap => {
+                    if (snap.empty) {
+                        res(true)
+                    } else {
+                        res(false)
+                    }
+                })
+        })
+    }
+
+    currCoachRequest = (coachUID, athleteUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('coachRequests')
+                .where('athleteUID', '==', athleteUID)
+                .where('coachUID', '==', coachUID)
+                .get()
+                .then(snap => {
+                    if (snap.empty) {
+                        res(true)
+                    } else {
+                        res(false)
+                    }
+                })
+        })
+    }
+
     getUser = (id) => {
         return this.database
             .collection('users')

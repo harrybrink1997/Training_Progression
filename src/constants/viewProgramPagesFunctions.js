@@ -115,7 +115,7 @@ const updatedDailyExerciseList = (programObject, handleDeleteExerciseButton, han
                         (shouldRenderExerciseButtons(
                             exercise,
                             programObject.currentDay
-                        )) ? (programObject.loading_scheme === 'rpe_time') ?
+                        )) ? (programObject.loadingScheme === 'rpe_time') ?
                                 <div className='currDayExBtnContainer'>
                                     <EditExerciseModalRpeTime submitHandler={handleUpdateExercise} exUid={exercise} currentData={renderObj} />
                                     <DeleteExerciseButton buttonHandler={handleDeleteExerciseButton} uid={exercise} />

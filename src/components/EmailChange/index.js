@@ -4,6 +4,7 @@ import { withAuthorisation } from '../Session';
 import EmailChangeForm from './emailChangeForm'
 
 import InputLabel from '../CustomComponents/DarkModeInput'
+import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper';
 
 class EmailChangePage extends Component {
 
@@ -57,22 +58,24 @@ class EmailChangePage extends Component {
 
 
         return (
-            <div id='signInPageMainContainer'>
-                <div id='signInEmailMainContainer' className='pageContainerLevel1'>
-                    <InputLabel
-                        text='Email Change'
-                        custID='signInPageMainLabel'
-                    />
-                    <EmailChangeForm
-                        submitEmailChangeHandler={this.handleSubmitEmailChange}
-                        submitProcessing={submitProcessing}
-                    />
-                    <div id='signInEmailFooterMessagesContainer'>
-                        {emailChangeError && <p>{emailChangeError.message}</p>}
-                        {emailChanged && <div>Email Changed!</div>}
+            <NonLandingPageWrapper>
+                <div id='signInPageMainContainer'>
+                    <div id='signInEmailMainContainer' className='pageContainerLevel1'>
+                        <InputLabel
+                            text='Email Change'
+                            custID='signInPageMainLabel'
+                        />
+                        <EmailChangeForm
+                            submitEmailChangeHandler={this.handleSubmitEmailChange}
+                            submitProcessing={submitProcessing}
+                        />
+                        <div id='signInEmailFooterMessagesContainer'>
+                            {emailChangeError && <p>{emailChangeError.message}</p>}
+                            {emailChanged && <div>Email Changed!</div>}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </NonLandingPageWrapper >
         )
     }
 }

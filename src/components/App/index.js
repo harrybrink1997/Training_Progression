@@ -19,7 +19,8 @@ import EmailChangePage from '../EmailChange'
 import DeleteAccountPage from '../DeleteAccount'
 import JoinTeamPage from '../JoinTeam'
 import ManageAthletesPage from '../ManageAthletes'
-import ManageTeamsPage from '../ManageTeams'
+import ManageCoachTeamsPage from '../ManageCoachTeams'
+import ManageAthleteTeamsPage from '../ManageAthleteTeams'
 import ManageProgramsPage from '../ManagePrograms'
 
 import * as ROUTES from '../../constants/routes';
@@ -84,7 +85,8 @@ const App = () => {
                 <Route path={ROUTES.DELETE_ACCOUNT} component={DeleteAccountPage} />
                 <Route path={ROUTES.JOIN_TEAM} component={JoinTeamPage} />
                 <Route path={ROUTES.MANAGE_ATHLETES} component={ManageAthletesPage} />
-                <Route path={ROUTES.MANAGE_TEAMS} component={ManageTeamsPage} />
+                <Route path={ROUTES.MANAGE_COACH_TEAMS} component={ManageCoachTeamsPage} />
+                <Route path={ROUTES.MANAGE_ATHLETE_TEAMS} component={ManageAthleteTeamsPage} />
                 <Route path={ROUTES.MANAGE_PROGRAMS} component={ManageProgramsPage} />
             </div>
         </Router >

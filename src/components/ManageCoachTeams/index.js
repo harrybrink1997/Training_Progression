@@ -22,7 +22,7 @@ import { capitaliseFirstLetter } from '../../constants/stringManipulation'
 import TeamMemberProgLoadInfo from './teamMemberProgLoadInfo';
 import TeamLoadingDataOverview from './teamLoadingDataOverview';
 
-class ManageTeamsPage extends Component {
+class ManageCoachTeamsPage extends Component {
 
     constructor(props) {
         super(props)
@@ -1484,4 +1484,4 @@ class ManageTeamsPage extends Component {
 }
 
 const condition = role => role === 'coach';
-export default withCoachAuthorisation(condition)(ManageTeamsPage);
+export default withCoachAuthorisation(condition)(ManageCoachTeamsPage);

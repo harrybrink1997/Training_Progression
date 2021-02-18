@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
 // import { PasswordForgetForm } from '../PasswordForget';
-import PasswordChangeForm from '../PasswordChange';
 import { withAuthorisation } from '../Session';
 import { Dimmer, Loader, Card, Icon, Image } from 'semantic-ui-react'
 import * as ROUTES from '../../constants/routes'
@@ -65,7 +64,10 @@ class AccountPage extends Component {
 
     handleJoinTeamRedirect = () => {
         this.props.history.push(ROUTES.JOIN_TEAM)
+    }
 
+    handleChangeEmailRedirect = () => {
+        this.props.history.push(ROUTES.EMAIL_CHANGE)
     }
 
     render() {
@@ -106,7 +108,7 @@ class AccountPage extends Component {
                                     </Card.Content>
                                 </Card>
                             </div>
-                            <div>
+                            {/* <div>
                                 <Card onClick={() => { this.handleChangeEmailRedirect() }}>
                                     <Card.Content className='iconContent'>
                                         <Icon name='mail' size='huge' />
@@ -116,7 +118,7 @@ class AccountPage extends Component {
                                     </Card.Content>
                                 </Card>
 
-                            </div>
+                            </div> */}
                             <div>
                                 <Card onClick={() => { this.handleDeleteAccountRedirect() }}>
                                     <Card.Content className='iconContent'>

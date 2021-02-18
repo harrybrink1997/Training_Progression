@@ -41,7 +41,6 @@ class ManageProgramsPage extends Component {
     }
 
     componentDidMount() {
-        console.log("going in 0")
         this.setState({ loading: true }, () => {
             this.props.firebase.getUser(this.props.firebase.auth.currentUser.uid)
                 .then(snapshot => {
@@ -276,6 +275,7 @@ class ManageProgramsPage extends Component {
     }
 
     handleCopyPrevWeekExData = (payload) => {
+
         this.props.firebase.copyExerciseDataDB(
             this.state.currProgram.programUID,
             payload

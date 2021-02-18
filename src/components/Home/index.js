@@ -182,7 +182,11 @@ class HomePage extends Component {
     }
 
     handleManageTeamsRedirect = () => {
-        this.props.history.push(ROUTES.MANAGE_TEAMS)
+        if (this.state.user.getUserType() === 'athlete') {
+            this.props.history.push(ROUTES.MANAGE_ATHLETE_TEAMS)
+        } else {
+            this.props.history.push(ROUTES.MANAGE_COACH_TEAMS)
+        }
     }
 
     handleManageProgramsRedirect = () => {
