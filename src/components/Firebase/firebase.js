@@ -266,7 +266,15 @@ class Firebase {
                     .where('athlete', '==', id)
                     .get()
                     .then(snap => {
-                        res(snap)
+                        if (snap.empty) {
+                            res([])
+                        } else {
+                            var payload = []
+                            snap.docs.forEach(doc => {
+                                payload.push(doc.data())
+                            })
+                            res(snap)
+                        }
                     })
             })
         } else {
@@ -276,7 +284,15 @@ class Firebase {
                     .where('owner', '==', id)
                     .get()
                     .then(snap => {
-                        res(snap)
+                        if (snap.empty) {
+                            res([])
+                        } else {
+                            var payload = []
+                            snap.docs.forEach(doc => {
+                                payload.push(doc.data())
+                            })
+                            res(payload)
+                        }
                     })
             })
         }
@@ -340,7 +356,11 @@ class Firebase {
                 .doc('programGroups')
                 .get()
                 .then(snap => {
-                    res(snap.data())
+                    if (snap.exists) {
+                        res(snap.data())
+                    } else {
+                        return undefined
+                    }
                 })
         })
     }

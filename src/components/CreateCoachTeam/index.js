@@ -22,6 +22,8 @@ class CreateCoachTeamPage extends Component {
             this.props.firebase.getCreateTeamData(
                 this.props.firebase.auth.currentUser.uid
             ).then(snap => {
+                console.log(snap)
+
                 this.setState({
                     athleteData: this.initAthleteData(snap.currentAthletes),
                     programGroupData: initProgDeployCoachProgGroupTableData(snap.programGroups),

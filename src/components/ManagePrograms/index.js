@@ -57,12 +57,12 @@ class ManageProgramsPage extends Component {
                             var pendingPrograms = []
                             var currentPrograms = []
                             var pastPrograms
-                            if (snapshot.empty) {
+                            if (snapshot.length === 0) {
                                 nonPendingPrograms = []
                                 pendingPrograms = []
                             } else {
-                                snapshot.forEach(doc => {
-                                    var progObj = createProgramObject(doc.data())
+                                snapshot.forEach(prog => {
+                                    var progObj = createProgramObject(prog)
                                     if (progObj.getStatus() === 'pending') {
                                         pendingPrograms.push(progObj)
                                     } else {

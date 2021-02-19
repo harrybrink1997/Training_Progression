@@ -228,12 +228,12 @@ const ProgramDeployment = ({ initProgTabData, submitHandler, initProgGroupTabDat
 
 }
 
-const initProgDeployCoachProgGroupTableData = (userObject) => {
+const initProgDeployCoachProgGroupTableData = (programGroups) => {
     var tableData = []
 
-    if (userObject.programGroups !== undefined) {
-        Object.keys(userObject.programGroups).forEach(programGroupName => {
-            var programGroup = userObject.programGroups[programGroupName]
+    if (programGroups) {
+        Object.keys(programGroups).forEach(programGroupName => {
+            var programGroup = programGroups[programGroupName]
 
             var sequentialTableVal = ''
 
@@ -294,9 +294,10 @@ const initProgDeployCoachProgGroupTableData = (userObject) => {
     }
 }
 
-const initProgDeployCoachProgramTableData = (userObject) => {
+const initProgDeployCoachProgramTableData = (programs) => {
     var tableData = []
-
+    var userObject = {}
+    console.log(programs)
     if (userObject.currentPrograms !== undefined) {
         Object.keys(userObject.currentPrograms).forEach(programName => {
             var program = userObject.currentPrograms[programName]
