@@ -3,6 +3,7 @@ import { withAuthorisation } from '../Session';
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import { Loader, Button } from 'semantic-ui-react';
 import * as ROUTES from '../../constants/routes'
+import ProgramDeployment, { initProgDeployCoachProgGroupTableData, initProgDeployCoachProgramTableData } from '../CustomComponents/programDeployment';
 
 class CreateCoachTeamPage extends Component {
 
@@ -21,10 +22,52 @@ class CreateCoachTeamPage extends Component {
             this.props.firebase.getCreateTeamData(
                 this.props.firebase.auth.currentUser.uid
             ).then(snap => {
-                console.log(snap)
+                this.setState({
+                    athleteData: this.initAthleteData(snap.currentAthletes),
+                    programGroupData: initProgDeployCoachProgGroupTableData(snap.programGroups),
+                    programData: initProgDeployCoachProgramTableData(snap.programs)
+                })
             })
         })
     }
+
+    initAthleteData = (athleteData) => {
+
+        var payload = {
+            columns:
+                [
+                    {
+                        Header: 'Athlete',
+                        accessor: 'athlete',
+                        filter: 'fuzzyText'
+                    },
+                    {
+                        Header: 'Email',
+                        accessor: 'email',
+                        filter: 'fuzzyText'
+                    },
+                ],
+            data: []
+
+        }
+
+        if (athleteData.length > 0) {
+            var tableData = athleteData.map(athlete => {
+                return {
+                    athlete: athlete.username,
+                    email: athlete.email,
+                    uid: athlete.athleteUID
+                }
+            })
+
+            payload.data = tableData
+            return payload
+        } else {
+            return payload
+        }
+
+    }
+
 
     handleManageTeamsRedirect = () => {
         this.props.history.push(ROUTES.MANAGE_COACH_TEAMS)
@@ -32,9 +75,14 @@ class CreateCoachTeamPage extends Component {
 
     render() {
         const {
-            pageBodyContentLoading
+            pageBodyContentLoading,
+            programData,
+            programGroupData,
+            athleteData
         } = this.state
-
+        console.log(athleteData)
+        console.log(programData)
+        console.log(programGroupData)
 
         let pageBodyContentLoadingHTML =
             <NonLandingPageWrapper>

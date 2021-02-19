@@ -322,11 +322,9 @@ class Firebase {
                 this.getUserPrograms(coachUID, 'coach')
             ]).then(snap => {
 
-                console.log(snap[0])
-                console.log(snap[1])
                 res({
                     programGroups: snap[0],
-                    currentAthles: snap[1],
+                    currentAthletes: snap[1],
                     programs: snap[2]
                 })
             })
@@ -355,13 +353,12 @@ class Firebase {
                 .get()
                 .then(snap => {
                     if (snap.empty) {
-                        console.log("going into wrong place")
                         res([])
                     } else {
-                        console.log("going into correct place")
                         var promises = []
+                        var athleteUIDs = []
                         snap.docs.forEach(doc => {
-                            console.log(doc.data())
+                            athleteUIDs.push(doc.data().athleteUID)
                             promises.push(
                                 this.getUser(doc.data().athleteUID)
                             )
@@ -370,8 +367,12 @@ class Firebase {
                         Promise.all(promises)
                             .then(athleteSnaps => {
                                 var payload = []
+                                var index = 0
                                 athleteSnaps.forEach(athleteSnap => {
-                                    payload.push(athleteSnap.data())
+                                    var athleteInfo = athleteSnap.data()
+                                    athleteInfo.athleteUID = athleteUIDs[index]
+                                    payload.push(athleteInfo)
+                                    index++
                                 })
                                 res(payload)
                             })
