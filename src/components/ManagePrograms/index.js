@@ -50,11 +50,9 @@ class ManageProgramsPage extends Component {
                         this.props.firebase.auth.currentUser.uid,
                         userInfo
                     )
-                    console.log(userObject)
 
-                    this.props.firebase.getUserPrograms(userObject.getId())
+                    this.props.firebase.getUserPrograms(userObject.getID(), userObject.getUserType())
                         .then(snapshot => {
-                            console.log(userObject)
                             var nonPendingPrograms = []
                             var pendingPrograms = []
                             var currentPrograms = []
@@ -64,9 +62,7 @@ class ManageProgramsPage extends Component {
                                 pendingPrograms = []
                             } else {
                                 snapshot.forEach(doc => {
-
                                     var progObj = createProgramObject(doc.data())
-
                                     if (progObj.getStatus() === 'pending') {
                                         pendingPrograms.push(progObj)
                                     } else {
@@ -149,12 +145,13 @@ class ManageProgramsPage extends Component {
     }
 
     initProgramTableData = (programList, editMode) => {
-
-        var payLoad = []
+        console.log(programList)
+        var payload = []
         if (!editMode) {
             programList.getProgramList().forEach(prog => {
-                payLoad.push({
+                payload.push({
                     program: prog.getName(),
+                    programUID: prog.generateProgramUID(),
                     loadingScheme: loadingSchemeString(prog.getLoadingScheme()),
                     acutePeriod: prog.getAcutePeriod(),
                     chronicPeriod: prog.getChronicPeriod(),
@@ -170,9 +167,10 @@ class ManageProgramsPage extends Component {
             })
         } else {
             programList.getProgramList().forEach(prog => {
-                payLoad.push({
+                payload.push({
                     program: prog.getName(),
                     loadingScheme: loadingSchemeString(prog.getLoadingScheme()),
+                    programUID: prog.generateProgramUID(),
                     acutePeriod: prog.getAcutePeriod(),
                     chronicPeriod: prog.getChronicPeriod(),
                     buttons:
@@ -194,7 +192,7 @@ class ManageProgramsPage extends Component {
             })
         }
 
-        return payLoad
+        return payload
     }
 
     handleProgramClick = (programUID) => {
@@ -392,16 +390,16 @@ class ManageProgramsPage extends Component {
             }
         }
 
-        var payLoad = {}
-        payLoad[exUID] = dataPayload
+        var payload = {}
+        payload[exUID] = dataPayload
 
-        console.log(payLoad)
+        console.log(payload)
         console.log(this.state.currProgram.programUID)
 
         this.props.firebase.addExerciseDB(
             this.state.currProgram.programUID,
             insertionDay,
-            payLoad
+            payload
         )
 
     }
@@ -718,17 +716,17 @@ class ManageProgramsPage extends Component {
             var path =
                 currPath
                 + programName + '/'
-            var payLoad = {}
+            var payload = {}
             for (var day = currentDayInProgram + 1; day <= maxDay; day++) {
 
                 (this.state.pendingProgramsData[programName][day]) ?
-                    payLoad[path + day.toString()] = this.state.pendingProgramsData[programName][day]
-                    : payLoad[path + day.toString()] = {}
+                    payload[path + day.toString()] = this.state.pendingProgramsData[programName][day]
+                    : payload[path + day.toString()] = {}
             }
 
             if (this.state.currentProgramsData[programName].order) {
-                payLoad[path + 'isActiveInSequence'] = null
-                payLoad[path + 'order'] = null
+                payload[path + 'isActiveInSequence'] = null
+                payload[path + 'order'] = null
             }
 
         } else {
@@ -736,9 +734,9 @@ class ManageProgramsPage extends Component {
                 currPath
                 + programName
 
-            var payLoad = {}
+            var payload = {}
 
-            payLoad[path] = this.state.pendingProgramsData[programName]
+            payload[path] = this.state.pendingProgramsData[programName]
         }
 
         // Handle the behaviour of the current program sequences data.
@@ -748,21 +746,21 @@ class ManageProgramsPage extends Component {
 
             // Remove the other programs in the sequence from the athletes current programs. 
             relatedCurrProgs.forEach(relProg => {
-                payLoad[currPath + relProg.programUID] = null
+                payload[currPath + relProg.programUID] = null
             })
         }
 
 
-        payLoad[basePath + '/activeProgram'] = programName
+        payload[basePath + '/activeProgram'] = programName
         var pendingPath =
             basePath
             + '/pendingPrograms/'
             + programName
 
-        payLoad[pendingPath] = null
+        payload[pendingPath] = null
 
-        // console.log(payLoad)
-        this.props.firebase.updateDatabaseFromRootPath(payLoad)
+        // console.log(payload)
+        this.props.firebase.updateDatabaseFromRootPath(payload)
     }
 
     checkSameMetaParameters = (userObject, programName) => {
@@ -995,7 +993,7 @@ class ManageProgramsPage extends Component {
     }
 
     handleAcceptOverlappingProgramSequence = (firstProgReplacement, programData) => {
-        var payLoad = {}
+        var payload = {}
         var basePath =
             '/users/'
             + this.props.firebase.auth.currentUser.uid
@@ -1008,7 +1006,7 @@ class ManageProgramsPage extends Component {
 
         var firstProgram = programData.shift()
 
-        payLoad[pendingPath + firstProgram.programUID] = null
+        payload[pendingPath + firstProgram.programUID] = null
         // Generates the exact replacement data for the first program in the sequence. 
         if (firstProgReplacement === 'future') {
             var maxDay = 0
@@ -1024,15 +1022,15 @@ class ManageProgramsPage extends Component {
                 currProgPath
                 + firstProgram.programUID + '/'
 
-            payLoad[path + 'isActiveInSequence'] = true
-            payLoad[path + 'order'] = this.state.pendingProgramsData[firstProgram.programUID].order
+            payload[path + 'isActiveInSequence'] = true
+            payload[path + 'order'] = this.state.pendingProgramsData[firstProgram.programUID].order
 
             path += '/'
 
             for (var day = firstProgram.currentDayInProgram + 1; day <= maxDay; day++) {
                 (this.state.pendingProgramsData[firstProgram.programUID][day]) ?
-                    payLoad[path + day.toString()] = this.state.pendingProgramsData[firstProgram.programUID][day]
-                    : payLoad[path + day.toString()] = {}
+                    payload[path + day.toString()] = this.state.pendingProgramsData[firstProgram.programUID][day]
+                    : payload[path + day.toString()] = {}
             }
 
         } else {
@@ -1041,10 +1039,10 @@ class ManageProgramsPage extends Component {
                 currProgPath
                 + firstProgram.programUID
 
-            payLoad[path] = this.state.pendingProgramsData[firstProgram.programUID]
+            payload[path] = this.state.pendingProgramsData[firstProgram.programUID]
         }
 
-        payLoad[basePath + '/activeProgram'] = firstProgram.programUID
+        payload[basePath + '/activeProgram'] = firstProgram.programUID
         // If the program you're replacement is also first in it's sequence. Iterate through current programs to find the associate sequence programs for deletion. 
         console.log(firstProgram)
         if (firstProgram.order) {
@@ -1052,16 +1050,16 @@ class ManageProgramsPage extends Component {
 
             relatedSeqProgs.forEach(relProg => {
                 if (!this.programInRelatedProgList(programData, relProg.programUID)) {
-                    payLoad[currProgPath + relProg.programUID] = null
+                    payload[currProgPath + relProg.programUID] = null
                 }
             })
         }
 
         programData.forEach(program => {
 
-            payLoad[pendingPath + program.programUID] = null
+            payload[pendingPath + program.programUID] = null
 
-            payLoad[currProgPath + program.programUID] = this.state.pendingProgramsData[program.programUID]
+            payload[currProgPath + program.programUID] = this.state.pendingProgramsData[program.programUID]
 
             if (program.order !== undefined &&
                 program.isActiveInSequence) {
@@ -1071,13 +1069,13 @@ class ManageProgramsPage extends Component {
 
                 relatedCurrPrograms.forEach(relProg => {
                     if (!this.programInRelatedProgList(relatedPendPrograms, relProg.programUID)) {
-                        payLoad[currProgPath + relProg.programUID] = null
+                        payload[currProgPath + relProg.programUID] = null
                     }
                 })
             }
         })
-        // console.log(payLoad)
-        this.props.firebase.updateDatabaseFromRootPath(payLoad)
+        // console.log(payload)
+        this.props.firebase.updateDatabaseFromRootPath(payload)
     }
 
     programInRelatedProgList = (list, program) => {
@@ -1091,16 +1089,16 @@ class ManageProgramsPage extends Component {
     }
 
     checkSequenceProgramsInCurrentPrograms = (userObject, sequencePrograms) => {
-        var payLoad = []
+        var payload = []
         sequencePrograms.forEach(program => {
-            payLoad.push(this.programInCurrentPrograms(userObject, program.programUID))
+            payload.push(this.programInCurrentPrograms(userObject, program.programUID))
         })
 
-        return (payLoad)
+        return (payload)
     }
 
     handlePendingProgramRequestAcceptence = (programName, isAccepted) => {
-        var payLoad = {}
+        var payload = {}
         var basePath = '/users/'
             + this.props.firebase.auth.currentUser.uid
         var pendingPath = basePath + '/pendingPrograms/'
@@ -1110,9 +1108,9 @@ class ManageProgramsPage extends Component {
                 basePath
                 + '/currentPrograms/'
 
-            payLoad[basePath + '/activeProgram'] = programName
-            payLoad[currProgPath + programName] = this.state.pendingProgramsData[programName]
-            payLoad[pendingPath + programName] = null
+            payload[basePath + '/activeProgram'] = programName
+            payload[currProgPath + programName] = this.state.pendingProgramsData[programName]
+            payload[pendingPath + programName] = null
 
             if (this.state.pendingProgramsData[programName].order) {
 
@@ -1122,15 +1120,15 @@ class ManageProgramsPage extends Component {
                 )
 
                 relatedProgs.forEach(relatedProgram => {
-                    payLoad[currProgPath + relatedProgram.programUID] = this.state.pendingProgramsData[relatedProgram.programUID]
+                    payload[currProgPath + relatedProgram.programUID] = this.state.pendingProgramsData[relatedProgram.programUID]
 
-                    payLoad[pendingPath + relatedProgram.programUID] = null
+                    payload[pendingPath + relatedProgram.programUID] = null
                 })
             }
 
         } else {
 
-            payLoad[pendingPath + programName] = null
+            payload[pendingPath + programName] = null
 
             if (this.state.pendingProgramsData[programName].order) {
 
@@ -1140,12 +1138,12 @@ class ManageProgramsPage extends Component {
                 )
 
                 relatedProgs.forEach(relatedProgram => {
-                    payLoad[pendingPath + relatedProgram.programUID] = null
+                    payload[pendingPath + relatedProgram.programUID] = null
                 })
             }
         }
 
-        this.props.firebase.processPendingProgramsUpstream(payLoad)
+        this.props.firebase.processPendingProgramsUpstream(payload)
 
     }
 
@@ -1193,7 +1191,7 @@ class ManageProgramsPage extends Component {
             //     alert('Program with name "' + programName.split('_')[0] + '" already exists in either your current or past programs.')
             // } else {
 
-            var payLoad = {
+            var payload = {
                 name: programName,
                 owner: this.props.firebase.auth.currentUser.uid,
                 acutePeriod: acutePeriod,
@@ -1229,18 +1227,18 @@ class ManageProgramsPage extends Component {
 
                 const startTimestamp = Math.floor(new Date(dateConversion).getTime())
 
-                payLoad.athlete = this.props.firebase.auth.currentUser.uid
+                payload.athlete = this.props.firebase.auth.currentUser.uid
 
-                payLoad.team = 'none'
+                payload.team = 'none'
 
-                payLoad.startDayUTS = startTimestamp
+                payload.startDayUTS = startTimestamp
             }
 
             if (goalListArr.length === 0) {
                 goalListArr = undefined
             }
 
-            var newProg = createProgramObject(payLoad)
+            var newProg = createProgramObject(payload)
 
             this.state.nonPendingProgList.addProgStart(newProg)
             this.state.currProgList.addProgStart(newProg)
@@ -1256,11 +1254,11 @@ class ManageProgramsPage extends Component {
                 pageBodyContentLoading: false
             }))
 
-            console.log(payLoad)
+            console.log(payload)
 
             this.props.firebase.createProgramDB(
                 newProg.generateProgramUID(),
-                payLoad,
+                payload,
                 goalListArr
             )
         })
@@ -1322,7 +1320,9 @@ class ManageProgramsPage extends Component {
 
     handleCreateProgramGroup = (groupName, programData) => {
 
-        var payLoad = {
+        console.log(groupName)
+        console.log(programData)
+        var payload = {
             sequential: false,
             unlimited: false
         }
@@ -1332,7 +1332,7 @@ class ManageProgramsPage extends Component {
             programData.unlimited.forEach(program => {
                 programArray.push(program.programUID)
             })
-            payLoad.unlimited = programArray
+            payload.unlimited = programArray
 
         }
 
@@ -1350,19 +1350,14 @@ class ManageProgramsPage extends Component {
                     + '_' + timestamp
             })
 
-            payLoad.sequential = programObj
+            payload.sequential = programObj
         }
 
-
-        console.log(groupName)
-        console.log(payLoad)
-
-        // this.props.firebase.createProgramGroupUpstream(
-        //     this.props.firebase.auth.currentUser.uid,
-        //     groupName,
-        //     payLoad
-        // )
-
+        this.props.firebase.createProgramGroupDB(
+            this.props.firebase.auth.currentUser.uid,
+            groupName,
+            payload
+        )
     }
     render() {
         const {

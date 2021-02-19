@@ -24,7 +24,7 @@ const CoachRequestModal = ({ requestTableData }) => {
             open={show}
             trigger=
             {
-                <Button className='lightPurpleButton-inverted'>{requestTableData.length} Pending Request {requestTableData.length > 1 && 's'}</Button>
+                <Button className='lightPurpleButton-inverted'>{requestTableData.length} Pending Request{requestTableData.length > 1 && 's'}</Button>
             }
         >
             <Modal.Header >Pending Team Requests</Modal.Header>

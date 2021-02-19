@@ -171,6 +171,17 @@ class Firebase {
 
     }
 
+    getCoachTeamOverviewData = (coachUID) => {
+        return this.database
+            .collection('users')
+            .doc(coachUID)
+            .collection('teams')
+            .get()
+            .then(snap => {
+                console.log(snap.empty)
+            })
+    }
+
     getCoachRequestData = (uid, idType) => {
         return this.database
             .collection('coachRequests')
@@ -229,10 +240,15 @@ class Firebase {
     }
 
     getUser = (id) => {
-        return this.database
-            .collection('users')
-            .doc(id)
-            .get()
+        return new Promise((res, rej) => {
+            this.database
+                .collection('users')
+                .doc(id)
+                .get()
+                .then(snap => {
+                    res(snap)
+                })
+        })
     }
 
     createUserDB = (id, payLoad) => {
@@ -242,11 +258,39 @@ class Firebase {
             .set(payLoad)
     }
 
-    getUserPrograms = (id) => {
+    getUserPrograms = (id, userType) => {
+        if (userType !== 'coach') {
+            return new Promise((res, rej) => {
+                this.database
+                    .collection('programs')
+                    .where('athlete', '==', id)
+                    .get()
+                    .then(snap => {
+                        res(snap)
+                    })
+            })
+        } else {
+            return new Promise((res, rej) => {
+                this.database
+                    .collection('programs')
+                    .where('owner', '==', id)
+                    .get()
+                    .then(snap => {
+                        res(snap)
+                    })
+            })
+        }
+    }
+
+    createProgramGroupDB = (coachUID, groupName, payload) => {
         return this.database
-            .collection('programs')
-            .where('athlete', '==', id)
-            .get()
+            .collection('users')
+            .doc(coachUID)
+            .collection('programGroups')
+            .doc('programGroups')
+            .set({
+                [groupName]: payload
+            }, { merge: true })
     }
 
     createProgramDB = (programUID, programData, goalData) => {
@@ -268,6 +312,74 @@ class Firebase {
 
         return batch.commit()
     }
+
+    getCreateTeamData = (coachUID) => {
+
+        return new Promise((res, rej) => {
+            Promise.all([
+                this.getCoachProgramGroups(coachUID),
+                this.getCoachCurrentAthletes(coachUID),
+                this.getUserPrograms(coachUID, 'coach')
+            ]).then(snap => {
+
+                console.log(snap[0])
+                console.log(snap[1])
+                res({
+                    programGroups: snap[0],
+                    currentAthles: snap[1],
+                    programs: snap[2]
+                })
+            })
+        })
+    }
+
+    getCoachProgramGroups = (coachUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('users')
+                .doc(coachUID)
+                .collection('programGroups')
+                .doc('programGroups')
+                .get()
+                .then(snap => {
+                    res(snap.data())
+                })
+        })
+    }
+
+    getCoachCurrentAthletes = (coachUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('currentCoachAthletes')
+                .where('coachUID', '==', coachUID)
+                .get()
+                .then(snap => {
+                    if (snap.empty) {
+                        console.log("going into wrong place")
+                        res([])
+                    } else {
+                        console.log("going into correct place")
+                        var promises = []
+                        snap.docs.forEach(doc => {
+                            console.log(doc.data())
+                            promises.push(
+                                this.getUser(doc.data().athleteUID)
+                            )
+                        })
+
+                        Promise.all(promises)
+                            .then(athleteSnaps => {
+                                var payload = []
+                                athleteSnaps.forEach(athleteSnap => {
+                                    payload.push(athleteSnap.data())
+                                })
+                                res(payload)
+                            })
+                    }
+                })
+        })
+    }
+
 
     deleteProgramDB = (programUID) => {
         return this.database

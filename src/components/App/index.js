@@ -22,6 +22,7 @@ import ManageAthletesPage from '../ManageAthletes'
 import ManageCoachTeamsPage from '../ManageCoachTeams'
 import ManageAthleteTeamsPage from '../ManageAthleteTeams'
 import ManageProgramsPage from '../ManagePrograms'
+import CreateCoachTeamPage from '../CreateCoachTeam'
 
 import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
@@ -88,6 +89,7 @@ const App = () => {
                 <Route path={ROUTES.MANAGE_COACH_TEAMS} component={ManageCoachTeamsPage} />
                 <Route path={ROUTES.MANAGE_ATHLETE_TEAMS} component={ManageAthleteTeamsPage} />
                 <Route path={ROUTES.MANAGE_PROGRAMS} component={ManageProgramsPage} />
+                <Route path={ROUTES.CREATE_COACH_TEAM} component={CreateCoachTeamPage} />
             </div>
         </Router >
     )

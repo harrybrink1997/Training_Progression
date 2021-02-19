@@ -21,6 +21,8 @@ import * as programIDFunctions from '../../constants/programIDManipulation'
 import { capitaliseFirstLetter } from '../../constants/stringManipulation'
 import TeamMemberProgLoadInfo from './teamMemberProgLoadInfo';
 import TeamLoadingDataOverview from './teamLoadingDataOverview';
+import * as ROUTES from '../../constants/routes'
+
 
 class ManageCoachTeamsPage extends Component {
 
@@ -37,7 +39,13 @@ class ManageCoachTeamsPage extends Component {
     }
 
     componentDidMount() {
-        this.setState({ loading: true });
+        this.setState({
+            loading: true
+        }, () => {
+            this.props.firebase.getCoachTeamOverviewData(
+                this.props.firebase.auth.currentUser.uid
+            )
+        });
 
         var currUserUid = this.props.firebase.auth.currentUser.uid
         this.props.firebase.getUserData(currUserUid).on('value', userData => {
@@ -699,6 +707,10 @@ class ManageCoachTeamsPage extends Component {
 
     }
 
+    handleCreateTeamRedirect = () => {
+        this.props.history.push(ROUTES.CREATE_COACH_TEAM)
+    }
+
     prepareAthleteLoadData = (athlete) => {
         return new Promise(resolve => {
             this.props.firebase.getUserData(athlete.athleteUID)
@@ -1216,8 +1228,8 @@ class ManageCoachTeamsPage extends Component {
         payLoad[teamPath + '/description'] = teamDescription
         payLoad[teamPath + '/programs'] = programsObject
 
-        // console.log(payLoad)
-        this.props.firebase.createTeamUpstream(payLoad)
+        console.log(payLoad)
+        // this.props.firebase.createTeamUpstream(payLoad)
     }
 
 
@@ -1246,13 +1258,19 @@ class ManageCoachTeamsPage extends Component {
                         Your Teams
                     </div>
                     <div id='createTeamBtnContainer'>
-                        <CreateTeamModal
+                        <Button
+                            onClick={() => { this.handleCreateTeamRedirect() }}
+                            className="lightPurpleButton"
+                        >
+                            Create Team
+                        </Button>
+                        {/* <CreateTeamModal
                             currTeamListArray={currTeamListArray}
                             athleteTableData={athleteTableData}
                             programTableData={programTableData}
                             programGroupTableData={programGroupTableData}
                             handleFormSubmit={this.handleCreateTeam}
-                        />
+                        /> */}
                     </div>
                 </div>
                 {
