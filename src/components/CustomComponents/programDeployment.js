@@ -298,16 +298,15 @@ const initProgDeployCoachProgramTableData = (programs) => {
     var tableData = []
     var userObject = {}
     console.log(programs)
-    if (userObject.currentPrograms !== undefined) {
-        Object.keys(userObject.currentPrograms).forEach(programName => {
-            var program = userObject.currentPrograms[programName]
+    if (programs) {
+        programs.forEach(program => {
             tableData.push({
-                program: programName.split('_')[0],
-                loadingScheme: loadingSchemeString(program.loading_scheme),
+                program: program.name,
+                loadingScheme: loadingSchemeString(program.loadingScheme),
                 acutePeriod: program.acutePeriod,
                 chronicPeriod: program.chronicPeriod,
-                programLength: program.currentDayInProgram % 7,
-                programUID: programName
+                programLength: program.currentDay % 7,
+                programUID: program.programUID
             })
         })
         return tableData

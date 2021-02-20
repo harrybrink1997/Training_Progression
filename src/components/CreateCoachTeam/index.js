@@ -4,6 +4,7 @@ import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import { Loader, Button } from 'semantic-ui-react';
 import * as ROUTES from '../../constants/routes'
 import ProgramDeployment, { initProgDeployCoachProgGroupTableData, initProgDeployCoachProgramTableData } from '../CustomComponents/programDeployment';
+import CreateCoachTeamForm from './createCoachTeamForm'
 
 class CreateCoachTeamPage extends Component {
 
@@ -27,7 +28,8 @@ class CreateCoachTeamPage extends Component {
                 this.setState({
                     athleteData: this.initAthleteData(snap.currentAthletes),
                     programGroupData: initProgDeployCoachProgGroupTableData(snap.programGroups),
-                    programData: initProgDeployCoachProgramTableData(snap.programs)
+                    programData: initProgDeployCoachProgramTableData(snap.programs),
+                    pageBodyContentLoading: false
                 })
             })
         })
@@ -71,6 +73,111 @@ class CreateCoachTeamPage extends Component {
     }
 
 
+    handleCreateTeam = (teamName, teamDescription, athleteData, programData) => {
+
+        console.log(teamName)
+        console.log(teamDescription)
+        console.log(athleteData)
+        console.log(programData)
+
+        var payLoad = {}
+        var programsObject = {}
+        var timestamp = new Date().getTime()
+
+        var athletePath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/`
+        var teamPath = `/users/${this.props.firebase.auth.currentUser.uid}/teams/${teamName}`
+
+
+        if (programData.unlimited) {
+            programsObject.unlimited = {}
+            programData.unlimited.forEach(program => {
+                programsObject.unlimited[program.programUID] = {
+                    dateSet: [timestamp]
+                }
+            })
+        }
+
+        if (programData.sequential) {
+            programsObject.sequential = {}
+            programData.sequential.forEach(program => {
+                programsObject.sequential[program.programUID] = {
+                    dateSet: [{
+                        order:
+                            programData.sequenceName === 'preDetermined' ?
+                                program.order
+                                :
+                                program.order
+                                + '_' + programData.sequenceName
+                                + '_' + teamName
+                                + '_' + this.props.firebase.auth.currentUser.uid
+                                + '_' + timestamp,
+                        date: timestamp
+                    }]
+                }
+            })
+        }
+
+        athleteData.forEach(athlete => {
+            payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/joiningDate'] = timestamp
+            payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/activeMember'] = true
+
+
+            if (programData.unlimited) {
+                programData.unlimited.forEach(program => {
+
+                    var insertionProgramObject = this.state.currentProgramsData[program.programUID]
+                    insertionProgramObject.currentDayInProgram = 1
+                    insertionProgramObject.deploymentDate = timestamp
+
+                    // Database path to insert into the athletes pending programs.
+                    payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
+                    // Database path to keep track of what programs have been shared with which athlete and when.
+                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = [timestamp]
+                })
+            }
+
+            if (programData.sequential) {
+                programData.sequential.forEach(program => {
+
+                    var isActiveInSequence = false
+                    if (programData.sequenceName === 'preDetermined') {
+                        if (parseInt(program.order.split('_')[0]) === 1) {
+                            isActiveInSequence = true
+                        }
+                    } else {
+                        if (parseInt(program.order) === 1) {
+                            isActiveInSequence = true
+                        }
+                    }
+
+                    var insertionProgramObject = this.state.currentProgramsData[program.programUID]
+                    insertionProgramObject.currentDayInProgram = 1
+                    insertionProgramObject.isActiveInSequence = isActiveInSequence
+                    insertionProgramObject.order =
+                        programData.sequenceName === 'preDetermined' ?
+                            program.order
+                            :
+                            program.order
+                            + '_' + programData.sequenceName
+                            + '_' + teamName
+                            + '_' + this.props.firebase.auth.currentUser.uid
+                            + '_' + timestamp
+                    insertionProgramObject.deploymentDate = timestamp
+
+                    payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
+
+                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = [timestamp]
+                })
+            }
+        })
+
+        payLoad[teamPath + '/description'] = teamDescription
+        payLoad[teamPath + '/programs'] = programsObject
+
+        console.log(payLoad)
+        // this.props.firebase.createTeamUpstream(payLoad)
+    }
+
     handleManageTeamsRedirect = () => {
         this.props.history.push(ROUTES.MANAGE_COACH_TEAMS)
     }
@@ -102,9 +209,32 @@ class CreateCoachTeamPage extends Component {
                 </div>
             </NonLandingPageWrapper>
 
+        let nonLoadingHTML =
+            <NonLandingPageWrapper>
+                <div className='rowContainer clickableDiv'>
+                    <Button
+                        content='Back'
+                        className='backButton-inverted'
+                        circular
+                        icon='arrow left'
+                        onClick={() => { this.handleManageTeamsRedirect() }}
+                    />
+                </div>
+                <div>
+                    <CreateCoachTeamForm
+                        currTeamListArray={['none']}
+                        athleteTableData={athleteData}
+                        programTableData={programData}
+                        programGroupTableData={programGroupData}
+                        handleFormSubmit={this.handleCreateTeam}
+                    />
+                </div>
+            </NonLandingPageWrapper>
+
         return (
             <>
                 {pageBodyContentLoading && pageBodyContentLoadingHTML}
+                {!pageBodyContentLoading && nonLoadingHTML}
             </>
         )
     }

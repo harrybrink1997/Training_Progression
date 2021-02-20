@@ -9,27 +9,27 @@ div {
 
 /*colors all input text */
 input {
-    background: #333333;
-    color: white;
-    height: 40px;
-    border-radius: 5px;
-    width: 100%;
-    outline: 0px;
-    border: none;
+    background: #333333 !important;
+    color: white !important;
+    height: 40px !important;
+    border-radius: 5px !important;
+    width: 100% !important;
+    outline: 0px !important;
+    border: none !important;
 }
 
 /*Colour of input focus */
 input:focus {
-    box-shadow: 0 0 5px #BB86FC;
-    border: 1px solid #BB86FC;
+    box-shadow: 0 0 5px #BB86FC !important;
+    border: 1px solid #BB86FC !important;
     background: #333333 !important;
     color: white !important;
 }
 
 /*Colour of input focus text selection*/
 input::selection {
-    background: #BB86FC;
-    color: white;
+    background: #BB86FC !important;
+    color: white !important;
 }
 
 /*colors all input text */

@@ -289,7 +289,9 @@ class Firebase {
                         } else {
                             var payload = []
                             snap.docs.forEach(doc => {
-                                payload.push(doc.data())
+                                var insertObj = doc.data()
+                                insertObj.programUID = doc.id
+                                payload.push(insertObj)
                             })
                             res(payload)
                         }
