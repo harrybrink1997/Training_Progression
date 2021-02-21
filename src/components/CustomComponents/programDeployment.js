@@ -296,9 +296,7 @@ const initProgDeployCoachProgGroupTableData = (programGroups) => {
 
 const initProgDeployCoachProgramTableData = (programs) => {
     var tableData = []
-    var userObject = {}
-    console.log(programs)
-    if (programs) {
+    if (programs.length > 0) {
         programs.forEach(program => {
             tableData.push({
                 program: program.name,

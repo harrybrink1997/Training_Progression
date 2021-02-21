@@ -289,9 +289,7 @@ class Firebase {
                         } else {
                             var payload = []
                             snap.docs.forEach(doc => {
-                                var insertObj = doc.data()
-                                insertObj.programUID = doc.id
-                                payload.push(insertObj)
+                                payload.push(doc.data())
                             })
                             res(payload)
                         }
@@ -311,11 +309,11 @@ class Firebase {
             }, { merge: true })
     }
 
-    createProgramDB = (programUID, programData, goalData) => {
+    createProgramDB = (programData, goalData) => {
         const batch = this.database.batch()
 
         batch.set(
-            this.database.collection('programs').doc(programUID),
+            this.database.collection('programs').doc(),
             programData
         )
 
@@ -339,7 +337,6 @@ class Firebase {
                 this.getCoachCurrentAthletes(coachUID),
                 this.getUserPrograms(coachUID, 'coach')
             ]).then(snap => {
-
                 res({
                     programGroups: snap[0],
                     currentAthletes: snap[1],
@@ -361,7 +358,7 @@ class Firebase {
                     if (snap.exists) {
                         res(snap.data())
                     } else {
-                        return undefined
+                        res(undefined)
                     }
                 })
         })
@@ -397,6 +394,7 @@ class Firebase {
                                     index++
                                 })
                                 res(payload)
+
                             })
                     }
                 })
@@ -404,7 +402,38 @@ class Firebase {
     }
 
 
-    deleteProgramDB = (programUID) => {
+    deleteProgramDB = (programUID, userType, userUID) => {
+
+        if (userType === 'athlete') {
+            return this.database
+                .collection('programs')
+                .where('programUID', '==', programUID)
+                .where('athlete', '==', userUID)
+                .get()
+                .then(snap => {
+                    const docUID = snap.docs[0].id
+                    return this.database
+                        .collection('programs')
+                        .doc(docUID)
+                        .delete()
+
+                })
+        } else {
+            return this.database
+                .collection('programs')
+                .where('programUID', '==', programUID)
+                .where('owner', '==', userUID)
+                .get()
+                .then(snap => {
+                    const docUID = snap.docs[0].id
+                    return this.database
+                        .collection('programs')
+                        .doc(docUID)
+                        .delete()
+
+                })
+        }
+
         return this.database
             .collection('programs')
             .doc(programUID)
@@ -446,7 +475,6 @@ class Firebase {
     }
 
     addExerciseDB = (programID, day, exData) => {
-        console.log(exData)
         return this.database
             .collection('programs')
             .doc(programID)
@@ -465,7 +493,6 @@ class Firebase {
             .get()
             .then(snapshot => {
                 const data = snapshot.data()
-                console.log(data)
                 if (Object.keys(data).length > 1) {
                     this.database
                         .collection('programs')
@@ -680,7 +707,6 @@ class Firebase {
 
     copyExerciseDataDB = (programUID, payload) => {
 
-        console.log(payload)
         const batch = this.database.batch()
 
         Object.keys(payload).forEach(day => {

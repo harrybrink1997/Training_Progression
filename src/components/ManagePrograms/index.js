@@ -1199,7 +1199,11 @@ class ManageProgramsPage extends Component {
                 loadingScheme: loadingScheme,
                 creationDate: timestamp,
                 currentDay: 1,
-                status: 'current'
+                status: 'current',
+                programUID:
+                    programName
+                    + '_' + this.props.firebase.auth.currentUser.uid
+                    + '_' + timestamp
 
             }
 
@@ -1257,7 +1261,6 @@ class ManageProgramsPage extends Component {
             console.log(payload)
 
             this.props.firebase.createProgramDB(
-                newProg.generateProgramUID(),
                 payload,
                 goalListArr
             )
@@ -1314,7 +1317,11 @@ class ManageProgramsPage extends Component {
                 progManageTableData: newTableData
             }))
 
-            this.props.firebase.deleteProgramDB(programUID)
+            this.props.firebase.deleteProgramDB(
+                programUID,
+                this.state.user.getUserType(),
+                this.state.user.getID()
+            )
         })
     }
 
