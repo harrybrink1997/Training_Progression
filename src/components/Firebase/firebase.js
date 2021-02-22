@@ -401,6 +401,24 @@ class Firebase {
         })
     }
 
+    createTeamDB = (coachUID, coachPayload, athletePayload, athleteList, progInfo) => {
+        console.log(coachUID)
+        console.log(coachPayload)
+        console.log(athletePayload)
+        console.log(athleteList)
+        console.log(progInfo)
+
+        return new Promise((res, rej) => {
+            if (progInfo.length > 0) {
+                var promises = []
+
+                Promise.all(promises).then(programs => {
+                    console.log(programs)
+                })
+
+            }
+        })
+    }
 
     deleteProgramDB = (programUID, userType, userUID) => {
 
@@ -474,13 +492,39 @@ class Firebase {
             .get()
     }
 
-    addExerciseDB = (programID, day, exData) => {
-        return this.database
-            .collection('programs')
-            .doc(programID)
-            .collection('exercises')
-            .doc(day)
-            .set(exData, { merge: true })
+    addExerciseDB = (isCoach, userUID, programUID, day, exData) => {
+        if (isCoach) {
+            return this.database
+                .collection('programs')
+                .where('owner', '==', userUID)
+                .where('programUID', '==', programUID)
+                .get()
+                .then(snap => {
+                    var docUID = snap.docs[0].id
+                    this.database
+                        .collection('programs')
+                        .doc(docUID)
+                        .collection('exercises')
+                        .doc(day)
+                        .set(exData, { merge: true })
+                })
+        } else {
+            return this.database
+                .collection('programs')
+                .where('athlete', '==', userUID)
+                .where('programUID', '==', programUID)
+                .get()
+                .then(snap => {
+                    var docUID = snap.docs[0].id
+                    this.database
+                        .collection('programs')
+                        .doc(docUID)
+                        .collection('exercises')
+                        .doc(day)
+                        .set(exData, { merge: true })
+                })
+        }
+
     }
 
     deleteExerciseDB = (programID, day, exUID) => {

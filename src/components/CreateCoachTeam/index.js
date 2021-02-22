@@ -27,7 +27,8 @@ class CreateCoachTeamPage extends Component {
                     athleteData: this.initAthleteData(snap.currentAthletes),
                     programGroupData: initProgDeployCoachProgGroupTableData(snap.programGroups),
                     programData: initProgDeployCoachProgramTableData(snap.programs),
-                    pageBodyContentLoading: false
+                    pageBodyContentLoading: false,
+                    createTeamProcessing: true
                 })
             })
         })
@@ -72,32 +73,65 @@ class CreateCoachTeamPage extends Component {
 
     handleCreateTeam = (teamName, teamDescription, athleteData, programData) => {
 
-        console.log(teamName)
-        console.log(teamDescription)
-        console.log(athleteData)
-        console.log(programData)
+        this.setState({
+            createTeamProcessing: true
+        }, () => {
 
-        var payLoad = {}
-        var programsObject = {}
+        })
         var timestamp = new Date().getTime()
 
-        var athletePath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/`
-        var teamPath = `/users/${this.props.firebase.auth.currentUser.uid}/teams/${teamName}`
 
+        var coachPayload = {
+            teamName: teamName,
+            description: teamDescription,
+            creationDate: timestamp
+        }
+
+        var athletePayload = {
+            owner: this.props.firebase.auth.currentUser.uid,
+            teamName: teamName,
+            joiningDate: timestamp
+        }
+
+        var athleteList = athleteData.map(athlete => {
+            return athlete.uid
+        })
+
+        var progInfo = []
 
         if (programData.unlimited) {
-            programsObject.unlimited = {}
+
+            coachPayload.programs = {
+                unlimited: {}
+            }
+
             programData.unlimited.forEach(program => {
-                programsObject.unlimited[program.programUID] = {
+                coachPayload.programs.unlimited[program.programUID] = {
                     dateSet: [timestamp]
                 }
+
+                progInfo.push({
+                    name: program.programUID,
+                    isUnlimited: true,
+                    deploymentDate: timestamp
+                })
             })
+
         }
 
         if (programData.sequential) {
-            programsObject.sequential = {}
+
+            if (coachPayload.programs) {
+                coachPayload.programs.sequential = {}
+
+            } else {
+                coachPayload.programs = {
+                    sequential: {}
+                }
+            }
+
             programData.sequential.forEach(program => {
-                programsObject.sequential[program.programUID] = {
+                coachPayload.programs.sequential[program.programUID] = {
                     dateSet: [{
                         order:
                             programData.sequenceName === 'preDetermined' ?
@@ -111,46 +145,25 @@ class CreateCoachTeamPage extends Component {
                         date: timestamp
                     }]
                 }
-            })
-        }
-
-        athleteData.forEach(athlete => {
-            payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/joiningDate'] = timestamp
-            payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/activeMember'] = true
 
 
-            if (programData.unlimited) {
-                programData.unlimited.forEach(program => {
-
-                    var insertionProgramObject = this.state.currentProgramsData[program.programUID]
-                    insertionProgramObject.currentDayInProgram = 1
-                    insertionProgramObject.deploymentDate = timestamp
-
-                    // Database path to insert into the athletes pending programs.
-                    payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
-                    // Database path to keep track of what programs have been shared with which athlete and when.
-                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = [timestamp]
-                })
-            }
-
-            if (programData.sequential) {
-                programData.sequential.forEach(program => {
-
-                    var isActiveInSequence = false
-                    if (programData.sequenceName === 'preDetermined') {
-                        if (parseInt(program.order.split('_')[0]) === 1) {
-                            isActiveInSequence = true
-                        }
-                    } else {
-                        if (parseInt(program.order) === 1) {
-                            isActiveInSequence = true
-                        }
+                var isActiveInSequence = false
+                if (programData.sequenceName === 'preDetermined') {
+                    if (parseInt(program.order.split('_')[0]) === 1) {
+                        isActiveInSequence = true
                     }
+                } else {
+                    if (parseInt(program.order) === 1) {
+                        isActiveInSequence = true
+                    }
+                }
 
-                    var insertionProgramObject = this.state.currentProgramsData[program.programUID]
-                    insertionProgramObject.currentDayInProgram = 1
-                    insertionProgramObject.isActiveInSequence = isActiveInSequence
-                    insertionProgramObject.order =
+                progInfo.push({
+                    name: program.programUID,
+                    isUnlimited: false,
+                    deploymentDate: timestamp,
+                    isActiveInSequence: isActiveInSequence,
+                    order:
                         programData.sequenceName === 'preDetermined' ?
                             program.order
                             :
@@ -159,20 +172,17 @@ class CreateCoachTeamPage extends Component {
                             + '_' + teamName
                             + '_' + this.props.firebase.auth.currentUser.uid
                             + '_' + timestamp
-                    insertionProgramObject.deploymentDate = timestamp
-
-                    payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
-
-                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = [timestamp]
                 })
-            }
-        })
+            })
+        }
 
-        payLoad[teamPath + '/description'] = teamDescription
-        payLoad[teamPath + '/programs'] = programsObject
-
-        console.log(payLoad)
-        // this.props.firebase.createTeamUpstream(payLoad)
+        this.props.firebase.createTeamDB(
+            this.props.firebase.auth.currentUser.uid,
+            coachPayload,
+            athletePayload,
+            athleteList,
+            progInfo
+        )
     }
 
     handleManageTeamsRedirect = () => {

@@ -19,7 +19,7 @@ import AddGoalsForm from './addGoalsForm'
 import { LoadingSpreadStatsTable } from '../CurrentProgram/statsTable'
 import ErrorBanner from '../CustomComponents/errorBanner'
 
-const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, nullExerciseData, submitProcessingBackend, rawAnatomyData, userType }) => {
+const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, nullExerciseData, submitProcessingBackend, rawAnatomyData, userType, developmentMode }) => {
 
     // Loading variables.
     const [firstRender, setFirstRender] = useState(true)
@@ -38,6 +38,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     const [pageView, setPageView] = useState(
         userType === 'athlete' ? 'program' : 'overview'
     )
+    const isDevelopmentMode = developmentMode
     // const [currExerciseView, setCurrExerciseView] = useState('availExercises')
 
     const handleChangeDaysOpenView = (day) => {
@@ -235,7 +236,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             currentDay: rawProgramData.currentDay,
             currentDayUI: rawProgramData.currentDay,
             openDaysUI: [false, false, false, false, false, false, false],
-            currButtonView: initCurrButtonView(rawProgramData.order, rawProgramData.isActiveInSequence, rawProgramData.currentDay),
+            currButtonView: initCurrButtonView(rawProgramData.order, rawProgramData.isActiveInSequence, rawProgramData.currentDay, isDevelopmentMode),
             startDayUTS: rawProgramData.startDayUTS
         }
 
@@ -470,8 +471,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         }
     }
 
-    const initCurrButtonView = (order, isActiveInSequence, currentDay) => {
-        if (!order || isActiveInSequence) {
+    const initCurrButtonView = (order, isActiveInSequence, currentDay, developmentMode) => {
+        if ((!order || isActiveInSequence) && !developmentMode) {
 
             return {
                 nextWeek: false,
@@ -553,26 +554,28 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     }
 
     const initialiseProgressionData = (rawProgramData) => {
-        if (rawProgramData.currentDay === 1) {
-            return undefined
-        } else if (rawProgramData.order && !rawProgramData.isActiveInSequence) {
-            return undefined
-        } else {
+        if (!isDevelopmentMode) {
+            if (rawProgramData.currentDay === 1) {
+                return undefined
+            } else if (rawProgramData.order && !rawProgramData.isActiveInSequence) {
+                return undefined
+            } else {
 
-            console.log({
-                ACWRGraphProps: generateACWRGraphData(rawProgramData, rawAnatomyData),
-                rollingAverageGraphProps: generateSafeLoadGraphProps(rawProgramData, rawAnatomyData),
-                currentBodyPart: 'Overall_Total',
-                currMuscleGroupOpen: 'Arms',
+                console.log({
+                    ACWRGraphProps: generateACWRGraphData(rawProgramData, rawAnatomyData),
+                    rollingAverageGraphProps: generateSafeLoadGraphProps(rawProgramData, rawAnatomyData),
+                    currentBodyPart: 'Overall_Total',
+                    currMuscleGroupOpen: 'Arms',
 
-            })
+                })
 
-            return {
-                ACWRGraphProps: generateACWRGraphData(rawProgramData, rawAnatomyData),
-                rollingAverageGraphProps: generateSafeLoadGraphProps(rawProgramData, rawAnatomyData),
-                currentBodyPart: 'Overall_Total',
-                currMuscleGroupOpen: 'Arms',
+                return {
+                    ACWRGraphProps: generateACWRGraphData(rawProgramData, rawAnatomyData),
+                    rollingAverageGraphProps: generateSafeLoadGraphProps(rawProgramData, rawAnatomyData),
+                    currentBodyPart: 'Overall_Total',
+                    currMuscleGroupOpen: 'Arms',
 
+                }
             }
         }
     }
@@ -790,8 +793,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                     var newExID = reverseExComp.reverse().join("_")
 
                     var dbObject = { ...weekData[exercise] }
-                    // delete dbObject.deleteButton
-                    // delete dbObject.uid
+
 
                     insertData[convertUIDayToTotalDays(insertionDay, programData.currentDay)][newExID] = dbObject
                     frontEndData[convertUIDayToTotalDays(insertionDay, programData.currentDay)][newExID] = weekData[exercise]
@@ -914,7 +916,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                     currButtonView: initCurrButtonView(
                         true,
                         false,
-                        currDay
+                        currDay,
+                        isDevelopmentMode
                     ),
                     exerciseListPerDay: updatedDailyExerciseList(newProgramData.rawData, handleDeleteExerciseButton, handleUpdateExercise)
                 }
@@ -966,11 +969,13 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     useEffect(() => {
         if (programData) {
             programDataRef.current = programData
-            console.log(programData.rawData)
-            setSafeLoadData({
-                type: SAFE_LOAD_ACTIONS.REFRESH,
-                payload: programData.rawData
-            })
+
+            if (!isDevelopmentMode) {
+                setSafeLoadData({
+                    type: SAFE_LOAD_ACTIONS.REFRESH,
+                    payload: programData.rawData
+                })
+            }
             if (!programLoaded) {
                 setProgramLoaded(true)
             }
@@ -1031,7 +1036,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                 </ErrorBanner>
             }
             {
-                programData.startDayUTS ?
+                programData.startDayUTS || isDevelopmentMode ?
                     <>
                         <div className='rowContainer centred-info sml-margin-top'>
                             {
@@ -1065,70 +1070,73 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                             </Button>
                             }
                         </div>
-                        <div className='rowContainer'>
-                            <div className='pageContainerLevel1 half-width'>
-                                <div >
-                                    <div className='graphTitle'>
-                                        Goals
+                        {
+                            !isDevelopmentMode &&
+                            <div className='rowContainer'>
+                                <div className='pageContainerLevel1 half-width'>
+                                    <div >
+                                        <div className='graphTitle'>
+                                            Goals
                                     </div>
-                                    <div onClick={() => setGoalTableVisible(!goalTableVisible)}>
-                                        {
-                                            goalTableVisible &&
-                                            <Icon name='toggle on' style={{ fontSize: '20px' }} />
-                                        }
-                                        {
-                                            !goalTableVisible &&
-                                            <Icon name='toggle off' style={{ fontSize: '20px' }} />
-                                        }
-                                    </div>
-                                </div>
-                                {
-                                    goalTableVisible &&
-                                    <div>
-                                        <GoalsTable
-                                            data={goalData.tableData}
-                                            expandedRowsHandler={handleGoalTableExpRowUpdate}
-                                            expandedRows={goalData.expandedRows}
-                                        />
-                                        <div className='goalsPromptBtnContainer'>
-                                            <AddGoalsForm
-                                                buttonText='Create More Goals'
-                                                headerText='Create More Goals'
-                                                handleFormSubmit={handleAddMainGoal}
-                                                newMainGoalUID={goalData.newMainGoalUID}
-                                                triggerElement={
-                                                    <Button
-                                                        className='lightPurpleButton-inverted'>
-                                                        Add More Goals
-                                            </Button>
-                                                }
-                                            />
+                                        <div onClick={() => setGoalTableVisible(!goalTableVisible)}>
+                                            {
+                                                goalTableVisible &&
+                                                <Icon name='toggle on' style={{ fontSize: '20px' }} />
+                                            }
+                                            {
+                                                !goalTableVisible &&
+                                                <Icon name='toggle off' style={{ fontSize: '20px' }} />
+                                            }
                                         </div>
                                     </div>
-                                }
-                            </div>
-                            <div className='pageContainerLevel1 half-width'>
-                                <div >
-                                    <div className='graphTitle'>
-                                        Predicted Safe Loads
-                                    </div>
-                                    <div onClick={() => setSafeLoadTableVisible(!safeLoadTableVisible)}>
-                                        {
-                                            safeLoadTableVisible &&
-                                            <Icon name='toggle on' style={{ fontSize: '20px' }} />
-                                        }
-                                        {
-                                            !safeLoadTableVisible &&
-                                            <Icon name='toggle off' style={{ fontSize: '20px' }} />
-                                        }
-                                    </div>
+                                    {
+                                        goalTableVisible &&
+                                        <div>
+                                            <GoalsTable
+                                                data={goalData.tableData}
+                                                expandedRowsHandler={handleGoalTableExpRowUpdate}
+                                                expandedRows={goalData.expandedRows}
+                                            />
+                                            <div className='goalsPromptBtnContainer'>
+                                                <AddGoalsForm
+                                                    buttonText='Create More Goals'
+                                                    headerText='Create More Goals'
+                                                    handleFormSubmit={handleAddMainGoal}
+                                                    newMainGoalUID={goalData.newMainGoalUID}
+                                                    triggerElement={
+                                                        <Button
+                                                            className='lightPurpleButton-inverted'>
+                                                            Add More Goals
+                                            </Button>
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
-                                {
-                                    safeLoadTableVisible &&
-                                    <LoadingSpreadStatsTable data={safeLoadData.tableData} />
-                                }
+                                <div className='pageContainerLevel1 half-width'>
+                                    <div >
+                                        <div className='graphTitle'>
+                                            Predicted Safe Loads
+                                    </div>
+                                        <div onClick={() => setSafeLoadTableVisible(!safeLoadTableVisible)}>
+                                            {
+                                                safeLoadTableVisible &&
+                                                <Icon name='toggle on' style={{ fontSize: '20px' }} />
+                                            }
+                                            {
+                                                !safeLoadTableVisible &&
+                                                <Icon name='toggle off' style={{ fontSize: '20px' }} />
+                                            }
+                                        </div>
+                                    </div>
+                                    {
+                                        safeLoadTableVisible &&
+                                        <LoadingSpreadStatsTable data={safeLoadData.tableData} />
+                                    }
+                                </div>
                             </div>
-                        </div>
+                        }
                         <div className='rowContainer'>
                             <div className='pageContainerLevel1 half-width'>
                                 <ProgramHistToggle

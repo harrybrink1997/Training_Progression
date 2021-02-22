@@ -393,10 +393,9 @@ class ManageProgramsPage extends Component {
         var payload = {}
         payload[exUID] = dataPayload
 
-        console.log(payload)
-        console.log(this.state.currProgram.programUID)
-
         this.props.firebase.addExerciseDB(
+            this.state.user.getUserType() === 'coach',
+            this.props.firebase.auth.currentUser.uid,
             this.state.currProgram.programUID,
             insertionDay,
             payload
@@ -1465,6 +1464,7 @@ class ManageProgramsPage extends Component {
                 {
                     view === this.PAGE_VIEWS.PROG_VIEW_HOME && currProgram &&
                     <ProgramView
+                        developmentMode={user.getUserType() === 'coach'}
                         userType={user.getUserType()}
                         data={currProgram.programData}
                         availExData={currProgram.availExData}

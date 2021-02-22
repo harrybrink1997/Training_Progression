@@ -186,12 +186,18 @@ const ProgramDeployment = ({ initProgTabData, submitHandler, initProgGroupTabDat
                 </div>
             }
             {
-                pageNum === 2 &&
+                pageNum === 2 && initProgGroupTabData &&
                 <OnRowClickBasicTableWithPageination
                     columns={initProgGroupTabColumns}
                     data={initProgGroupTabData}
                     rowClickHandler={handleProgramGroupSelection}
                 />
+            }
+            {
+                pageNum === 2 && !initProgGroupTabData &&
+                <div className='tableHeader'>
+                    You have no program groups to select from.
+                </div>
             }
             {
                 pageNum === 3 && initProgTabData &&
