@@ -527,11 +527,10 @@ class Firebase {
 
     }
 
-    deleteExerciseDB = (programID, day, exUID) => {
-
+    deleteExerciseDBHelper = (docUID, day, exUID) => {
         return this.database
             .collection('programs')
-            .doc(programID)
+            .doc(docUID)
             .collection('exercises')
             .doc(day)
             .get()
@@ -540,7 +539,7 @@ class Firebase {
                 if (Object.keys(data).length > 1) {
                     this.database
                         .collection('programs')
-                        .doc(programID)
+                        .doc(docUID)
                         .collection('exercises')
                         .doc(day)
                         .update({
@@ -552,7 +551,7 @@ class Firebase {
                 } else {
                     this.database
                         .collection('programs')
-                        .doc(programID)
+                        .doc(docUID)
                         .collection('exercises')
                         .doc(day)
                         .delete()
@@ -560,15 +559,55 @@ class Firebase {
             })
     }
 
-    updateExerciseDB = (programID, day, exUID, exData) => {
+    deleteExerciseDB = (isCoach, userUID, programUID, day, exUID) => {
+
+        if (isCoach) {
+            return this.database
+                .collection('programs')
+                .where('owner', '==', userUID)
+                .where('programUID', '==', programUID)
+                .get()
+                .then(snap => {
+                    var docUID = snap.docs[0].id
+
+                    return this.deleteExerciseDBHelper(docUID, day, exUID)
+                })
+        } else {
+            return this.database
+                .collection('programs')
+                .where('athlete', '==', userUID)
+                .where('programUID', '==', programUID)
+                .get()
+                .then(snap => {
+                    var docUID = snap.doc[0].id
+
+                    return this.deleteExerciseDBHelper(docUID, day, exUID)
+                })
+        }
+    }
+
+    updateExerciseDB = (isCoach, userUID, programUID, day, exUID, exData) => {
+
+        var searchField = isCoach ? 'owner' : 'athlete'
+
         return this.database
             .collection('programs')
-            .doc(programID)
-            .collection('exercises')
-            .doc(day)
-            .update({
-                [exUID]: exData
+            .where(searchField, '==', userUID)
+            .where('programUID', '==', programUID)
+            .get()
+            .then(snap => {
+                var docUID = snap.docs[0].id
+
+                this.database
+                    .collection('programs')
+                    .doc(docUID)
+                    .collection('exercises')
+                    .doc(day)
+                    .update({
+                        [exUID]: exData
+                    })
             })
+
     }
 
     startProgramDB = (programUID, timestamp) => {
@@ -609,36 +648,50 @@ class Firebase {
 
     }
 
-    getProgramExData = (programUID) => {
+    getProgramExData = (isCoach, userUID, programUID) => {
+
+        var searchField = isCoach ? 'owner' : 'athlete'
+        console.log(searchField)
+        console.log(userUID)
+        console.log(programUID)
         return new Promise((res, rej) => {
             this.database
                 .collection('programs')
-                .doc(programUID)
-                .collection('exercises')
+                .where(searchField, '==', userUID)
+                .where('programUID', '==', programUID)
                 .get()
-                .then(snapshot => {
-                    if (!snapshot.empty) {
-                        var payLoad = {}
-                        snapshot.docs.forEach(doc => {
+                .then(snap => {
+                    var docUID = snap.docs[0].id
 
-                            payLoad[doc.id] = { ...doc.data() }
+                    this.database
+                        .collection('programs')
+                        .doc(docUID)
+                        .collection('exercises')
+                        .get()
+                        .then(snapshot => {
+                            if (!snapshot.empty) {
+                                var payLoad = {}
+                                snapshot.docs.forEach(doc => {
 
+                                    payLoad[doc.id] = { ...doc.data() }
+
+                                })
+                                res(payLoad)
+                            } else {
+                                return res({})
+                            }
                         })
-                        res(payLoad)
-                    } else {
-                        return res({})
-                    }
-                })
-                .catch(error => {
-                    rej(error)
+                        .catch(error => {
+                            rej(error)
+                        })
                 })
 
         })
     }
 
-    getProgramExGoalData = (programUID) => {
+    getProgramExGoalData = (isCoach, userUID, programUID) => {
 
-        var promises = [this.getProgGoalData(programUID), this.getProgramExData(programUID)]
+        var promises = [this.getProgGoalData(programUID), this.getProgramExData(isCoach, userUID, programUID)]
 
         return promises
     }
