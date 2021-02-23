@@ -273,7 +273,7 @@ class Firebase {
                             snap.docs.forEach(doc => {
                                 payload.push(doc.data())
                             })
-                            res(snap)
+                            res(payload)
                         }
                     })
             })

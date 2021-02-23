@@ -29,6 +29,7 @@ class ProgramList {
                 return this.programList[prog]
             }
         }
+        return undefined
     }
 
     setProgramList(value) {
@@ -52,6 +53,33 @@ class ProgramList {
 
         return payLoad
 
+    }
+
+    findRelatedSequentialPrograms = (order) => {
+        var list = this.getProgramList()
+
+        var seqOrderArray = order.split('_')
+        seqOrderArray.shift()
+        var sequenceString = seqOrderArray.join("_")
+        var relatedPrograms = []
+
+        list.forEach(program => {
+            if (program.getOrder()) {
+                if (program.getOrder() !== order) {
+                    var currOrderArray = program.getOrder().split('_')
+                    currOrderArray.shift()
+                    var currSeqString = currOrderArray.join("_")
+
+                    if (sequenceString === currSeqString) {
+                        relatedPrograms.push({
+                            programUID: program.getProgramUID(),
+                            order: program.getOrder()
+                        })
+                    }
+                }
+            }
+        })
+        return relatedPrograms
     }
 }
 

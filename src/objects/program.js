@@ -2,7 +2,9 @@ class Program {
     constructor(data) {
         this.name = data.name
         this.owner = data.owner
+        this.ownerUsername = data.ownerUsername
         this.athlete = data.athlete
+        this.athleteUsername = data.athleteUsername
         this.team = data.team
         this.creationDate = data.creationDate
         this.deploymentDate = data.deploymentDate
@@ -13,6 +15,46 @@ class Program {
         this.chronicPeriod = data.chronicPeriod
         this.order = data.order
         this.isActiveInSequence = data.isActiveInSequence
+        this.programUID = data.programUID
+    }
+
+    checkSameMetaParameters = (program) => {
+        var metaParameters = {
+            'Loading Scheme': false,
+            'Chronic Period': false,
+            'Acute Period': false
+        }
+
+        if (this.getLoadingScheme() === program.getLoadingScheme()) {
+            metaParameters['Loading Scheme'] = true
+        }
+
+        if (this.getChronicPeriod() === program.getChronicPeriod()) {
+            metaParameters['Chronic Period'] = true
+        }
+
+        if (this.getAcutePeriod() === program.getAcutePeriod()) {
+            metaParameters['Acute Period'] = true
+        }
+
+        if (metaParameters['Acute Period'] && metaParameters['Chronic Period'] && metaParameters['Loading Scheme']) {
+            return true
+        }
+
+        return metaParameters
+
+    }
+
+    getOwnerUsername = () => {
+        return this.ownerUsername
+    }
+
+    getAthleteUsername = () => {
+        return this.athleteUsername
+    }
+
+    getProgramUID = () => {
+        return this.programUID
     }
 
     programEqualToUID = (uid) => {
@@ -94,6 +136,14 @@ class Program {
 
     setCurrentDay(value) {
         this.currentDay = value
+    }
+
+    getSequenceName = () => {
+        return this.getOrder().split('_')[1]
+    }
+
+    getPositionInSequence = () => {
+        return this.getOrder().split('_')[0]
     }
 
 }

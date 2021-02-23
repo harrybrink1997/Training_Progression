@@ -3,13 +3,10 @@ import { withAuthorisation } from '../Session';
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import { Dimmer, Loader, List, Button } from 'semantic-ui-react'
 
-import BasicTable from '../CustomComponents/basicTable'
-import ManageProgramsModal from './manageProgramsModal'
-import ManagePendingProgramsModal from './managePendingProgramsModal'
 import CreateProgramModal from './createProgramModal'
 import CreateProgramGroupModal from './createProgramGroupModal'
-import DeleteProgramModal from './deleteProgramModal'
 import loadingSchemeString, { loadingSchemeStringInverse } from '../../constants/loadingSchemeString'
+import ManageProgramTables from './manageProgramTables'
 import { AcceptRequestButton, DeclineRequestButton, AcceptReplaceRequestButton, DeclineReplaceRequestButton } from '../CustomComponents/customButtons'
 import ReplaceProgramOptionsModal from './replaceProgramOptionsModal'
 import OverrideReplaceProgramModal from './overrideReplaceProgramModal'
@@ -85,14 +82,19 @@ class ManageProgramsPage extends Component {
 
                             var pastProgList = new ProgramList(pastPrograms)
 
+                            console.log(currProgList)
+                            console.log(pendingList)
+                            console.log(pastProgList)
+
                             this.setState({
                                 user: userObject,
                                 nonPendingProgList: nonPendingList,
                                 currProgList: currProgList,
                                 pastProgList: pastProgList,
-                                progManageTableData: this.initProgramTableData(nonPendingList, false),
-                                progManageTableColumns: this.initProgramTableColumns(userObject.getUserType()),
                                 pendingProgList: pendingList,
+                                pendingProgTableData: this.initPendingProgramTableData(pendingList, currProgList),
+                                currentProgTableData: this.initCurrentProgramTableData(currProgList, false, userObject.getUserType()),
+                                pastProgTableData: this.initPastProgramTableData(pastProgList, false),
                                 pendProgsModalFootText: (!pendingList.isEmptyList()) && '',
                                 view: this.PAGE_VIEWS.HOME,
                                 pageHistory: new PageHistory(),
@@ -110,6 +112,104 @@ class ManageProgramsPage extends Component {
         });
     }
 
+    initCurrentProgramTableData = (programList, editMode, userType) => {
+        if (programList.isEmptyList()) {
+            return undefined
+        } else {
+            var payload = {
+                columns: this.currentProgTableColumns(userType),
+                data: []
+            }
+
+            if (!editMode) {
+                programList.getProgramList().forEach(prog => {
+                    payload.data.push({
+                        program: prog.getName(),
+                        programUID: prog.generateProgramUID(),
+                        loadingScheme: loadingSchemeString(prog.getLoadingScheme()),
+                        acutePeriod: prog.getAcutePeriod(),
+                        chronicPeriod: prog.getChronicPeriod(),
+                        buttons:
+                            <Button
+                                className='lightPurpleButton-inverted'
+                                onClick={() => { this.handleProgramClick(prog.generateProgramUID()) }}
+                            >
+                                View Program
+                        </Button>
+
+                    })
+                })
+            } else {
+                programList.getProgramList().forEach(prog => {
+                    payload.data.push({
+                        program: prog.getName(),
+                        loadingScheme: loadingSchemeString(prog.getLoadingScheme()),
+                        programUID: prog.generateProgramUID(),
+                        acutePeriod: prog.getAcutePeriod(),
+                        chronicPeriod: prog.getChronicPeriod(),
+                        buttons:
+                            <>
+                                <Button
+                                    className='lightPurpleButton-inverted'
+                                    onClick={() => { this.handleProgramClick(prog.generateProgramUID()) }}
+                                >
+                                    View Program
+                            </Button>
+                                <Button
+                                    className='lightRedButton-inverted'
+                                    onClick={() => { this.handleDeleteProgram(prog.generateProgramUID()) }}
+                                >
+                                    Delete Program
+                            </Button>
+                            </>
+                    })
+                })
+            }
+
+            return payload
+        }
+    }
+
+    initPendingProgramTableData = (programList, currProgList) => {
+        if (programList.isEmptyList()) {
+            return undefined
+        } else {
+
+            var payload = {
+                columns: [
+                    {
+                        Header: 'Program',
+                        accessor: 'program'
+                    },
+                    {
+                        Header: 'Coach',
+                        accessor: 'coach'
+                    },
+                    {
+                        Header: 'Related Programs',
+                        accessor: 'relatedPrograms'
+                    },
+                    {
+                        Header: 'Program Type',
+                        accessor: 'programType'
+                    },
+                    {
+                        accessor: 'buttons'
+                    }
+                ],
+                data: this.generatePendingTableData(programList, currProgList)
+            }
+            return payload
+        }
+    }
+
+    initPastProgramTableData = (list, editMode) => {
+        if (list.isEmptyList()) {
+            return undefined
+        } else {
+
+        }
+    }
 
     handleBackClick = () => {
         this.setState({
@@ -571,7 +671,7 @@ class ManageProgramsPage extends Component {
         )
     }
 
-    initProgramTableColumns = (userType) => {
+    currentProgTableColumns = (userType) => {
         if (userType === 'coach') {
             return (
                 [
@@ -663,27 +763,22 @@ class ManageProgramsPage extends Component {
         // }
     }
 
-    programInCurrentPrograms = (userObject, programName) => {
-        if (!userObject.currentPrograms) {
+    programInCurrentPrograms = (list, programUID) => {
+
+        var prog = list.getProgram(programUID)
+
+        if (!prog) {
             return {
                 inCurrProg: false,
-                programUID: programName
+                programUID: programUID
             }
         } else {
-            for (var program in userObject.currentPrograms) {
-                if (program === programName) {
-                    return {
-                        inCurrProg: true,
-                        order: userObject.currentPrograms[program].order,
-                        isActiveInSequence: userObject.currentPrograms[program].isActiveInSequence,
-                        currentDayInProgram: userObject.currentPrograms[program].currentDayInProgram,
-                        programUID: program
-                    }
-                }
-            }
             return {
-                inCurrProg: false,
-                programUID: programName
+                inCurrProg: true,
+                order: prog.getOrder(),
+                isActiveInSequence: prog.getIsActiveInSequence(),
+                currentDayInProgram: prog.getCurrentDay(),
+                programUID: programUID
             }
         }
     }
@@ -702,6 +797,11 @@ class ManageProgramsPage extends Component {
     }
 
     handlePendingProgramReplacement = (programName, replacementType, currentDayInProgram) => {
+
+        console.log(programName)
+        console.log(replacementType)
+        console.log(currentDayInProgram)
+
         // Handles the replacement of unlimited programs not sequential programs. That is more involved and found in another function. 
         var basePath =
             '/users/'
@@ -767,151 +867,119 @@ class ManageProgramsPage extends Component {
         payload[pendingPath] = null
 
         // console.log(payload)
-        this.props.firebase.updateDatabaseFromRootPath(payload)
+        // this.props.firebase.updateDatabaseFromRootPath(payload)
     }
 
-    checkSameMetaParameters = (userObject, programName) => {
-        var metaParameters = {
-            'Loading Scheme': false,
-            'Chronic Period': false,
-            'Acute Period': false
-        }
-        if (!userObject.currentPrograms) {
-            return metaParameters
-        } else {
-            if (!userObject.currentPrograms[programName]) {
-                return metaParameters
-            } else {
-                if (userObject.currentPrograms[programName].loading_scheme === userObject.pendingPrograms[programName].loading_scheme) {
-                    metaParameters['Loading Scheme'] = true
-                }
-
-                if (userObject.currentPrograms[programName].chronicPeriod === userObject.pendingPrograms[programName].chronicPeriod) {
-                    metaParameters['Chronic Period'] = true
-                }
-
-                if (userObject.currentPrograms[programName].acutePeriod === userObject.pendingPrograms[programName].acutePeriod) {
-                    metaParameters['Acute Period'] = true
-                }
-                if (metaParameters['Acute Period'] && metaParameters['Chronic Period'] && metaParameters['Loading Scheme']) {
-                    return true
-                }
-
-                return metaParameters
-            }
-
-        }
-    }
-
-    initPendingProgramsTableData = (userObject) => {
-        if (userObject.pendingPrograms) {
+    generatePendingTableData = (programList, currentProgList) => {
+        if (!programList.isEmptyList()) {
             var tableData = []
 
-            Object.keys(userObject.pendingPrograms).forEach(programName => {
-                var program = userObject.pendingPrograms[programName]
-                var currentProgramInfo = this.programInCurrentPrograms(userObject, programName)
+            programList.getProgramList().forEach(program => {
+                var currentProgramInfo = this.programInCurrentPrograms(currentProgList, program.getProgramUID())
                 // If the pending program is an unlimited program. 
-                if (program.order === undefined) {
+                if (!program.getOrder()) {
                     // If the current program is already in the athletes current programs data.
                     if (currentProgramInfo.inCurrProg) {
-                        // Check if there is a metaParameter mismatch if there is. A full replace is required. Cannot migrate old program data to the new program. 
-                        var noMetaParameterMismatch = this.checkSameMetaParameters(userObject, programName)
+                        // Check if there is a metaParameter mismatch if there is. A full replace is required. Cannot migrate old program data to the new program.
+                        var currentVersion = currentProgList.getProgram(program.getProgramUID())
+
+
+                        var noMetaParameterMismatch = program.checkSameMetaParameters(currentVersion)
 
                         if (noMetaParameterMismatch === true) {
 
                             // If the program in current program is an unlimited program or is an active program is a current sequence. A migration option is offered.
                             if (currentProgramInfo.order === undefined || currentProgramInfo.isActiveInSequence === true) {
                                 tableData.push({
-                                    program: programName.split('_')[0],
-                                    coach: userObject.teams[programName.split('_')[1]].username,
+                                    program: program.getName(),
+                                    coach: program.getOwnerUsername(),
                                     relatedPrograms: 'None',
                                     programType: 'Stand-Alone',
                                     buttons:
                                         <div>
                                             <ReplaceProgramOptionsModal
                                                 handleFormSubmit={this.handlePendingProgramReplacement}
-                                                programUID={programName}
-                                                currentDayInProgram={userObject.currentPrograms[programName].currentDayInProgram}
+                                                programUID={program.getProgramUID()}
+                                                currentDayInProgram={program.getCurrentDay()}
                                             />
-                                            <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
+                                            <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={program.getProgramUID()} />
                                         </div>
                                 })
                             } else {
                                 // If its not active in a sequence. Then a full replace is offered and it will be removed from the current sequence and changed to an unlimited program.  
                                 tableData.push({
-                                    program: programName.split('_')[0],
-                                    coach: userObject.teams[programName.split('_')[1]].username,
+                                    program: program.getName(),
+                                    coach: program.getOwnerUsername(),
                                     relatedPrograms: 'None',
                                     programType: 'Stand-Alone',
                                     buttons:
                                         <div>
                                             <OverrideReplaceProgramModal
                                                 handleFormSubmit={this.handlePendingProgramRequestAcceptence}
-                                                programUID={programName}
-                                                currSeq={currentProgramInfo.order.split('_')[1]}
+                                                programUID={program.getProgramUID()}
+                                                currSeq={program.getSequenceName()}
                                                 modalType={'unlimPend->nonActiveSeqCurr'}
                                             />
-                                            <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
+                                            <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={program.getProgramUID()} />
                                         </div>
                                 })
                             }
                         } else {
                             tableData.push({
-                                program: programName.split('_')[0],
-                                coach: userObject.teams[programName.split('_')[1]].username,
+                                program: program.getName(),
+                                coach: program.getOwnerUsername(),
                                 relatedPrograms: 'None',
                                 programType: 'Stand-Alone',
                                 buttons:
                                     <div>
                                         <OverrideReplaceProgramModal
                                             handleFormSubmit={this.handlePendingProgramRequestAcceptence}
-                                            programUID={programName}
+                                            programUID={program.getProgramUID()}
                                             mismatchedParams={noMetaParameterMismatch}
                                             modalType={'metaParamter-Mismatch'}
                                         />
-                                        <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
+                                        <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={program.getProgramUID()} />
                                     </div>
                             })
                         }
                     } else {
                         // If its not in past or current programs. 
                         tableData.push({
-                            program: programName.split('_')[0],
-                            coach: userObject.teams[programName.split('_')[1]].username,
+                            program: program.getName(),
+                            coach: program.getOwnerUsername(),
                             relatedPrograms: 'None',
                             programType: 'Stand-Alone',
                             buttons:
                                 <div>
-                                    <AcceptRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
-                                    <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
+                                    <AcceptRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={program.getProgramUID()} />
+                                    <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={program.getProgramUID()} />
                                 </div>
                         })
                     }
 
                 } else {
                     // Only considers the first program in the sequence. This is what will be displayed on the front end. All logic will be considered below. 
-                    if (program.order.split('_')[0] === '1') {
-
-                        var relatedPrograms = this.findRelatedSequentialPrograms(userObject.pendingPrograms, program.order)
+                    if (program.getPositionInSequence() === '1') {
+                        var relatedPrograms = programList.findRelatedSequentialPrograms(program.getOrder())
 
                         relatedPrograms.sort((a, b) => {
                             return parseInt(a.order.split('_')[0]) - parseInt(b.order.split('_')[0])
                         })
                         var sequenceProgramsInOrder = [
                             {
-                                programUID: programName,
-                                order: program.order
+                                programUID: program.getProgramUID(),
+                                order: program.getOrder()
                             },
                             ...relatedPrograms
                         ]
 
                         var currProgSeqCheckData = this.checkSequenceProgramsInCurrentPrograms(
-                            userObject, sequenceProgramsInOrder
+                            currentProgList, sequenceProgramsInOrder
                         )
                         var allSeqNotInCurrProgs = true
 
-                        for (var program in currProgSeqCheckData) {
-                            var checkData = currProgSeqCheckData[program]
+                        for (var seqProg in currProgSeqCheckData) {
+                            var checkData = currProgSeqCheckData[seqProg]
                             if (checkData.inCurrProg) {
                                 allSeqNotInCurrProgs = false
                                 break
@@ -921,15 +989,15 @@ class ManageProgramsPage extends Component {
                         // If none of the program in the sequence is currently in the athletes current program. No special action is required. 
                         if (allSeqNotInCurrProgs) {
                             var numInSequence = 2
-                            // If its not in past or current programs. 
+                            // If its not in past or current programs.
                             tableData.push({
-                                program: programName.split('_')[0],
-                                coach: userObject.teams[programName.split('_')[1]].username,
+                                program: program.getName(),
+                                coach: program.getOwnerUsername(),
                                 programType: 'Sequential',
                                 buttons:
                                     <div>
-                                        <AcceptRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
-                                        <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={programName} />
+                                        <AcceptRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={program.getProgramUID()} />
+                                        <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={program.getProgramUID()} />
                                     </div>,
                                 relatedPrograms:
                                     <List>
@@ -950,16 +1018,19 @@ class ManageProgramsPage extends Component {
                             })
                         } else {
                             var numInSequence = 2
-                            console.log(currProgSeqCheckData)
 
                             currProgSeqCheckData.forEach(prog => {
-                                prog.sameMetaParams = this.checkSameMetaParameters(userObject, prog.programUID)
+                                var currentVersion = currentProgList.getProgram(prog.programUID)
+
+                                var pendingVersion = programList.getProgram(prog.programUID)
+
+                                prog.sameMetaParams = currentVersion.checkSameMetaParameters(pendingVersion)
                             })
 
                             // If its not in past or current programs. 
                             tableData.push({
-                                program: programName.split('_')[0],
-                                coach: userObject.teams[programName.split('_')[1]].username,
+                                program: program.getName(),
+                                coach: program.getOwnerUsername(),
                                 programType: 'Sequential',
                                 buttons:
                                     <div>
@@ -969,7 +1040,7 @@ class ManageProgramsPage extends Component {
                                         />
                                         <DeclineRequestButton
                                             buttonHandler={this.handlePendingProgramRequestAcceptence}
-                                            objectUID={programName}
+                                            objectUID={program.getProgramUID()}
                                         />
                                     </div>,
                                 relatedPrograms:
@@ -1095,16 +1166,18 @@ class ManageProgramsPage extends Component {
         return false
     }
 
-    checkSequenceProgramsInCurrentPrograms = (userObject, sequencePrograms) => {
+    checkSequenceProgramsInCurrentPrograms = (list, sequencePrograms) => {
         var payload = []
         sequencePrograms.forEach(program => {
-            payload.push(this.programInCurrentPrograms(userObject, program.programUID))
+            payload.push(this.programInCurrentPrograms(list, program.programUID))
         })
 
         return (payload)
     }
 
     handlePendingProgramRequestAcceptence = (programName, isAccepted) => {
+        console.log(programName)
+        console.log(isAccepted)
         var payload = {}
         var basePath = '/users/'
             + this.props.firebase.auth.currentUser.uid
@@ -1150,7 +1223,7 @@ class ManageProgramsPage extends Component {
             }
         }
 
-        this.props.firebase.processPendingProgramsUpstream(payload)
+        // this.props.firebase.processPendingProgramsUpstream(payload)
 
     }
 
@@ -1378,8 +1451,9 @@ class ManageProgramsPage extends Component {
             user,
             nonPendingList,
             pendingList,
-            progManageTableData,
-            progManageTableColumns,
+            pendingProgTableData,
+            currentProgTableData,
+            pastProgTableData,
             view,
             pageBodyContentLoading,
             currProgram
@@ -1421,7 +1495,7 @@ class ManageProgramsPage extends Component {
                                     user && user.getUserType() === 'coach' &&
                                     <div id='hpRightBtnContainer'>
                                         <CreateProgramGroupModal
-                                            programTableData={progManageTableData}
+                                            programTableData={currentProgTableData.data}
                                             handleFormSubmit={this.handleCreateProgramGroup}
                                         />
                                     </div>
@@ -1462,9 +1536,10 @@ class ManageProgramsPage extends Component {
                 {
                     view === this.PAGE_VIEWS.HOME &&
                     <div className="pageContainerLevel1">
-                        <BasicTable
-                            data={progManageTableData}
-                            columns={progManageTableColumns}
+                        <ManageProgramTables
+                            pendingData={pendingProgTableData}
+                            currentData={currentProgTableData}
+                            pastData={pastProgTableData}
                         />
                     </div>
                 }
