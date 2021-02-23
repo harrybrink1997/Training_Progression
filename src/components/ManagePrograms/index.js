@@ -345,7 +345,6 @@ class ManageProgramsPage extends Component {
 
         var day = updateObject.exUid.split('_').reverse()[1]
         if (this.state.currProgram.programData.loadingScheme === 'rpe_time') {
-            console.log("going in ")
             var dataPayload = {
                 exercise: updateObject.exercise,
                 rpe: updateObject.rpe,

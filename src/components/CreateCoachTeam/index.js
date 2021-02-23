@@ -28,7 +28,8 @@ class CreateCoachTeamPage extends Component {
                     programGroupData: initProgDeployCoachProgGroupTableData(snap.programGroups),
                     programData: initProgDeployCoachProgramTableData(snap.programs),
                     pageBodyContentLoading: false,
-                    createTeamProcessing: true
+                    createTeamProcessing: true,
+                    currTeamNames: snap.currentTeamNames
                 })
             })
         })
@@ -88,7 +89,6 @@ class CreateCoachTeamPage extends Component {
         }
 
         var athletePayload = {
-            owner: this.props.firebase.auth.currentUser.uid,
             teamName: teamName,
             joiningDate: timestamp
         }
@@ -97,7 +97,7 @@ class CreateCoachTeamPage extends Component {
             return athlete.uid
         })
 
-        var progInfo = []
+        var progInfo = {}
 
         if (programData.unlimited) {
 
@@ -110,11 +110,11 @@ class CreateCoachTeamPage extends Component {
                     dateSet: [timestamp]
                 }
 
-                progInfo.push({
-                    name: program.programUID,
+                progInfo[program.programUID] = {
+                    programUID: program.programUID,
                     isUnlimited: true,
                     deploymentDate: timestamp
-                })
+                }
             })
 
         }
@@ -158,8 +158,8 @@ class CreateCoachTeamPage extends Component {
                     }
                 }
 
-                progInfo.push({
-                    name: program.programUID,
+                progInfo[program.programUID] = {
+                    programUID: program.programUID,
                     isUnlimited: false,
                     deploymentDate: timestamp,
                     isActiveInSequence: isActiveInSequence,
@@ -172,7 +172,7 @@ class CreateCoachTeamPage extends Component {
                             + '_' + teamName
                             + '_' + this.props.firebase.auth.currentUser.uid
                             + '_' + timestamp
-                })
+                }
             })
         }
 
@@ -194,11 +194,9 @@ class CreateCoachTeamPage extends Component {
             pageBodyContentLoading,
             programData,
             programGroupData,
-            athleteData
+            athleteData,
+            currTeamNames
         } = this.state
-        console.log(athleteData)
-        console.log(programData)
-        console.log(programGroupData)
 
         let pageBodyContentLoadingHTML =
             <NonLandingPageWrapper>
@@ -229,7 +227,7 @@ class CreateCoachTeamPage extends Component {
                 </div>
                 <div>
                     <CreateCoachTeamForm
-                        currTeamListArray={['none']}
+                        currTeamListArray={currTeamNames}
                         athleteTableData={athleteData}
                         programTableData={programData}
                         programGroupTableData={programGroupData}

@@ -329,18 +329,42 @@ class Firebase {
         return batch.commit()
     }
 
+    getCurrentTeamNames = (coachUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('users')
+                .doc(coachUID)
+                .collection('teams')
+                .get()
+                .then(snap => {
+                    var payload = ['none']
+
+                    if (!snap.empty) {
+
+                        snap.docs.forEach(doc => {
+                            payload.push(doc.data().teamName)
+                        })
+                    }
+
+                    res(payload)
+                })
+        })
+    }
+
     getCreateTeamData = (coachUID) => {
 
         return new Promise((res, rej) => {
             Promise.all([
                 this.getCoachProgramGroups(coachUID),
                 this.getCoachCurrentAthletes(coachUID),
-                this.getUserPrograms(coachUID, 'coach')
+                this.getUserPrograms(coachUID, 'coach'),
+                this.getCurrentTeamNames(coachUID)
             ]).then(snap => {
                 res({
                     programGroups: snap[0],
                     currentAthletes: snap[1],
-                    programs: snap[2]
+                    programs: snap[2],
+                    currentTeamNames: snap[3]
                 })
             })
         })
@@ -402,21 +426,129 @@ class Firebase {
     }
 
     createTeamDB = (coachUID, coachPayload, athletePayload, athleteList, progInfo) => {
-        console.log(coachUID)
-        console.log(coachPayload)
-        console.log(athletePayload)
-        console.log(athleteList)
-        console.log(progInfo)
 
         return new Promise((res, rej) => {
-            if (progInfo.length > 0) {
-                var promises = []
 
-                Promise.all(promises).then(programs => {
-                    console.log(programs)
+            const batch = this.database.batch()
+
+            var promises = []
+            Object.keys(progInfo).forEach(prog => {
+                promises.push(this.generateProgDeploymentData(coachUID, prog))
+            })
+
+            Promise.all(promises).then(data => {
+                if (data.length !== 0) {
+                    data.forEach(program => {
+                        console.log(program)
+                        program.programInfo.status = 'pending'
+                        program.programInfo.deploymentDate = progInfo[program.programInfo.programUID].deploymentDate
+                        program.programInfo.team = coachPayload.teamName
+
+                        if (!progInfo[program.programInfo.programUID].isUnlimited) {
+                            program.programInfo.order = progInfo[program.programInfo.programUID].order
+                            program.programInfo.isActiveInSequence = progInfo[program.programInfo.programUID].isActiveInSequence
+                        }
+
+                        athleteList.forEach(athlete => {
+                            var progData = { ...program.programInfo }
+                            progData.athlete = athlete
+
+                            var progRef = this.database.collection('programs').doc()
+
+                            batch.set(progRef, progData)
+                            var exRef = progRef.collection('exercises')
+
+                            Object.keys(program.exData).forEach(day => {
+                                batch.set(exRef.doc(day), program.exData[day])
+                            })
+                        })
+                    })
+                }
+
+                var coachRef = this.database
+                    .collection('users')
+                    .doc(coachUID)
+                    .collection('teams')
+                    .doc()
+
+                batch.set(coachRef, coachPayload)
+
+                if (athleteList.length > 0) {
+                    var athPromises = []
+
+                    athleteList.forEach(athlete => {
+                        athPromises.push(this.getCurrentCoachAthDocUID(athlete, coachUID))
+                    })
+
+                    Promise.all(athPromises).then(athData => {
+                        athData.forEach(docUID => {
+                            var currCoachAthDocRef = this.database
+                                .collection('currentCoachAthletes')
+                                .doc(docUID)
+
+                            var teamPath = `currentTeams.${athletePayload.teamName}.joiningDate`
+
+                            batch.update(
+                                currCoachAthDocRef,
+                                {
+                                    [teamPath]: athletePayload.joiningDate
+                                }
+                            )
+                        })
+
+                        batch.commit()
+                        res(true)
+                    })
+
+                } else {
+                    batch.commit()
+                    res(true)
+                }
+            })
+        })
+    }
+
+    getCurrentCoachAthDocUID = (athleteUID, coachUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('currentCoachAthletes')
+                .where('athleteUID', '==', athleteUID)
+                .where('coachUID', '==', coachUID)
+                .get()
+                .then(snap => {
+                    var docUID = snap.docs[0].id
+                    res(docUID)
+                })
+        })
+    }
+
+    deployProgramDB = (athleteUID, programInfo) => {
+        return new Promise((res, rej) => {
+
+        })
+    }
+
+    generateProgDeploymentData = (coachUID, programUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('programs')
+                .where('owner', '==', coachUID)
+                .where('programUID', '==', programUID)
+                .get()
+                .then(snap => {
+                    var progInfo = snap.docs[0].data()
+
+                    this.getProgramExData(
+                        true,
+                        coachUID,
+                        programUID
+                    ).then(exData => {
+
+                        res({ programInfo: progInfo, exData: exData })
+                    })
+
                 })
 
-            }
         })
     }
 
@@ -451,11 +583,6 @@ class Firebase {
 
                 })
         }
-
-        return this.database
-            .collection('programs')
-            .doc(programUID)
-            .delete()
     }
 
     submitDayDB = (programUID, day, loadingData) => {
@@ -651,9 +778,6 @@ class Firebase {
     getProgramExData = (isCoach, userUID, programUID) => {
 
         var searchField = isCoach ? 'owner' : 'athlete'
-        console.log(searchField)
-        console.log(userUID)
-        console.log(programUID)
         return new Promise((res, rej) => {
             this.database
                 .collection('programs')

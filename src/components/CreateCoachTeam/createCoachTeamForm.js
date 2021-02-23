@@ -68,8 +68,7 @@ const CreateCoachTeamForm = ({ handleFormSubmit, athleteTableData, programTableD
         ]
 
     const changeTeamName = (event, { value }) => {
-        console.log(currTeamListArray)
-
+        value = value.trim()
         if (currTeamListArray.includes(value)) {
             setTeamName(value)
             setReservedWordError(true)
@@ -95,7 +94,7 @@ const CreateCoachTeamForm = ({ handleFormSubmit, athleteTableData, programTableD
             athleteData.push(athlete.original)
         })
 
-        handleFormSubmit(teamName, teamDescription, athleteData, programData)
+        handleFormSubmit(teamName.trim(), teamDescription.trim(), athleteData, programData)
         setTeamName('')
         setTeamDescription('')
         setSelectedAthletes([])
