@@ -11,6 +11,7 @@ import 'firebase/database'
 import 'firebase/firestore'
 import 'firebase/functions'
 import 'firebase/'
+import { thomsonCrossSectionDependencies } from 'mathjs'
 const FieldValue = app.firestore.FieldValue
 
 const config = {
@@ -958,7 +959,7 @@ class Firebase {
                     if (snap.empty) {
                         res([])
                     } else {
-                        var payload = []
+                        var promises = []
                         snap.docs.forEach(doc => {
                             var data = doc.data()
                             if (data.currentTeams && data.currentTeams[teamName]) {
@@ -967,12 +968,28 @@ class Firebase {
                                     joiningDate: data.currentTeams[teamName].joiningDate
                                 }
 
-                                payload.push(insertObj)
+                                promises.push(this.getAthleteDetails(insertObj.athleteUID, insertObj))
                             }
                         })
-
-                        res(payload)
+                        Promise.all(promises).then(athleteInfo => {
+                            res(athleteInfo)
+                        })
                     }
+                })
+        })
+    }
+
+    getAthleteDetails = (athleteUID, currentDetails) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('users')
+                .doc(athleteUID)
+                .get()
+                .then(snap => {
+                    currentDetails.email = snap.data().email
+                    currentDetails.username = snap.data().username
+
+                    res(currentDetails)
                 })
         })
     }
