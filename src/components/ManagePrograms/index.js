@@ -1175,55 +1175,83 @@ class ManageProgramsPage extends Component {
         return (payload)
     }
 
-    handlePendingProgramRequestAcceptence = (programName, isAccepted) => {
-        console.log(programName)
+    handlePendingProgramRequestAcceptence = (programUID, isAccepted) => {
+        console.log(programUID)
         console.log(isAccepted)
         var payload = {}
-        var basePath = '/users/'
-            + this.props.firebase.auth.currentUser.uid
-        var pendingPath = basePath + '/pendingPrograms/'
+        var pendingProgram = this.state.pendingProgList.getProgram(programUID)
 
         if (isAccepted) {
-            var currProgPath =
-                basePath
-                + '/currentPrograms/'
 
-            payload[basePath + '/activeProgram'] = programName
-            payload[currProgPath + programName] = this.state.pendingProgramsData[programName]
-            payload[pendingPath + programName] = null
+            var currentProgram = this.state.currProgList.getProgram(programUID)
 
-            if (this.state.pendingProgramsData[programName].order) {
+            if (currentProgram) {
+                this.state.currProgList.removeProgram(programUID)
+            }
 
-                var relatedProgs = this.findRelatedSequentialPrograms(
-                    this.state.pendingProgramsData,
-                    this.state.pendingProgramsData[programName].order
-                )
+            this.state.pendingProgList.removeProgram(programUID)
+            this.state.currProgList.addProgStart(pendingProgram)
 
-                relatedProgs.forEach(relatedProgram => {
-                    payload[currProgPath + relatedProgram.programUID] = this.state.pendingProgramsData[relatedProgram.programUID]
+            if (pendingProgram.getOrder()) {
+                var relatedPrograms = this.state.pendingProgList.findRelatedSequentialPrograms(pendingProgram.getOrder())
 
-                    payload[pendingPath + relatedProgram.programUID] = null
+                relatedPrograms.forEach(programInfo => {
+                    var program = this.state.pendingProgList.getProgram(programInfo.programUID)
+                    this.state.pendingProgList.removeProgram(program.getProgramUID())
+
+                    this.state.currProgList.addProgStart(program)
                 })
             }
+
+            this.setState(prev => ({
+                ...prev,
+                currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode, this.state.user.getUserType()),
+                pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
+
+            }))
+
+            // var currProgPath =
+            //     basePath
+            //     + '/currentPrograms/'
+
+            // payload[basePath + '/activeProgram'] = programName
+            // payload[currProgPath + programName] = this.state.pendingProgramsData[programName]
+            // payload[pendingPath + programName] = null
+
+            // if (this.state.pendingProgramsData[programName].order) {
+
+            //     var relatedProgs = this.findRelatedSequentialPrograms(
+            //         this.state.pendingProgramsData,
+            //         this.state.pendingProgramsData[programName].order
+            //     )
+
+            //     relatedProgs.forEach(relatedProgram => {
+            //         payload[currProgPath + relatedProgram.programUID] = this.state.pendingProgramsData[relatedProgram.programUID]
+
+            //         payload[pendingPath + relatedProgram.programUID] = null
+            //     })
+            // }
 
         } else {
+            this.state.pendingProgList.removeProgram(programUID)
 
-            payload[pendingPath + programName] = null
+            if (pendingProgram.getOrder()) {
+                var relatedPrograms = this.state.pendingProgList.findRelatedSequentialPrograms(pendingProgram.getOrder())
 
-            if (this.state.pendingProgramsData[programName].order) {
+                relatedPrograms.forEach(programInfo => {
+                    var program = this.state.pendingProgList.getProgram(programInfo.programUID)
+                    this.state.pendingProgList.removeProgram(program.getProgramUID())
 
-                var relatedProgs = this.findRelatedSequentialPrograms(
-                    this.state.pendingProgramsData,
-                    this.state.pendingProgramsData[programName].order
-                )
-
-                relatedProgs.forEach(relatedProgram => {
-                    payload[pendingPath + relatedProgram.programUID] = null
                 })
             }
-        }
 
-        // this.props.firebase.processPendingProgramsUpstream(payload)
+
+            this.setState(prev => ({
+                ...prev,
+                pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
+
+            }))
+        }
 
     }
 
@@ -1406,8 +1434,6 @@ class ManageProgramsPage extends Component {
 
     handleCreateProgramGroup = (groupName, programData) => {
 
-        console.log(groupName)
-        console.log(programData)
         var payload = {
             sequential: false,
             unlimited: false
@@ -1458,7 +1484,10 @@ class ManageProgramsPage extends Component {
             pageBodyContentLoading,
             currProgram
         } = this.state
-        console.log(currProgram)
+        console.log(pendingProgTableData)
+        console.log(currentProgTableData)
+        console.log(pastProgTableData)
+
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />

@@ -5,25 +5,66 @@ import BasicTable from '../CustomComponents/basicTable'
 const ManageProgramTables = ({ pendingData, currentData, pastData }) => {
     const [table, setTable] = useState('current')
 
-
+    let nonDataHTML =
+        <div>
+            No {table} program data...
+        </div>
 
     return (
         <>
             <ManageProgramToggle
                 clickHandler={setTable}
+                currentView={table}
             />
-            <BasicTable
-                columns={pendingData.columns}
-                data={pendingData.data}
-            />
+            {
+                table === 'current' &&
+                <>
+                    {
+                        currentData ?
+                            <BasicTable
+                                columns={currentData.columns}
+                                data={currentData.data}
+                            />
+                            :
+                            nonDataHTML
+                    }
+                </>
+            }
+            {
+                table === 'past' &&
+                <>
+                    {
+                        currentData ?
+                            <BasicTable
+                                columns={pastData.columns}
+                                data={pastData.data}
+                            />
+                            :
+                            nonDataHTML
+                    }
+                </>
+            }
+            {
+                table === 'pending' &&
+                <>
+                    {
+                        pendingData ?
+                            <BasicTable
+                                columns={pendingData.columns}
+                                data={pendingData.data}
+                            />
+                            :
+                            nonDataHTML
+                    }
+                </>
+            }
         </>
     )
 
 }
 
 
-const ManageProgramToggle = ({ hasCurrent, hasPending, hasPast, currentView, clickHandler }) => {
-    const [table, setTable] = useState(currentView)
+const ManageProgramToggle = ({ currentView, clickHandler }) => {
 
     return (
         <div className='availExercises-ExData-toggleContainer centred-info'>
@@ -45,21 +86,6 @@ const ManageProgramToggle = ({ hasCurrent, hasPending, hasPast, currentView, cli
                     </Button>
                 }
                 {
-                    currentView === 'pending' ?
-                        <Button
-
-                            active
-                        >
-                            Pending Programs
-                                        </Button>
-                        :
-                        <Button
-                            onClick={() => { clickHandler('pending') }}
-                        >
-                            Pending Programs
-                    </Button>
-                }
-                {
                     currentView === 'past' ?
                         <Button
 
@@ -72,6 +98,21 @@ const ManageProgramToggle = ({ hasCurrent, hasPending, hasPast, currentView, cli
                             onClick={() => { clickHandler('past') }}
                         >
                             Past Programs
+                    </Button>
+                }
+                {
+                    currentView === 'pending' ?
+                        <Button
+
+                            active
+                        >
+                            Pending Programs
+                                        </Button>
+                        :
+                        <Button
+                            onClick={() => { clickHandler('pending') }}
+                        >
+                            Pending Programs
                     </Button>
                 }
             </Button.Group>
