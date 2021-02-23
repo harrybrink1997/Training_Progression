@@ -1201,6 +1201,7 @@ class ManageProgramsPage extends Component {
             var payload = {
                 name: programName,
                 owner: this.props.firebase.auth.currentUser.uid,
+                athlete: this.props.firebase.auth.currentUser.uid,
                 acutePeriod: acutePeriod,
                 chronicPeriod: chronicPeriod,
                 loadingScheme: loadingScheme,
@@ -1237,8 +1238,6 @@ class ManageProgramsPage extends Component {
                 dateConversion = dateConversion[2] + '-' + dateConversion[1] + '-' + dateConversion[0]
 
                 const startTimestamp = Math.floor(new Date(dateConversion).getTime())
-
-                payload.athlete = this.props.firebase.auth.currentUser.uid
 
                 payload.team = 'none'
 

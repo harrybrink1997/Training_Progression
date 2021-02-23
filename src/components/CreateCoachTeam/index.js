@@ -28,7 +28,7 @@ class CreateCoachTeamPage extends Component {
                     programGroupData: initProgDeployCoachProgGroupTableData(snap.programGroups),
                     programData: initProgDeployCoachProgramTableData(snap.programs),
                     pageBodyContentLoading: false,
-                    createTeamProcessing: true,
+                    createTeamProcessing: false,
                     currTeamNames: snap.currentTeamNames
                 })
             })
@@ -78,61 +78,90 @@ class CreateCoachTeamPage extends Component {
             createTeamProcessing: true
         }, () => {
 
-        })
-        var timestamp = new Date().getTime()
+            var timestamp = new Date().getTime()
 
 
-        var coachPayload = {
-            teamName: teamName,
-            description: teamDescription,
-            creationDate: timestamp
-        }
-
-        var athletePayload = {
-            teamName: teamName,
-            joiningDate: timestamp
-        }
-
-        var athleteList = athleteData.map(athlete => {
-            return athlete.uid
-        })
-
-        var progInfo = {}
-
-        if (programData.unlimited) {
-
-            coachPayload.programs = {
-                unlimited: {}
+            var coachPayload = {
+                teamName: teamName,
+                description: teamDescription,
+                creationDate: timestamp
             }
 
-            programData.unlimited.forEach(program => {
-                coachPayload.programs.unlimited[program.programUID] = {
-                    dateSet: [timestamp]
-                }
+            var athletePayload = {
+                teamName: teamName,
+                joiningDate: timestamp
+            }
 
-                progInfo[program.programUID] = {
-                    programUID: program.programUID,
-                    isUnlimited: true,
-                    deploymentDate: timestamp
-                }
+            var athleteList = athleteData.map(athlete => {
+                return athlete.uid
             })
 
-        }
+            var progInfo = {}
 
-        if (programData.sequential) {
+            if (programData.unlimited) {
 
-            if (coachPayload.programs) {
-                coachPayload.programs.sequential = {}
-
-            } else {
                 coachPayload.programs = {
-                    sequential: {}
+                    unlimited: {}
                 }
+
+                programData.unlimited.forEach(program => {
+                    coachPayload.programs.unlimited[program.programUID] = {
+                        dateSet: [timestamp]
+                    }
+
+                    progInfo[program.programUID] = {
+                        programUID: program.programUID,
+                        isUnlimited: true,
+                        deploymentDate: timestamp
+                    }
+                })
+
             }
 
-            programData.sequential.forEach(program => {
-                coachPayload.programs.sequential[program.programUID] = {
-                    dateSet: [{
+            if (programData.sequential) {
+
+                if (coachPayload.programs) {
+                    coachPayload.programs.sequential = {}
+
+                } else {
+                    coachPayload.programs = {
+                        sequential: {}
+                    }
+                }
+
+                programData.sequential.forEach(program => {
+                    coachPayload.programs.sequential[program.programUID] = {
+                        dateSet: [{
+                            order:
+                                programData.sequenceName === 'preDetermined' ?
+                                    program.order
+                                    :
+                                    program.order
+                                    + '_' + programData.sequenceName
+                                    + '_' + teamName
+                                    + '_' + this.props.firebase.auth.currentUser.uid
+                                    + '_' + timestamp,
+                            date: timestamp
+                        }]
+                    }
+
+
+                    var isActiveInSequence = false
+                    if (programData.sequenceName === 'preDetermined') {
+                        if (parseInt(program.order.split('_')[0]) === 1) {
+                            isActiveInSequence = true
+                        }
+                    } else {
+                        if (parseInt(program.order) === 1) {
+                            isActiveInSequence = true
+                        }
+                    }
+
+                    progInfo[program.programUID] = {
+                        programUID: program.programUID,
+                        isUnlimited: false,
+                        deploymentDate: timestamp,
+                        isActiveInSequence: isActiveInSequence,
                         order:
                             programData.sequenceName === 'preDetermined' ?
                                 program.order
@@ -141,48 +170,24 @@ class CreateCoachTeamPage extends Component {
                                 + '_' + programData.sequenceName
                                 + '_' + teamName
                                 + '_' + this.props.firebase.auth.currentUser.uid
-                                + '_' + timestamp,
-                        date: timestamp
-                    }]
-                }
-
-
-                var isActiveInSequence = false
-                if (programData.sequenceName === 'preDetermined') {
-                    if (parseInt(program.order.split('_')[0]) === 1) {
-                        isActiveInSequence = true
+                                + '_' + timestamp
                     }
-                } else {
-                    if (parseInt(program.order) === 1) {
-                        isActiveInSequence = true
-                    }
-                }
+                })
+            }
 
-                progInfo[program.programUID] = {
-                    programUID: program.programUID,
-                    isUnlimited: false,
-                    deploymentDate: timestamp,
-                    isActiveInSequence: isActiveInSequence,
-                    order:
-                        programData.sequenceName === 'preDetermined' ?
-                            program.order
-                            :
-                            program.order
-                            + '_' + programData.sequenceName
-                            + '_' + teamName
-                            + '_' + this.props.firebase.auth.currentUser.uid
-                            + '_' + timestamp
-                }
+            this.props.firebase.createTeamDB(
+                this.props.firebase.auth.currentUser.uid,
+                coachPayload,
+                athletePayload,
+                athleteList,
+                progInfo
+            ).then(snap => {
+                this.setState({
+                    createTeamProcessing: false
+                })
             })
-        }
+        })
 
-        this.props.firebase.createTeamDB(
-            this.props.firebase.auth.currentUser.uid,
-            coachPayload,
-            athletePayload,
-            athleteList,
-            progInfo
-        )
     }
 
     handleManageTeamsRedirect = () => {
@@ -195,7 +200,8 @@ class CreateCoachTeamPage extends Component {
             programData,
             programGroupData,
             athleteData,
-            currTeamNames
+            currTeamNames,
+            createTeamProcessing
         } = this.state
 
         let pageBodyContentLoadingHTML =
@@ -226,13 +232,22 @@ class CreateCoachTeamPage extends Component {
                     />
                 </div>
                 <div>
-                    <CreateCoachTeamForm
-                        currTeamListArray={currTeamNames}
-                        athleteTableData={athleteData}
-                        programTableData={programData}
-                        programGroupTableData={programGroupData}
-                        handleFormSubmit={this.handleCreateTeam}
-                    />
+                    {
+                        !createTeamProcessing ?
+                            <CreateCoachTeamForm
+                                currTeamListArray={currTeamNames}
+                                athleteTableData={athleteData}
+                                programTableData={programData}
+                                programGroupTableData={programGroupData}
+                                handleFormSubmit={this.handleCreateTeam}
+                            />
+                            :
+                            <div className="centred-info">
+                                <div className='vert-aligned pageContainerLevel1 half-width'>
+                                    <Loader active inline='centered' content="Creating Team..." />
+                                </div>
+                            </div>
+                    }
                 </div>
             </NonLandingPageWrapper>
 

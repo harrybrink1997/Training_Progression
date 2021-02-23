@@ -282,6 +282,7 @@ class Firebase {
                 this.database
                     .collection('programs')
                     .where('owner', '==', id)
+                    .where('athlete', '==', id)
                     .get()
                     .then(snap => {
                         if (snap.empty) {
@@ -428,7 +429,6 @@ class Firebase {
     createTeamDB = (coachUID, coachPayload, athletePayload, athleteList, progInfo) => {
 
         return new Promise((res, rej) => {
-
             const batch = this.database.batch()
 
             var promises = []
