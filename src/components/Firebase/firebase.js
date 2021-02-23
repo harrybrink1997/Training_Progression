@@ -178,7 +178,15 @@ class Firebase {
             .collection('teams')
             .get()
             .then(snap => {
-                console.log(snap.empty)
+                if (snap.empty) {
+                    return []
+                } else {
+                    var payload = []
+                    snap.docs.forEach(doc => {
+                        payload.push(doc.data())
+                    })
+                    return payload
+                }
             })
     }
 
@@ -925,6 +933,48 @@ class Firebase {
                     })
                 })
         }
+    }
+
+    getTeamData = (coachUID, teamName) => {
+        console.log(teamName)
+        return new Promise((res, rej) => {
+            Promise.all([
+                this.getTeamCurrentAthletes(coachUID, teamName)
+            ]).then(data => {
+                console.log(data[0])
+            })
+        })
+    }
+
+    getTeamCurrentAthletes = (coachUID, teamName) => {
+        return new Promise((res, rej) => {
+            var teamPath = `currentTeams.${teamName}.joiningDate`
+            console.log(teamPath)
+            this.database
+                .collection('currentCoachAthletes')
+                .where('coachUID', '==', coachUID)
+                .get()
+                .then(snap => {
+                    if (snap.empty) {
+                        res([])
+                    } else {
+                        var payload = []
+                        snap.docs.forEach(doc => {
+                            var data = doc.data()
+                            if (data.currentTeams && data.currentTeams[teamName]) {
+                                var insertObj = {
+                                    athleteUID: data.athleteUID,
+                                    joiningDate: data.currentTeams[teamName].joiningDate
+                                }
+
+                                payload.push(insertObj)
+                            }
+                        })
+
+                        res(payload)
+                    }
+                })
+        })
     }
 
     copyExerciseDataDB = (programUID, payload) => {
