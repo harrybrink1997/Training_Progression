@@ -532,9 +532,42 @@ class Firebase {
         })
     }
 
-    deployProgramDB = (athleteUID, programInfo) => {
+    getAthleteTeamPrograms = (coachUID, athleteUID, teamName) => {
         return new Promise((res, rej) => {
+            this.database
+                .collection('programs')
+                .where('owner', '==', coachUID)
+                .where('athlete', '==', athleteUID)
+                .where('team', '==', teamName)
+                .where('status', '==', 'current')
+                .get()
+                .then(snap => {
+                    if (snap.empty) {
+                        return []
+                    } else {
+                        var payload = []
+                        var programPromises = []
 
+                        snap.docs.forEach(doc => {
+                            payload.push(doc.data())
+                            programPromises.push(
+                                this.getProgramExData(
+                                    false,
+                                    athleteUID,
+                                    doc.data().programUID
+                                )
+                            )
+                        })
+
+                        Promise.all(programPromises).then(exData => {
+                            for (var i in payload) {
+                                payload[i] = { ...payload[i], ...exData[i] }
+                            }
+                        })
+
+                        res(payload)
+                    }
+                })
         })
     }
 
@@ -940,17 +973,43 @@ class Firebase {
         console.log(teamName)
         return new Promise((res, rej) => {
             Promise.all([
-                this.getTeamCurrentAthletes(coachUID, teamName)
+                this.getTeamCurrentAthletes(coachUID, teamName),
+                this.getTeamProgramData(coachUID, teamName),
+                this.getCoachProgramGroups(coachUID),
+                this.getUserPrograms(coachUID, 'coach'),
             ]).then(data => {
-                console.log(data[0])
+                console.log(data[2])
+                console.log(data[3])
+                res({
+                    athleteData: data[0],
+                    programData: data[1],
+                    deployProgramGroupData: data[2],
+                    deployProgramData: data[3]
+                })
             })
+        })
+    }
+
+    getTeamProgramData = (coachUID, teamName) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('users')
+                .doc(coachUID)
+                .collection('teams')
+                .where('teamName', '==', teamName)
+                .get()
+                .then(snap => {
+                    if (snap.empty) {
+                        res({})
+                    } else {
+                        res(snap.docs[0].data().programs)
+                    }
+                })
         })
     }
 
     getTeamCurrentAthletes = (coachUID, teamName) => {
         return new Promise((res, rej) => {
-            var teamPath = `currentTeams.${teamName}.joiningDate`
-            console.log(teamPath)
             this.database
                 .collection('currentCoachAthletes')
                 .where('coachUID', '==', coachUID)
@@ -971,6 +1030,7 @@ class Firebase {
                                 promises.push(this.getAthleteDetails(insertObj.athleteUID, insertObj))
                             }
                         })
+
                         Promise.all(promises).then(athleteInfo => {
                             res(athleteInfo)
                         })

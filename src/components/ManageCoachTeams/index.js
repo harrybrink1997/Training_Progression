@@ -70,9 +70,9 @@ class ManageCoachTeamsPage extends Component {
 
         this.setState({
             loading: false,
-            athleteTableData: this.initAthleteTableData(userObject),
-            programTableData: initProgDeployCoachProgramTableData(userObject),
-            programGroupTableData: initProgDeployCoachProgGroupTableData(userObject),
+            // athleteTableData: this.initAthleteTableData(userObject),
+            // programTableData: initProgDeployCoachProgramTableData(userObject),
+            // programGroupTableData: initProgDeployCoachProgGroupTableData(userObject),
             currentProgramsData: userObject.currentPrograms,
             selectedTeamsTable: undefined,
         })
@@ -317,179 +317,142 @@ class ManageCoachTeamsPage extends Component {
     }
 
     handleDeployTeamProgram = (programData) => {
-        console.log(programData)
 
-        console.log(programData)
         this.setState(prevState => ({
             ...prevState,
             pageBodyContentLoading: true
         }), () => {
 
-            this.props.firebase.getUserData(
-                this.props.firebase.auth.currentUser.uid
-            ).once('value', userData => {
-                const userObject = userData.val();
-                const currAthObject = userObject.currentAthletes
-                if (currAthObject) {
-                    const athleteData = []
-                    Object.keys(currAthObject).forEach(athlete => {
-                        if (currAthObject[athlete].teams) {
-                            // If the program exists in the athletes teams list.
-                            if (Object.keys(currAthObject[athlete].teams).includes(this.state.currTeam.team)) {
-                                if (currAthObject[athlete].teams[this.state.currTeam.team].activeMember) {
-                                    athleteData.push({
-                                        uid: athlete,
-                                        sharedPrograms: currAthObject[athlete].teams[this.state.currTeam.team].sharedPrograms
-                                    })
+            // this.props.firebase.getUserData(
+            //     this.props.firebase.auth.currentUser.uid
+            // ).once('value', userData => {
+            //     const userObject = userData.val();
+            //     const currAthObject = userObject.currentAthletes
+            //     if (currAthObject) {
+            //         const athleteData = []
+            // Object.keys(currAthObject).forEach(athlete => {
+            //     if (currAthObject[athlete].teams) {
+            //         // If the program exists in the athletes teams list.
+            //         if (Object.keys(currAthObject[athlete].teams).includes(this.state.currTeam.team)) {
+            //             if (currAthObject[athlete].teams[this.state.currTeam.team].activeMember) {
+            //                 athleteData.push({
+            //                     uid: athlete,
+            //                     sharedPrograms: currAthObject[athlete].teams[this.state.currTeam.team].sharedPrograms
+            //                 })
+            //             }
+            //         }
+            //     }
+            // })
+            this.props.firebase.getTeamProgramData(
+                this.props.firebase.auth.currentUser.uid,
+                this.state.currTeam.team
+            ).then(progObj => {
+
+                console.log(programData)
+
+                var athleteList = this.state.currTeam.currTeamMemberData.data.map(athlete => {
+                    return athlete.athleteUID
+                })
+
+
+                var progInfo = {}
+                var frontEndPayLoad = [...this.state.currTeam.currTeamProgramData.data]
+                var programsObject = {}
+                var timestamp = new Date().getTime()
+                var teamName = this.state.currTeam.team
+
+                if (programData.unlimited) {
+                    programsObject.unlimited = {}
+                    programData.unlimited.forEach(program => {
+
+                        frontEndPayLoad.push({
+                            program: program.programUID.split("_")[0],
+                            deploymentDate: utsToDateString(timestamp),
+                            deploymentUTS: timestamp,
+                            programType: 'Unlimited',
+                            seqNameAndOrder: '',
+                            sequenceName: 'none'
+                        })
+
+                        progInfo[program.programUID] = {
+                            programUID: program.programUID,
+                            isUnlimited: true,
+                            deploymentDate: timestamp
+                        }
+
+
+                        // If the program already has been deployed to the team as an unlimited program. Add to the array. 
+                        if (progObj.unlimited && progObj.unlimited[program.programUID]) {
+
+                            progObj.unlimited[program.programUID].dateSet.push(timestamp)
+
+                        } else {
+                            // If neither of those exists create an array to inser.
+                            if (progObj.unlimited) {
+                                progObj.unlimited[program.programUID] = {
+                                    dateSet: [timestamp]
+                                }
+                            } else {
+                                progObj.unlimited = {
+                                    [program.programUID]: {
+                                        dateSet: [timestamp]
+                                    }
                                 }
                             }
                         }
                     })
+                }
 
-                    var payLoad = {}
-                    var frontEndPayLoad = [...this.state.currTeam.currTeamProgramData.data]
-                    var programsObject = {}
-                    var timestamp = new Date().getTime()
-                    var teamName = this.state.currTeam.team
+                if (programData.sequential) {
+                    programsObject.sequential = {}
+                    programData.sequential.forEach(program => {
 
-                    var athletePath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/`
-                    var teamPath = `/users/${this.props.firebase.auth.currentUser.uid}/teams/${teamName}`
+                        var seqInfo = programData.sequenceName === 'preDetermined'
+                            ? [program.order.split('_')[0], program.order.split('_')[1]]
+                            : [program.order, programData.sequenceName]
 
-                    var progObj = userObject.teams[teamName].programs
-
-                    if (programData.unlimited) {
-                        programsObject.unlimited = {}
-                        programData.unlimited.forEach(program => {
-
-                            var unlimTeamProgPath = teamPath + '/programs/unlimited/' + program.programUID + '/dateSet'
-
-                            frontEndPayLoad.push({
-                                program: program.programUID.split("_")[0],
-                                deploymentDate: utsToDateString(timestamp),
-                                deploymentUTS: timestamp,
-                                programType: 'Unlimited',
-                                seqNameAndOrder: '',
-                                sequenceName: 'none'
-                            })
-
-                            // If the program already has been deployed to the team as an unlimited program. Add to the array. 
-                            if (progObj && progObj.unlimited && progObj.unlimited[program.programUID]) {
-
-                                let deployArray = [...progObj.unlimited[program.programUID].dateSet]
-                                deployArray.push(timestamp)
-
-                                payLoad[unlimTeamProgPath] = deployArray
-                            } else {
-                                // If neither of those exists create an array to inser. 
-                                payLoad[unlimTeamProgPath] = [timestamp]
-                            }
+                        frontEndPayLoad.push({
+                            program: program.programUID.split('_')[0],
+                            deploymentDate: utsToDateString(timestamp),
+                            deploymentUTS: timestamp,
+                            programType: 'Sequential',
+                            seqNameAndOrder: seqInfo[1] + ' : ' + seqInfo[0],
+                            sequenceName: seqInfo[1],
+                            order: program.order
                         })
-                    }
 
-                    if (programData.sequential) {
-                        programsObject.sequential = {}
-                        programData.sequential.forEach(program => {
-
-                            var seqTeamProgPath = teamPath + '/programs/sequential/' + program.programUID + '/dateSet'
-
-
-                            var seqInfo = programData.sequenceName === 'preDetermined'
-                                ? [program.order.split('_')[0], program.order.split('_')[1]]
-                                : [program.order, programData.sequenceName]
-
-                            frontEndPayLoad.push({
-                                program: program.programUID.split('_')[0],
-                                deploymentDate: utsToDateString(timestamp),
-                                deploymentUTS: timestamp,
-                                programType: 'Sequential',
-                                seqNameAndOrder: seqInfo[1] + ' : ' + seqInfo[0],
-                                sequenceName: seqInfo[1],
-                                order: program.order
-                            })
-
-                            // If the program already has been deployed to the team as a sequential program. Add to the array. 
-                            if (progObj && progObj.sequential && progObj.sequential[program.programUID]) {
-                                let deployArray = [...progObj.sequential[program.programUID].dateSet]
-
-                                deployArray.push({
-                                    order:
-                                        programData.sequenceName === 'preDetermined' ?
-                                            program.order
-                                            :
-                                            program.order
-                                            + '_' + programData.sequenceName
-                                            + '_' + teamName
-                                            + '_' + this.props.firebase.auth.currentUser.uid
-                                            + '_' + timestamp,
-                                    date: timestamp
-                                })
-
-                                payLoad[seqTeamProgPath] = deployArray
-                            } else {
-                                // If neither of those exists create an array to inser. 
-
-                                payLoad[seqTeamProgPath] = [{
-                                    order:
-                                        programData.sequenceName === 'preDetermined' ?
-                                            program.order
-                                            :
-                                            program.order
-                                            + '_' + programData.sequenceName
-                                            + '_' + teamName
-                                            + '_' + this.props.firebase.auth.currentUser.uid
-                                            + '_' + timestamp,
-                                    date: timestamp
-                                }]
+                        var isActiveInSequence = false
+                        if (programData.sequenceName === 'preDetermined') {
+                            if (parseInt(program.order.split('_')[0]) === 1) {
+                                isActiveInSequence = true
                             }
-                        })
-                    }
-
-
-                    athleteData.forEach(athlete => {
-                        if (programData.unlimited) {
-                            programData.unlimited.forEach(program => {
-
-                                var insertionProgramObject = this.state.currentProgramsData[program.programUID]
-                                insertionProgramObject.currentDayInProgram = 1
-                                insertionProgramObject.deploymentDate = timestamp
-
-                                // Database path to insert into the athletes pending programs.
-                                payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
-                                // Database path to keep track of what programs have been shared with which athlete and when.
-                                if (athlete.sharedPrograms) {
-                                    if (Object.keys(athlete.sharedPrograms).includes(program.programUID)) {
-                                        var timestampArr = [...athlete.sharedPrograms[program.programUID]]
-                                        timestampArr.push(timestamp)
-
-                                        payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = timestampArr
-                                    } else {
-                                        payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = [timestamp]
-                                    }
-                                } else {
-                                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = [timestamp]
-                                }
-
-                            })
+                        } else {
+                            if (parseInt(program.order) === 1) {
+                                isActiveInSequence = true
+                            }
                         }
 
-                        if (programData.sequential) {
-                            programData.sequential.forEach(program => {
+                        progInfo[program.programUID] = {
+                            programUID: program.programUID,
+                            isUnlimited: false,
+                            deploymentDate: timestamp,
+                            isActiveInSequence: isActiveInSequence,
+                            order:
+                                programData.sequenceName === 'preDetermined' ?
+                                    program.order
+                                    :
+                                    program.order
+                                    + '_' + programData.sequenceName
+                                    + '_' + teamName
+                                    + '_' + this.props.firebase.auth.currentUser.uid
+                                    + '_' + timestamp
+                        }
 
-                                var isActiveInSequence = false
-                                if (programData.sequenceName === 'preDetermined') {
-                                    if (parseInt(program.order.split('_')[0]) === 1) {
-                                        isActiveInSequence = true
-                                    }
-                                } else {
-                                    if (parseInt(program.order) === 1) {
-                                        isActiveInSequence = true
-                                    }
-                                }
+                        // If the program already has been deployed to the team as a sequential program. Add to the array. 
+                        if (progObj.sequential && progObj.sequential[program.programUID]) {
 
-                                var insertionProgramObject = this.state.currentProgramsData[program.programUID]
-                                insertionProgramObject.currentDayInProgram = 1
-                                insertionProgramObject.isActiveInSequence = isActiveInSequence
-                                insertionProgramObject.order =
+                            progObj.sequential[program.programUID].dateSet.push({
+                                order:
                                     programData.sequenceName === 'preDetermined' ?
                                         program.order
                                         :
@@ -497,52 +460,115 @@ class ManageCoachTeamsPage extends Component {
                                         + '_' + programData.sequenceName
                                         + '_' + teamName
                                         + '_' + this.props.firebase.auth.currentUser.uid
-                                        + '_' + timestamp
-                                insertionProgramObject.deploymentDate = timestamp
-
-                                payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
-
-
-                                if (athlete.sharedPrograms) {
-                                    if (Object.keys(athlete.sharedPrograms).includes(program.programUID)) {
-                                        var timestampArr = [...athlete.sharedPrograms[program.programUID]]
-                                        timestampArr.push(timestamp)
-
-                                        payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = timestampArr
-                                    } else {
-                                        payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = [timestamp]
-                                    }
-                                } else {
-                                    payLoad[athletePath + athlete.uid + '/teams/' + teamName + '/sharedPrograms/' + program.programUID] = [timestamp]
-                                }
+                                        + '_' + timestamp,
+                                date: timestamp
                             })
-                        }
-                    })
 
-                    frontEndPayLoad.sort((a, b) => {
-                        return cmp(
-                            [-cmp(a.deploymentUTS, b.deploymentUTS), cmp(a.sequenceName, b.sequenceName), cmp(a.order, b.order),],
-                            [-cmp(b.deploymentUTS, a.deploymentUTS), cmp(b.sequenceName, a.sequenceName), cmp(b.order, a.order)]
-                        )
-                    })
+                        } else {
+                            var orderPayload = [{
+                                order:
+                                    programData.sequenceName === 'preDetermined' ?
+                                        program.order
+                                        :
+                                        program.order
+                                        + '_' + programData.sequenceName
+                                        + '_' + teamName
+                                        + '_' + this.props.firebase.auth.currentUser.uid
+                                        + '_' + timestamp,
+                                date: timestamp
+                            }]
 
-
-                    this.props.firebase.createTeamUpstream(payLoad)
-                    this.setState(prevState => ({
-                        ...prevState,
-                        pageBodyContentLoading: false,
-                        currTeam: {
-                            ...prevState.currTeam,
-                            view: this.state.currTeam.pageHistory.back(),
-                            currTeamProgramData: {
-                                ...prevState.currTeam.currTeamProgramData,
-                                data: frontEndPayLoad
+                            if (progObj.sequential) {
+                                progObj.sequential[program.programUID] = {
+                                    dateSet: orderPayload
+                                }
+                            } else {
+                                progObj.sequential = {
+                                    [program.programUID]: {
+                                        dateSet: orderPayload
+                                    }
+                                }
                             }
                         }
-                    }))
+                    })
                 }
+
+                // athleteData.forEach(athlete => {
+                //     if (programData.unlimited) {
+                //         programData.unlimited.forEach(program => {
+
+                //             var insertionProgramObject = this.state.currentProgramsData[program.programUID]
+                //             insertionProgramObject.currentDayInProgram = 1
+                //             insertionProgramObject.deploymentDate = timestamp
+
+                //             // Database path to insert into the athletes pending programs.
+                //             payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
+                //             // Database path to keep track of what programs have been shared with which athlete and when.
+                //         })
+                //     }
+
+                //     if (programData.sequential) {
+                //         programData.sequential.forEach(program => {
+
+                //             var isActiveInSequence = false
+                //             if (programData.sequenceName === 'preDetermined') {
+                //                 if (parseInt(program.order.split('_')[0]) === 1) {
+                //                     isActiveInSequence = true
+                //                 }
+                //             } else {
+                //                 if (parseInt(program.order) === 1) {
+                //                     isActiveInSequence = true
+                //                 }
+                //             }
+
+                //             var insertionProgramObject = this.state.currentProgramsData[program.programUID]
+                //             insertionProgramObject.currentDayInProgram = 1
+                //             insertionProgramObject.isActiveInSequence = isActiveInSequence
+                //             insertionProgramObject.order =
+                //                 programData.sequenceName === 'preDetermined' ?
+                //                     program.order
+                //                     :
+                //                     program.order
+                //                     + '_' + programData.sequenceName
+                //                     + '_' + teamName
+                //                     + '_' + this.props.firebase.auth.currentUser.uid
+                //                     + '_' + timestamp
+                //             insertionProgramObject.deploymentDate = timestamp
+
+                //             payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
+                //         })
+                //     }
+                // })
+
+                frontEndPayLoad.sort((a, b) => {
+                    return cmp(
+                        [-cmp(a.deploymentUTS, b.deploymentUTS), cmp(a.sequenceName, b.sequenceName), cmp(a.order, b.order),],
+                        [-cmp(b.deploymentUTS, a.deploymentUTS), cmp(b.sequenceName, a.sequenceName), cmp(b.order, a.order)]
+                    )
+                })
+
+                console.log(progObj)
+                console.log(progInfo)
+
+                // this.props.firebase.createTeamUpstream(payLoad)
+                // this.setState(prevState => ({
+                //     ...prevState,
+                //     pageBodyContentLoading: false,
+                //     currTeam: {
+                //         ...prevState.currTeam,
+                //         view: this.state.currTeam.pageHistory.back(),
+                //         currTeamProgramData: {
+                //             ...prevState.currTeam.currTeamProgramData,
+                //             data: frontEndPayLoad
+                //         }
+                //     }
+                // }))
             })
+
+
+            // }
         })
+        // })
 
     }
 
@@ -573,10 +599,34 @@ class ManageCoachTeamsPage extends Component {
             }
         }, async () => {
 
-            this.props.firebase.getTeamData(
-                this.props.firebase.auth.currentUser.uid,
-                team
-            )
+            this.props.firebase.getTeamData(this.props.firebase.auth.currentUser.uid, team).then(data => {
+                // this.initTeamLoadingData(data.athleteData)
+                var currTeamMemberData = this.initCurrTeamMemberData(team, data.athleteData)
+
+                this.setState({
+                    pageBodyContentLoading: false,
+                    currTeam: {
+                        team: team,
+                        view: 'home',
+                        pageHistory: new PageHistory(),
+                        showViewProgramErrorModal: false,
+                        viewProgramErrorType: undefined,
+                        currTeamProgramData: this.initCurrTeamProgramData(data.programData),
+                        currTeamMemberData: currTeamMemberData,
+                        programGroupData: initProgDeployCoachProgGroupTableData(data.deployProgramGroupData),
+                        programData: initProgDeployCoachProgramTableData(data.deployProgramData)
+                        // nonCurrTeamMemberData: this.initNonCurrTeamMembersData(this.state.athleteTableData, currTeamMemberData),
+                        // viewTeamFunctions: {},
+                        // loadingData: teamLoadingData,
+                        // rawAnatomyData: anatomyObject,
+                        // memberProgramLoadingInfo: undefined,
+                        // daysSinceOverloadThreshold: 5,
+                        // overviewTableVisible: true,
+                        // teamLoadOverviewData: this.initOverviewData(teamLoadingData, 5),
+                    }
+                })
+
+            })
 
             return
             this.props.firebase.getUserData(
@@ -695,11 +745,11 @@ class ManageCoachTeamsPage extends Component {
         return payLoad
     }
 
-    initTeamLoadingData = async (currTeamMemberData) => {
+    initTeamLoadingData = (currTeamMemberData) => {
 
         const dbPromises = []
+        currTeamMemberData.forEach(athlete => {
 
-        currTeamMemberData.data.forEach(athlete => {
             dbPromises.push(this.prepareAthleteLoadData(athlete))
         })
 
@@ -712,36 +762,40 @@ class ManageCoachTeamsPage extends Component {
     }
 
     prepareAthleteLoadData = (athlete) => {
+        console.log(athlete)
         return new Promise(resolve => {
-            this.props.firebase.getUserData(athlete.athleteUID)
-                .once('value', userData => {
+            this.props.firebase.getAthleteTeamPrograms(
+                this.props.firebase.auth.currentUser.uid,
+                athlete.athleteUID,
+                this.state.currTeam.team
+            )
+                .then(programData => {
+                    console.log(programData)
 
-                    const athleteData = userData.val();
+                    // if (athleteData.currentPrograms) {
+                    //     var loadingData = this.processAthleteLoadingData(athleteData.currentPrograms, { uid: athlete.athleteUID, username: athlete.username })
 
-                    if (athleteData.currentPrograms) {
-                        var loadingData = this.processAthleteLoadingData(athleteData.currentPrograms, { uid: athlete.athleteUID, username: athlete.username })
-
-                        resolve({
-                            username: athleteData.username,
-                            email: athleteData.email,
-                            lastDayOverloaded: loadingData.lastDayOverloaded,
-                            warningValue: loadingData.lastDayOverloaded,
-                            modal:
-                                <TeamMemberLoadLogModal
-                                    logsData={loadingData.programData}
-                                    warningThreshold={5}
-                                    warnBelowThreshold={true}
-                                />
-                        })
-                    } else {
-                        resolve({
-                            username: athleteData.username,
-                            email: athleteData.email,
-                            lastDayOverloaded: '',
-                            warningValue: undefined,
-                            modal: 'No Loading Data'
-                        })
-                    }
+                    //     resolve({
+                    //         username: athleteData.username,
+                    //         email: athleteData.email,
+                    //         lastDayOverloaded: loadingData.lastDayOverloaded,
+                    //         warningValue: loadingData.lastDayOverloaded,
+                    //         modal:
+                    //             <TeamMemberLoadLogModal
+                    //                 logsData={loadingData.programData}
+                    //                 warningThreshold={5}
+                    //                 warnBelowThreshold={true}
+                    //             />
+                    //     })
+                    // } else {
+                    //     resolve({
+                    //         username: athleteData.username,
+                    //         email: athleteData.email,
+                    //         lastDayOverloaded: '',
+                    //         warningValue: undefined,
+                    //         modal: 'No Loading Data'
+                    //     })
+                    // }
                 })
         })
     }
@@ -983,7 +1037,7 @@ class ManageCoachTeamsPage extends Component {
                 },
                 {
                     Header: 'Joining Date',
-                    accessor: 'joinDate'
+                    accessor: 'joiningDate'
                 },
                 {
                     accessor: 'buttons'
@@ -992,31 +1046,21 @@ class ManageCoachTeamsPage extends Component {
             data: []
         }
         if (currentAthletes) {
-
-
-
-            Object.keys(currentAthletes).forEach(athleteUID => {
-                var athlete = currentAthletes[athleteUID]
-                if (athlete.teams) {
-                    var teamNames = Object.keys(athlete.teams)
-
-                    if (teamNames.includes(team) && athlete.teams[team].activeMember) {
-                        payLoad.data.push({
-                            username: athlete.username,
-                            email: athlete.email,
-                            athleteUID: athleteUID,
-                            joinDate: utsToDateString(parseInt(athlete.joinDate)),
-                            joinDateUTS: parseInt(athlete.joinDate),
-                            buttons:
-                                <Button
-                                    className='lightRedButton-inverted'
-                                    onClick={() => { this.handleRemoveAthleteFromTeam(team, athleteUID) }}
-                                >
-                                    Remove From Team
-                                </Button>
-                        })
-                    }
-                }
+            currentAthletes.forEach(athlete => {
+                payLoad.data.push({
+                    username: athlete.username,
+                    email: athlete.email,
+                    athleteUID: athlete.athleteUID,
+                    joiningDate: utsToDateString(parseInt(athlete.joiningDate)),
+                    joiningDateUTS: parseInt(athlete.joiningDate),
+                    buttons:
+                        <Button
+                            className='lightRedButton-inverted'
+                            onClick={() => { this.handleRemoveAthleteFromTeam(team, athlete.athleteUID) }}
+                        >
+                            Remove From Team
+                        </Button>
+                })
             })
 
             return payLoad
@@ -1136,8 +1180,6 @@ class ManageCoachTeamsPage extends Component {
             currTeam,
             manageTeamsTableData
         } = this.state
-
-        console.log(manageTeamsTableData)
         console.log(currTeam)
         let loadingHTML =
             <Dimmer active>
@@ -1283,9 +1325,9 @@ class ManageCoachTeamsPage extends Component {
                     <div className='centred-info'>
                         <div className='pageContainerLevel1 half-width'>
                             <ProgramDeployment
-                                initProgTabData={programTableData}
+                                initProgTabData={currTeam.programData}
                                 submitHandler={this.handleDeployTeamProgram}
-                                initProgGroupTabData={programGroupTableData}
+                                initProgGroupTabData={currTeam.programGroupData}
                             />
                         </div>
                     </div>
