@@ -595,40 +595,68 @@ class Firebase {
         })
     }
 
-    deleteProgramDB = (programUID, userType, userUID) => {
+    deleteProgramDB = (programUID, userType, userUID, status) => {
 
         if (userType === 'athlete') {
             return new Promise((res, rej) => {
+                this.database
+                    .collection('programs')
+                    .where('programUID', '==', programUID)
+                    .where('athlete', '==', userUID)
+                    .where('status', '==', status)
+                    .get()
+                    .then(snap => {
+                        const batch = this.database.batch()
+                        const docUID = snap.docs[0].id
+                        var progRef = this.database.collection('programs').doc(docUID)
 
+                        batch.delete(progRef)
+
+                        progRef
+                            .collection('exercises')
+                            .get()
+                            .then(coll => {
+                                if (coll.exists) {
+                                    coll.docs.forEach(doc => {
+                                        var dayRef = progRef.collection('exercises').doc(doc.id)
+                                        batch.delete(dayRef)
+                                    })
+                                }
+                                batch.commit()
+                                res(true)
+                            })
+                    })
             })
-
-            this.database
-                .collection('programs')
-                .where('programUID', '==', programUID)
-                .where('athlete', '==', userUID)
-                .get()
-                .then(snap => {
-                    const docUID = snap.docs[0].id
-                    return this.database
-                        .collection('programs')
-                        .doc(docUID)
-                        .delete()
-
-                })
         } else {
-            return this.database
-                .collection('programs')
-                .where('programUID', '==', programUID)
-                .where('owner', '==', userUID)
-                .get()
-                .then(snap => {
-                    const docUID = snap.docs[0].id
-                    return this.database
-                        .collection('programs')
-                        .doc(docUID)
-                        .delete()
+            return new Promise((res, rej) => {
+                this.database
+                    .collection('programs')
+                    .where('programUID', '==', programUID)
+                    .where('owner', '==', userUID)
+                    .where('athlete', '==', userUID)
+                    .where('status', '==', status)
+                    .get()
+                    .then(snap => {
+                        const batch = this.database.batch()
+                        const docUID = snap.docs[0].id
+                        var progRef = this.database.collection('programs').doc(docUID)
+                        batch.delete(progRef)
 
-                })
+                        progRef
+                            .collection('exercises')
+                            .get()
+                            .then(coll => {
+                                if (!coll.empty) {
+                                    coll.docs.forEach(doc => {
+                                        var dayRef = progRef.collection('exercises').doc(doc.id)
+                                        batch.delete(dayRef)
+                                    })
+                                }
+                                batch.commit()
+                                res(true)
+                            })
+                    })
+            })
         }
     }
 

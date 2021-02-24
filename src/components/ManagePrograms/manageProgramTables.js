@@ -34,7 +34,7 @@ const ManageProgramTables = ({ pendingData, currentData, pastData }) => {
                 table === 'past' &&
                 <>
                     {
-                        currentData ?
+                        pastData ?
                             <BasicTable
                                 columns={pastData.columns}
                                 data={pastData.data}

@@ -1381,16 +1381,28 @@ class ManageProgramsPage extends Component {
             pageBodyContentLoading: true
         }, () => {
 
-            var newTableData = this.initProgramTableData(
-                this.state.nonPendingProgList,
+            var newPastTableData = this.initPastProgramTableData(
+                this.state.pastProgList,
                 !this.state.editMode
             )
+
+            var newCurrTableData = this.initCurrentProgramTableData(
+                this.state.currProgList,
+                !this.state.editMode,
+                this.state.user.getUserType()
+            )
+
+            // var newTableData = this.initProgramTableData(
+            //     this.state.nonPendingProgList,
+            //     !this.state.editMode
+            // )
 
 
             this.setState(prev => ({
                 ...prev,
                 editMode: !this.state.editMode,
-                progManageTableData: newTableData,
+                currentProgTableData: newCurrTableData,
+                pastProgTableData: newPastTableData,
                 pageBodyContentLoading: false
             }))
         })
@@ -1407,28 +1419,36 @@ class ManageProgramsPage extends Component {
 
             this.state.nonPendingProgList.removeProgram(programUID)
 
-            if (progObj.getStatus === 'current') {
+            if (progObj.getStatus() === 'current') {
                 this.state.currProgList.removeProgram(programUID)
+                var tableTarget = 'currentProgTableData'
+                var newTableData = this.initCurrentProgramTableData(
+                    this.state.currProgList,
+                    this.state.editMode,
+                    this.state.user.getUserType()
+                )
+
             } else if (progObj.getStatus() === 'past') {
                 this.state.pastProgList.removeProgram(programUID)
+                var tableTarget = 'pastProgTableData'
+                var newTableData = this.initPastProgramTableData(
+                    this.state.pastProgList,
+                    this.state.editMode
+                )
             }
-
-            let newTableData = this.initProgramTableData(
-                this.state.nonPendingProgList,
-                this.state.editMode
-            )
 
             this.setState(prev => ({
                 ...prev,
                 pageBodyContentLoading: false,
-                progManageTableData: newTableData
+                [tableTarget]: newTableData
             }))
 
-            this.props.firebase.deleteProgramDB(
-                programUID,
-                this.state.user.getUserType(),
-                this.state.user.getID()
-            )
+            // this.props.firebase.deleteProgramDB(
+            //     programUID,
+            //     this.state.user.getUserType(),
+            //     this.state.user.getID(),
+            //     progObj.getStatus()
+            // )
         })
     }
 
@@ -1521,8 +1541,8 @@ class ManageProgramsPage extends Component {
                                     }
                                 </div>
                                 {
-                                    user && user.getUserType() === 'coach' &&
-                                    <div id='hpRightBtnContainer'>
+                                    user && user.getUserType() === 'coach' && currentProgTableData &&
+                                    < div id='hpRightBtnContainer'>
                                         <CreateProgramGroupModal
                                             programTableData={currentProgTableData.data}
                                             handleFormSubmit={this.handleCreateProgramGroup}
@@ -1587,7 +1607,7 @@ class ManageProgramsPage extends Component {
                     />
 
                 }
-            </NonLandingPageWrapper>
+            </NonLandingPageWrapper >
 
         let pageBodyContentLoadingHTML =
             <NonLandingPageWrapper>
