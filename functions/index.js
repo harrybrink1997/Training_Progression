@@ -7,16 +7,14 @@ exports.setUserPrivledges = functions.https.onCall((data, context) => {
 })
 
 exports.cleanUpDBPostProgDelete = functions.firestore
-    .document('programs/{programUID}')
+    .document('programs/{docUID}')
     .onDelete((snapshot, context) => {
         admin.firestore()
             .collection('goals')
-            .where('programUID', '==', context.params.programUID)
+            .where('programUID', '==', snapshot.programUID)
             .get()
             .then(goalSnap => {
                 if (!goalSnap.empty) {
-                    console.log('going in correct location')
-
                     var batch = admin.firestore().batch()
                     var goalRef = admin.firestore().collection('goals')
 

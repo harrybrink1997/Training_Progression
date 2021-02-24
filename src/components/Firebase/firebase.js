@@ -598,7 +598,11 @@ class Firebase {
     deleteProgramDB = (programUID, userType, userUID) => {
 
         if (userType === 'athlete') {
-            return this.database
+            return new Promise((res, rej) => {
+
+            })
+
+            this.database
                 .collection('programs')
                 .where('programUID', '==', programUID)
                 .where('athlete', '==', userUID)
@@ -987,6 +991,89 @@ class Firebase {
                     deployProgramData: data[3]
                 })
             })
+        })
+    }
+
+    deployTeamPrograms = (coachUID, athleteData, programData, coachData) => {
+        return new Promise((res, rej) => {
+
+            var programUIDList = Object.keys(programData)
+
+            var currentPendingPromises = []
+
+            athleteData.forEach(athlete => {
+                currentPendingPromises.push(
+                    this.removeAthleteAssignedPendingProgramList(
+                        coachUID,
+                        athlete,
+                        programUIDList
+                    )
+                )
+            })
+
+            Object.values(programData).forEach(program => {
+                console.log(program)
+            })
+
+            Promise.all(currentPendingPromises).then(result => {
+                const batch = this.database.batch()
+
+                var completeProgramData = []
+
+                programUIDList.forEach(programUID => {
+                    completeProgramData.push(
+                        this.generateProgDeploymentData(coachUID, programUID)
+                    )
+                })
+
+                Promise.all(completeProgramData).then(data => {
+                    data.forEach(program => {
+                        console.log(program)
+
+                        athleteData.forEach(altheteUID => {
+
+
+                        })
+                    })
+                })
+
+            })
+        })
+    }
+
+    removeAthleteAssignedPendingProgramList = (
+        coachUID,
+        athleteUID,
+        programList
+    ) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('programs')
+                .where('programUID', 'in', programList)
+                .where('owner', '==', coachUID)
+                .where('athlete', '==', athleteUID)
+                .where('status', '==', 'pending')
+                .get()
+                .then(snap => {
+                    if (snap.empty) {
+
+                    } else {
+                        const batch = this.database.batch()
+
+                        snap.docs.forEach(doc => {
+                            var docUID = doc.id
+
+                            this.database
+                                .collection('programs')
+
+
+
+                        })
+
+                        res(true)
+                        console.log(snap.docs.length)
+                    }
+                })
         })
     }
 

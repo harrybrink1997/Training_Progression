@@ -549,7 +549,14 @@ class ManageCoachTeamsPage extends Component {
 
                 console.log(progObj)
                 console.log(progInfo)
+                console.log(athleteList)
 
+                this.props.firebase.deployTeamPrograms(
+                    this.props.firebase.auth.currentUser.uid,
+                    athleteList,
+                    progInfo,
+                    progObj
+                )
                 // this.props.firebase.createTeamUpstream(payLoad)
                 // this.setState(prevState => ({
                 //     ...prevState,
