@@ -323,26 +323,6 @@ class ManageCoachTeamsPage extends Component {
             pageBodyContentLoading: true
         }), () => {
 
-            // this.props.firebase.getUserData(
-            //     this.props.firebase.auth.currentUser.uid
-            // ).once('value', userData => {
-            //     const userObject = userData.val();
-            //     const currAthObject = userObject.currentAthletes
-            //     if (currAthObject) {
-            //         const athleteData = []
-            // Object.keys(currAthObject).forEach(athlete => {
-            //     if (currAthObject[athlete].teams) {
-            //         // If the program exists in the athletes teams list.
-            //         if (Object.keys(currAthObject[athlete].teams).includes(this.state.currTeam.team)) {
-            //             if (currAthObject[athlete].teams[this.state.currTeam.team].activeMember) {
-            //                 athleteData.push({
-            //                     uid: athlete,
-            //                     sharedPrograms: currAthObject[athlete].teams[this.state.currTeam.team].sharedPrograms
-            //                 })
-            //             }
-            //         }
-            //     }
-            // })
             this.props.firebase.getTeamProgramData(
                 this.props.firebase.auth.currentUser.uid,
                 this.state.currTeam.team
@@ -493,53 +473,6 @@ class ManageCoachTeamsPage extends Component {
                     })
                 }
 
-                // athleteData.forEach(athlete => {
-                //     if (programData.unlimited) {
-                //         programData.unlimited.forEach(program => {
-
-                //             var insertionProgramObject = this.state.currentProgramsData[program.programUID]
-                //             insertionProgramObject.currentDayInProgram = 1
-                //             insertionProgramObject.deploymentDate = timestamp
-
-                //             // Database path to insert into the athletes pending programs.
-                //             payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
-                //             // Database path to keep track of what programs have been shared with which athlete and when.
-                //         })
-                //     }
-
-                //     if (programData.sequential) {
-                //         programData.sequential.forEach(program => {
-
-                //             var isActiveInSequence = false
-                //             if (programData.sequenceName === 'preDetermined') {
-                //                 if (parseInt(program.order.split('_')[0]) === 1) {
-                //                     isActiveInSequence = true
-                //                 }
-                //             } else {
-                //                 if (parseInt(program.order) === 1) {
-                //                     isActiveInSequence = true
-                //                 }
-                //             }
-
-                //             var insertionProgramObject = this.state.currentProgramsData[program.programUID]
-                //             insertionProgramObject.currentDayInProgram = 1
-                //             insertionProgramObject.isActiveInSequence = isActiveInSequence
-                //             insertionProgramObject.order =
-                //                 programData.sequenceName === 'preDetermined' ?
-                //                     program.order
-                //                     :
-                //                     program.order
-                //                     + '_' + programData.sequenceName
-                //                     + '_' + teamName
-                //                     + '_' + this.props.firebase.auth.currentUser.uid
-                //                     + '_' + timestamp
-                //             insertionProgramObject.deploymentDate = timestamp
-
-                //             payLoad['/users/' + athlete.uid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
-                //         })
-                //     }
-                // })
-
                 frontEndPayLoad.sort((a, b) => {
                     return cmp(
                         [-cmp(a.deploymentUTS, b.deploymentUTS), cmp(a.sequenceName, b.sequenceName), cmp(a.order, b.order),],
@@ -547,29 +480,27 @@ class ManageCoachTeamsPage extends Component {
                     )
                 })
 
-                console.log(progObj)
-                console.log(progInfo)
-                console.log(athleteList)
-
                 this.props.firebase.deployTeamPrograms(
                     this.props.firebase.auth.currentUser.uid,
                     athleteList,
                     progInfo,
-                    progObj
-                )
-                // this.props.firebase.createTeamUpstream(payLoad)
-                // this.setState(prevState => ({
-                //     ...prevState,
-                //     pageBodyContentLoading: false,
-                //     currTeam: {
-                //         ...prevState.currTeam,
-                //         view: this.state.currTeam.pageHistory.back(),
-                //         currTeamProgramData: {
-                //             ...prevState.currTeam.currTeamProgramData,
-                //             data: frontEndPayLoad
-                //         }
-                //     }
-                // }))
+                    progObj,
+                    this.state.currTeam.team
+                ).then(res => {
+                    this.setState(prevState => ({
+                        ...prevState,
+                        pageBodyContentLoading: false,
+                        currTeam: {
+                            ...prevState.currTeam,
+                            view: this.state.currTeam.pageHistory.back(),
+                            currTeamProgramData: {
+                                ...prevState.currTeam.currTeamProgramData,
+                                data: frontEndPayLoad
+                            }
+                        }
+                    }))
+
+                })
             })
 
 
@@ -1430,7 +1361,7 @@ class ManageCoachTeamsPage extends Component {
                     && currTeam
                     && pageBodyContentLoadingHTML
                 }
-            </div>
+            </div >
         )
     }
 }
