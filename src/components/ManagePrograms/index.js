@@ -522,7 +522,9 @@ class ManageProgramsPage extends Component {
             }
         }), () => {
             this.props.firebase.getProgramExData(
-                this.state.currProgram.programUID
+                this.state.user.getUserType() === 'coach',
+                this.props.firebase.auth.currentUser.uid,
+                this.state.currProgram.programUID,
             )
                 .then(snapshot => {
 
@@ -549,6 +551,8 @@ class ManageProgramsPage extends Component {
                         )
 
                         this.props.firebase.submitDayDB(
+                            this.state.user.getUserType() === 'coach',
+                            this.props.firebase.auth.currentUser.uid,
                             this.state.currProgram.programUID,
                             programObject.currentDay,
                             processedDayData
@@ -614,6 +618,8 @@ class ManageProgramsPage extends Component {
             frontEndProgData.currentDay += 1
 
             this.props.firebase.submitDayDB(
+                this.state.user.getUserType() === 'coach',
+                this.props.firebase.auth.currentUser.uid,
                 this.state.currProgram.programUID,
                 programObject.currentDay,
                 processedDayData

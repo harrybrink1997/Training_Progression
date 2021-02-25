@@ -667,24 +667,81 @@ class Firebase {
         }
     }
 
-    submitDayDB = (programUID, day, loadingData) => {
-        return this.database
-            .collection('programs')
-            .doc(programUID)
-            .collection('exercises')
-            .doc(day.toString())
-            .set({ loadingData: loadingData }, { merge: true })
-            .then(res => {
-                return this.database
+    submitDayDB = (isCoach, userUID, programUID, day, loadingData) => {
+        if (isCoach) {
+            return new Promise((res, rej) => {
+                this.database
                     .collection('programs')
-                    .doc(programUID)
-                    .update({
-                        currentDay: day + 1
+                    .where('programUID', '==', programUID)
+                    .where('owner', '==', userUID)
+                    .where('athlete', '==', userUID)
+                    .where('status', '==', 'current')
+                    .get()
+                    .then(snap => {
+                        if (!snap.empty && snap.docs.length === 1) {
+                            let docUID = snap.docs[0].id
+                            const batch = this.database.batch()
+                            let progRef = this.database
+                                .collection('programs')
+                                .doc(docUID)
+
+                            let dayRef = progRef
+                                .collection('exercises')
+                                .doc(day.toString())
+
+                            batch.set(
+                                dayRef,
+                                { loadingData: loadingData },
+                                { merge: true }
+                            )
+
+                            batch.update(
+                                progRef,
+                                { currentDay: day + 1 }
+                            )
+
+                            batch.commit()
+                            res(true)
+                        }
                     })
             })
-            .catch(error => {
-                return error
+        } else {
+            return new Promise((res, rej) => {
+                this.database
+                    .collection('programs')
+                    .where('programUID', '==', programUID)
+                    .where('athlete', '==', userUID)
+                    .where('status', '==', 'current')
+                    .get()
+                    .then(snap => {
+                        if (!snap.empty && snap.docs.length === 1) {
+                            let docUID = snap.docs[0].id
+                            const batch = this.database.batch()
+                            let progRef = this.database
+                                .collection('programs')
+                                .doc(docUID)
+
+                            let dayRef = progRef
+                                .collection('exercises')
+                                .doc(day.toString())
+
+                            batch.set(
+                                dayRef,
+                                { loadingData: loadingData },
+                                { merge: true }
+                            )
+
+                            batch.update(
+                                progRef,
+                                { currentDay: day + 1 }
+                            )
+
+                            batch.commit()
+                            res(true)
+                        }
+                    })
             })
+        }
     }
 
     getAnatomyData = () => {
@@ -708,7 +765,7 @@ class Firebase {
                 .where('owner', '==', userUID)
                 .where('athlete', '==', userUID)
                 .where('programUID', '==', programUID)
-                .where('status', 'current')
+                .where('status', '==', 'current')
                 .get()
                 .then(snap => {
                     var docUID = snap.docs[0].id
@@ -724,7 +781,7 @@ class Firebase {
                 .collection('programs')
                 .where('athlete', '==', userUID)
                 .where('programUID', '==', programUID)
-                .where('status', 'current')
+                .where('status', '==', 'current')
                 .get()
                 .then(snap => {
                     var docUID = snap.docs[0].id
