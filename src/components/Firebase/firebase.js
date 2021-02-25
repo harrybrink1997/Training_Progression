@@ -706,7 +706,9 @@ class Firebase {
             return this.database
                 .collection('programs')
                 .where('owner', '==', userUID)
+                .where('athlete', '==', userUID)
                 .where('programUID', '==', programUID)
+                .where('status', 'current')
                 .get()
                 .then(snap => {
                     var docUID = snap.docs[0].id
@@ -722,6 +724,7 @@ class Firebase {
                 .collection('programs')
                 .where('athlete', '==', userUID)
                 .where('programUID', '==', programUID)
+                .where('status', 'current')
                 .get()
                 .then(snap => {
                     var docUID = snap.docs[0].id
@@ -797,25 +800,47 @@ class Firebase {
 
     updateExerciseDB = (isCoach, userUID, programUID, day, exUID, exData) => {
 
-        var searchField = isCoach ? 'owner' : 'athlete'
+        if (isCoach) {
+            return this.database
+                .collection('programs')
+                .where('athlete', '==', userUID)
+                .where('owner', '==', userUID)
+                .where('programUID', '==', programUID)
+                .where('status', '==', 'current')
+                .get()
+                .then(snap => {
+                    var docUID = snap.docs[0].id
 
-        return this.database
-            .collection('programs')
-            .where(searchField, '==', userUID)
-            .where('programUID', '==', programUID)
-            .get()
-            .then(snap => {
-                var docUID = snap.docs[0].id
+                    this.database
+                        .collection('programs')
+                        .doc(docUID)
+                        .collection('exercises')
+                        .doc(day)
+                        .update({
+                            [exUID]: exData
+                        })
+                })
 
-                this.database
-                    .collection('programs')
-                    .doc(docUID)
-                    .collection('exercises')
-                    .doc(day)
-                    .update({
-                        [exUID]: exData
-                    })
-            })
+        } else {
+            return this.database
+                .collection('programs')
+                .where('athlete', '==', userUID)
+                .where('programUID', '==', programUID)
+                .where('status', '==', 'current')
+                .get()
+                .then(snap => {
+                    var docUID = snap.docs[0].id
+
+                    this.database
+                        .collection('programs')
+                        .doc(docUID)
+                        .collection('exercises')
+                        .doc(day)
+                        .update({
+                            [exUID]: exData
+                        })
+                })
+        }
 
     }
 
