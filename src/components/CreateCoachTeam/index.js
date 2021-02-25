@@ -181,11 +181,12 @@ class CreateCoachTeamPage extends Component {
                 athletePayload,
                 athleteList,
                 progInfo
-            ).then(snap => {
-                this.setState({
-                    createTeamProcessing: false
-                })
+            )
+            // .then(snap => {
+            this.setState({
+                createTeamProcessing: false
             })
+            // })
         })
 
     }

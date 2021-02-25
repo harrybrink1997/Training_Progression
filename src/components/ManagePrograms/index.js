@@ -664,8 +664,8 @@ class ManageProgramsPage extends Component {
     }
 
     handleStartProgram = (startDateUTS) => {
-        console.log('start program')
         this.props.firebase.startProgramDB(
+            this.props.firebase.auth.currentUser.uid,
             this.state.currProgram.programUID,
             startDateUTS
         )
@@ -796,78 +796,74 @@ class ManageProgramsPage extends Component {
         }
     }
 
-    handlePendingProgramReplacement = (programName, replacementType, currentDayInProgram) => {
+    handlePendingProgramReplacement = (programUID, replacementType, currentDayInProgram) => {
 
-        console.log(programName)
+        console.log(programUID)
         console.log(replacementType)
         console.log(currentDayInProgram)
 
         // Handles the replacement of unlimited programs not sequential programs. That is more involved and found in another function. 
-        var basePath =
-            '/users/'
-            + this.props.firebase.auth.currentUser.uid
+        // var basePath =
+        //     '/users/'
+        //     + this.props.firebase.auth.currentUser.uid
 
-        var currPath =
-            basePath
-            + '/currentPrograms/'
+        // var currPath =
+        //     basePath
+        //     + '/currentPrograms/'
 
         if (replacementType === 'future') {
-            var maxDay = 0
-            Object.keys(this.state.pendingProgramsData[programName]).forEach(key => {
-                if (parseInt(key)) {
-                    if (parseInt(key) > maxDay) {
-                        maxDay = key
-                    }
-                }
-            })
-            var path =
-                currPath
-                + programName + '/'
-            var payload = {}
-            for (var day = currentDayInProgram + 1; day <= maxDay; day++) {
+            console.log('going in ')
+            // var maxDay = 0
+            // Object.keys(this.state.pendingProgramsData[programName]).forEach(key => {
+            //     if (parseInt(key)) {
+            //         if (parseInt(key) > maxDay) {
+            //             maxDay = key
+            //         }
+            //     }
+            // })
+            // var path =
+            //     currPath
+            //     + programName + '/'
+            // var payload = {}
+            // for (var day = currentDayInProgram + 1; day <= maxDay; day++) {
 
-                (this.state.pendingProgramsData[programName][day]) ?
-                    payload[path + day.toString()] = this.state.pendingProgramsData[programName][day]
-                    : payload[path + day.toString()] = {}
-            }
+            //     (this.state.pendingProgramsData[programName][day]) ?
+            //         payload[path + day.toString()] = this.state.pendingProgramsData[programName][day]
+            //         : payload[path + day.toString()] = {}
+            // }
 
-            if (this.state.currentProgramsData[programName].order) {
-                payload[path + 'isActiveInSequence'] = null
-                payload[path + 'order'] = null
-            }
+            // if (this.state.currentProgramsData[programName].order) {
+            //     payload[path + 'isActiveInSequence'] = null
+            //     payload[path + 'order'] = null
+            // }
 
         } else {
-            var path =
-                currPath
-                + programName
 
-            var payload = {}
-
-            payload[path] = this.state.pendingProgramsData[programName]
+            this.handlePendingProgramRequestAcceptence(programUID, true)
         }
 
         // Handle the behaviour of the current program sequences data.
-        var currProgData = this.state.currentProgramsData[programName]
-        if (currProgData.order) {
-            var relatedCurrProgs = this.findRelatedSequentialPrograms(this.state.currentProgramsData, currProgData.order)
+        // var currProgData = this.state.currentProgramsData[programName]
+        // if (currProgData.order) {
+        //     var relatedCurrProgs = this.findRelatedSequentialPrograms(this.state.currentProgramsData, currProgData.order)
 
-            // Remove the other programs in the sequence from the athletes current programs. 
-            relatedCurrProgs.forEach(relProg => {
-                payload[currPath + relProg.programUID] = null
-            })
-        }
+        //     // Remove the other programs in the sequence from the athletes current programs. 
+        //     relatedCurrProgs.forEach(relProg => {
+        //         payload[currPath + relProg.programUID] = null
+        //     })
+        // }
 
 
-        payload[basePath + '/activeProgram'] = programName
-        var pendingPath =
-            basePath
-            + '/pendingPrograms/'
-            + programName
+        // payload[basePath + '/activeProgram'] = programName
+        // var pendingPath =
+        //     basePath
+        //     + '/pendingPrograms/'
+        //     + programName
 
-        payload[pendingPath] = null
+        // payload[pendingPath] = null
 
-        // console.log(payload)
-        // this.props.firebase.updateDatabaseFromRootPath(payload)
+        // // console.log(payload)
+        // // this.props.firebase.updateDatabaseFromRootPath(payload)
     }
 
     generatePendingTableData = (programList, currentProgList) => {
@@ -1226,19 +1222,20 @@ class ManageProgramsPage extends Component {
                     acceptProgList.push(programInfo.programUID)
                 })
             }
+            console.log(deleteProgList)
+            console.log(acceptProgList)
+            // this.props.firebase.handleAcceptPendingProgramCompleteReplace(
+            //     this.props.firebase.auth.currentUser.uid,
+            //     deleteProgList,
+            //     acceptProgList
+            // ).then(result => {
+            this.setState(prev => ({
+                ...prev,
+                currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode, this.state.user.getUserType()),
+                pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
 
-            this.props.firebase.handleAcceptPendingProgramCompleteReplace(
-                this.props.firebase.auth.currentUser.uid,
-                deleteProgList,
-                acceptProgList
-            ).then(result => {
-                this.setState(prev => ({
-                    ...prev,
-                    currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode, this.state.user.getUserType()),
-                    pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
-
-                }))
-            })
+            }))
+            // })
 
         } else {
             this.state.pendingProgList.removeProgram(programUID)
@@ -1255,16 +1252,16 @@ class ManageProgramsPage extends Component {
                 })
             }
             console.log(this.props.firebase.auth.currentUser.uid)
-            this.props.firebase.handlePendingProgramDenied(
-                this.props.firebase.auth.currentUser.uid,
-                programUIDList
-            ).then(res => {
-                this.setState(prev => ({
-                    ...prev,
-                    pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
+            // this.props.firebase.handlePendingProgramDenied(
+            //     this.props.firebase.auth.currentUser.uid,
+            //     programUIDList
+            // ).then(res => {
+            this.setState(prev => ({
+                ...prev,
+                pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
 
-                }))
-            })
+            }))
+            // })
         }
 
     }
@@ -1368,14 +1365,9 @@ class ManageProgramsPage extends Component {
             this.state.nonPendingProgList.addProgStart(newProg)
             this.state.currProgList.addProgStart(newProg)
 
-            let newTableData = this.initProgramTableData(
-                this.state.nonPendingProgList,
-                this.state.editMode
-            )
-
             this.setState(prev => ({
                 ...prev,
-                progManageTableData: newTableData,
+                currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode),
                 pageBodyContentLoading: false
             }))
 
