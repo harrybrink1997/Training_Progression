@@ -1182,75 +1182,89 @@ class ManageProgramsPage extends Component {
         var pendingProgram = this.state.pendingProgList.getProgram(programUID)
 
         if (isAccepted) {
+            var deleteProgList = []
+            var acceptProgList = []
 
             var currentProgram = this.state.currProgList.getProgram(programUID)
 
             if (currentProgram) {
                 this.state.currProgList.removeProgram(programUID)
+
+                deleteProgList.push(programUID)
+
+                this.state.nonPendingProgList.removeProgram(programUID)
             }
 
             this.state.pendingProgList.removeProgram(programUID)
             this.state.currProgList.addProgStart(pendingProgram)
+            this.state.nonPendingProgList.addProgStart(pendingProgram)
+            acceptProgList.push(programUID)
 
             if (pendingProgram.getOrder()) {
                 var relatedPrograms = this.state.pendingProgList.findRelatedSequentialPrograms(pendingProgram.getOrder())
 
                 relatedPrograms.forEach(programInfo => {
+
+                    var currRelatedProg = this.state.currProgList.getProgram(programInfo.programUID)
+
+                    if (currRelatedProg) {
+                        this.state.currProgList.removeProgram(programInfo.programUID)
+
+                        this.state.nonPendingProgList.removeProgram(programInfo.programUID)
+
+                        deleteProgList.push(programInfo.programUID)
+                    }
+
                     var program = this.state.pendingProgList.getProgram(programInfo.programUID)
+
                     this.state.pendingProgList.removeProgram(program.getProgramUID())
 
                     this.state.currProgList.addProgStart(program)
+
+                    this.state.nonPendingProgList.addProgStart(program)
+
+                    acceptProgList.push(programInfo.programUID)
                 })
             }
 
-            this.setState(prev => ({
-                ...prev,
-                currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode, this.state.user.getUserType()),
-                pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
+            this.props.firebase.handleAcceptPendingProgramCompleteReplace(
+                this.props.firebase.auth.currentUser.uid,
+                deleteProgList,
+                acceptProgList
+            ).then(result => {
+                this.setState(prev => ({
+                    ...prev,
+                    currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode, this.state.user.getUserType()),
+                    pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
 
-            }))
-
-            // var currProgPath =
-            //     basePath
-            //     + '/currentPrograms/'
-
-            // payload[basePath + '/activeProgram'] = programName
-            // payload[currProgPath + programName] = this.state.pendingProgramsData[programName]
-            // payload[pendingPath + programName] = null
-
-            // if (this.state.pendingProgramsData[programName].order) {
-
-            //     var relatedProgs = this.findRelatedSequentialPrograms(
-            //         this.state.pendingProgramsData,
-            //         this.state.pendingProgramsData[programName].order
-            //     )
-
-            //     relatedProgs.forEach(relatedProgram => {
-            //         payload[currProgPath + relatedProgram.programUID] = this.state.pendingProgramsData[relatedProgram.programUID]
-
-            //         payload[pendingPath + relatedProgram.programUID] = null
-            //     })
-            // }
+                }))
+            })
 
         } else {
             this.state.pendingProgList.removeProgram(programUID)
 
+            var programUIDList = [programUID]
+
             if (pendingProgram.getOrder()) {
                 var relatedPrograms = this.state.pendingProgList.findRelatedSequentialPrograms(pendingProgram.getOrder())
 
                 relatedPrograms.forEach(programInfo => {
                     var program = this.state.pendingProgList.getProgram(programInfo.programUID)
                     this.state.pendingProgList.removeProgram(program.getProgramUID())
-
+                    programUIDList.push(program.getProgramUID())
                 })
             }
+            console.log(this.props.firebase.auth.currentUser.uid)
+            this.props.firebase.handlePendingProgramDenied(
+                this.props.firebase.auth.currentUser.uid,
+                programUIDList
+            ).then(res => {
+                this.setState(prev => ({
+                    ...prev,
+                    pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
 
-
-            this.setState(prev => ({
-                ...prev,
-                pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
-
-            }))
+                }))
+            })
         }
 
     }
@@ -1392,12 +1406,6 @@ class ManageProgramsPage extends Component {
                 this.state.user.getUserType()
             )
 
-            // var newTableData = this.initProgramTableData(
-            //     this.state.nonPendingProgList,
-            //     !this.state.editMode
-            // )
-
-
             this.setState(prev => ({
                 ...prev,
                 editMode: !this.state.editMode,
@@ -1443,12 +1451,12 @@ class ManageProgramsPage extends Component {
                 [tableTarget]: newTableData
             }))
 
-            // this.props.firebase.deleteProgramDB(
-            //     programUID,
-            //     this.state.user.getUserType(),
-            //     this.state.user.getID(),
-            //     progObj.getStatus()
-            // )
+            this.props.firebase.deleteProgramDB(
+                programUID,
+                this.state.user.getUserType(),
+                this.state.user.getID(),
+                progObj.getStatus()
+            )
         })
     }
 
@@ -1558,15 +1566,6 @@ class ManageProgramsPage extends Component {
                                 data={currProgram.programData}
                                 programUID={currProgram.programUID}
                             />
-                        }
-                        {
-                            pendingList && !pendingList.isEmptyList() &&
-                            <div id='pendingProgramsModalContainer'>
-                                {/* <ManagePendingProgramsModal
-                                    programTableData={pendingProgramsTableData}
-                                    numPrograms={pendingList.countPrograms()}
-                                /> */}
-                            </div>
                         }
                     </div>
                 </div>

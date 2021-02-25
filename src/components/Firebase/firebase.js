@@ -1023,6 +1023,69 @@ class Firebase {
         })
     }
 
+    handleAcceptPendingProgramCompleteReplace = (athleteUID, deleteProgList, acceptProgList) => {
+        console.log(deleteProgList)
+        console.log(acceptProgList)
+        return new Promise((res, rej) => {
+            var promises = []
+
+            deleteProgList.forEach(programUID => {
+                promises.push(
+                    this.deleteProgramDB(
+                        programUID,
+                        'athlete',
+                        athleteUID,
+                        'current'
+                    )
+                )
+            })
+
+            Promise.all(promises).then(result => {
+                this.database
+                    .collection('programs')
+                    .where('programUID', 'in', acceptProgList)
+                    .where('athlete', '==', athleteUID)
+                    .where('status', '==', 'pending')
+                    .get()
+                    .then(snap => {
+                        if (!snap.empty) {
+                            const batch = this.database.batch()
+                            snap.docs.forEach(doc => {
+                                var progRef = this.database
+                                    .collection('programs')
+                                    .doc(doc.id)
+
+                                batch.update(
+                                    progRef,
+                                    { status: 'current' }
+                                )
+                            })
+
+                            batch.commit()
+                            res(true)
+                        }
+                    })
+
+                res(true)
+            })
+
+        })
+    }
+
+    handlePendingProgramDenied = (athleteUID, programUIDList) => {
+        return new Promise((res, rej) => {
+            var promises = []
+
+            programUIDList.forEach(programUID => {
+                promises.push(this.deleteProgramDB(programUID, 'athlete', athleteUID, 'pending'))
+            })
+
+            Promise.all(promises).then(result => {
+                res(true)
+            })
+        })
+    }
+
     deployTeamPrograms = (coachUID, athleteData, programData, coachData, teamName) => {
         return new Promise((res, rej) => {
             const batch = this.database.batch()
