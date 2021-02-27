@@ -1168,21 +1168,130 @@ class Firebase {
         })
     }
 
-    handleAcceptPendingProgramFutureReplace = (athleteUID, programUID, dayThreshold) => {
+    handleAcceptPendingProgramFutureReplace = (athleteUID, programUID, dayThreshold, deletePendingList, deleteCurrentList, acceptPendingList) => {
         return new Promise((res, rej) => {
 
             Promise.all([
-                this.getProgramExData(false, athleteUID, programUID, 'current'),
                 this.getProgramExData(false, athleteUID, programUID, 'pending')
             ]).then(exData => {
-                var currentExData = exData[0]
-                var pendingExData = exData[1]
+                let pendingExData = exData[0]
+                let maxPendingDay = 0
+                Object.keys(pendingExData).forEach(day => {
+                    if (parseInt(day) > maxPendingDay) {
+                        maxPendingDay = parseInt(day)
+                    }
+                })
+
+                let exPayload = {}
+                for (let day = dayThreshold; day <= maxPendingDay; day++) {
+                    if (pendingExData[day.toString()] !== undefined) {
+                        exPayload[day.toString()] = pendingExData[day.toString()]
+                    }
+                }
+
                 this.database
                     .collection('programs')
-                    .where('athlete', '==', athleteUID)
                     .where('programUID', '==', programUID)
-                    .where('status', '==',)
+                    .where('athlete', '==', athleteUID)
+                    .where('status', '==', 'current')
+                    .get()
+                    .then(snap => {
+                        if (!snap.empty && snap.docs.length === 1) {
+                            let docUID = snap.docs[0].id
+
+                            this.clearFutureProgExData(docUID, dayThreshold).then(res => {
+                                const batch = this.database.batch()
+                                let exRef = this.database.collection('programs').doc(docUID).collection('exercises')
+
+                                Object.keys(exPayload).forEach(day => {
+                                    batch.set(exRef.doc(day), exPayload[day])
+                                })
+
+
+                                let promises = []
+
+                                deleteCurrentList.forEach(progUID => {
+                                    promises.push(
+                                        this.deleteProgramDB(progUID, 'athlete', athleteUID, 'current')
+                                    )
+                                })
+
+                                deletePendingList.forEach(progUID => {
+                                    promises.push(
+                                        this.deleteProgramDB(progUID, 'athlete', athleteUID, 'pending')
+                                    )
+                                })
+
+                                acceptPendingList.forEach(progUID => {
+                                    promises.push(
+                                        this.changeAthleteProgramStatus(
+                                            progUID,
+                                            athleteUID,
+                                            'pending',
+                                            'current'
+                                        )
+                                    )
+                                })
+
+                                Promise.all(promises).then(result => {
+                                    batch.commit()
+                                    return true
+                                })
+                            })
+                        }
+                    }).then(result => {
+                        res(true)
+                    })
             })
+        })
+    }
+
+    changeAthleteProgramStatus = (programUID, athleteUID, currentStatus, futureStatus) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('programs')
+                .where('programUID', '==', programUID)
+                .where('athlete', '==', athleteUID)
+                .where('status', '==', currentStatus)
+                .get()
+                .then(snap => {
+                    if (!snap.empty && snap.docs.length === 1) {
+                        let docUID = snap.docs[0].id
+
+                        this.database.collection('programs').doc(docUID).update({
+                            status: futureStatus
+                        }).then(result => {
+                            res(true)
+                        })
+                    }
+                })
+        })
+    }
+
+    clearFutureProgExData = (docUID, day) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('programs')
+                .doc(docUID)
+                .collection('exercises')
+                .get()
+                .then(snap => {
+                    if (!snap.empty) {
+
+                        const batch = this.database.batch()
+
+                        let exRef = this.database.collection('programs').doc(docUID).collection('exercises')
+
+                        snap.docs.forEach(doc => {
+                            if (parseInt(doc.id) >= parseInt(day)) {
+                                batch.delete(exRef.doc(doc.id))
+                            }
+                        })
+
+                        batch.commit()
+                    }
+                    res(true)
+                })
         })
     }
 

@@ -807,69 +807,62 @@ class ManageProgramsPage extends Component {
         console.log(programUID)
         console.log(replacementType)
         console.log(currentDayInProgram)
-
-        // Handles the replacement of unlimited programs not sequential programs. That is more involved and found in another function. 
-        // var basePath =
-        //     '/users/'
-        //     + this.props.firebase.auth.currentUser.uid
-
-        // var currPath =
-        //     basePath
-        //     + '/currentPrograms/'
+        var pendingProgram = this.state.pendingProgList.getProgram(programUID)
 
         if (replacementType === 'future') {
-            console.log('going in ')
-            // var maxDay = 0
-            // Object.keys(this.state.pendingProgramsData[programName]).forEach(key => {
-            //     if (parseInt(key)) {
-            //         if (parseInt(key) > maxDay) {
-            //             maxDay = key
-            //         }
-            //     }
-            // })
-            // var path =
-            //     currPath
-            //     + programName + '/'
-            // var payload = {}
-            // for (var day = currentDayInProgram + 1; day <= maxDay; day++) {
+            let delPendList = []
+            let delCurrList = []
+            let acceptPendList = []
 
-            //     (this.state.pendingProgramsData[programName][day]) ?
-            //         payload[path + day.toString()] = this.state.pendingProgramsData[programName][day]
-            //         : payload[path + day.toString()] = {}
-            // }
+            // Handle the first program that is already in current programs and we don't want to do a full replace, just replace the future exercise values. Therefore delete from pending programs and not from current programs. 
+            this.state.pendingProgList.removeProgram(programUID)
+            delPendList.push(programUID)
 
-            // if (this.state.currentProgramsData[programName].order) {
-            //     payload[path + 'isActiveInSequence'] = null
-            //     payload[path + 'order'] = null
-            // }
+            if (pendingProgram.getOrder()) {
+                let relatedPrograms = this.state.pendingProgList.findRelatedSequentialPrograms(pendingProgram.getOrder())
 
+                relatedPrograms.forEach(programInfo => {
+
+                    let currRelatedProg = this.state.currProgList.getProgram(programInfo.programUID)
+
+                    if (currRelatedProg) {
+                        this.state.currProgList.removeProgram(programInfo.programUID)
+
+                        this.state.nonPendingProgList.removeProgram(programInfo.programUID)
+
+                        delCurrList.push(programInfo.programUID)
+                    }
+
+                    var program = this.state.pendingProgList.getProgram(programInfo.programUID)
+
+                    this.state.pendingProgList.removeProgram(program.getProgramUID())
+
+                    this.state.currProgList.addProgStart(program)
+
+                    this.state.nonPendingProgList.addProgStart(program)
+
+                    acceptPendList.push(programInfo.programUID)
+                })
+            }
+            this.props.firebase.handleAcceptPendingProgramFutureReplace(
+                this.props.firebase.auth.currentUser.uid,
+                programUID,
+                currentDayInProgram,
+                delPendList,
+                delCurrList,
+                acceptPendList
+            ).then(res => {
+                this.setState(prev => ({
+                    ...prev,
+                    currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode, this.state.user.getUserType()),
+                    pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
+
+                }))
+            })
         } else {
-
-            this.handlePendingProgramRequestAcceptence(programUID, true)
+            // THIS CODE IS FINE AND FUNCTIONAL - NOT TO BE CHANGED
+            // this.handlePendingProgramRequestAcceptence(programUID, true)
         }
-
-        // Handle the behaviour of the current program sequences data.
-        // var currProgData = this.state.currentProgramsData[programName]
-        // if (currProgData.order) {
-        //     var relatedCurrProgs = this.findRelatedSequentialPrograms(this.state.currentProgramsData, currProgData.order)
-
-        //     // Remove the other programs in the sequence from the athletes current programs. 
-        //     relatedCurrProgs.forEach(relProg => {
-        //         payload[currPath + relProg.programUID] = null
-        //     })
-        // }
-
-
-        // payload[basePath + '/activeProgram'] = programName
-        // var pendingPath =
-        //     basePath
-        //     + '/pendingPrograms/'
-        //     + programName
-
-        // payload[pendingPath] = null
-
-        // // console.log(payload)
-        // // this.props.firebase.updateDatabaseFromRootPath(payload)
     }
 
     generatePendingTableData = (programList, currentProgList) => {
@@ -902,7 +895,7 @@ class ManageProgramsPage extends Component {
                                             <ReplaceProgramOptionsModal
                                                 handleFormSubmit={this.handlePendingProgramReplacement}
                                                 programUID={program.getProgramUID()}
-                                                currentDayInProgram={program.getCurrentDay()}
+                                                currentDayInProgram={currentVersion.getCurrentDay()}
                                             />
                                             <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={program.getProgramUID()} />
                                         </div>
