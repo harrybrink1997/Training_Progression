@@ -123,6 +123,7 @@ class ManageProgramsPage extends Component {
 
             if (!editMode) {
                 programList.getProgramList().forEach(prog => {
+                    // if (prog.isActiveInSequence !== false) {
                     payload.data.push({
                         program: prog.getName(),
                         programUID: prog.generateProgramUID(),
@@ -138,31 +139,36 @@ class ManageProgramsPage extends Component {
                         </Button>
 
                     })
+                    // }
+
                 })
             } else {
                 programList.getProgramList().forEach(prog => {
-                    payload.data.push({
-                        program: prog.getName(),
-                        loadingScheme: loadingSchemeString(prog.getLoadingScheme()),
-                        programUID: prog.generateProgramUID(),
-                        acutePeriod: prog.getAcutePeriod(),
-                        chronicPeriod: prog.getChronicPeriod(),
-                        buttons:
-                            <>
-                                <Button
-                                    className='lightPurpleButton-inverted'
-                                    onClick={() => { this.handleProgramClick(prog.generateProgramUID()) }}
-                                >
-                                    View Program
+                    if (prog.isActiveInSequence !== false) {
+
+                        payload.data.push({
+                            program: prog.getName(),
+                            loadingScheme: loadingSchemeString(prog.getLoadingScheme()),
+                            programUID: prog.generateProgramUID(),
+                            acutePeriod: prog.getAcutePeriod(),
+                            chronicPeriod: prog.getChronicPeriod(),
+                            buttons:
+                                <>
+                                    <Button
+                                        className='lightPurpleButton-inverted'
+                                        onClick={() => { this.handleProgramClick(prog.generateProgramUID()) }}
+                                    >
+                                        View Program
                             </Button>
-                                <Button
-                                    className='lightRedButton-inverted'
-                                    onClick={() => { this.handleDeleteProgram(prog.generateProgramUID()) }}
-                                >
-                                    Delete Program
+                                    <Button
+                                        className='lightRedButton-inverted'
+                                        onClick={() => { this.handleDeleteProgram(prog.generateProgramUID()) }}
+                                    >
+                                        Delete Program
                             </Button>
-                            </>
-                    })
+                                </>
+                        })
+                    }
                 })
             }
 
@@ -807,61 +813,100 @@ class ManageProgramsPage extends Component {
         console.log(programUID)
         console.log(replacementType)
         console.log(currentDayInProgram)
-        var pendingProgram = this.state.pendingProgList.getProgram(programUID)
+        let pendingProgram = this.state.pendingProgList.getProgram(programUID)
 
         if (replacementType === 'future') {
-            let delPendList = []
-            let delCurrList = []
-            let acceptPendList = []
-
-            // Handle the first program that is already in current programs and we don't want to do a full replace, just replace the future exercise values. Therefore delete from pending programs and not from current programs. 
-            this.state.pendingProgList.removeProgram(programUID)
-            delPendList.push(programUID)
-
+            let acceptPendingList = []
+            let delCurrentList = []
+            let delPendingList = []
+            // If the pending program is sequential - remove all the relevant program in the athletes current programs first before replacing. 
             if (pendingProgram.getOrder()) {
-                let relatedPrograms = this.state.pendingProgList.findRelatedSequentialPrograms(pendingProgram.getOrder())
+                let relatedUIDs = this.state.pendingProgList.sequentialProgramUIDList(pendingProgram.getOrder())
+                acceptPendingList = [...relatedUIDs]
 
-                relatedPrograms.forEach(programInfo => {
+                // Iterate through all programs in the sequence and check if there is a version in current programs. 
+                acceptPendingList.forEach(relProgUID => {
+                    let currVersion = this.state.currProgList.getProgram(relProgUID)
 
-                    let currRelatedProg = this.state.currProgList.getProgram(programInfo.programUID)
+                    if (currVersion) {
+                        if (currVersion.order()) {
+                            // If the version is sequential in current programs get all related programUIDs. These are to be removed from current programs. 
+                            let relatedUIDs = this.state.currProgList.sequentialProgramUIDList(currVersion.getOrder())
+                            delCurrentList = [...delCurrentList, relatedUIDs]
 
-                    if (currRelatedProg) {
-                        this.state.currProgList.removeProgram(programInfo.programUID)
-
-                        this.state.nonPendingProgList.removeProgram(programInfo.programUID)
-
-                        delCurrList.push(programInfo.programUID)
+                            // Remove the sequence from the front end. 
+                            this.state.currProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.order(), [programUID])
+                            this.state.nonPendingProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.order(), [programUID])
+                        } else {
+                            this.state.currProgList.removeProgram(relProgUID)
+                            this.state.nonPendingProgList.removeProgram(relProgUID)
+                        }
                     }
 
-                    var program = this.state.pendingProgList.getProgram(programInfo.programUID)
+                    let pendingVersion = this.state.pendingProgList.getProgram(relProgUID)
+                    this.state.pendingProgList.removeProgram(relProgUID)
+                    this.state.currProgList.addProgStart(pendingVersion)
+                    this.state.nonPendingProgList.addProgStart(pendingVersion)
 
-                    this.state.pendingProgList.removeProgram(program.getProgramUID())
-
-                    this.state.currProgList.addProgStart(program)
-
-                    this.state.nonPendingProgList.addProgStart(program)
-
-                    acceptPendList.push(programInfo.programUID)
                 })
-            }
-            this.props.firebase.handleAcceptPendingProgramFutureReplace(
-                this.props.firebase.auth.currentUser.uid,
-                programUID,
-                currentDayInProgram,
-                delPendList,
-                delCurrList,
-                acceptPendList
-            ).then(res => {
-                this.setState(prev => ({
-                    ...prev,
-                    currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode, this.state.user.getUserType()),
-                    pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
 
-                }))
-            })
+                // Remove the accepted pending program from the pending program list, do not replace in current programs. 
+                this.state.pendingProgList.removeProgram(programUID)
+            } else {
+                acceptPendingList = [programUID]
+
+                let currVersion = this.state.currProgList.getProgram(programUID)
+
+                if (currVersion) {
+                    if (currVersion.getOrder()) {
+                        // If the version is sequential in current programs get all related programUIDs. These are to be removed from current programs. 
+                        console.log('collecting uids')
+                        let relatedUIDs = this.state.currProgList.sequentialProgramUIDList(currVersion.getOrder())
+                        delCurrentList = [...delCurrentList, ...relatedUIDs]
+                        console.log('collecteed uids')
+
+                        // Remove the sequence from the front end. 
+                        this.state.currProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
+                        this.state.nonPendingProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
+                    } else {
+                        this.state.currProgList.removeProgram(programUID)
+                        this.state.nonPendingProgList.removeProgram(programUID)
+                    }
+                    // Push programUID to remove from current programs. 
+                    delCurrentList.push(currVersion.getProgramUID())
+                }
+
+                this.state.pendingProgList.removeProgram(programUID)
+                this.state.currProgList.addProgStart(pendingProgram)
+                this.state.nonPendingProgList.addProgStart(pendingProgram)
+            }
+
+
+
+            console.log(delCurrentList)
+            console.log(delPendingList)
+            console.log(acceptPendingList)
+
+            // this.props.firebase.handleAcceptPendingProgramFutureReplace(
+            //     this.props.firebase.auth.currentUser.uid,
+            //     programUID,
+            //     currentDayInProgram,
+            //     delPendList,
+            //     delCurrList,
+            //     acceptPendList
+            // ).then(res => {
+            this.setState(prev => ({
+                ...prev,
+                currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode, this.state.user.getUserType()),
+                pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
+
+            }))
+            // })
+            console.log('partial replacement')
         } else {
+            console.log('full replacement')
             // THIS CODE IS FINE AND FUNCTIONAL - NOT TO BE CHANGED
-            // this.handlePendingProgramRequestAcceptence(programUID, true)
+            this.handlePendingProgramRequestAcceptence(programUID, true)
         }
     }
 
@@ -1173,56 +1218,79 @@ class ManageProgramsPage extends Component {
     handlePendingProgramRequestAcceptence = (programUID, isAccepted) => {
         console.log(programUID)
         console.log(isAccepted)
-        var payload = {}
+        let delPendingList = []
+        let delCurrentList = []
+        let acceptPendingList = []
         var pendingProgram = this.state.pendingProgList.getProgram(programUID)
 
         if (isAccepted) {
-            var deleteProgList = []
-            var acceptProgList = []
 
-            var currentProgram = this.state.currProgList.getProgram(programUID)
-
-            if (currentProgram) {
-                this.state.currProgList.removeProgram(programUID)
-
-                deleteProgList.push(programUID)
-
-                this.state.nonPendingProgList.removeProgram(programUID)
-            }
-
-            this.state.pendingProgList.removeProgram(programUID)
-            this.state.currProgList.addProgStart(pendingProgram)
-            this.state.nonPendingProgList.addProgStart(pendingProgram)
-            acceptProgList.push(programUID)
-
+            // If the pending program is sequential - remove all the relevant program in the athletes current programs first before replacing. 
             if (pendingProgram.getOrder()) {
-                var relatedPrograms = this.state.pendingProgList.findRelatedSequentialPrograms(pendingProgram.getOrder())
+                let relatedUIDs = this.state.pendingProgList.sequentialProgramUIDList(pendingProgram.getOrder())
+                acceptPendingList = [programUID, ...relatedUIDs]
 
-                relatedPrograms.forEach(programInfo => {
+                // Iterate through all programs in the sequence and check if there is a version in current programs. 
+                acceptPendingList.forEach(relProgUID => {
+                    let currVersion = this.state.currProgList.getProgram(relProgUID)
 
-                    var currRelatedProg = this.state.currProgList.getProgram(programInfo.programUID)
+                    if (currVersion) {
+                        if (currVersion.order()) {
+                            // If the version is sequential in current programs get all related programUIDs. These are to be removed from current programs. 
+                            let relatedUIDs = this.state.currProgList.sequentialProgramUIDList(currVersion.getOrder())
+                            delCurrentList = [...delCurrentList, relatedUIDs]
 
-                    if (currRelatedProg) {
-                        this.state.currProgList.removeProgram(programInfo.programUID)
-
-                        this.state.nonPendingProgList.removeProgram(programInfo.programUID)
-
-                        deleteProgList.push(programInfo.programUID)
+                            // Remove the sequence from the front end. 
+                            this.state.currProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.order())
+                            this.state.nonPendingProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.order())
+                        } else {
+                            this.state.currProgList.removeProgram(relProgUID)
+                            this.state.nonPendingProgList.removeProgram(relProgUID)
+                        }
+                        // Push programUID to remove from current programs. 
+                        delCurrentList.push(currVersion.getProgramUID())
                     }
 
-                    var program = this.state.pendingProgList.getProgram(programInfo.programUID)
+                    let pendingVersion = this.state.pendingProgList.getProgram(relProgUID)
+                    this.state.pendingProgList.removeProgram(relProgUID)
+                    this.state.currProgList.addProgStart(pendingVersion)
+                    this.state.nonPendingProgList.addProgStart(pendingVersion)
 
-                    this.state.pendingProgList.removeProgram(program.getProgramUID())
-
-                    this.state.currProgList.addProgStart(program)
-
-                    this.state.nonPendingProgList.addProgStart(program)
-
-                    acceptProgList.push(programInfo.programUID)
                 })
+            } else {
+                acceptPendingList = [programUID]
+
+                let currVersion = this.state.currProgList.getProgram(programUID)
+
+                if (currVersion) {
+                    if (currVersion.getOrder()) {
+                        // If the version is sequential in current programs get all related programUIDs. These are to be removed from current programs. 
+                        console.log('collecting uids')
+                        let relatedUIDs = this.state.currProgList.sequentialProgramUIDList(currVersion.getOrder())
+                        delCurrentList = [...delCurrentList, ...relatedUIDs]
+                        console.log('collecteed uids')
+
+                        // Remove the sequence from the front end. 
+                        this.state.currProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
+                        this.state.nonPendingProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
+                    } else {
+                        this.state.currProgList.removeProgram(programUID)
+                        this.state.nonPendingProgList.removeProgram(programUID)
+                    }
+                    // Push programUID to remove from current programs. 
+                    delCurrentList.push(currVersion.getProgramUID())
+                }
+
+                this.state.pendingProgList.removeProgram(programUID)
+                this.state.currProgList.addProgStart(pendingProgram)
+                this.state.nonPendingProgList.addProgStart(pendingProgram)
             }
-            console.log(deleteProgList)
-            console.log(acceptProgList)
+
+
+
+            console.log(delCurrentList)
+            console.log(delPendingList)
+            console.log(acceptPendingList)
             // this.props.firebase.handleAcceptPendingProgramCompleteReplace(
             //     this.props.firebase.auth.currentUser.uid,
             //     deleteProgList,
@@ -1239,28 +1307,27 @@ class ManageProgramsPage extends Component {
         } else {
             this.state.pendingProgList.removeProgram(programUID)
 
-            var programUIDList = [programUID]
+            delPendingList.push(programUID)
 
             if (pendingProgram.getOrder()) {
                 var relatedPrograms = this.state.pendingProgList.findRelatedSequentialPrograms(pendingProgram.getOrder())
 
-                relatedPrograms.forEach(programInfo => {
-                    var program = this.state.pendingProgList.getProgram(programInfo.programUID)
-                    this.state.pendingProgList.removeProgram(program.getProgramUID())
-                    programUIDList.push(program.getProgramUID())
-                })
+                delPendingList = [...delPendingList, ...this.state.pendingProgList.sequentialProgramUIDList(pendingProgram.order())]
+
+                this.state.pendingProgList.removeProgramSequence(pendingProgram.order())
+
             }
             console.log(this.props.firebase.auth.currentUser.uid)
-            // this.props.firebase.handlePendingProgramDenied(
-            //     this.props.firebase.auth.currentUser.uid,
-            //     programUIDList
-            // ).then(res => {
-            this.setState(prev => ({
-                ...prev,
-                pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
+            this.props.firebase.handlePendingProgramDenied(
+                this.props.firebase.auth.currentUser.uid,
+                delPendingList
+            ).then(res => {
+                this.setState(prev => ({
+                    ...prev,
+                    pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
 
-            }))
-            // })
+                }))
+            })
         }
 
     }

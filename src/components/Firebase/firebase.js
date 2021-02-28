@@ -804,27 +804,30 @@ class Firebase {
             .doc(day)
             .get()
             .then(snapshot => {
-                const data = snapshot.data()
-                if (Object.keys(data).length > 1) {
-                    this.database
-                        .collection('programs')
-                        .doc(docUID)
-                        .collection('exercises')
-                        .doc(day)
-                        .update({
-                            [exUID]: FieldValue.delete()
-                        })
-                        .then(res => {
-                            console.log(res)
-                        })
-                } else {
-                    this.database
-                        .collection('programs')
-                        .doc(docUID)
-                        .collection('exercises')
-                        .doc(day)
-                        .delete()
+                if (snapshot.exists) {
+                    const data = snapshot.data()
+                    if (Object.keys(data).length > 1) {
+                        this.database
+                            .collection('programs')
+                            .doc(docUID)
+                            .collection('exercises')
+                            .doc(day)
+                            .update({
+                                [exUID]: FieldValue.delete()
+                            })
+                            .then(res => {
+                                console.log(res)
+                            })
+                    } else {
+                        this.database
+                            .collection('programs')
+                            .doc(docUID)
+                            .collection('exercises')
+                            .doc(day)
+                            .delete()
+                    }
                 }
+
             })
     }
 
@@ -834,23 +837,32 @@ class Firebase {
             return this.database
                 .collection('programs')
                 .where('owner', '==', userUID)
+                .where('athlete', '==', userUID)
                 .where('programUID', '==', programUID)
+                .where('status', '==', 'current')
                 .get()
                 .then(snap => {
-                    var docUID = snap.docs[0].id
+                    if (!snap.empty && snap.docs.length === 1) {
+                        var docUID = snap.docs[0].id
 
-                    return this.deleteExerciseDBHelper(docUID, day, exUID)
+                        return this.deleteExerciseDBHelper(docUID, day, exUID)
+                    }
+
                 })
         } else {
             return this.database
                 .collection('programs')
                 .where('athlete', '==', userUID)
                 .where('programUID', '==', programUID)
+                .where('status', '==', 'current')
                 .get()
                 .then(snap => {
-                    var docUID = snap.doc[0].id
+                    if (!snap.empty && snap.docs.length === 1) {
 
-                    return this.deleteExerciseDBHelper(docUID, day, exUID)
+                        var docUID = snap.docs[0].id
+
+                        return this.deleteExerciseDBHelper(docUID, day, exUID)
+                    }
                 })
         }
     }

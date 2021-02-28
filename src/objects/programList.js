@@ -55,6 +55,30 @@ class ProgramList {
 
     }
 
+    removeProgramSequence = (programUID, programOrder, exclusions = []) => {
+        let list = this.findRelatedSequentialPrograms(programOrder)
+
+        this.removeProgram(programUID)
+
+        list.forEach(program => {
+            if (!exclusions.includes(program.programUID)) {
+                this.removeProgram(program.programUID)
+            }
+        })
+    }
+
+    sequentialProgramUIDList = (order, exclusions) => {
+        let relatedProgs = this.findRelatedSequentialPrograms(order)
+
+        let programUIDs = relatedProgs.map(prog => {
+            if (!exclusions.includes(prog.programUID)) {
+                return prog.programUID
+            }
+        })
+
+        return programUIDs
+    }
+
     findRelatedSequentialPrograms = (order) => {
         var list = this.getProgramList()
 
