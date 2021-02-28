@@ -69,14 +69,16 @@ class ProgramList {
 
     sequentialProgramUIDList = (order, exclusions = []) => {
         let relatedProgs = this.findRelatedSequentialPrograms(order)
-
-        let programUIDs = relatedProgs.map(prog => {
+        console.log(relatedProgs)
+        console.log(exclusions)
+        let payload = []
+        relatedProgs.forEach(prog => {
             if (!exclusions.includes(prog.programUID)) {
-                return prog.programUID
+                payload.push(prog.programUID)
             }
         })
 
-        return programUIDs
+        return payload
     }
 
     findRelatedSequentialPrograms = (order) => {

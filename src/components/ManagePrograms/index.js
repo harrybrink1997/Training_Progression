@@ -814,6 +814,8 @@ class ManageProgramsPage extends Component {
         console.log(replacementType)
         console.log(currentDayInProgram)
         let pendingProgram = this.state.pendingProgList.getProgram(programUID)
+        let firstProgramOrder = pendingProgram.getOrder()
+        let firstProgramUID = pendingProgram.getProgramUID()
 
         if (replacementType === 'future') {
             let acceptPendingList = []
@@ -835,9 +837,6 @@ class ManageProgramsPage extends Component {
                             // If the version is sequential in current programs get all related programUIDs. These are to be removed from current programs. 
                             let relatedUIDs = this.state.currProgList.sequentialProgramUIDList(currVersion.getOrder(), [programUID])
                             delCurrentList = [...delCurrentList, ...relatedUIDs]
-                            console.log(relatedUIDs)
-                            console.log(delCurrentList)
-
 
                             // Remove the sequence from the front end. 
                             this.state.currProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
@@ -894,21 +893,22 @@ class ManageProgramsPage extends Component {
             console.log(this.state.currProgList)
             console.log(this.state.pendingProgList)
 
-            // this.props.firebase.handleAcceptPendingProgramFutureReplace(
-            //     this.props.firebase.auth.currentUser.uid,
-            //     programUID,
-            //     currentDayInProgram,
-            //     delPendingList,
-            //     delCurrentList,
-            //     acceptPendingList
-            // ).then(res => {
-            this.setState(prev => ({
-                ...prev,
-                currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode, this.state.user.getUserType()),
-                pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
+            this.props.firebase.handleAcceptPendingProgramFutureReplace(
+                this.props.firebase.auth.currentUser.uid,
+                firstProgramUID,
+                firstProgramOrder,
+                currentDayInProgram,
+                delPendingList,
+                delCurrentList,
+                acceptPendingList
+            ).then(res => {
+                this.setState(prev => ({
+                    ...prev,
+                    currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode, this.state.user.getUserType()),
+                    pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
 
-            }))
-            // })
+                }))
+            })
             console.log('partial replacement')
         } else {
             console.log('full replacement')

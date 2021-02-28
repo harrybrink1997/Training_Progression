@@ -1180,11 +1180,12 @@ class Firebase {
         })
     }
 
-    handleAcceptPendingProgramFutureReplace = (athleteUID, programUID, dayThreshold, deletePendingList, deleteCurrentList, acceptPendingList) => {
+    handleAcceptPendingProgramFutureReplace = (athleteUID, firstProgramUID, firstProgramOrder, dayThreshold, deletePendingList, deleteCurrentList, acceptPendingList) => {
+
         return new Promise((res, rej) => {
 
             Promise.all([
-                this.getProgramExData(false, athleteUID, programUID, 'pending')
+                this.getProgramExData(false, athleteUID, firstProgramUID, 'pending')
             ]).then(exData => {
                 let pendingExData = exData[0]
                 let maxPendingDay = 0
@@ -1203,16 +1204,30 @@ class Firebase {
 
                 this.database
                     .collection('programs')
-                    .where('programUID', '==', programUID)
+                    .where('programUID', '==', firstProgramUID)
                     .where('athlete', '==', athleteUID)
                     .where('status', '==', 'current')
                     .get()
                     .then(snap => {
                         if (!snap.empty && snap.docs.length === 1) {
+                            // Get the document of the first program in the sequence to be accepted. This will get a future replace. 
                             let docUID = snap.docs[0].id
+                            const batch = this.database.batch()
+
+                            // If the first program is a sequence then update the sequence name in the database and set the is active in sequence property to true.
+                            if (firstProgramOrder) {
+                                let progRef = this.database.collection('programs').doc(docUID)
+                                batch.update(
+                                    progRef,
+                                    { order: firstProgramOrder }
+                                )
+                                batch.update(
+                                    progRef,
+                                    { isActiveInSequence: true }
+                                )
+                            }
 
                             this.clearFutureProgExData(docUID, dayThreshold).then(res => {
-                                const batch = this.database.batch()
                                 let exRef = this.database.collection('programs').doc(docUID).collection('exercises')
 
                                 Object.keys(exPayload).forEach(day => {
