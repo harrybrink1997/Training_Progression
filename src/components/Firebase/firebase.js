@@ -759,6 +759,12 @@ class Firebase {
     }
 
     addExerciseDB = (isCoach, userUID, programUID, day, exData) => {
+        console.log(isCoach)
+        console.log(userUID)
+        console.log(programUID)
+        console.log(day)
+        console.log(exData)
+
         if (isCoach) {
             return this.database
                 .collection('programs')
@@ -768,13 +774,17 @@ class Firebase {
                 .where('status', '==', 'current')
                 .get()
                 .then(snap => {
-                    var docUID = snap.docs[0].id
-                    this.database
-                        .collection('programs')
-                        .doc(docUID)
-                        .collection('exercises')
-                        .doc(day)
-                        .set(exData, { merge: true })
+                    if (!snap.empty) {
+                        var docUID = snap.docs[0].id
+                        this.database
+                            .collection('programs')
+                            .doc(docUID)
+                            .collection('exercises')
+                            .doc(day)
+                            .set(exData, { merge: true })
+                    } else {
+                        console.log("no doc returned")
+                    }
                 })
         } else {
             return this.database
@@ -784,13 +794,17 @@ class Firebase {
                 .where('status', '==', 'current')
                 .get()
                 .then(snap => {
-                    var docUID = snap.docs[0].id
-                    this.database
-                        .collection('programs')
-                        .doc(docUID)
-                        .collection('exercises')
-                        .doc(day)
-                        .set(exData, { merge: true })
+                    if (!snap.empty) {
+                        var docUID = snap.docs[0].id
+                        this.database
+                            .collection('programs')
+                            .doc(docUID)
+                            .collection('exercises')
+                            .doc(day)
+                            .set(exData, { merge: true })
+                    } else {
+                        console.log("no doc returned")
+                    }
                 })
         }
 
@@ -1017,38 +1031,41 @@ class Firebase {
                     .where('status', '==', status)
                     .get()
                     .then(snap => {
-                        var docUID = snap.docs[0].id
+                        if (!snap.empty) {
+                            var docUID = snap.docs[0].id
 
-                        this.database
-                            .collection('programs')
-                            .doc(docUID)
-                            .collection('exercises')
-                            .get()
-                            .then(snapshot => {
-                                if (!snapshot.empty) {
-                                    var payLoad = {}
-                                    snapshot.docs.forEach(doc => {
+                            this.database
+                                .collection('programs')
+                                .doc(docUID)
+                                .collection('exercises')
+                                .get()
+                                .then(snapshot => {
+                                    if (!snapshot.empty) {
+                                        var payLoad = {}
+                                        snapshot.docs.forEach(doc => {
 
-                                        payLoad[doc.id] = { ...doc.data() }
+                                            payLoad[doc.id] = { ...doc.data() }
 
-                                    })
-                                    res(payLoad)
-                                } else {
-                                    return res({})
-                                }
-                            })
-                            .catch(error => {
-                                rej(error)
-                            })
+                                        })
+                                        res(payLoad)
+                                    } else {
+                                        return res({})
+                                    }
+                                })
+                                .catch(error => {
+                                    rej(error)
+                                })
+                        }
+
                     })
 
             })
         }
     }
 
-    getProgramExGoalData = (isCoach, userUID, programUID) => {
+    getProgramExGoalData = (isCoach, userUID, programUID, programStatus) => {
 
-        var promises = [this.getProgGoalData(programUID), this.getProgramExData(isCoach, userUID, programUID)]
+        var promises = [this.getProgGoalData(programUID), this.getProgramExData(isCoach, userUID, programUID, programStatus)]
 
         return promises
     }
@@ -1215,8 +1232,8 @@ class Firebase {
                             const batch = this.database.batch()
 
                             // If the first program is a sequence then update the sequence name in the database and set the is active in sequence property to true.
+                            let progRef = this.database.collection('programs').doc(docUID)
                             if (firstProgramOrder) {
-                                let progRef = this.database.collection('programs').doc(docUID)
                                 batch.update(
                                     progRef,
                                     { order: firstProgramOrder }
@@ -1225,6 +1242,18 @@ class Firebase {
                                     progRef,
                                     { isActiveInSequence: true }
                                 )
+                            } else {
+                                let progRawData = snap.docs[0].data()
+                                if (progRawData.order) {
+                                    batch.update(
+                                        progRef,
+                                        { order: FieldValue.delete() }
+                                    )
+                                    batch.update(
+                                        progRef,
+                                        { isActiveInSequence: FieldValue.delete() }
+                                    )
+                                }
                             }
 
                             this.clearFutureProgExData(docUID, dayThreshold).then(res => {
@@ -1323,6 +1352,8 @@ class Firebase {
     }
 
     handleAcceptPendingProgramCompleteReplace = (athleteUID, delCurrentList, delPendingList, acceptPendingList) => {
+
+        return true
         return new Promise((res, rej) => {
             var promises = []
 

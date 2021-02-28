@@ -50,19 +50,42 @@ class Program {
 
     }
 
-    getOwnerUsername = () => {
+    generateDBObject() {
+        return {
+            order: this.getOrder(),
+            isActiveInSequence: this.getIsActiveInSequence(),
+            acutePeriod: this.getAcutePeriod(),
+            chronicPeriod: this.getChronicPeriod(),
+            loadingScheme: this.getLoadingScheme(),
+            currentDay: this.getCurrentDay(),
+            name: this.getName(),
+            owner: this.owner,
+            athlete: this.athlete,
+            athleteUsername: this.athleteUsername,
+            coachUsername: this.coachUsername,
+            team: this.team,
+            creationDate: this.creationDate,
+            deploymentDate: this.deploymentDate,
+            status: this.status,
+            order: this.order,
+            isActiveInSequence: this.isActiveInSequence,
+            programUID: this.programUID
+        }
+    }
+
+    getOwnerUsername() {
         return this.ownerUsername
     }
 
-    getAthleteUsername = () => {
+    getAthleteUsername() {
         return this.athleteUsername
     }
 
-    getProgramUID = () => {
+    getProgramUID() {
         return this.programUID
     }
 
-    programEqualToUID = (uid) => {
+    programEqualToUID(uid) {
         if (this.generateProgramUID() === uid) {
             return true
         } else {
@@ -107,6 +130,10 @@ class Program {
         return this.order
     }
 
+    setOrder(value) {
+        this.order = value
+    }
+
     getIsActiveInSequence() {
         return this.isActiveInSequence
     }
@@ -133,6 +160,10 @@ class Program {
 
     getStatus() {
         return this.status
+    }
+
+    setStatus(value) {
+        this.status = value
     }
 
     getCurrentDay() {
@@ -167,6 +198,13 @@ class CurrentProgram extends Program {
         this.startDayUTS = data.startDayUTS
     }
 
+    generateDBObject() {
+        var baseObj = super.generateDBObject()
+        baseObj.startDayUTS = this.getStartDayUTS()
+
+        return baseObj
+    }
+
     iterateCurrentDay = (num) => {
         this.setCurrentDay(this.getCurrentDay() + num)
     }
@@ -181,6 +219,8 @@ class CurrentProgram extends Program {
     getStartDayUTS() {
         return this.startDayUTS
     }
+
+
 }
 
 class PastProgram extends Program {

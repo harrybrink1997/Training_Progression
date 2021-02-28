@@ -19,6 +19,7 @@ import { listAndFormatExercises, checkNullExerciseData, setAvailExerciseCols } f
 import ProgramView, { ProgramViewPageSubHeader } from '../CustomComponents/programView'
 import { capitaliseFirstLetter, underscoreToSpaced } from '../../constants/stringManipulation';
 import { calculateDailyLoads } from '../CurrentProgram/calculateWeeklyLoads'
+import { create, thomsonCrossSectionDependencies } from 'mathjs';
 
 class ManageProgramsPage extends Component {
 
@@ -60,21 +61,30 @@ class ManageProgramsPage extends Component {
                             } else {
                                 snapshot.forEach(prog => {
                                     var progObj = createProgramObject(prog)
-                                    if (progObj.getStatus() === 'pending') {
-                                        pendingPrograms.push(progObj)
-                                    } else {
-                                        nonPendingPrograms.push(progObj)
 
-                                        if (progObj.getStatus() === 'current') {
-                                            currentPrograms.push(progObj)
-                                        } else if (progObj.getStatus() === 'past') {
-                                            pastPrograms.push(progObj)
-                                        }
+                                    if (progObj.getStatus() === 'current') {
+                                        currentPrograms.push(progObj)
+                                    } else if (progObj.getStatus() === 'past') {
+                                        pastPrograms.push(progObj)
+                                    } else {
+                                        pendingPrograms.push(progObj)
                                     }
+
+                                    // if (progObj.getStatus() === 'pending') {
+                                    //     pendingPrograms.push(progObj)
+                                    // } else {
+                                    //     nonPendingPrograms.push(progObj)
+
+                                    //     if (progObj.getStatus() === 'current') {
+                                    //         currentPrograms.push(progObj)
+                                    //     } else if (progObj.getStatus() === 'past') {
+                                    //         pastPrograms.push(progObj)
+                                    //     }
+                                    // }
                                 })
                             }
 
-                            var nonPendingList = new ProgramList(nonPendingPrograms)
+                            // var nonPendingList = new ProgramList(nonPendingPrograms)
 
                             var pendingList = new ProgramList(pendingPrograms)
 
@@ -88,7 +98,6 @@ class ManageProgramsPage extends Component {
 
                             this.setState({
                                 user: userObject,
-                                nonPendingProgList: nonPendingList,
                                 currProgList: currProgList,
                                 pastProgList: pastProgList,
                                 pendingProgList: pendingList,
@@ -133,7 +142,7 @@ class ManageProgramsPage extends Component {
                         buttons:
                             <Button
                                 className='lightPurpleButton-inverted'
-                                onClick={() => { this.handleProgramClick(prog.generateProgramUID()) }}
+                                onClick={() => { this.handleProgramClick(prog.generateProgramUID(), prog.getStatus()) }}
                             >
                                 View Program
                         </Button>
@@ -156,13 +165,13 @@ class ManageProgramsPage extends Component {
                                 <>
                                     <Button
                                         className='lightPurpleButton-inverted'
-                                        onClick={() => { this.handleProgramClick(prog.generateProgramUID()) }}
+                                        onClick={() => { this.handleProgramClick(prog.generateProgramUID(), prog.getStatus()) }}
                                     >
                                         View Program
                             </Button>
                                     <Button
                                         className='lightRedButton-inverted'
-                                        onClick={() => { this.handleDeleteProgram(prog.generateProgramUID()) }}
+                                        onClick={() => { this.handleDeleteProgram(prog.generateProgramUID(), prog.getStatus()) }}
                                     >
                                         Delete Program
                             </Button>
@@ -264,7 +273,7 @@ class ManageProgramsPage extends Component {
                     buttons:
                         <Button
                             className='lightPurpleButton-inverted'
-                            onClick={() => { this.handleProgramClick(prog.generateProgramUID()) }}
+                            onClick={() => { this.handleProgramClick(prog.generateProgramUID(), prog.getStatus()) }}
                         >
                             View Program
                         </Button>
@@ -283,13 +292,13 @@ class ManageProgramsPage extends Component {
                         <>
                             <Button
                                 className='lightPurpleButton-inverted'
-                                onClick={() => { this.handleProgramClick(prog.generateProgramUID()) }}
+                                onClick={() => { this.handleProgramClick(prog.generateProgramUID(), prog.getStatus()) }}
                             >
                                 View Program
                             </Button>
                             <Button
                                 className='lightRedButton-inverted'
-                                onClick={() => { this.handleDeleteProgram(prog.generateProgramUID()) }}
+                                onClick={() => { this.handleDeleteProgram(prog.generateProgramUID(), prog.getStatus()) }}
                             >
                                 Delete Program
                             </Button>
@@ -301,7 +310,7 @@ class ManageProgramsPage extends Component {
         return payload
     }
 
-    handleProgramClick = (programUID) => {
+    handleProgramClick = (programUID, status) => {
 
         // Get all the anatomy data for progression loading. 
         this.setState({
@@ -324,19 +333,23 @@ class ManageProgramsPage extends Component {
                             Promise.all(this.props.firebase.getProgramExGoalData(
                                 this.state.user.getUserType() === 'coach',
                                 this.state.user.getID(),
-                                programUID
+                                programUID,
+                                status
                             ))
                                 .then(snapshot => {
-                                    var progData = this.state.nonPendingProgList.getProgram(programUID).generateCompleteJSONObject()
+                                    let progData
+                                    if (status === 'current') {
+                                        progData = this.state.currProgList.getProgram(programUID).generateCompleteJSONObject()
+
+                                    } else if (status === 'past') {
+                                        progData = this.state.pastProgList.getProgram(programUID).generateCompleteJSONObject()
+                                    }
 
                                     if (Object.keys(snapshot[0]).length > 0) {
                                         progData.goals = snapshot[0]
                                     }
 
                                     progData = { ...progData, ...snapshot[1] }
-
-                                    console.log(snapshot[0])
-                                    console.log(progData)
 
                                     this.state.pageHistory.next(this.state.view)
 
@@ -346,6 +359,7 @@ class ManageProgramsPage extends Component {
                                         pageBodyContentLoading: false,
                                         currProgram: {
                                             programUID: programUID,
+                                            status: status,
                                             availExData: exList,
                                             availExColumns: setAvailExerciseCols(),
                                             programData: progData,
@@ -482,7 +496,7 @@ class ManageProgramsPage extends Component {
     }
 
     handleAddExerciseButton = (exerciseObject, exUID, loadingScheme, insertionDay) => {
-
+        console.log("going in add exercise button")
         if (loadingScheme == 'rpe_time') {
             var dataPayload = {
                 exercise: underscoreToSpaced(exerciseObject.name),
@@ -533,8 +547,7 @@ class ManageProgramsPage extends Component {
                 this.state.currProgram.programUID,
             )
                 .then(snapshot => {
-
-                    var programClass = this.state.nonPendingProgList.getProgram(this.state.currProgram.programUID)
+                    let programClass = this.state.currProgList.getProgram(this.state.currProgram.programUID)
 
                     var programObject = programClass.generateCompleteJSONObject()
 
@@ -565,7 +578,7 @@ class ManageProgramsPage extends Component {
                         )
                             .then(() => {
 
-                                this.state.nonPendingProgList.getProgram(this.state.currProgram.programUID).iterateCurrentDay(1)
+                                this.state.currProgList.getProgram(this.state.currProgram.programUID).iterateCurrentDay(1)
 
                                 var frontEndProgData = { ...programObject }
 
@@ -632,7 +645,7 @@ class ManageProgramsPage extends Component {
             )
                 .then(() => {
 
-                    this.state.nonPendingProgList.getProgram(this.state.currProgram.programUID).iterateCurrentDay(1)
+                    this.state.currProgList.getProgram(this.state.currProgram.programUID).iterateCurrentDay(1)
 
                     var frontEndProgData = { ...programObject }
 
@@ -814,10 +827,21 @@ class ManageProgramsPage extends Component {
         console.log(replacementType)
         console.log(currentDayInProgram)
         let pendingProgram = this.state.pendingProgList.getProgram(programUID)
+
         let firstProgramOrder = pendingProgram.getOrder()
         let firstProgramUID = pendingProgram.getProgramUID()
 
         if (replacementType === 'future') {
+            let currVersionFirstProg = this.state.currProgList.getProgram(programUID)
+            let firstProgData = pendingProgram.generateDBObject()
+            firstProgData.isActiveInSequence = true
+            firstProgData.order = firstProgramOrder
+            firstProgData.status = 'current'
+            firstProgData.currentDay = currentDayInProgram
+            firstProgData.startDayUTS = currVersionFirstProg.getStartDayUTS()
+
+            let firstProgPayload = createProgramObject(firstProgData)
+
             let acceptPendingList = []
             let delCurrentList = []
             let delPendingList = []
@@ -840,23 +864,26 @@ class ManageProgramsPage extends Component {
 
                             // Remove the sequence from the front end. 
                             this.state.currProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
-                            this.state.nonPendingProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
                         } else {
                             this.state.currProgList.removeProgram(relProgUID)
-                            this.state.nonPendingProgList.removeProgram(relProgUID)
                         }
                     }
 
                     let pendingVersion = this.state.pendingProgList.getProgram(relProgUID)
+                    let pendingVersionRawData = pendingVersion.generateDBObject()
+                    pendingVersionRawData.status = 'current'
+                    let newCurrVersion = createProgramObject(pendingVersionRawData)
+
+
                     this.state.pendingProgList.removeProgram(relProgUID)
-                    this.state.currProgList.addProgStart(pendingVersion)
-                    this.state.nonPendingProgList.addProgStart(pendingVersion)
+                    this.state.currProgList.addProgStart(newCurrVersion)
 
                 })
 
                 // Remove the accepted pending program from the pending program list, do not replace in current programs. 
                 this.state.pendingProgList.removeProgram(programUID)
-                this.state.currProgList.addProgStart(pendingProgram)
+                this.state.currProgList.removeProgram(programUID)
+                this.state.currProgList.addProgStart(firstProgPayload)
                 delPendingList.push(programUID)
             } else {
 
@@ -870,29 +897,19 @@ class ManageProgramsPage extends Component {
 
                         // Remove the sequence from the front end. 
                         this.state.currProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
-                        this.state.nonPendingProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
                     } else {
                         this.state.currProgList.removeProgram(programUID)
-                        this.state.nonPendingProgList.removeProgram(programUID)
                     }
                 }
 
                 this.state.pendingProgList.removeProgram(programUID)
-                this.state.currProgList.addProgStart(pendingProgram)
-                this.state.nonPendingProgList.addProgStart(pendingProgram)
+                this.state.currProgList.addProgStart(firstProgPayload)
 
                 delPendingList.push(programUID)
 
             }
 
-
-
-            console.log(delCurrentList)
-            console.log(delPendingList)
-            console.log(acceptPendingList)
             console.log(this.state.currProgList)
-            console.log(this.state.pendingProgList)
-
             this.props.firebase.handleAcceptPendingProgramFutureReplace(
                 this.props.firebase.auth.currentUser.uid,
                 firstProgramUID,
@@ -909,9 +926,7 @@ class ManageProgramsPage extends Component {
 
                 }))
             })
-            console.log('partial replacement')
         } else {
-            console.log('full replacement')
             // THIS CODE IS FINE AND FUNCTIONAL - NOT TO BE CHANGED
             this.handlePendingProgramRequestAcceptence(programUID, true)
         }
@@ -1118,80 +1133,6 @@ class ManageProgramsPage extends Component {
         }
     }
 
-    handleAcceptOverlappingProgramSequence = (firstProgReplacement, programData) => {
-        var payload = {}
-        var basePath =
-            '/users/'
-            + this.props.firebase.auth.currentUser.uid
-        var pendingPath =
-            basePath
-            + '/pendingPrograms/'
-        var currProgPath =
-            basePath
-            + '/currentPrograms/'
-
-        var firstProgram = programData.shift()
-
-        payload[pendingPath + firstProgram.programUID] = null
-        // Generates the exact replacement data for the first program in the sequence. 
-        if (firstProgReplacement === 'future') {
-            var maxDay = 0
-            Object.keys(this.state.pendingProgramsData[firstProgram.programUID
-            ]).forEach(key => {
-                if (parseInt(key)) {
-                    if (parseInt(key) > maxDay) {
-                        maxDay = key
-                    }
-                }
-            })
-            var path =
-                currProgPath
-                + firstProgram.programUID + '/'
-
-            payload[path + 'isActiveInSequence'] = true
-            payload[path + 'order'] = this.state.pendingProgramsData[firstProgram.programUID].order
-
-            path += '/'
-
-            for (var day = firstProgram.currentDayInProgram + 1; day <= maxDay; day++) {
-                (this.state.pendingProgramsData[firstProgram.programUID][day]) ?
-                    payload[path + day.toString()] = this.state.pendingProgramsData[firstProgram.programUID][day]
-                    : payload[path + day.toString()] = {}
-            }
-
-        } else {
-            // This will account for a new program that doesn't currently exist in current programs or a full replace of the program selected by the user.
-            var path =
-                currProgPath
-                + firstProgram.programUID
-
-            payload[path] = this.state.pendingProgramsData[firstProgram.programUID]
-        }
-
-        payload[basePath + '/activeProgram'] = firstProgram.programUID
-        // If the program you're replacement is also first in it's sequence. Iterate through current programs to find the associate sequence programs for deletion. 
-        console.log(firstProgram)
-        if (firstProgram.order) {
-            var relatedSeqProgs = this.findRelatedSequentialPrograms(this.state.currentProgramsData, firstProgram.order)
-
-            relatedSeqProgs.forEach(relProg => {
-                if (!this.programInRelatedProgList(programData, relProg.programUID)) {
-                    payload[currProgPath + relProg.programUID] = null
-                }
-            })
-        }
-    }
-
-    programInRelatedProgList = (list, program) => {
-
-        for (var prog in list) {
-            if (list[prog].programUID === program) {
-                return true
-            }
-        }
-        return false
-    }
-
     checkSequenceProgramsInCurrentPrograms = (list, sequencePrograms) => {
         var payload = []
         sequencePrograms.forEach(program => {
@@ -1210,7 +1151,7 @@ class ManageProgramsPage extends Component {
         var pendingProgram = this.state.pendingProgList.getProgram(programUID)
 
         if (isAccepted) {
-
+            pendingProgram.setStatus('current')
             // If the pending program is sequential - remove all the relevant program in the athletes current programs first before replacing. 
             if (pendingProgram.getOrder()) {
                 let relatedUIDs = this.state.pendingProgList.sequentialProgramUIDList(pendingProgram.getOrder())
@@ -1229,17 +1170,18 @@ class ManageProgramsPage extends Component {
 
                             // Remove the sequence from the front end. 
                             this.state.currProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
-                            this.state.nonPendingProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
                         } else {
                             this.state.currProgList.removeProgram(relProgUID)
-                            this.state.nonPendingProgList.removeProgram(relProgUID)
                         }
                     }
 
                     let pendingVersion = this.state.pendingProgList.getProgram(relProgUID)
+                    let pendingVersionRawData = pendingVersion.generateDBObject()
+                    pendingVersionRawData.status = 'current'
+                    let newCurrVersion = createProgramObject(pendingVersionRawData)
+
                     this.state.pendingProgList.removeProgram(relProgUID)
-                    this.state.currProgList.addProgStart(pendingVersion)
-                    this.state.nonPendingProgList.addProgStart(pendingVersion)
+                    this.state.currProgList.addProgStart(newCurrVersion)
 
                 })
             } else {
@@ -1257,16 +1199,18 @@ class ManageProgramsPage extends Component {
 
                         // Remove the sequence from the front end. 
                         this.state.currProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
-                        this.state.nonPendingProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
                     } else {
                         this.state.currProgList.removeProgram(programUID)
-                        this.state.nonPendingProgList.removeProgram(programUID)
                     }
                 }
 
                 this.state.pendingProgList.removeProgram(programUID)
-                this.state.currProgList.addProgStart(pendingProgram)
-                this.state.nonPendingProgList.addProgStart(pendingProgram)
+
+                let firstProgPayload = pendingProgram.generateDBObject()
+                firstProgPayload.status = 'current'
+                firstProgPayload = createProgramObject(firstProgPayload)
+
+                this.state.currProgList.addProgStart(firstProgPayload)
             }
 
 
@@ -1276,22 +1220,21 @@ class ManageProgramsPage extends Component {
             console.log(acceptPendingList)
             console.log(this.state.currProgList)
             console.log(this.state.pendingProgList)
-            // this.props.firebase.handleAcceptPendingProgramCompleteReplace(
-            //     this.props.firebase.auth.currentUser.uid,
-            //     delCurrentList,
-            //     delPendingList,
-            //     acceptPendingList
-            // ).then(result => {
-            this.setState(prev => ({
-                ...prev,
-                currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode, this.state.user.getUserType()),
-                pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
+            this.props.firebase.handleAcceptPendingProgramCompleteReplace(
+                this.props.firebase.auth.currentUser.uid,
+                delCurrentList,
+                delPendingList,
+                acceptPendingList
+            ).then(result => {
+                this.setState(prev => ({
+                    ...prev,
+                    currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode, this.state.user.getUserType()),
+                    pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
 
-            }))
-            // })
+                }))
+            })
 
         } else {
-            this.state.pendingProgList.removeProgram(programUID)
 
             delPendingList.push(programUID)
 
@@ -1300,19 +1243,23 @@ class ManageProgramsPage extends Component {
 
                 delPendingList = [...delPendingList, ...this.state.pendingProgList.sequentialProgramUIDList(pendingProgram.getOrder())]
 
-                this.state.pendingProgList.removeProgramSequence(pendingProgram.getOrder())
+                this.state.pendingProgList.removeProgramSequence(programUID, pendingProgram.getOrder())
+
+            } else {
+                this.state.pendingProgList.removeProgram(programUID)
 
             }
-            // this.props.firebase.handlePendingProgramDenied(
-            //     this.props.firebase.auth.currentUser.uid,
-            //     delPendingList
-            // ).then(res => {
-            this.setState(prev => ({
-                ...prev,
-                pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
 
-            }))
-            // })
+            this.props.firebase.handlePendingProgramDenied(
+                this.props.firebase.auth.currentUser.uid,
+                delPendingList
+            ).then(res => {
+                this.setState(prev => ({
+                    ...prev,
+                    pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
+
+                }))
+            })
         }
 
     }
@@ -1413,7 +1360,6 @@ class ManageProgramsPage extends Component {
 
             var newProg = createProgramObject(payload)
 
-            this.state.nonPendingProgList.addProgStart(newProg)
             this.state.currProgList.addProgStart(newProg)
 
             this.setState(prev => ({
@@ -1461,26 +1407,36 @@ class ManageProgramsPage extends Component {
 
     }
 
-    handleDeleteProgram = (programUID) => {
+    handleDeleteProgram = (programUID, status) => {
         this.setState({
             pageBodyContentLoading: true
         }, () => {
+            let deleteList = [programUID]
+            let progObj
 
-            var progObj = this.state.nonPendingProgList.getProgram(programUID)
+            if (status === 'current') {
+                progObj = this.state.currProgList.getProgram(programUID)
 
-            this.state.nonPendingProgList.removeProgram(programUID)
+                if (progObj.getOrder()) {
 
-            if (progObj.getStatus() === 'current') {
-                this.state.currProgList.removeProgram(programUID)
+                    deleteList = [...deleteList, ...this.state.currProgList.sequentialProgramUIDList(progObj.getOrder())]
+
+                    this.state.currProgList.removeProgramSequence(programUID, progObj.getOrder())
+                } else {
+                    this.state.currProgList.removeProgram(programUID)
+                }
+
                 var tableTarget = 'currentProgTableData'
                 var newTableData = this.initCurrentProgramTableData(
                     this.state.currProgList,
                     this.state.editMode,
                     this.state.user.getUserType()
                 )
-
             } else if (progObj.getStatus() === 'past') {
+                progObj = this.state.pastProgList.getProgram(programUID)
+
                 this.state.pastProgList.removeProgram(programUID)
+
                 var tableTarget = 'pastProgTableData'
                 var newTableData = this.initPastProgramTableData(
                     this.state.pastProgList,
@@ -1488,18 +1444,26 @@ class ManageProgramsPage extends Component {
                 )
             }
 
-            this.setState(prev => ({
-                ...prev,
-                pageBodyContentLoading: false,
-                [tableTarget]: newTableData
-            }))
+            console.log(deleteList)
+            let promises = []
+            deleteList.forEach(progToDelete => {
+                promises.push(
+                    this.props.firebase.deleteProgramDB(
+                        progToDelete,
+                        this.state.user.getUserType(),
+                        this.state.user.getID(),
+                        status
+                    )
+                )
+            })
 
-            this.props.firebase.deleteProgramDB(
-                programUID,
-                this.state.user.getUserType(),
-                this.state.user.getID(),
-                progObj.getStatus()
-            )
+            Promise.all(promises).then(res => {
+                this.setState(prev => ({
+                    ...prev,
+                    pageBodyContentLoading: false,
+                    [tableTarget]: newTableData
+                }))
+            })
         })
     }
 
