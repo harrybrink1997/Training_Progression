@@ -1353,7 +1353,6 @@ class Firebase {
 
     handleAcceptPendingProgramCompleteReplace = (athleteUID, delCurrentList, delPendingList, acceptPendingList) => {
 
-        return true
         return new Promise((res, rej) => {
             var promises = []
 
@@ -1511,7 +1510,6 @@ class Firebase {
         return new Promise((res, rej) => {
             this.database
                 .collection('programs')
-                .where('programUID', 'in', programList)
                 .where('owner', '==', coachUID)
                 .where('athlete', '==', athleteUID)
                 .where('status', '==', 'pending')
@@ -1520,12 +1518,31 @@ class Firebase {
                     if (snap.empty) {
                         res(true)
                     } else {
-                        var promises = []
+                        let promises = []
+                        let deleteList = []
 
                         snap.docs.forEach(doc => {
+                            if (programList.includes(doc.data().programUID)) {
+                                if (doc.data().order) {
+                                    let seqProgIDs = this.getProgramsInSequenceIDs(
+                                        doc.data().order,
+                                        snap.docs
+                                    )
+                                    seqProgIDs.forEach(id => {
+                                        if (!deleteList.includes(id)) {
+                                            deleteList.push(id)
+                                        }
+                                    })
+                                } else {
+                                    deleteList.push(doc.data().programUID)
+                                }
+                            }
+                        })
+
+                        deleteList.forEach(id => {
                             promises.push(
                                 this.deleteProgramDB(
-                                    doc.data().programUID,
+                                    id,
                                     'athlete',
                                     athleteUID,
                                     'pending'
@@ -1540,6 +1557,30 @@ class Firebase {
                     }
                 })
         })
+    }
+
+    getProgramsInSequenceIDs = (order, docs) => {
+
+        var seqOrderArray = order.split('_')
+        seqOrderArray.shift()
+        var sequenceString = seqOrderArray.join("_")
+        var relatedPrograms = []
+
+        docs.forEach(doc => {
+            if (doc.data().order) {
+                var currOrderArray = doc.data().order.split('_')
+                currOrderArray.shift()
+                var currSeqString = currOrderArray.join("_")
+
+                if (sequenceString === currSeqString) {
+                    relatedPrograms.push(doc.data().programUID)
+                }
+            }
+        })
+
+        return relatedPrograms
+
+
     }
 
     getTeamProgramData = (coachUID, teamName) => {
