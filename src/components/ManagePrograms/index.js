@@ -829,14 +829,15 @@ class ManageProgramsPage extends Component {
                     let currVersion = this.state.currProgList.getProgram(relProgUID)
 
                     if (currVersion) {
+                        delCurrentList.push(relProgUID)
                         if (currVersion.order()) {
                             // If the version is sequential in current programs get all related programUIDs. These are to be removed from current programs. 
-                            let relatedUIDs = this.state.currProgList.sequentialProgramUIDList(currVersion.getOrder())
-                            delCurrentList = [...delCurrentList, relatedUIDs]
+                            let relatedUIDs = this.state.currProgList.sequentialProgramUIDList(currVersion.getOrder(), [programUID])
+                            delCurrentList = [...delCurrentList, ...relatedUIDs]
 
                             // Remove the sequence from the front end. 
-                            this.state.currProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.order(), [programUID])
-                            this.state.nonPendingProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.order(), [programUID])
+                            this.state.currProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.order())
+                            this.state.nonPendingProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.order())
                         } else {
                             this.state.currProgList.removeProgram(relProgUID)
                             this.state.nonPendingProgList.removeProgram(relProgUID)
@@ -852,18 +853,17 @@ class ManageProgramsPage extends Component {
 
                 // Remove the accepted pending program from the pending program list, do not replace in current programs. 
                 this.state.pendingProgList.removeProgram(programUID)
+                this.state.currProgList.addProgStart(pendingProgram)
+                delPendingList.push(programUID)
             } else {
-                acceptPendingList = [programUID]
 
                 let currVersion = this.state.currProgList.getProgram(programUID)
 
                 if (currVersion) {
                     if (currVersion.getOrder()) {
                         // If the version is sequential in current programs get all related programUIDs. These are to be removed from current programs. 
-                        console.log('collecting uids')
                         let relatedUIDs = this.state.currProgList.sequentialProgramUIDList(currVersion.getOrder())
                         delCurrentList = [...delCurrentList, ...relatedUIDs]
-                        console.log('collecteed uids')
 
                         // Remove the sequence from the front end. 
                         this.state.currProgList.removeProgramSequence(currVersion.getProgramUID(), currVersion.getOrder())
@@ -872,13 +872,14 @@ class ManageProgramsPage extends Component {
                         this.state.currProgList.removeProgram(programUID)
                         this.state.nonPendingProgList.removeProgram(programUID)
                     }
-                    // Push programUID to remove from current programs. 
-                    delCurrentList.push(currVersion.getProgramUID())
                 }
 
                 this.state.pendingProgList.removeProgram(programUID)
                 this.state.currProgList.addProgStart(pendingProgram)
                 this.state.nonPendingProgList.addProgStart(pendingProgram)
+
+                delPendingList.push(programUID)
+
             }
 
 
@@ -891,9 +892,9 @@ class ManageProgramsPage extends Component {
             //     this.props.firebase.auth.currentUser.uid,
             //     programUID,
             //     currentDayInProgram,
-            //     delPendList,
-            //     delCurrList,
-            //     acceptPendList
+            //     delPendingList,
+            //     delCurrentList,
+            //     acceptPendingList
             // ).then(res => {
             this.setState(prev => ({
                 ...prev,
