@@ -19,29 +19,34 @@ class Program {
     }
 
     checkSameMetaParameters = (program) => {
-        var metaParameters = {
-            'Loading Scheme': false,
-            'Chronic Period': false,
-            'Acute Period': false
-        }
+        if (program !== undefined) {
+            var metaParameters = {
+                'Loading Scheme': false,
+                'Chronic Period': false,
+                'Acute Period': false
+            }
 
-        if (this.getLoadingScheme() === program.getLoadingScheme()) {
-            metaParameters['Loading Scheme'] = true
-        }
+            if (this.getLoadingScheme() === program.getLoadingScheme()) {
+                metaParameters['Loading Scheme'] = true
+            }
 
-        if (this.getChronicPeriod() === program.getChronicPeriod()) {
-            metaParameters['Chronic Period'] = true
-        }
+            if (this.getChronicPeriod() === program.getChronicPeriod()) {
+                metaParameters['Chronic Period'] = true
+            }
 
-        if (this.getAcutePeriod() === program.getAcutePeriod()) {
-            metaParameters['Acute Period'] = true
-        }
+            if (this.getAcutePeriod() === program.getAcutePeriod()) {
+                metaParameters['Acute Period'] = true
+            }
 
-        if (metaParameters['Acute Period'] && metaParameters['Chronic Period'] && metaParameters['Loading Scheme']) {
+            if (metaParameters['Acute Period'] && metaParameters['Chronic Period'] && metaParameters['Loading Scheme']) {
+                return true
+            }
+
+            return metaParameters
+        } else {
             return true
         }
 
-        return metaParameters
 
     }
 

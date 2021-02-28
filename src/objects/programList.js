@@ -67,7 +67,7 @@ class ProgramList {
         })
     }
 
-    sequentialProgramUIDList = (order, exclusions) => {
+    sequentialProgramUIDList = (order, exclusions = []) => {
         let relatedProgs = this.findRelatedSequentialPrograms(order)
 
         let programUIDs = relatedProgs.map(prog => {

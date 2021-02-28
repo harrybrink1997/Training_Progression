@@ -1307,13 +1307,11 @@ class Firebase {
         })
     }
 
-    handleAcceptPendingProgramCompleteReplace = (athleteUID, deleteProgList, acceptProgList) => {
-        console.log(deleteProgList)
-        console.log(acceptProgList)
+    handleAcceptPendingProgramCompleteReplace = (athleteUID, delCurrentList, delPendingList, acceptPendingList) => {
         return new Promise((res, rej) => {
             var promises = []
 
-            deleteProgList.forEach(programUID => {
+            delCurrentList.forEach(programUID => {
                 promises.push(
                     this.deleteProgramDB(
                         programUID,
@@ -1324,10 +1322,21 @@ class Firebase {
                 )
             })
 
+            delPendingList.forEach(programUID => {
+                promises.push(
+                    this.deleteProgramDB(
+                        programUID,
+                        'athlete',
+                        athleteUID,
+                        'pending'
+                    )
+                )
+            })
+
             Promise.all(promises).then(result => {
                 this.database
                     .collection('programs')
-                    .where('programUID', 'in', acceptProgList)
+                    .where('programUID', 'in', acceptPendingList)
                     .where('athlete', '==', athleteUID)
                     .where('status', '==', 'pending')
                     .get()

@@ -27,7 +27,7 @@ const ReplaceProgramSequenceModal = ({ buttonHandler, sequenceOverlapData }) => 
         }
     }
 
-    const [replacementType, setReplacementType] = useState(initReplacementType(sequenceOverlapData))
+    const [replacementType, setReplacementType] = useState('all')
 
     const handleRadioChange = (val) => {
         setReplacementType(val)
@@ -42,7 +42,11 @@ const ReplaceProgramSequenceModal = ({ buttonHandler, sequenceOverlapData }) => 
     }
 
     const handleProceedBtnClick = () => {
-        buttonHandler(replacementType, totalSequenceData)
+        buttonHandler(
+            totalSequenceData[0].programUID,
+            replacementType,
+            totalSequenceData[0].currentDayInProgram
+        )
         handleClose()
     }
 
