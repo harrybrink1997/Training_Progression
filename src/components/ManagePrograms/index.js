@@ -909,6 +909,9 @@ class ManageProgramsPage extends Component {
 
             }
 
+            console.log(delCurrentList)
+            console.log(delPendingList)
+            console.log(acceptPendingList)
             console.log(this.state.currProgList)
             this.props.firebase.handleAcceptPendingProgramFutureReplace(
                 this.props.firebase.auth.currentUser.uid,

@@ -613,25 +613,27 @@ class Firebase {
                     .where('status', '==', status)
                     .get()
                     .then(snap => {
-                        const batch = this.database.batch()
-                        const docUID = snap.docs[0].id
-                        var progRef = this.database.collection('programs').doc(docUID)
+                        if (!snap.empty) {
+                            const batch = this.database.batch()
+                            const docUID = snap.docs[0].id
+                            var progRef = this.database.collection('programs').doc(docUID)
 
-                        batch.delete(progRef)
+                            batch.delete(progRef)
 
-                        progRef
-                            .collection('exercises')
-                            .get()
-                            .then(coll => {
-                                if (coll.exists) {
-                                    coll.docs.forEach(doc => {
-                                        var dayRef = progRef.collection('exercises').doc(doc.id)
-                                        batch.delete(dayRef)
-                                    })
-                                }
-                                batch.commit()
-                                res(true)
-                            })
+                            progRef
+                                .collection('exercises')
+                                .get()
+                                .then(coll => {
+                                    if (!coll.empty) {
+                                        coll.docs.forEach(doc => {
+                                            var dayRef = progRef.collection('exercises').doc(doc.id)
+                                            batch.delete(dayRef)
+                                        })
+                                    }
+                                    batch.commit()
+                                    res(true)
+                                })
+                        }
                     })
             })
         } else {
@@ -644,24 +646,26 @@ class Firebase {
                     .where('status', '==', status)
                     .get()
                     .then(snap => {
-                        const batch = this.database.batch()
-                        const docUID = snap.docs[0].id
-                        var progRef = this.database.collection('programs').doc(docUID)
-                        batch.delete(progRef)
+                        if (!snap.empty) {
+                            const batch = this.database.batch()
+                            const docUID = snap.docs[0].id
+                            var progRef = this.database.collection('programs').doc(docUID)
+                            batch.delete(progRef)
 
-                        progRef
-                            .collection('exercises')
-                            .get()
-                            .then(coll => {
-                                if (!coll.empty) {
-                                    coll.docs.forEach(doc => {
-                                        var dayRef = progRef.collection('exercises').doc(doc.id)
-                                        batch.delete(dayRef)
-                                    })
-                                }
-                                batch.commit()
-                                res(true)
-                            })
+                            progRef
+                                .collection('exercises')
+                                .get()
+                                .then(coll => {
+                                    if (!coll.empty) {
+                                        coll.docs.forEach(doc => {
+                                            var dayRef = progRef.collection('exercises').doc(doc.id)
+                                            batch.delete(dayRef)
+                                        })
+                                    }
+                                    batch.commit()
+                                    res(true)
+                                })
+                        }
                     })
             })
         }
@@ -1199,6 +1203,14 @@ class Firebase {
 
     handleAcceptPendingProgramFutureReplace = (athleteUID, firstProgramUID, firstProgramOrder, dayThreshold, deletePendingList, deleteCurrentList, acceptPendingList) => {
 
+        console.log(athleteUID)
+        console.log(firstProgramUID)
+        console.log(firstProgramOrder)
+        console.log(dayThreshold)
+        console.log(deletePendingList)
+        console.log(deleteCurrentList)
+        console.log(acceptPendingList)
+
         return new Promise((res, rej) => {
 
             Promise.all([
@@ -1230,9 +1242,12 @@ class Firebase {
                             // Get the document of the first program in the sequence to be accepted. This will get a future replace. 
                             let docUID = snap.docs[0].id
                             const batch = this.database.batch()
-
+                            console.log(docUID)
                             // If the first program is a sequence then update the sequence name in the database and set the is active in sequence property to true.
                             let progRef = this.database.collection('programs').doc(docUID)
+                            let exRef = progRef.collection('exercises')
+
+
                             if (firstProgramOrder) {
                                 batch.update(
                                     progRef,
@@ -1256,8 +1271,7 @@ class Firebase {
                                 }
                             }
 
-                            this.clearFutureProgExData(docUID, dayThreshold).then(res => {
-                                let exRef = this.database.collection('programs').doc(docUID).collection('exercises')
+                            this.clearFutureProgExData(docUID, dayThreshold).then(clearedData => {
 
                                 Object.keys(exPayload).forEach(day => {
                                     batch.set(exRef.doc(day), exPayload[day])
@@ -1291,12 +1305,10 @@ class Firebase {
 
                                 Promise.all(promises).then(result => {
                                     batch.commit()
-                                    return true
+                                    res(true)
                                 })
                             })
                         }
-                    }).then(result => {
-                        res(true)
                     })
             })
         })
