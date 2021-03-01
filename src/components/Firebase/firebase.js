@@ -1469,7 +1469,7 @@ class Firebase {
                         Promise.all(completeProgramData).then(data => {
                             data.forEach(program => {
                                 var feProgObj = programData[program.programInfo.programUID]
-
+                                console.log(program)
                                 athleteData.forEach(altheteUID => {
 
                                     var programRef = this.database.collection('programs').doc()
