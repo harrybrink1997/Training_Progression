@@ -982,7 +982,7 @@ class ManageProgramsPage extends Component {
                                             <OverrideReplaceProgramModal
                                                 handleFormSubmit={this.handlePendingProgramRequestAcceptence}
                                                 programUID={program.getProgramUID()}
-                                                currSeq={program.getSequenceName()}
+                                                currSeq={currentVersion.getSequenceName()}
                                                 modalType={'unlimPend->nonActiveSeqCurr'}
                                             />
                                             <DeclineRequestButton buttonHandler={this.handlePendingProgramRequestAcceptence} objectUID={program.getProgramUID()} />
