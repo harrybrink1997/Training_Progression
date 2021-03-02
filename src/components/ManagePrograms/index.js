@@ -689,6 +689,8 @@ class ManageProgramsPage extends Component {
     }
 
     handleStartProgram = (startDateUTS) => {
+        this.state.currProgList.getProgram(this.state.currProgram.programUID).setStartDayUTS(startDateUTS)
+
         this.props.firebase.startProgramDB(
             this.props.firebase.auth.currentUser.uid,
             this.state.currProgram.programUID,

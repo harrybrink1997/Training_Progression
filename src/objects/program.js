@@ -216,6 +216,10 @@ class CurrentProgram extends Program {
         return baseObj
     }
 
+    setStartDayUTS(value) {
+        this.startDayUTS = value
+    }
+
     getStartDayUTS() {
         return this.startDayUTS
     }
