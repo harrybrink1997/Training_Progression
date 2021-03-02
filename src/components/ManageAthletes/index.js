@@ -258,11 +258,8 @@ class ManageAthletesPage extends Component {
 
     initAthProgTableData = (programs, athleteUID) => {
 
-        if (programs.length > 0) {
-
-            var returnData = {}
-
-            returnData.columns = [
+        let returnData = {
+            columns: [
                 {
                     Header: 'Program',
                     accessor: 'program'
@@ -278,9 +275,12 @@ class ManageAthletesPage extends Component {
                 {
                     accessor: 'buttons'
                 }
-            ]
+            ],
+            data: []
+        }
 
-            returnData.data = []
+        if (programs.length > 0) {
+
             programs.forEach(program => {
                 returnData.data.push({
                     program: program.name,
@@ -303,10 +303,8 @@ class ManageAthletesPage extends Component {
                 )
             })
 
-            return returnData
-        } else {
-            return undefined
         }
+        return returnData
     }
 
 
@@ -662,67 +660,51 @@ class ManageAthletesPage extends Component {
         this.setState({
             pageBodyContentLoading: true,
         }, () => {
-            var payLoad = {}
-            var renderPayload = []
-            var timestamp = new Date().getTime()
-            var athleteUid = this.state.currAthlete.uid
-            var athletePath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/`
+            let timestamp = new Date().getTime()
+            console.log(programData)
+            let progInfo = {}
+            let renderPayload = []
 
-            this.props.firebase.getSharedPrograms(
-                this.props.firebase.auth.currentUser.uid,
-                athleteUid,
-                'none'
-            ).once('value', userData => {
-                const sharedProgObj = userData.val();
+            if (programData.unlimited) {
+                programData.unlimited.forEach(program => {
+                    progInfo[program.programUID] = {
+                        programUID: program.programUID,
+                        isUnlimited: true,
+                        deploymentDate: timestamp
+                    }
 
-                if (programData.unlimited) {
-                    programData.unlimited.forEach(program => {
 
-                        var insertionProgramObject = this.state.currentProgramsData[program.programUID]
-                        insertionProgramObject.currentDayInProgram = 1
-                        insertionProgramObject.deploymentDate = timestamp
-
-                        // Database path to insert into the athletes pending programs.
-                        payLoad['/users/' + athleteUid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
-                        // Database path to keep track of what prograsms have been shared with which athlete and when.
-
-                        if (!sharedProgObj || !sharedProgObj.sharedPrograms[program.programUID]) {
-
-                            payLoad[athletePath + athleteUid + '/teams/' + 'none' + '/sharedPrograms/' + program.programUID] = [timestamp]
-                        } else {
-                            let deployTimes = [...sharedProgObj.sharedPrograms[program.programUID], timestamp]
-
-                            payLoad[athletePath + athleteUid + '/teams/' + 'none' + '/sharedPrograms/' + program.programUID] = deployTimes
-                        }
-
-                        renderPayload.push({
-                            program: program.programUID.split("_")[0],
-                            team: 'none',
-                            timestampAssigned: timestamp,
-                            dateAssigned: utsToDateString(timestamp),
-                            buttons: false
-                        })
+                    renderPayload.push({
+                        program: program.programUID.split("_")[0],
+                        team: 'none',
+                        timestampAssigned: timestamp,
+                        dateAssigned: utsToDateString(timestamp),
+                        buttons: false
                     })
-                }
+                })
+            }
 
-                if (programData.sequential) {
-                    programData.sequential.forEach(program => {
+            if (programData.sequential) {
 
-                        var isActiveInSequence = false
-                        if (programData.sequenceName === 'preDetermined') {
-                            if (parseInt(program.order.split('_')[0]) === 1) {
-                                isActiveInSequence = true
-                            }
-                        } else {
-                            if (parseInt(program.order) === 1) {
-                                isActiveInSequence = true
-                            }
+                programData.sequential.forEach(program => {
+
+                    let isActiveInSequence = false
+                    if (programData.sequenceName === 'preDetermined') {
+                        if (parseInt(program.order.split('_')[0]) === 1) {
+                            isActiveInSequence = true
                         }
+                    } else {
+                        if (parseInt(program.order) === 1) {
+                            isActiveInSequence = true
+                        }
+                    }
 
-                        var insertionProgramObject = this.state.currentProgramsData[program.programUID]
-                        insertionProgramObject.currentDayInProgram = 1
-                        insertionProgramObject.isActiveInSequence = isActiveInSequence
-                        insertionProgramObject.order =
+                    progInfo[program.programUID] = {
+                        programUID: program.programUID,
+                        isUnlimited: false,
+                        deploymentDate: timestamp,
+                        isActiveInSequence: isActiveInSequence,
+                        order:
                             programData.sequenceName === 'preDetermined' ?
                                 program.order
                                 :
@@ -731,51 +713,40 @@ class ManageAthletesPage extends Component {
                                 + '_' + 'none'
                                 + '_' + this.props.firebase.auth.currentUser.uid
                                 + '_' + timestamp
-                        insertionProgramObject.deploymentDate = timestamp
-                        payLoad['/users/' + athleteUid + '/pendingPrograms/' + program.programUID] = insertionProgramObject
+                    }
 
-                        if (!sharedProgObj || !sharedProgObj.sharedPrograms[program.programUID]) {
-                            payLoad[athletePath + athleteUid + '/teams/' + 'none' + '/sharedPrograms/' + program.programUID] = [timestamp]
-                        } else {
-                            let deployTimes = [...sharedProgObj.sharedPrograms[program.programUID], timestamp]
-
-                            payLoad[athletePath + athleteUid + '/teams/' + 'none' + '/sharedPrograms/' + program.programUID] = deployTimes
-                        }
-
-                        renderPayload.push({
-                            program: program.programUID.split("_")[0],
-                            team: 'none',
-                            timestampAssigned: timestamp,
-                            dateAssigned: utsToDateString(timestamp),
-                            buttons: false
-                        })
+                    renderPayload.push({
+                        program: program.programUID.split("_")[0],
+                        team: 'none',
+                        timestampAssigned: timestamp,
+                        dateAssigned: utsToDateString(timestamp),
+                        buttons: false
                     })
-                }
-
-                console.log(payLoad)
-                console.log(this.state.currAthlete.athProgTableData.data)
-
-                let currentAthProgData = [...this.state.currAthlete.athProgTableData.data]
-
-                renderPayload.forEach(prog => {
-                    currentAthProgData.unshift(prog)
                 })
+            }
 
-                this.props.firebase.updateDatabaseFromRootPath(payLoad)
+            let currentAthProgData = [...this.state.currAthlete.athProgTableData.data]
 
+            renderPayload.forEach(prog => {
+                currentAthProgData.unshift(prog)
+            })
+
+            this.props.firebase.deployAthletePrograms(
+                this.props.firebase.auth.currentUser.uid,
+                this.state.currAthlete.uid,
+                progInfo
+            ).then(updatedProgramData => {
                 this.setState(prevState => ({
                     ...prevState,
                     pageBodyContentLoading: false,
                     currAthlete: {
                         ...prevState.currAthlete,
-                        athProgTableData: {
-                            ...prevState.currAthlete.athProgTableData,
-                            data: currentAthProgData
-                        },
+                        athProgTableData: this.initAthProgTableData(updatedProgramData),
                         view: 'managePrograms'
                     }
                 }))
             })
+
         })
     }
 
@@ -1012,16 +983,13 @@ class ManageAthletesPage extends Component {
 
     render() {
         const {
+            programData,
+            programGroupData,
             loading,
-            coachProgramTableData,
-            coachProgramGroupTableData,
             pageBodyContentLoading,
             manageAthleteTableData,
             currAthlete,
         } = this.state
-        if (currAthlete) {
-            console.log(currAthlete)
-        }
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
@@ -1144,9 +1112,9 @@ class ManageAthletesPage extends Component {
                     <div className='centred-info'>
                         <div className='pageContainerLevel1 half-width'>
                             <ProgramDeployment
-                                initProgTabData={coachProgramTableData}
+                                initProgTabData={programData}
                                 submitHandler={this.handleDeployAthleteProgram}
-                                initProgGroupTabData={coachProgramGroupTableData}
+                                initProgGroupTabData={programGroupData}
                             />
                         </div>
                     </div>
@@ -1224,7 +1192,7 @@ class ManageAthletesPage extends Component {
                     && currAthlete
                     && pageBodyContentLoadingHTML
                 }
-            </div>
+            </div >
         )
     }
 }

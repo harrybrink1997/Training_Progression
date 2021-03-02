@@ -443,13 +443,68 @@ class Firebase {
         })
     }
 
-    createTeamDB = (coachUID, coachPayload, athletePayload, athleteList, progInfo) => {
+    deployAthletePrograms = (coachUID, athleteUID, programData) => {
+        return new Promise((res, rej) => {
+            const batch = this.database.batch()
 
-        console.log(coachUID)
-        console.log(coachPayload)
-        console.log(athletePayload)
-        console.log(athleteList)
-        console.log(progInfo)
+            var programUIDList = Object.keys(programData)
+
+            var currentPendingPromises = []
+
+            currentPendingPromises.push(
+                this.removeAthleteAssignedPendingProgramList(
+                    coachUID,
+                    athleteUID,
+                    programUIDList
+                )
+            )
+
+
+            Promise.all(currentPendingPromises).then(result => {
+                var completeProgramData = []
+
+                programUIDList.forEach(programUID => {
+                    completeProgramData.push(
+                        this.generateProgDeploymentData(coachUID, programUID)
+                    )
+                })
+
+                Promise.all(completeProgramData).then(data => {
+                    data.forEach(program => {
+                        var feProgObj = programData[program.programInfo.programUID]
+
+                        var programRef = this.database.collection('programs').doc()
+
+                        let progAthInfo = { ...program.programInfo }
+
+                        if (!feProgObj.isUnlimited) {
+                            progAthInfo.order = feProgObj.order
+                            progAthInfo.isActiveInSequence = feProgObj.isActiveInSequence
+                        }
+
+                        progAthInfo.deploymentDate = feProgObj.deploymentDate
+                        progAthInfo.athlete = athleteUID
+                        progAthInfo.status = 'pending'
+                        progAthInfo.team = 'none'
+
+                        batch.set(programRef, progAthInfo)
+                        Object.keys(program.exData).forEach(day => {
+                            var dayRef = programRef.collection('exercises').doc(day)
+                            batch.set(dayRef, program.exData[day])
+                        })
+                    })
+                    batch.commit().then(() => {
+                        this.getCoachAthletePrograms(coachUID, athleteUID).then(updatedProgramData => {
+                            res(updatedProgramData)
+                        })
+                    })
+                })
+
+            })
+        })
+    }
+
+    createTeamDB = (coachUID, coachPayload, athletePayload, athleteList, progInfo) => {
 
         return new Promise((res, rej) => {
             const batch = this.database.batch()
@@ -1324,6 +1379,7 @@ class Firebase {
                         let payload = snap.docs.map(doc => {
                             return doc.data()
                         })
+                        res(payload)
                     } else {
                         res([])
                     }
