@@ -51,12 +51,10 @@ class ManageProgramsPage extends Component {
 
                     this.props.firebase.getUserPrograms(userObject.getID(), userObject.getUserType())
                         .then(snapshot => {
-                            var nonPendingPrograms = []
                             var pendingPrograms = []
                             var currentPrograms = []
                             var pastPrograms
                             if (snapshot.length === 0) {
-                                nonPendingPrograms = []
                                 pendingPrograms = []
                             } else {
                                 snapshot.forEach(prog => {
@@ -69,32 +67,14 @@ class ManageProgramsPage extends Component {
                                     } else {
                                         pendingPrograms.push(progObj)
                                     }
-
-                                    // if (progObj.getStatus() === 'pending') {
-                                    //     pendingPrograms.push(progObj)
-                                    // } else {
-                                    //     nonPendingPrograms.push(progObj)
-
-                                    //     if (progObj.getStatus() === 'current') {
-                                    //         currentPrograms.push(progObj)
-                                    //     } else if (progObj.getStatus() === 'past') {
-                                    //         pastPrograms.push(progObj)
-                                    //     }
-                                    // }
                                 })
                             }
-
-                            // var nonPendingList = new ProgramList(nonPendingPrograms)
 
                             var pendingList = new ProgramList(pendingPrograms)
 
                             var currProgList = new ProgramList(currentPrograms)
 
                             var pastProgList = new ProgramList(pastPrograms)
-
-                            console.log(currProgList)
-                            console.log(pendingList)
-                            console.log(pastProgList)
 
                             this.setState({
                                 user: userObject,
@@ -1524,8 +1504,6 @@ class ManageProgramsPage extends Component {
         const {
             loading,
             user,
-            nonPendingList,
-            pendingList,
             pendingProgTableData,
             currentProgTableData,
             pastProgTableData,

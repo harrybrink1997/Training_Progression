@@ -1042,6 +1042,9 @@ class Firebase {
     }
 
     getProgGoalData = (programUID, athleteUID, programStatus) => {
+        console.log(programUID)
+        console.log(athleteUID)
+        console.log(programStatus)
         if (programStatus === 'current') {
             return new Promise((res, rej) => {
                 this.database
@@ -1298,6 +1301,8 @@ class Firebase {
                 .collection('goals')
                 .where('programUID', '==', programUID)
                 .where('goalProgUID', '==', payload.parentGoal)
+                .where('athleteUID', '==', athleteUID)
+                .where('programStatus', '==', 'current')
                 .get()
                 .then(snap => {
                     var docRef = this.database.collection('goals').doc(snap.docs[0].id)
