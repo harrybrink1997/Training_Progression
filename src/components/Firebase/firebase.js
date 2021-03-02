@@ -525,75 +525,91 @@ class Firebase {
             })
 
             Promise.all(promises).then(data => {
-                if (data.length !== 0) {
-                    data.forEach(program => {
-                        console.log(program)
-                        program.programInfo.status = 'pending'
-                        program.programInfo.deploymentDate = progInfo[program.programInfo.programUID].deploymentDate
-                        program.programInfo.team = coachPayload.teamName
 
-                        if (!progInfo[program.programInfo.programUID].isUnlimited) {
-                            program.programInfo.order = progInfo[program.programInfo.programUID].order
-                            program.programInfo.isActiveInSequence = progInfo[program.programInfo.programUID].isActiveInSequence
-                        }
+                var programUIDList = Object.keys(progInfo)
+                let currProgDelPromises = []
+                athleteList.forEach(athlete => {
+                    currProgDelPromises.push(
+                        this.removeAthleteAssignedPendingProgramList(
+                            coachUID,
+                            athlete,
+                            programUIDList
+                        )
+                    )
+                })
 
-                        athleteList.forEach(athlete => {
-                            var progData = { ...program.programInfo }
-                            progData.athlete = athlete
+                Promise.all(currProgDelPromises).then(() => {
 
-                            var progRef = this.database.collection('programs').doc()
+                    if (data.length !== 0) {
+                        data.forEach(program => {
+                            console.log(program)
+                            program.programInfo.status = 'pending'
+                            program.programInfo.deploymentDate = progInfo[program.programInfo.programUID].deploymentDate
+                            program.programInfo.team = coachPayload.teamName
 
-                            batch.set(progRef, progData)
-                            var exRef = progRef.collection('exercises')
+                            if (!progInfo[program.programInfo.programUID].isUnlimited) {
+                                program.programInfo.order = progInfo[program.programInfo.programUID].order
+                                program.programInfo.isActiveInSequence = progInfo[program.programInfo.programUID].isActiveInSequence
+                            }
 
-                            Object.keys(program.exData).forEach(day => {
-                                batch.set(exRef.doc(day), program.exData[day])
+                            athleteList.forEach(athlete => {
+                                var progData = { ...program.programInfo }
+                                progData.athlete = athlete
+
+                                var progRef = this.database.collection('programs').doc()
+
+                                batch.set(progRef, progData)
+                                var exRef = progRef.collection('exercises')
+
+                                Object.keys(program.exData).forEach(day => {
+                                    batch.set(exRef.doc(day), program.exData[day])
+                                })
                             })
                         })
-                    })
-                }
+                    }
 
-                var coachRef = this.database
-                    .collection('users')
-                    .doc(coachUID)
-                    .collection('teams')
-                    .doc()
+                    var coachRef = this.database
+                        .collection('users')
+                        .doc(coachUID)
+                        .collection('teams')
+                        .doc()
 
-                batch.set(coachRef, coachPayload)
+                    batch.set(coachRef, coachPayload)
 
-                if (athleteList.length > 0) {
-                    var athPromises = []
+                    if (athleteList.length > 0) {
+                        var athPromises = []
 
-                    athleteList.forEach(athlete => {
-                        athPromises.push(this.getCurrentCoachAthDocUID(athlete, coachUID))
-                    })
-
-                    Promise.all(athPromises).then(athData => {
-                        athData.forEach(docUID => {
-                            var currCoachAthDocRef = this.database
-                                .collection('currentCoachAthletes')
-                                .doc(docUID)
-
-                            var teamPath = `currentTeams.${athletePayload.teamName}.joiningDate`
-
-                            batch.update(
-                                currCoachAthDocRef,
-                                {
-                                    [teamPath]: athletePayload.joiningDate
-                                }
-                            )
+                        athleteList.forEach(athlete => {
+                            athPromises.push(this.getCurrentCoachAthDocUID(athlete, coachUID))
                         })
 
+                        Promise.all(athPromises).then(athData => {
+                            athData.forEach(docUID => {
+                                var currCoachAthDocRef = this.database
+                                    .collection('currentCoachAthletes')
+                                    .doc(docUID)
+
+                                var teamPath = `currentTeams.${athletePayload.teamName}.joiningDate`
+
+                                batch.update(
+                                    currCoachAthDocRef,
+                                    {
+                                        [teamPath]: athletePayload.joiningDate
+                                    }
+                                )
+                            })
+
+                            batch.commit().then(() => {
+                                res(true)
+                            })
+                        })
+
+                    } else {
                         batch.commit().then(() => {
                             res(true)
                         })
-                    })
-
-                } else {
-                    batch.commit().then(() => {
-                        res(true)
-                    })
-                }
+                    }
+                })
             })
         })
     }
