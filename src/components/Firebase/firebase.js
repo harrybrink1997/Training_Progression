@@ -153,22 +153,27 @@ class Firebase {
     }
 
     createCurrentCoachAthlete = (coachUID, athleteUID, payload) => {
-        return this.database
-            .collection('coachRequests')
-            .where('coachUID', '==', coachUID)
-            .where('athleteUID', '==', athleteUID)
-            .get()
-            .then(snap => {
-                const docID = snap.docs[0].id
-                const batch = this.database.batch()
-                const currAthRef = this.database.collection('currentCoachAthletes').doc()
-                const requestRef = this.database.collection('coachRequests').doc(docID)
+        return new Promise((res, rej) => {
+            this.database
+                .collection('coachRequests')
+                .where('coachUID', '==', coachUID)
+                .where('athleteUID', '==', athleteUID)
+                .get()
+                .then(snap => {
+                    const docID = snap.docs[0].id
+                    const batch = this.database.batch()
+                    const currAthRef = this.database.collection('currentCoachAthletes').doc()
+                    const requestRef = this.database.collection('coachRequests').doc(docID)
 
-                batch.delete(requestRef)
-                batch.set(currAthRef, payload)
+                    batch.delete(requestRef)
+                    batch.set(currAthRef, payload)
 
-                batch.commit()
-            })
+                    batch.commit().then(() => {
+                        res(true)
+                    })
+                })
+        })
+
 
     }
 
@@ -321,23 +326,28 @@ class Firebase {
     }
 
     createProgramDB = (programData, goalData) => {
-        const batch = this.database.batch()
+        return new Promise((res, rej) => {
+            const batch = this.database.batch()
 
-        batch.set(
-            this.database.collection('programs').doc(),
-            programData
-        )
+            batch.set(
+                this.database.collection('programs').doc(),
+                programData
+            )
 
-        if (goalData) {
-            goalData.forEach(goal => {
-                batch.set(
-                    this.database.collection('goals').doc(),
-                    goal
-                )
+            if (goalData) {
+                goalData.forEach(goal => {
+                    batch.set(
+                        this.database.collection('goals').doc(),
+                        goal
+                    )
+                })
+            }
+
+            batch.commit().then(() => {
+                res(true)
             })
-        }
+        })
 
-        return batch.commit()
     }
 
     getCurrentTeamNames = (coachUID) => {
@@ -574,13 +584,15 @@ class Firebase {
                             )
                         })
 
-                        batch.commit()
-                        res(true)
+                        batch.commit().then(() => {
+                            res(true)
+                        })
                     })
 
                 } else {
-                    batch.commit()
-                    res(true)
+                    batch.commit().then(() => {
+                        res(true)
+                    })
                 }
             })
         })
@@ -692,8 +704,9 @@ class Firebase {
                                             batch.delete(dayRef)
                                         })
                                     }
-                                    batch.commit()
-                                    res(true)
+                                    batch.commit().then(() => {
+                                        res(true)
+                                    })
                                 })
                         }
                     })
@@ -724,8 +737,9 @@ class Firebase {
                                             batch.delete(dayRef)
                                         })
                                     }
-                                    batch.commit()
-                                    res(true)
+                                    batch.commit().then(() => {
+                                        res(true)
+                                    })
                                 })
                         }
                     })
@@ -766,8 +780,9 @@ class Firebase {
                                 { currentDay: day + 1 }
                             )
 
-                            batch.commit()
-                            res(true)
+                            batch.commit().then(() => {
+                                res(true)
+                            })
                         }
                     })
             })
@@ -802,8 +817,9 @@ class Firebase {
                                 { currentDay: day + 1 }
                             )
 
-                            batch.commit()
-                            res(true)
+                            batch.commit().then(() => {
+                                res(true)
+                            })
                         }
                     })
             })
@@ -1137,25 +1153,33 @@ class Firebase {
     }
 
     changeGoalCompletionStatusDB = (programUID, goalProgUID, goalData) => {
-        return this.database
-            .collection('goals')
-            .where('programUID', '==', programUID)
-            .where('goalProgUID', '==', goalProgUID)
-            .get()
-            .then(snap => {
-                var docRef = this.database.collection('goals').doc(snap.docs[0].id)
-                const batch = this.database.batch()
-                if (goalData.mainGoal) {
-                    batch.update(docRef, { 'mainGoal.completed': goalData.mainGoal.completed })
-                }
+        return new Promise((res, rej) => {
+            this.database
+                .collection('goals')
+                .where('programUID', '==', programUID)
+                .where('goalProgUID', '==', goalProgUID)
+                .get()
+                .then(snap => {
+                    if (!snap.empty) {
+                        var docRef = this.database.collection('goals').doc(snap.docs[0].id)
+                        const batch = this.database.batch()
+                        if (goalData.mainGoal) {
+                            batch.update(docRef, { 'mainGoal.completed': goalData.mainGoal.completed })
+                        }
 
-                if (goalData.subGoal) {
-                    var subGoalPath = `subGoals.${goalData.subGoal.dbUID}.completed`
-                    batch.update(docRef, { [subGoalPath]: goalData.subGoal.completed })
-                }
+                        if (goalData.subGoal) {
+                            var subGoalPath = `subGoals.${goalData.subGoal.dbUID}.completed`
+                            batch.update(docRef, { [subGoalPath]: goalData.subGoal.completed })
+                        }
+                        batch.commit().then(() => {
+                            res(true)
+                        })
+                    } else {
+                        res(true)
+                    }
+                })
+        })
 
-                batch.commit()
-            })
     }
 
     createMainGoalDB = (payload) => {
@@ -1515,8 +1539,9 @@ class Firebase {
                                 })
 
                                 Promise.all(promises).then(result => {
-                                    batch.commit()
-                                    res(true)
+                                    batch.commit().then(() => {
+                                        res(true)
+                                    })
                                 })
                             })
                         }
@@ -1567,9 +1592,12 @@ class Firebase {
                             }
                         })
 
-                        batch.commit()
+                        batch.commit().then(() => {
+                            res(true)
+                        })
+                    } else {
+                        res(true)
                     }
-                    res(true)
                 })
         })
     }
@@ -1622,8 +1650,9 @@ class Firebase {
                                 )
                             })
 
-                            batch.commit()
-                            res(true)
+                            batch.commit().then(() => {
+                                res(true)
+                            })
                         }
                     })
 
@@ -1716,8 +1745,9 @@ class Firebase {
                                     })
                                 })
                             })
-                            batch.commit()
-                            res(true)
+                            batch.commit().then(() => {
+                                res(true)
+                            })
                         })
 
                     })
@@ -1871,19 +1901,22 @@ class Firebase {
     }
 
     copyExerciseDataDB = (programUID, payload) => {
+        return new Promise((res, rej) => {
+            const batch = this.database.batch()
 
-        const batch = this.database.batch()
+            Object.keys(payload).forEach(day => {
+                var docRef = this.database
+                    .collection('programs')
+                    .doc(programUID)
+                    .collection('exercises')
+                    .doc(day.toString())
 
-        Object.keys(payload).forEach(day => {
-            var docRef = this.database
-                .collection('programs')
-                .doc(programUID)
-                .collection('exercises')
-                .doc(day.toString())
-
-            batch.set(docRef, payload[day])
+                batch.set(docRef, payload[day])
+            })
+            batch.commit().then(() => {
+                res(true)
+            })
         })
-        return batch.commit()
     }
 
 
