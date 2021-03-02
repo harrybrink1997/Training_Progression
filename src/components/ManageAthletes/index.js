@@ -178,39 +178,37 @@ class ManageAthletesPage extends Component {
 
     handleRemoveAthleteFromTeam = (teamName, athleteUID) => {
 
-        var payLoad = {}
-        var coachPath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/${athleteUID}/teams/${teamName}/`
-        var timestamp = new Date().getTime().toString()
-        payLoad[coachPath + 'activeMember'] = false
-        payLoad[coachPath + 'leavingDate'] = timestamp
-
         let currTeamData = [...this.state.currAthlete.athTeamTableData.data]
 
         for (var team in currTeamData) {
             if (currTeamData[team].team === teamName) {
-                currTeamData[team].buttons = false
-                currTeamData[team].leaveDate = utsToDateString(parseInt(timestamp))
+                currTeamData.splice(team, 1)
             }
         }
 
-        this.props.firebase.updateDatabaseFromRootPath(payLoad)
-        this.setState(prevState => ({
-            ...prevState,
-            currAthlete: {
-                ...prevState.currAthlete,
-                athTeamTableData: {
-                    ...prevState.currAthlete.athTeamTableData,
-                    data: currTeamData
+        this.props.firebase.removeAthleteFromTeam(
+            this.props.firebase.auth.currentUser.uid,
+            athleteUID,
+            teamName
+        ).then(() => {
+
+            this.setState(prevState => ({
+                ...prevState,
+                currAthlete: {
+                    ...prevState.currAthlete,
+                    athTeamTableData: {
+                        ...prevState.currAthlete.athTeamTableData,
+                        data: currTeamData
+                    }
                 }
-            }
-        }))
+            }))
+        })
     }
 
     initAthTeamTableData = (teams, athleteUid) => {
         console.log(teams)
-        if (Object.keys(teams).length > 0) {
-            var returnData = {}
-            returnData.columns = [
+        let returnData = {
+            columns: [
                 {
                     Header: 'Team',
                     accessor: 'team'
@@ -222,29 +220,27 @@ class ManageAthletesPage extends Component {
                 {
                     accessor: 'buttons'
                 }
-            ]
-
-            returnData.data = []
-            Object.keys(teams).forEach(team => {
-                if (team !== 'none') {
-                    returnData.data.push({
-                        team: team,
-                        joiningDate: utsToDateString(parseInt(teams[team].joiningDate)),
-                        buttons:
-                            <Button
-                                className='lightRedButton-inverted'
-                                onClick={() => { this.handleRemoveAthleteFromTeam(team, athleteUid) }}
-                            >
-                                Remove From Team
-                            </Button>
-                    })
-                }
-            })
-            console.log(returnData)
-            return returnData
-        } else {
-            return undefined
+            ],
+            data: []
         }
+
+        Object.keys(teams).forEach(team => {
+            if (team !== 'none') {
+                returnData.data.push({
+                    team: team,
+                    joiningDate: utsToDateString(parseInt(teams[team].joiningDate)),
+                    buttons:
+                        <Button
+                            className='lightRedButton-inverted'
+                            onClick={() => { this.handleRemoveAthleteFromTeam(team, athleteUid) }}
+                        >
+                            Remove From Team
+                            </Button>
+                })
+            }
+        })
+        return returnData
+
     }
 
     handleManageCurrAthleteViewChange = (view) => {
@@ -342,17 +338,6 @@ class ManageAthletesPage extends Component {
                 uid: athlete.athleteUID
             }
         }, () => {
-            // this.props.firebase.getUserData(
-            //     this.props.firebase.auth.currentUser.uid
-            // )
-            //     .once('value', userData => {
-            //         const userObject = userData.val();
-
-            // this.props.firebase.anatomy().once('value', async snapshot => {
-            //     const anatomyObject = snapshot.val();
-
-            // this.props.firebase.getUserData(athleteUid).once('value', athData => {
-            //     const athleteObject = athData.val();
             this.props.firebase.getIndividualAthleteProfileAndManagementData(
                 this.props.firebase.auth.currentUser.uid,
                 athlete.athleteUID
@@ -374,7 +359,7 @@ class ManageAthletesPage extends Component {
                         viewProgramErrorType: undefined,
                         currViewedProgramName: undefined,
                         currViewedProgramData: undefined,
-                        // coachTeamTableData: this.initCoachTeamTableData(userObject),
+                        coachTeamTableData: this.initCoachTeamTableData(data.currentCoachTeams),
                         viewProgramFunctions: {
                             handleDeleteExerciseButton: this.handleDeleteExerciseButton,
                             handleUpdateExercise: this.handleUpdateExercise,
@@ -411,14 +396,15 @@ class ManageAthletesPage extends Component {
         this.props.firebase.updateDatabaseFromRootPath(payLoad)
     }
 
-    checkAthleteAssignedToTeam = (athleteObject, team) => {
-        if (athleteObject[team]) {
-            return {
-                activeMember: athleteObject[team].activeMember
+    checkAthleteAssignedToTeam = (teamList, teamName) => {
+
+        for (var team in teamList) {
+            if (teamList[team].team === teamName) {
+                return true
             }
-        } else {
-            return false
         }
+
+        return false
     }
 
     updateStateOnNewTeamAssignment = (teamList) => {
@@ -438,127 +424,63 @@ class ManageAthletesPage extends Component {
 
     handleAssignAthleteNewTeam = (team) => {
 
-        console.log(this.state.currAthlete)
-
         this.setState({
             pageBodyContentLoading: true
         }, () => {
-            this.props.firebase.getUserData(this.props.firebase.auth.currentUser.uid).once('value', snapshot => {
+            var timestamp = new Date().getTime()
 
-                let currAthTeamTableData = [...this.state.currAthlete.athTeamTableData.data]
+            let currentAthleteTeams = [...this.state.currAthlete.athTeamTableData.data]
 
-                var timestamp = new Date().getTime()
-                var payLoad = {}
-                var insertionData = {
-                    activeMember: true,
-                    joiningDate: timestamp
-                }
-                var athleteUID = this.state.currAthlete.uid
-                var coachPath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/${athleteUID}/teams/${team}`
-                const userObject = snapshot.val();
+            console.log(currentAthleteTeams)
 
-                if (!userObject.currentAthletes[athleteUID].teams) {
-                    // No teams have been assigned to athlete and you can go ahead. 
-                    payLoad[coachPath] = insertionData
+            var alreadyInTeam = this.checkAthleteAssignedToTeam(
+                currentAthleteTeams,
+                team
+            )
+            console.log(alreadyInTeam)
 
-                    currAthTeamTableData.push({
-                        team: team,
-                        joinDate: utsToDateString(timestamp),
-                        leaveDate: undefined,
-                        buttons:
-                            <Button
-                                className='lightRedButton-inverted'
-                                onClick={() => { this.handleRemoveAthleteFromTeam(team, athleteUID) }}
-                            >
-                                Remove From Team
-                        </Button>
-
-                    })
-
-                    this.updateStateOnNewTeamAssignment(currAthTeamTableData)
-
-                    console.log(payLoad)
-                    this.props.firebase.updateDatabaseFromRootPath(payLoad)
-                } else {
-
-                    var prevAthAssignment = this.checkAthleteAssignedToTeam(
-                        userObject.currentAthletes[athleteUID].teams,
-                        team
-                    )
-
-                    if (!prevAthAssignment) {
-
-                        payLoad[coachPath] = insertionData
-                        console.log(payLoad)
-
-                        currAthTeamTableData.push({
-                            team: team,
-                            joinDate: utsToDateString(timestamp),
-                            leaveDate: undefined,
-                            buttons:
-                                <Button
-                                    className='lightRedButton-inverted'
-                                    onClick={() => { this.handleRemoveAthleteFromTeam(team, athleteUID) }}
-                                >
-                                    Remove From Team
+            if (!alreadyInTeam) {
+                currentAthleteTeams.push({
+                    team: team,
+                    joiningDate: utsToDateString(timestamp),
+                    buttons:
+                        <Button
+                            className='lightRedButton-inverted'
+                            onClick={() => { this.handleRemoveAthleteFromTeam(team, this.state.currAthlete.uid) }}
+                        >
+                            Remove From Team
                             </Button>
 
-                        })
-                        console.log(payLoad)
-                        console.log(currAthTeamTableData)
+                })
 
-                        this.updateStateOnNewTeamAssignment(currAthTeamTableData)
+                this.props.firebase.assignAthleteNewTeam(
+                    this.props.firebase.auth.currentUser.uid,
+                    this.state.currAthlete.uid,
+                    team,
+                    timestamp
+                ).then(() => {
+                    this.updateStateOnNewTeamAssignment(currentAthleteTeams)
+                })
 
-                        this.props.firebase.updateDatabaseFromRootPath(payLoad)
-                    } else {
-                        if (prevAthAssignment.activeMember) {
-                            //Set an error modal and not update DB.
-
-                            this.setState(prevState => ({
-                                ...prevState,
-                                pageBodyContentLoading: false,
-                                currAthlete: {
-                                    ...prevState.currAthlete,
-                                    showViewProgramErrorModal: true,
-                                    viewProgramErrorType: 'athleteCurrBelongsToTeam',
-                                    view: 'manageTeams'
-                                }
-
-                            }))
-                        } else {
-                            // Remove the leaving date from db and set active member to true. 
-                            payLoad[coachPath + '/activeMember'] = true
-                            payLoad[coachPath + '/leavingDate'] = null
-
-                            for (var prog in currAthTeamTableData) {
-                                if (currAthTeamTableData[prog].team === team) {
-                                    currAthTeamTableData[prog].leaveDate = undefined
-                                    currAthTeamTableData[prog].buttons =
-                                        <Button
-                                            className='lightRedButton-inverted'
-                                            onClick={() => { this.handleRemoveAthleteFromTeam(team, athleteUID) }}
-                                        >
-                                            Remove From Team
-                                        </Button>
-
-                                }
-                            }
-                            console.log(payLoad)
-
-                            this.updateStateOnNewTeamAssignment(currAthTeamTableData)
-
-
-                            this.props.firebase.updateDatabaseFromRootPath(payLoad)
-                        }
+            } else {
+                this.setState(prevState => ({
+                    ...prevState,
+                    pageBodyContentLoading: false,
+                    currAthlete: {
+                        ...prevState.currAthlete,
+                        showViewProgramErrorModal: true,
+                        viewProgramErrorType: 'athleteCurrBelongsToTeam',
+                        view: 'manageTeams'
                     }
-                }
-            })
+
+                }))
+            }
         })
     }
 
-    initCoachTeamTableData = (userObject) => {
+    initCoachTeamTableData = (teams) => {
 
-        if (!userObject.teams) {
+        if (teams.length === 0) {
             return undefined
         } else {
 
@@ -575,10 +497,10 @@ class ManageAthletesPage extends Component {
 
             var data = []
 
-            Object.keys(userObject.teams).forEach(team => {
+            teams.forEach(team => {
                 data.push({
-                    team: team,
-                    description: userObject.teams[team].description
+                    team: team.name,
+                    description: team.description
                 })
             })
 

@@ -1205,17 +1205,108 @@ class Firebase {
         })
     }
 
+    removeAthleteFromTeam = (coachUID, athleteUID, team) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('currentCoachAthletes')
+                .where('coachUID', '==', coachUID)
+                .where('athleteUID', '==', athleteUID)
+                .get()
+                .then(snap => {
+                    if (!snap.empty && snap.docs.length === 1) {
+                        let docUID = snap.docs[0].id
+                        let path
+                        let docRef = this.database
+                            .collection('currentCoachAthletes')
+                            .doc(docUID)
+
+                        docRef
+                            .get()
+                            .then(teamData => {
+                                if (Object.keys(teamData.data().currentTeams).length === 1) {
+                                    path = `currentTeams`
+
+                                } else {
+                                    path = `currentTeams.${team}`
+
+                                }
+
+                                docRef.update({
+                                    [path]: FieldValue.delete()
+                                }).then(() => {
+                                    res(true)
+                                })
+                            })
+
+                    }
+                })
+        })
+    }
+
+    assignAthleteNewTeam = (coachUID, athleteUID, team, joiningDate) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('currentCoachAthletes')
+                .where('coachUID', '==', coachUID)
+                .where('athleteUID', '==', athleteUID)
+                .get()
+                .then(snap => {
+                    if (!snap.empty && snap.docs.length === 1) {
+                        let docUID = snap.docs[0].id
+                        let path = `currentTeams.${team}.joiningDate`
+
+                        this.database
+                            .collection('currentCoachAthletes')
+                            .doc(docUID)
+                            .update({
+                                [path]: joiningDate
+                            })
+                            .then(() => {
+                                res(true)
+                            })
+                    }
+                })
+
+        })
+    }
+
+    getAvailableCoachTeams = (coachUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('users')
+                .doc(coachUID)
+                .collection('teams')
+                .get()
+                .then(snap => {
+                    if (!snap.empty) {
+                        let payload = []
+                        snap.docs.forEach(doc => {
+                            payload.push({
+                                name: doc.data().teamName,
+                                description: doc.data().description
+                            })
+                        })
+                        res(payload)
+                    } else {
+                        res([])
+                    }
+                })
+        })
+    }
+
     getIndividualAthleteProfileAndManagementData = (coachUID, athleteUID) => {
         return new Promise((res, rej) => {
             Promise.all([
                 this.getAnatomyData(),
                 this.getAthleteTeams(coachUID, athleteUID),
-                this.getCoachAthletePrograms(coachUID, athleteUID)
+                this.getCoachAthletePrograms(coachUID, athleteUID),
+                this.getAvailableCoachTeams(coachUID)
             ]).then(data => {
                 res({
                     anatomyObject: data[0].data(),
                     teams: data[1],
-                    programs: data[2]
+                    programs: data[2],
+                    currentCoachTeams: data[3]
                 })
             })
         })
