@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Modal, Button, Form, Pagination, Input } from 'semantic-ui-react'
 import ExerciseTableContainerNoBtns from '../CustomComponents/exerciseTablesNoBtns'
 import InputLabel from '../CustomComponents/DarkModeInput'
@@ -6,11 +6,15 @@ import InputLabel from '../CustomComponents/DarkModeInput'
 const ViewPrevWeeksData = ({ handleFormSubmit, data, defaultWeek, progScheme }) => {
 
     const historicalData = data
+
     const [currWeek, setCurrWeek] = useState(defaultWeek)
     const scheme = progScheme
 
+    useEffect(() => {
+        setCurrWeek(defaultWeek)
+    }, [defaultWeek])
+
     const handleSubmit = (isCopyWeek, dayToCopy = undefined, insertionDay = undefined) => {
-        console.log("handle submit")
         if (isCopyWeek) {
             handleFormSubmit(historicalData[currWeek], undefined)
         } else {
@@ -46,6 +50,7 @@ const ViewPrevWeeksData = ({ handleFormSubmit, data, defaultWeek, progScheme }) 
                     exercise: exercise.exercise,
                     sets: exercise.sets,
                     reps: exercise.reps,
+                    rpe: exercise.rpe,
                     weight: exercise.weight,
                     time: exercise.time
                 })
@@ -70,7 +75,7 @@ const ViewPrevWeeksData = ({ handleFormSubmit, data, defaultWeek, progScheme }) 
                             lastItem={null}
                             pointing
                             secondary
-                            defaultActivePage={defaultWeek}
+                            activePage={currWeek}
                             totalPages={Object.keys(data).length}
                             onPageChange={handlePageChange}
                         />
@@ -84,7 +89,7 @@ const ViewPrevWeeksData = ({ handleFormSubmit, data, defaultWeek, progScheme }) 
                     {
                         (historicalData[currWeek] != undefined) ?
                             Object.keys(historicalData[currWeek]).map(day => {
-                                if (Object.keys(historicalData[currWeek][day]).length != 0) {
+                                if (Object.keys(historicalData[currWeek][day]).length !== 0) {
                                     return (
                                         <div key={day} id='cpPrevExModalDayContainer'>
                                             <ExerciseTableContainerNoBtns

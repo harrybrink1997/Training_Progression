@@ -20,7 +20,6 @@ const CurrentWeekExercisesContainer = ({
                 [0, 1, 2, 3, 4, 5, 6].map(dayIndex => {
                     var day = daysInWeekScope[dayIndex]
                     if (dailyExercises[day].length > 0) {
-                        console.log(day)
                         return (
                             <ExerciseTableContainer
                                 key={day}

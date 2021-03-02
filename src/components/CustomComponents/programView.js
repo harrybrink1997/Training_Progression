@@ -416,7 +416,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                     ...state,
                     daysInWeekScope: action.payload.daysInWeekScope,
                     currButtonView: action.payload.currButtonView,
-                    exerciseListPerDay: action.payload.exerciseListPerDay
+                    exerciseListPerDay: action.payload.exerciseListPerDay,
+                    prevWeekExData: action.payload.prevWeekExData
                 }
 
             case PROGRAM_ACTIONS.CHANGE_WEEK:
@@ -793,6 +794,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                     var newExID = reverseExComp.reverse().join("_")
 
                     var dbObject = { ...weekData[exercise] }
+                    delete dbObject.deleteButton
+                    delete dbObject.uid
 
 
                     insertData[convertUIDayToTotalDays(insertionDay, programData.currentDay)][newExID] = dbObject
@@ -821,8 +824,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
                         var dbObject = { ...weekData[day][exercise] }
                         console.log(Object.keys(dbObject))
-                        // delete dbObject.deleteButton
-                        // delete dbObject.uid
+                        delete dbObject.deleteButton
+                        delete dbObject.uid
 
                         insertData[convertUIDayToTotalDays(day, programData.currentDay)][newExID] = dbObject
                         frontEndData[convertUIDayToTotalDays(day, programData.currentDay)][newExID] = weekData[day][exercise]
@@ -905,7 +908,6 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
     useEffect(() => {
         if (programLoaded && exercisesLoaded) {
-            console.log(programData)
             let newProgramData = { ...programData }
             const currDay = newProgramData.currentDay
 
@@ -919,7 +921,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                         currDay,
                         isDevelopmentMode
                     ),
-                    exerciseListPerDay: updatedDailyExerciseList(newProgramData.rawData, handleDeleteExerciseButton, handleUpdateExercise)
+                    exerciseListPerDay: updatedDailyExerciseList(newProgramData.rawData, handleDeleteExerciseButton, handleUpdateExercise),
+                    prevWeekExData: generatePrevWeeksData(newProgramData.rawData)
                 }
             })
         }

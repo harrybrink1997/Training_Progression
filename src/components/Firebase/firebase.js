@@ -857,11 +857,6 @@ class Firebase {
     }
 
     addExerciseDB = (isCoach, userUID, programUID, day, exData) => {
-        console.log(isCoach)
-        console.log(userUID)
-        console.log(programUID)
-        console.log(day)
-        console.log(exData)
 
         if (isCoach) {
             return this.database
@@ -1916,22 +1911,73 @@ class Firebase {
         })
     }
 
-    copyExerciseDataDB = (programUID, payload) => {
+    copyExerciseDataDB = (isCoach, userUID, programUID, payload) => {
         return new Promise((res, rej) => {
-            const batch = this.database.batch()
 
-            Object.keys(payload).forEach(day => {
-                var docRef = this.database
+            if (isCoach) {
+                this.database
                     .collection('programs')
-                    .doc(programUID)
-                    .collection('exercises')
-                    .doc(day.toString())
+                    .where('owner', '==', userUID)
+                    .where('athlete', '==', userUID)
+                    .where('programUID', '==', programUID)
+                    .where('status', '==', 'current')
+                    .get()
+                    .then(snap => {
+                        if (!snap.empty) {
+                            var docUID = snap.docs[0].id
+                            const batch = this.database.batch()
 
-                batch.set(docRef, payload[day])
-            })
-            batch.commit().then(() => {
-                res(true)
-            })
+                            Object.keys(payload).forEach(day => {
+                                let docRef = this.database
+                                    .collection('programs')
+                                    .doc(docUID)
+                                    .collection('exercises')
+                                    .doc(day.toString())
+                                if (Object.keys(payload[day]).length !== 0) {
+                                    batch.set(docRef, payload[day])
+                                } else {
+                                    batch.delete(docRef)
+                                }
+                            })
+                            batch.commit().then(() => {
+                                res(true)
+                            })
+                        } else {
+                            res(true)
+                        }
+                    })
+            } else {
+                this.database
+                    .collection('programs')
+                    .where('athlete', '==', userUID)
+                    .where('programUID', '==', programUID)
+                    .where('status', '==', 'current')
+                    .get()
+                    .then(snap => {
+                        if (!snap.empty) {
+                            var docUID = snap.docs[0].id
+                            const batch = this.database.batch()
+
+                            Object.keys(payload).forEach(day => {
+                                let docRef = this.database
+                                    .collection('programs')
+                                    .doc(docUID)
+                                    .collection('exercises')
+                                    .doc(day.toString())
+                                if (Object.keys(payload[day]).length !== 0) {
+                                    batch.set(docRef, payload[day])
+                                } else {
+                                    batch.delete(docRef)
+                                }
+                            })
+                            batch.commit().then(() => {
+                                res(true)
+                            })
+                        } else {
+                            res(true)
+                        }
+                    })
+            }
         })
     }
 

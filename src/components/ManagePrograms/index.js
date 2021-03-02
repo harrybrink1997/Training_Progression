@@ -400,6 +400,8 @@ class ManageProgramsPage extends Component {
     handleCopyPrevWeekExData = (payload) => {
 
         this.props.firebase.copyExerciseDataDB(
+            this.state.user.getUserType() === 'coach',
+            this.props.firebase.auth.currentUser.uid,
             this.state.currProgram.programUID,
             payload
         )
