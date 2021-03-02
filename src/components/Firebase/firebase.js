@@ -410,9 +410,14 @@ class Firebase {
                         res([])
                     } else {
                         var promises = []
-                        var athleteUIDs = []
+                        var athleteData = []
                         snap.docs.forEach(doc => {
-                            athleteUIDs.push(doc.data().athleteUID)
+                            let athData = {
+                                joiningDate: doc.data().joiningDate,
+                                athleteUID: doc.data().athleteUID
+                            }
+                            athleteData.push(athData)
+
                             promises.push(
                                 this.getUser(doc.data().athleteUID)
                             )
@@ -424,7 +429,9 @@ class Firebase {
                                 var index = 0
                                 athleteSnaps.forEach(athleteSnap => {
                                     var athleteInfo = athleteSnap.data()
-                                    athleteInfo.athleteUID = athleteUIDs[index]
+                                    athleteInfo.athleteUID = athleteData[index].athleteUID
+                                    athleteInfo.joiningDate = athleteData[index].joiningDate
+
                                     payload.push(athleteInfo)
                                     index++
                                 })
@@ -1181,7 +1188,6 @@ class Firebase {
     }
 
     getTeamData = (coachUID, teamName) => {
-        console.log(teamName)
         return new Promise((res, rej) => {
             Promise.all([
                 this.getTeamCurrentAthletes(coachUID, teamName),
@@ -1189,8 +1195,6 @@ class Firebase {
                 this.getCoachProgramGroups(coachUID),
                 this.getUserPrograms(coachUID, 'coach'),
             ]).then(data => {
-                console.log(data[2])
-                console.log(data[3])
                 res({
                     athleteData: data[0],
                     programData: data[1],
@@ -1201,15 +1205,75 @@ class Firebase {
         })
     }
 
-    handleAcceptPendingProgramFutureReplace = (athleteUID, firstProgramUID, firstProgramOrder, dayThreshold, deletePendingList, deleteCurrentList, acceptPendingList) => {
+    getIndividualAthleteProfileAndManagementData = (coachUID, athleteUID) => {
+        return new Promise((res, rej) => {
+            Promise.all([
+                this.getAnatomyData(),
+                this.getAthleteTeams(coachUID, athleteUID),
+                this.getCoachAthletePrograms(coachUID, athleteUID)
+            ]).then(data => {
+                res({
+                    anatomyObject: data[0].data(),
+                    teams: data[1],
+                    programs: data[2]
+                })
+            })
+        })
+    }
 
-        console.log(athleteUID)
-        console.log(firstProgramUID)
-        console.log(firstProgramOrder)
-        console.log(dayThreshold)
-        console.log(deletePendingList)
-        console.log(deleteCurrentList)
-        console.log(acceptPendingList)
+    getCoachAthletePrograms = (coachUID, athleteUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('programs')
+                .where('owner', '==', coachUID)
+                .where('athlete', '==', athleteUID)
+                .get()
+                .then(snap => {
+                    if (!snap.empty) {
+                        let payload = snap.docs.map(doc => {
+                            return doc.data()
+                        })
+                    } else {
+                        res([])
+                    }
+                })
+        })
+    }
+
+    getAthleteTeams = (coachUID, athleteUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('currentCoachAthletes')
+                .where('athleteUID', '==', athleteUID)
+                .where('coachUID', '==', coachUID)
+                .get()
+                .then(snap => {
+                    if (!snap.empty && snap.docs.length === 1) {
+                        let athleteData = snap.docs[0].data()
+
+                        athleteData.currentTeams ? res(athleteData.currentTeams) : res({})
+                    }
+                })
+        })
+    }
+
+    getAthleteManagementData = (coachUID) => {
+        return new Promise((res, rej) => {
+            Promise.all([
+                this.getCoachProgramGroups(coachUID),
+                this.getCoachCurrentAthletes(coachUID),
+                this.getUserPrograms(coachUID, 'coach'),
+            ]).then(data => {
+                res({
+                    programGroups: data[0],
+                    athletes: data[1],
+                    programs: data[2]
+                })
+            })
+        })
+    }
+
+    handleAcceptPendingProgramFutureReplace = (athleteUID, firstProgramUID, firstProgramOrder, dayThreshold, deletePendingList, deleteCurrentList, acceptPendingList) => {
 
         return new Promise((res, rej) => {
 

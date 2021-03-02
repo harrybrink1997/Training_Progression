@@ -261,6 +261,7 @@ class HomePage extends Component {
         const {
             // pastProgramList,
             // currentProgramList,
+            user,
             loading,
             greeting,
             firstTimeUser,
@@ -324,6 +325,19 @@ class HomePage extends Component {
                                 </Card.Content>
                             </Card>
                         </div>
+                        {
+                            user && user.getUserType() === 'coach' &&
+                            <div>
+                                <Card onClick={() => { this.handleManageAthletesRedirect() }}>
+                                    <Card.Content className='iconContent'>
+                                        <Icon name='group' size='huge' />
+                                    </Card.Content>
+                                    <Card.Content>
+                                        <Card.Header textAlign='center'>My <br /> Athletes</Card.Header>
+                                    </Card.Content>
+                                </Card>
+                            </div>
+                        }
                     </Card.Group>
                 </div>
 
