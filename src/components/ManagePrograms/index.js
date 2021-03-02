@@ -410,6 +410,8 @@ class ManageProgramsPage extends Component {
     handleCreateMainGoal = (mainGoalDBUID, payload) => {
         payload.goalProgUID = mainGoalDBUID
         payload.programUID = this.state.currProgram.programUID
+        payload.athleteUID = this.props.firebase.auth.currentUser.uid
+        payload.programStatus = 'current'
 
         if (Object.keys(payload.subGoals).length === 0) {
             delete payload.subGoals
@@ -423,28 +425,32 @@ class ManageProgramsPage extends Component {
         this.props.firebase.changeGoalCompletionStatusDB(
             this.state.currProgram.programUID,
             payload.mainGoalDBUID,
-            payload
+            payload,
+            this.props.firebase.auth.currentUser.uid
         )
     }
 
     handleDeleteGoal = (payload) => {
         this.props.firebase.deleteGoalDB(
             this.state.currProgram.programUID,
-            payload
+            payload,
+            this.props.firebase.auth.currentUser.uid
         )
     }
 
     handleEditGoal = (payload) => {
         this.props.firebase.editGoalDB(
             this.state.currProgram.programUID,
-            payload
+            payload,
+            this.props.firebase.auth.currentUser.uid
         )
     }
 
     handleCreateSubGoal = (payload) => {
         this.props.firebase.createSubGoalDB(
             this.state.currProgram.programUID,
-            payload
+            payload,
+            this.props.firebase.auth.currentUser.uid
         )
     }
 

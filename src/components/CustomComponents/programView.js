@@ -715,6 +715,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     }
 
     const handleAddMainGoal = (goalObj) => {
+        console.log(goalObj)
         const mainGoalDBUID = 'Goal_' + (goalObj.uid + 1).toString()
         const goalPayload = goalObj.getFormattedGoalObject()
 
@@ -765,6 +766,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
     const generateNewMainGoalUID = (rawGoalData) => {
         var index = 1
+        console.log(rawGoalData)
         while (Object.keys(rawGoalData).includes('Goal_' + index.toString())) {
             index++
         }
@@ -859,9 +861,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     }
 
     const initialiseGoalData = (rawProgramData) => {
-        console.log(rawProgramData)
         if (rawProgramData.goals) {
-
             return {
                 rawData: rawProgramData.goals,
                 newMainGoalUID: generateNewMainGoalUID(rawProgramData.goals),
@@ -876,8 +876,10 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             }
         } else {
             return {
+                rawData: {},
                 tableData: [],
-                expandedRows: {}
+                expandedRows: {},
+                newMainGoalUID: 1
             }
         }
     }

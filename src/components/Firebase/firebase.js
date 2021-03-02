@@ -1041,33 +1041,39 @@ class Firebase {
 
     }
 
-    getProgGoalData = (programUID) => {
-        return new Promise((res, rej) => {
-            this.database
-                .collection('goals')
-                .where('programUID', '==', programUID)
-                .get()
-                .then(snapshot => {
+    getProgGoalData = (programUID, athleteUID, programStatus) => {
+        if (programStatus === 'current') {
+            return new Promise((res, rej) => {
+                this.database
+                    .collection('goals')
+                    .where('programUID', '==', programUID)
+                    .where('athleteUID', '==', athleteUID)
+                    .where('programStatus', '==', 'current')
+                    .get()
+                    .then(snapshot => {
 
-                    var payLoad = {}
+                        var payLoad = {}
 
-                    if (!snapshot.empty) {
-                        snapshot.docs.forEach(doc => {
-                            let data = doc.data()
-                            let goalUID = data.goalProgUID
-                            delete data.goalProgUID
-                            payLoad[goalUID] = data
-                        })
-                        res(payLoad)
-                    } else {
-                        res(payLoad)
-                    }
+                        if (!snapshot.empty) {
+                            snapshot.docs.forEach(doc => {
+                                let data = doc.data()
+                                let goalUID = data.goalProgUID
+                                delete data.goalProgUID
+                                payLoad[goalUID] = data
+                            })
+                            res(payLoad)
+                        } else {
+                            res(payLoad)
+                        }
 
-                })
-                .catch(error => {
-                    rej(error)
-                })
-        })
+                    })
+                    .catch(error => {
+                        rej(error)
+                    })
+            })
+        } else {
+            console.log("havent structured database to store past program goals properly therefore no data grabbed cause probably worng lol")
+        }
 
     }
 
@@ -1158,17 +1164,19 @@ class Firebase {
 
     getProgramExGoalData = (isCoach, userUID, programUID, programStatus) => {
 
-        var promises = [this.getProgGoalData(programUID), this.getProgramExData(isCoach, userUID, programUID, programStatus)]
+        var promises = [this.getProgGoalData(programUID, userUID, programStatus), this.getProgramExData(isCoach, userUID, programUID, programStatus)]
 
         return promises
     }
 
-    changeGoalCompletionStatusDB = (programUID, goalProgUID, goalData) => {
+    changeGoalCompletionStatusDB = (programUID, goalProgUID, goalData, athleteUID) => {
         return new Promise((res, rej) => {
             this.database
                 .collection('goals')
                 .where('programUID', '==', programUID)
                 .where('goalProgUID', '==', goalProgUID)
+                .where('athleteUID', '==', athleteUID)
+                .where('programStatus', '==', 'current')
                 .get()
                 .then(snap => {
                     if (!snap.empty) {
@@ -1197,28 +1205,44 @@ class Firebase {
         return this.database.collection('goals').doc().set(payload)
     }
 
-    createSubGoalDB = (programUID, payload) => {
-        this.database
-            .collection('goals')
-            .where('programUID', '==', programUID)
-            .where('goalProgUID', '==', payload.parentGoal)
-            .get()
-            .then(snap => {
-                var docRef = this.database.collection('goals').doc(snap.docs[0].id)
+    createSubGoalDB = (programUID, payload, athleteUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('goals')
+                .where('programUID', '==', programUID)
+                .where('athleteUID', '==', athleteUID)
+                .where('programStatus', '==', 'current')
+                .where('goalProgUID', '==', payload.parentGoal)
+                .get()
+                .then(snap => {
+                    var docRef = this.database.collection('goals').doc(snap.docs[0].id)
+                    const batch = this.database.batch()
 
-                var subGoalPath = `subGoals.${payload.goalDBUID}`
+                    var subGoalPath = `subGoals.${payload.goalDBUID}`
 
-                docRef.update({
-                    [subGoalPath]: payload.data
+                    batch.update(docRef, {
+                        [subGoalPath]: payload.data
+                    })
+
+                    batch.update(docRef, {
+                        'mainGoal.completed': false
+                    })
+
+                    batch.commit().then(() => {
+                        res(true)
+                    })
                 })
-            })
+        })
+
     }
 
-    deleteGoalDB = (programUID, payload) => {
+    deleteGoalDB = (programUID, payload, athleteUID) => {
         if (payload.isMainGoal) {
             this.database
                 .collection('goals')
                 .where('programUID', '==', programUID)
+                .where('athleteUID', '==', athleteUID)
+                .where('programStatus', '==', 'current')
                 .where('goalProgUID', '==', payload.goalDBUID)
                 .get()
                 .then(snap => {
@@ -1247,12 +1271,14 @@ class Firebase {
         }
     }
 
-    editGoalDB = (programUID, payload) => {
+    editGoalDB = (programUID, payload, athleteUID) => {
         if (payload.isMainGoal) {
             this.database
                 .collection('goals')
                 .where('programUID', '==', programUID)
                 .where('goalProgUID', '==', payload.goalDBUID)
+                .where('athleteUID', '==', athleteUID)
+                .where('programStatus', '==', 'current')
                 .get()
                 .then(snap => {
                     this.database.collection('goals').doc(snap.docs[0].id).update({
