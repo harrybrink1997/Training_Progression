@@ -430,11 +430,12 @@ class ManageProgramsPage extends Component {
         )
     }
 
-    handleDeleteGoal = (payload) => {
+    handleDeleteGoal = (payload, toggleMainGoalCompleted) => {
         this.props.firebase.deleteGoalDB(
             this.state.currProgram.programUID,
             payload,
-            this.props.firebase.auth.currentUser.uid
+            this.props.firebase.auth.currentUser.uid,
+            toggleMainGoalCompleted
         )
     }
 

@@ -1236,7 +1236,7 @@ class Firebase {
 
     }
 
-    deleteGoalDB = (programUID, payload, athleteUID) => {
+    deleteGoalDB = (programUID, payload, athleteUID, toggleMainGoalCompleted) => {
         if (payload.isMainGoal) {
             this.database
                 .collection('goals')
@@ -1252,6 +1252,8 @@ class Firebase {
             this.database
                 .collection('goals')
                 .where('programUID', '==', programUID)
+                .where('athleteUID', '==', athleteUID)
+                .where('programStatus', '==', 'current')
                 .where('goalProgUID', '==', payload.parentGoal)
                 .get()
                 .then(snap => {
@@ -1266,6 +1268,12 @@ class Firebase {
                         docRef.update({
                             [subGoalPath]: FieldValue.delete()
                         })
+
+                        if (toggleMainGoalCompleted) {
+                            docRef.update({
+                                'mainGoal.completed': true
+                            })
+                        }
                     }
                 })
         }

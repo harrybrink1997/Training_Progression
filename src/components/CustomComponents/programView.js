@@ -752,15 +752,30 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                 delete rawData[mainGoal].subGoals
             } else {
                 delete rawData[mainGoal].subGoals[goalFunctions.goalDBUID(id)]
-            }
 
+                var allSubGoalsCompleted = true
+                var toggleMainGoalCompleted = false
+
+                for (var subGoalIndex in rawData[mainGoal].subGoals) {
+                    let subGoal = rawData[mainGoal].subGoals[subGoalIndex]
+                    if (!subGoal.completed) {
+                        allSubGoalsCompleted = false
+                        break
+                    }
+                }
+
+                if (allSubGoalsCompleted) {
+                    rawData[mainGoal].mainGoal.completed = true
+                    toggleMainGoalCompleted = true
+                }
+            }
         }
         setGoalData({
             type: GOAL_ACTIONS.DELETE_GOAL,
             payload: rawData
         })
 
-        handlerFunctions.handleDeleteGoal(dbPayload)
+        handlerFunctions.handleDeleteGoal(dbPayload, toggleMainGoalCompleted)
 
     }
 
