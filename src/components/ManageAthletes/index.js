@@ -191,6 +191,17 @@ class ManageAthletesPage extends Component {
 
     }
 
+
+    handleCopyPrevWeekExData = (payload) => {
+
+        this.props.firebase.copyExerciseDataDB(
+            false,
+            this.state.currAthlete.uid,
+            this.state.currAthlete.programUID,
+            payload
+        )
+    }
+
     handleEditGoal = (payload) => {
         this.props.firebase.editGoalDB(
             this.state.currAthlete.programUID,
@@ -471,19 +482,14 @@ class ManageAthletesPage extends Component {
         })
     }
 
-    handleStartProgram = (timestamp, programName) => {
-        console.log(this.state.currAthlete)
-        var path =
-            '/users/'
-            + this.state.currAthlete.uid
-            + '/currentPrograms/'
-            + this.state.currAthlete.currViewedProgramName
-            + '/startDayUTS'
+    handleStartProgram = (startDateUTS) => {
+        this.state.currAthlete.currentProgramList.getProgram(this.state.currAthlete.programUID).setStartDayUTS(startDateUTS)
 
-        var payLoad = {}
-        payLoad[path] = timestamp
-
-        this.props.firebase.updateDatabaseFromRootPath(payLoad)
+        this.props.firebase.startProgramDB(
+            this.state.currAthlete.uid,
+            this.state.currAthlete.programUID,
+            startDateUTS
+        )
     }
 
     checkAthleteAssignedToTeam = (teamList, teamName) => {
