@@ -511,7 +511,10 @@ class ManageCoachTeamsPage extends Component {
             this.props.firebase.getTeamData(this.props.firebase.auth.currentUser.uid, team).then(data => {
                 var currTeamMemberData = this.initCurrTeamMemberData(team, data.athleteData)
 
-                this.initTeamLoadingData(data.athleteData).then(() => {
+                this.initTeamLoadingData(data.athleteData).then(athleteLoadingData => {
+
+                    let teamLoadingData = this.formatAthleteLoadData(athleteLoadingData)
+
 
                     this.setState({
                         pageBodyContentLoading: false,
@@ -526,14 +529,13 @@ class ManageCoachTeamsPage extends Component {
                             programGroupData: initProgDeployCoachProgGroupTableData(data.deployProgramGroupData),
                             programData: initProgDeployCoachProgramTableData(data.deployProgramData),
                             nonCurrTeamMemberData: this.initNonCurrTeamMembersData(data.allAthletes, currTeamMemberData),
-
-                            // viewTeamFunctions: {},
-                            // loadingData: teamLoadingData,
-                            // rawAnatomyData: anatomyObject,
-                            // memberProgramLoadingInfo: undefined,
-                            // daysSinceOverloadThreshold: 5,
-                            // overviewTableVisible: true,
-                            // teamLoadOverviewData: this.initOverviewData(teamLoadingData, 5),
+                            viewTeamFunctions: {},
+                            loadingData: teamLoadingData,
+                            rawAnatomyData: data.anatomy,
+                            memberProgramLoadingInfo: undefined,
+                            daysSinceOverloadThreshold: 5,
+                            overviewTableVisible: true,
+                            teamLoadOverviewData: this.initOverviewData(teamLoadingData, 5)
                         }
                     })
                 })
@@ -613,7 +615,7 @@ class ManageCoachTeamsPage extends Component {
 
 
     formatAthleteLoadData = (data) => {
-
+        console.log(data)
         var payload = {
             columns:
                 [
@@ -665,8 +667,7 @@ class ManageCoachTeamsPage extends Component {
                 dbPromises.push(this.prepareAthleteLoadData(athlete))
             })
             Promise.all(dbPromises).then(data => {
-                console.log(data)
-                res(true)
+                res(data)
             })
         })
     }
@@ -681,38 +682,37 @@ class ManageCoachTeamsPage extends Component {
             )
                 .then(programData => {
                     console.log(programData)
-                    res(true)
-                    // if (athleteData.currentPrograms) {
-                    //     var loadingData = this.processAthleteLoadingData(athleteData.currentPrograms, { uid: athlete.athleteUID, username: athlete.username })
+                    if (programData.length > 0) {
+                        var loadingData = this.processAthleteLoadingData(programData, { uid: athlete.athleteUID, username: athlete.username })
 
-                    //     resolve({
-                    //         username: athleteData.username,
-                    //         email: athleteData.email,
-                    //         lastDayOverloaded: loadingData.lastDayOverloaded,
-                    //         warningValue: loadingData.lastDayOverloaded,
-                    //         modal:
-                    //             <TeamMemberLoadLogModal
-                    //                 logsData={loadingData.programData}
-                    //                 warningThreshold={5}
-                    //                 warnBelowThreshold={true}
-                    //             />
-                    //     })
-                    // } else {
-                    //     resolve({
-                    //         username: athleteData.username,
-                    //         email: athleteData.email,
-                    //         lastDayOverloaded: '',
-                    //         warningValue: undefined,
-                    //         modal: 'No Loading Data'
-                    //     })
-                    // }
+                        res({
+                            username: athlete.username,
+                            email: athlete.email,
+                            lastDayOverloaded: loadingData.lastDayOverloaded,
+                            warningValue: loadingData.lastDayOverloaded,
+                            modal:
+                                <TeamMemberLoadLogModal
+                                    logsData={loadingData.programData}
+                                    warningThreshold={5}
+                                    warnBelowThreshold={true}
+                                />
+                        })
+                    } else {
+                        res({
+                            username: athlete.username,
+                            email: athlete.email,
+                            lastDayOverloaded: '',
+                            warningValue: undefined,
+                            modal: 'No Loading Data'
+                        })
+                    }
                 })
         })
     }
 
-    validProgramForLoadCheck = (programName, programData) => {
+    validProgramForLoadCheck = (programData) => {
         return (
-            programIDFunctions.getCreator(programName) === this.props.firebase.auth.currentUser.uid
+            programData.owner === this.props.firebase.auth.currentUser.uid
             && programData.currentDayInProgram > 1
             && programData.isActiveInSequence !== false
         )
@@ -720,7 +720,7 @@ class ManageCoachTeamsPage extends Component {
 
     determineDaysSinceLastOverload = (programData) => {
 
-        for (var day = programData.currentDayInProgram - 1; day >= 1; day--) {
+        for (var day = programData.currentDay - 1; day >= 1; day--) {
 
             var loadingData = programData[day].loadingData
 
@@ -736,7 +736,7 @@ class ManageCoachTeamsPage extends Component {
                 } else {
                     if ((loadingData[muscleGroup].ACWR > 1.2 || loadingData[muscleGroup].ACWR < 0.8) && loadingData[muscleGroup].ACWR !== 0) {
 
-                        return programData.currentDayInProgram - day
+                        return programData.currentDay - day
                     }
                 }
             }
@@ -766,12 +766,12 @@ class ManageCoachTeamsPage extends Component {
             },
         }
         var mostRecentDay = -1
-        Object.keys(currentPrograms).forEach(program => {
+        currentPrograms.forEach(program => {
             console.log(program)
 
-            if (this.validProgramForLoadCheck(program, currentPrograms[program])) {
+            if (this.validProgramForLoadCheck(program)) {
 
-                var lastOverload = this.determineDaysSinceLastOverload(currentPrograms[program])
+                var lastOverload = this.determineDaysSinceLastOverload(program)
 
                 if (lastOverload !== -1) {
                     if (mostRecentDay === -1) {
@@ -784,13 +784,13 @@ class ManageCoachTeamsPage extends Component {
                 }
 
                 payload.programData.data.push({
-                    program: program.split('_')[0],
+                    program: program.name,
                     lastDayOverloaded: lastOverload === -1 ? '-' : lastOverload,
                     warningValue: lastOverload === -1 ? false : lastOverload,
                     buttons:
                         <Button
                             className='lightPurpleButton'
-                            onClick={() => { this.handleViewProgramLoadingLogs(program, athlete) }}
+                            onClick={() => { this.handleViewProgramLoadingLogs(program.programUID, athlete) }}
                         >
                             View Program Logs
                         </Button>

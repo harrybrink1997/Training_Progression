@@ -1349,14 +1349,16 @@ class Firebase {
                 this.getTeamProgramData(coachUID, teamName),
                 this.getCoachProgramGroups(coachUID),
                 this.getUserPrograms(coachUID, 'coach'),
-                this.getCoachCurrentAthletes(coachUID)
+                this.getCoachCurrentAthletes(coachUID),
+                this.getAnatomyData()
             ]).then(data => {
                 res({
                     athleteData: data[0],
                     programData: data[1],
                     deployProgramGroupData: data[2],
                     deployProgramData: data[3],
-                    allAthletes: data[4]
+                    allAthletes: data[4],
+                    anatomy: data[5].anatomy
                 })
             })
         })
