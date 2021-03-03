@@ -53,12 +53,12 @@ class ManageCoachTeamsPage extends Component {
             })
         });
 
-        var currUserUid = this.props.firebase.auth.currentUser.uid
-        this.props.firebase.getUserData(currUserUid).on('value', userData => {
-            const userObject = userData.val();
+        // var currUserUid = this.props.firebase.auth.currentUser.uid
+        // this.props.firebase.getUserData(currUserUid).on('value', userData => {
+        //     const userObject = userData.val();
 
-            this.updateObjectState(userObject)
-        });
+        //     this.updateObjectState(userObject)
+        // });
     }
 
 
@@ -90,7 +90,7 @@ class ManageCoachTeamsPage extends Component {
 
     initAthleteTableData = (userObject) => {
 
-        var payLoad = {
+        var payload = {
             columns:
                 [
                     {
@@ -120,11 +120,11 @@ class ManageCoachTeamsPage extends Component {
                 })
             })
 
-            payLoad.data = tableData
+            payload.data = tableData
 
-            return payLoad
+            return payload
         } else {
-            return payLoad
+            return payload
         }
 
     }
@@ -150,84 +150,55 @@ class ManageCoachTeamsPage extends Component {
     }
 
     handleAssignNewTeamMembers = (athletes) => {
-
         if (athletes.length > 0) {
             this.setState({
                 pageBodyContentLoading: true,
             }, () => {
-                this.props.firebase.getCoachCurrAthData(this.props.firebase.auth.currentUser.uid).once('value', userData => {
 
-                    const currentAthletes = userData.val();
-                    var payLoad = {}
-                    var frontEndPayLoad = {
-                        currTeamMembers: [...this.state.currTeam.currTeamMemberData.data],
-                        nonCurrTeamMembers: []
-                    }
-                    var athleteUIDArray = []
-                    var timestamp = new Date().getTime()
-                    var athletePath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/`
-                    var teamName = this.state.currTeam.team
+                var frontEndPayLoad = {
+                    currTeamMembers: [...this.state.currTeam.currTeamMemberData.data],
+                    nonCurrTeamMembers: [...this.state.currTeam.nonCurrTeamMemberData.data]
+                }
 
+                let athleteUIDArray = []
+                let timestamp = new Date().getTime()
+                let teamName = this.state.currTeam.team
 
-                    console.log(frontEndPayLoad.currTeamMembers)
-                    console.log(athletes)
-                    console.log(currentAthletes)
+                athletes.forEach(athlete => {
+                    var athData = athlete.original
+                    console.log(athData)
+                    athleteUIDArray.push(athData.athleteUID)
 
-                    athletes.forEach(athlete => {
-                        var athData = athlete.original
-                        athleteUIDArray.push(athData.uid)
-
-                        if (!currentAthletes[athData.uid].teams || !currentAthletes[athData.uid].teams[teamName]) {
-
-                            var feJoinDate = timestamp
-
-                            payLoad[athletePath + athData.uid + '/teams/' + teamName + '/joiningDate'] = timestamp
-                        } else {
-                            feJoinDate = currentAthletes[athData.uid].teams[teamName].joiningDate
-
-                            payLoad[athletePath + athData.uid + '/teams/' + teamName + '/leavingDate'] = null
-
-                        }
-
-                        payLoad[athletePath + athData.uid + '/teams/' + teamName + '/activeMember'] = true
-
-                        frontEndPayLoad.currTeamMembers.push({
-                            athleteUID: athData.uid,
-                            username: athData.athlete,
-                            email: athData.email,
-                            joinDateUTS: feJoinDate,
-                            joinDate: utsToDateString(parseInt(feJoinDate)),
-                            buttons:
-                                <Button
-                                    className='lightRedButton-inverted'
-                                    onClick={() => { this.handleRemoveAthleteFromTeam(this.state.currTeam.team, athData.uid) }}
-                                >
-                                    Remove From Team
+                    frontEndPayLoad.currTeamMembers.push({
+                        athleteUID: athData.athleteUID,
+                        username: athData.username,
+                        email: athData.email,
+                        joiningDateUTS: timestamp,
+                        joiningDate: utsToDateString(parseInt(timestamp)),
+                        buttons:
+                            <Button
+                                className='lightRedButton-inverted'
+                                onClick={() => { this.handleRemoveAthleteFromTeam(this.state.currTeam.team, athData.athleteUID) }}
+                            >
+                                Remove From Team
                                 </Button>
-                        })
-
                     })
 
-
-                    frontEndPayLoad.nonCurrTeamMembers = [...this.state.currTeam.nonCurrTeamMemberData.data].filter(ath => {
-                        return (
-                            !athleteUIDArray.includes(ath.uid)
-                        )
-                    })
-
-                    let currTeamsTableData = [...this.state.teamsTableData]
-                    console.log(currTeamsTableData)
-
-                    for (var team in currTeamsTableData) {
-                        if (currTeamsTableData[team].team === teamName) {
-                            currTeamsTableData[team].teamCount += athleteUIDArray.length
+                    for (let ath in frontEndPayLoad.nonCurrTeamMembers) {
+                        if (frontEndPayLoad.nonCurrTeamMembers[ath].athleteUID === athData.athleteUID) {
+                            frontEndPayLoad.nonCurrTeamMembers.splice(ath, 1)
                         }
                     }
 
-                    this.props.firebase.updateDatabaseFromRootPath(payLoad)
+                })
+                this.props.firebase.assignNewAthletesToTeam(
+                    athleteUIDArray,
+                    this.props.firebase.auth.currentUser.uid,
+                    teamName,
+                    timestamp
+                ).then(() => {
                     this.setState(prevState => ({
                         ...prevState,
-                        teamsTableData: currTeamsTableData,
                         pageBodyContentLoading: false,
                         currTeam: {
                             ...prevState.currTeam,
@@ -552,8 +523,9 @@ class ManageCoachTeamsPage extends Component {
                         currTeamProgramData: this.initCurrTeamProgramData(data.programData),
                         currTeamMemberData: currTeamMemberData,
                         programGroupData: initProgDeployCoachProgGroupTableData(data.deployProgramGroupData),
-                        programData: initProgDeployCoachProgramTableData(data.deployProgramData)
-                        // nonCurrTeamMemberData: this.initNonCurrTeamMembersData(this.state.athleteTableData, currTeamMemberData),
+                        programData: initProgDeployCoachProgramTableData(data.deployProgramData),
+                        nonCurrTeamMemberData: this.initNonCurrTeamMembersData(data.allAthletes, currTeamMemberData),
+
                         // viewTeamFunctions: {},
                         // loadingData: teamLoadingData,
                         // rawAnatomyData: anatomyObject,
@@ -641,7 +613,7 @@ class ManageCoachTeamsPage extends Component {
 
     formatAthleteLoadData = (data) => {
 
-        var payLoad = {
+        var payload = {
             columns:
                 [
                     {
@@ -678,9 +650,9 @@ class ManageCoachTeamsPage extends Component {
             }
         })
 
-        payLoad.data = athleteData
+        payload.data = athleteData
 
-        return payLoad
+        return payload
     }
 
     initTeamLoadingData = (currTeamMemberData) => {
@@ -774,7 +746,7 @@ class ManageCoachTeamsPage extends Component {
 
     processAthleteLoadingData = (currentPrograms, athlete) => {
         console.log(currentPrograms)
-        var payLoad = {
+        var payload = {
             lastDayOverloaded: undefined,
             programData: {
                 columns: [
@@ -811,7 +783,7 @@ class ManageCoachTeamsPage extends Component {
                     }
                 }
 
-                payLoad.programData.data.push({
+                payload.programData.data.push({
                     program: program.split('_')[0],
                     lastDayOverloaded: lastOverload === -1 ? '-' : lastOverload,
                     warningValue: lastOverload === -1 ? false : lastOverload,
@@ -826,9 +798,9 @@ class ManageCoachTeamsPage extends Component {
             }
         })
 
-        payLoad.lastDayOverloaded = mostRecentDay
+        payload.lastDayOverloaded = mostRecentDay
 
-        return payLoad
+        return payload
 
     }
 
@@ -942,28 +914,41 @@ class ManageCoachTeamsPage extends Component {
 
     initNonCurrTeamMembersData = (allAthleteData, currTeamMemberData) => {
 
-        var payLoad = {
-            columns: [...allAthleteData.columns],
+        let payload = {
+            columns:
+                [
+                    {
+                        Header: 'Athlete',
+                        accessor: 'username',
+                        filter: 'fuzzyText'
+                    },
+                    {
+                        Header: 'Email',
+                        accessor: 'email',
+                        filter: 'fuzzyText'
+                    },
+                ],
             data: []
+
         }
 
         var teamMembers = []
         currTeamMemberData.data.forEach(athlete => {
             teamMembers.push(athlete.athleteUID)
         })
-
-        allAthleteData.data.forEach(athlete => {
-            if (!teamMembers.includes(athlete.uid)) {
-                payLoad.data.push(athlete)
+        allAthleteData.forEach(athlete => {
+            if (!teamMembers.includes(athlete.athleteUID)) {
+                delete athlete.permissions
+                payload.data.push(athlete)
             }
         })
 
-        return payLoad
+        return payload
 
     }
 
     initCurrTeamMemberData = (team, currentAthletes) => {
-        var payLoad = {
+        var payload = {
             columns: [
                 {
                     Header: 'Username',
@@ -985,7 +970,7 @@ class ManageCoachTeamsPage extends Component {
         }
         if (currentAthletes) {
             currentAthletes.forEach(athlete => {
-                payLoad.data.push({
+                payload.data.push({
                     username: athlete.username,
                     email: athlete.email,
                     athleteUID: athlete.athleteUID,
@@ -1001,45 +986,52 @@ class ManageCoachTeamsPage extends Component {
                 })
             })
 
-            return payLoad
+            return payload
         }
 
-        return payLoad
+        return payload
 
     }
 
     handleRemoveAthleteFromTeam = (teamName, athleteUID) => {
 
-        var payLoad = {}
-        var coachPath = `/users/${this.props.firebase.auth.currentUser.uid}/currentAthletes/${athleteUID}/teams/${teamName}/`
-        var timestamp = new Date().getTime().toString()
-        payLoad[coachPath + 'activeMember'] = false
-        payLoad[coachPath + 'leavingDate'] = timestamp
+        let currMembers = [...this.state.currTeam.currTeamMemberData.data]
 
-        let currTeamData = [...this.state.currTeam.currTeamMemberData.data]
+        let nonCurrMembers = [...this.state.currTeam.nonCurrTeamMemberData.data]
 
-        var filteredData = currTeamData.filter(athlete => {
-            return (
-                athlete.athleteUID !== athleteUID
-            )
-        })
+        for (var athlete in currMembers) {
+            if (currMembers[athlete].athleteUID === athleteUID) {
+                nonCurrMembers.push(currMembers[athlete])
 
-        this.props.firebase.updateDatabaseFromRootPath(payLoad)
-        this.setState(prevState => ({
-            ...prevState,
-            currTeam: {
-                ...prevState.currTeam,
-                currTeamMemberData: {
-                    ...prevState.currTeam.currTeamMemberData,
-                    data: filteredData
-                }
+                currMembers.splice(athlete, 1)
             }
-        }))
+        }
+
+        this.props.firebase.removeAthleteFromTeam(
+            this.props.firebase.auth.currentUser.uid,
+            athleteUID,
+            teamName
+        ).then(() => {
+            this.setState(prevState => ({
+                ...prevState,
+                currTeam: {
+                    ...prevState.currTeam,
+                    currTeamMemberData: {
+                        ...prevState.currTeam.currTeamMemberData,
+                        data: currMembers
+                    },
+                    nonCurrTeamMemberData: {
+                        ...prevState.currTeam.nonCurrTeamMemberData,
+                        data: nonCurrMembers
+                    }
+                }
+            }))
+        })
     }
 
     initCurrTeamProgramData = (programsObject) => {
 
-        var payLoad = {
+        var payload = {
             data: [],
             columns: [
                 {
@@ -1065,7 +1057,7 @@ class ManageCoachTeamsPage extends Component {
             if (programsObject.unlimited) {
                 Object.keys(programsObject.unlimited).forEach(prog => {
                     programsObject.unlimited[prog].dateSet.forEach(date => {
-                        payLoad.data.push({
+                        payload.data.push({
                             program: prog.split('_')[0],
                             deploymentDate: utsToDateString(parseInt(date)),
                             deploymentUTS: parseInt(date),
@@ -1081,7 +1073,7 @@ class ManageCoachTeamsPage extends Component {
                 Object.keys(programsObject.sequential).forEach(prog => {
                     programsObject.sequential[prog].dateSet.forEach(dateObj => {
                         var seqInfo = dateObj.order.split('_')
-                        payLoad.data.push({
+                        payload.data.push({
                             program: prog.split('_')[0],
                             deploymentDate: utsToDateString(parseInt(dateObj.date)),
                             deploymentUTS: parseInt(dateObj.date),
@@ -1098,14 +1090,14 @@ class ManageCoachTeamsPage extends Component {
         // - date desc
         // - order asc
         // - sequence name desc
-        payLoad.data.sort((a, b) => {
+        payload.data.sort((a, b) => {
             return cmp(
                 [-cmp(a.deploymentUTS, b.deploymentUTS), cmp(a.sequenceName, b.sequenceName), cmp(a.order, b.order),],
                 [-cmp(b.deploymentUTS, a.deploymentUTS), cmp(b.sequenceName, a.sequenceName), cmp(b.order, a.order)]
             )
         })
 
-        return payLoad
+        return payload
     }
 
     render() {

@@ -1312,6 +1312,36 @@ class Firebase {
         }
     }
 
+    assignNewAthletesToTeam = (athleteList, coachUID, teamName, timestamp) => {
+
+        return new Promise((res, rej) => {
+            this.database
+                .collection('currentCoachAthletes')
+                .where('athleteUID', 'in', athleteList)
+                .where('coachUID', '==', coachUID)
+                .get()
+                .then(snap => {
+                    if (!snap.empty) {
+                        const batch = this.database.batch()
+
+                        snap.docs.forEach(doc => {
+                            let docRef = this.database.collection('currentCoachAthletes')
+                                .doc(doc.id)
+
+                            let path = `currentTeams.${teamName}.joiningDate`
+                            batch.update(docRef, {
+                                [path]: timestamp
+                            })
+                        })
+
+                        batch.commit().then(() => {
+                            res(true)
+                        })
+                    }
+                })
+        })
+    }
+
     getTeamData = (coachUID, teamName) => {
         return new Promise((res, rej) => {
             Promise.all([
@@ -1319,12 +1349,14 @@ class Firebase {
                 this.getTeamProgramData(coachUID, teamName),
                 this.getCoachProgramGroups(coachUID),
                 this.getUserPrograms(coachUID, 'coach'),
+                this.getCoachCurrentAthletes(coachUID)
             ]).then(data => {
                 res({
                     athleteData: data[0],
                     programData: data[1],
                     deployProgramGroupData: data[2],
-                    deployProgramData: data[3]
+                    deployProgramData: data[3],
+                    allAthletes: data[4]
                 })
             })
         })
@@ -1369,6 +1401,7 @@ class Firebase {
     }
 
     assignAthleteNewTeam = (coachUID, athleteUID, team, joiningDate) => {
+
         return new Promise((res, rej) => {
             this.database
                 .collection('currentCoachAthletes')
@@ -1899,6 +1932,36 @@ class Firebase {
                 })
         })
     }
+
+    // getCoachCurrentAthletes = (coachUID) => {
+    //     return new Promise((res, rej) => {
+    //         this.database
+    //             .collection('currentCoachAthletes')
+    //             .where('coachUID', '==', coachUID)
+    //             .get()
+    //             .then(snap => {
+    //                 if (snap.empty) {
+    //                     res([])
+    //                 } else {
+    //                     var promises = []
+    //                     snap.docs.forEach(doc => {
+    //                         var data = doc.data()
+
+    //                         var insertObj = {
+    //                             athleteUID: data.athleteUID,
+    //                             joiningDate: data.joiningDate
+    //                         }
+
+    //                         promises.push(this.getAthleteDetails(insertObj.athleteUID, insertObj))
+    //                     })
+
+    //                     Promise.all(promises).then(athleteInfo => {
+    //                         res(athleteInfo)
+    //                     })
+    //                 }
+    //             })
+    //     })
+    // }
 
     getTeamCurrentAthletes = (coachUID, teamName) => {
         return new Promise((res, rej) => {
