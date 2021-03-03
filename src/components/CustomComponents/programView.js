@@ -958,6 +958,8 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             setSubmitDailyExDataProcessing(true)
         } else {
             if (!firstRender) {
+                setOverviewData(initialiseOverviewData(data))
+
                 setProgramData({
                     type: PROGRAM_ACTIONS.CHANGE_CURRENT_EXERCISE_LIST,
                     payload: {

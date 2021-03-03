@@ -593,7 +593,7 @@ class ManageProgramsPage extends Component {
                             ...prevState,
                             currProgram: {
                                 ...prevState.currProgram,
-                                submitProcessingBackend: false,
+                                submitProcessingBackend: true,
                                 nullExerciseData: {
                                     hasNullData: true,
                                     nullTableData: dataCheck.exercisesToCheck
@@ -618,12 +618,6 @@ class ManageProgramsPage extends Component {
                 programObject.chronicPeriod,
                 this.state.currProgram.rawAnatomyData
             )
-
-            var frontEndProgData = { ...programObject }
-
-            frontEndProgData[programObject.currentDay]['loadingData'] = processedDayData
-
-            frontEndProgData.currentDay += 1
 
             this.props.firebase.submitDayDB(
                 this.state.user.getUserType() === 'coach',
