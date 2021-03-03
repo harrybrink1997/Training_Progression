@@ -509,33 +509,34 @@ class ManageCoachTeamsPage extends Component {
         }, async () => {
 
             this.props.firebase.getTeamData(this.props.firebase.auth.currentUser.uid, team).then(data => {
-                // this.initTeamLoadingData(data.athleteData)
                 var currTeamMemberData = this.initCurrTeamMemberData(team, data.athleteData)
 
-                this.setState({
-                    pageBodyContentLoading: false,
-                    currTeam: {
-                        team: team,
-                        view: 'home',
-                        pageHistory: new PageHistory(),
-                        showViewProgramErrorModal: false,
-                        viewProgramErrorType: undefined,
-                        currTeamProgramData: this.initCurrTeamProgramData(data.programData),
-                        currTeamMemberData: currTeamMemberData,
-                        programGroupData: initProgDeployCoachProgGroupTableData(data.deployProgramGroupData),
-                        programData: initProgDeployCoachProgramTableData(data.deployProgramData),
-                        nonCurrTeamMemberData: this.initNonCurrTeamMembersData(data.allAthletes, currTeamMemberData),
+                this.initTeamLoadingData(data.athleteData).then(() => {
 
-                        // viewTeamFunctions: {},
-                        // loadingData: teamLoadingData,
-                        // rawAnatomyData: anatomyObject,
-                        // memberProgramLoadingInfo: undefined,
-                        // daysSinceOverloadThreshold: 5,
-                        // overviewTableVisible: true,
-                        // teamLoadOverviewData: this.initOverviewData(teamLoadingData, 5),
-                    }
+                    this.setState({
+                        pageBodyContentLoading: false,
+                        currTeam: {
+                            team: team,
+                            view: 'home',
+                            pageHistory: new PageHistory(),
+                            showViewProgramErrorModal: false,
+                            viewProgramErrorType: undefined,
+                            currTeamProgramData: this.initCurrTeamProgramData(data.programData),
+                            currTeamMemberData: currTeamMemberData,
+                            programGroupData: initProgDeployCoachProgGroupTableData(data.deployProgramGroupData),
+                            programData: initProgDeployCoachProgramTableData(data.deployProgramData),
+                            nonCurrTeamMemberData: this.initNonCurrTeamMembersData(data.allAthletes, currTeamMemberData),
+
+                            // viewTeamFunctions: {},
+                            // loadingData: teamLoadingData,
+                            // rawAnatomyData: anatomyObject,
+                            // memberProgramLoadingInfo: undefined,
+                            // daysSinceOverloadThreshold: 5,
+                            // overviewTableVisible: true,
+                            // teamLoadOverviewData: this.initOverviewData(teamLoadingData, 5),
+                        }
+                    })
                 })
-
             })
 
             return
@@ -656,24 +657,23 @@ class ManageCoachTeamsPage extends Component {
     }
 
     initTeamLoadingData = (currTeamMemberData) => {
+        return new Promise((res, rej) => {
 
-        const dbPromises = []
-        currTeamMemberData.forEach(athlete => {
-
-            dbPromises.push(this.prepareAthleteLoadData(athlete))
+            console.log(currTeamMemberData)
+            const dbPromises = []
+            currTeamMemberData.forEach(athlete => {
+                dbPromises.push(this.prepareAthleteLoadData(athlete))
+            })
+            Promise.all(dbPromises).then(data => {
+                console.log(data)
+                res(true)
+            })
         })
-
-        return dbPromises
-
-    }
-
-    handleCreateTeamRedirect = () => {
-        this.props.history.push(ROUTES.CREATE_COACH_TEAM)
     }
 
     prepareAthleteLoadData = (athlete) => {
         console.log(athlete)
-        return new Promise(resolve => {
+        return new Promise((res, rej) => {
             this.props.firebase.getAthleteTeamPrograms(
                 this.props.firebase.auth.currentUser.uid,
                 athlete.athleteUID,
@@ -681,7 +681,7 @@ class ManageCoachTeamsPage extends Component {
             )
                 .then(programData => {
                     console.log(programData)
-
+                    res(true)
                     // if (athleteData.currentPrograms) {
                     //     var loadingData = this.processAthleteLoadingData(athleteData.currentPrograms, { uid: athlete.athleteUID, username: athlete.username })
 
@@ -802,6 +802,10 @@ class ManageCoachTeamsPage extends Component {
 
         return payload
 
+    }
+
+    handleCreateTeamRedirect = () => {
+        this.props.history.push(ROUTES.CREATE_COACH_TEAM)
     }
 
     handleDayThresholdChange = (threshold) => {

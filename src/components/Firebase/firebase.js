@@ -639,7 +639,7 @@ class Firebase {
                 .get()
                 .then(snap => {
                     if (snap.empty) {
-                        return []
+                        res([])
                     } else {
                         var payload = []
                         var programPromises = []
