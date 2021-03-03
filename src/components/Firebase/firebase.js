@@ -1042,9 +1042,6 @@ class Firebase {
     }
 
     getProgGoalData = (programUID, athleteUID, programStatus) => {
-        console.log(programUID)
-        console.log(athleteUID)
-        console.log(programStatus)
         if (programStatus === 'current') {
             return new Promise((res, rej) => {
                 this.database
@@ -1077,7 +1074,6 @@ class Firebase {
         } else {
             console.log("havent structured database to store past program goals properly therefore no data grabbed cause probably worng lol")
         }
-
     }
 
     getProgramExData = (isCoach, userUID, programUID, status = 'current') => {
