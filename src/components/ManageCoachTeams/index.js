@@ -514,7 +514,7 @@ class ManageCoachTeamsPage extends Component {
                 this.initTeamLoadingData(data.athleteData).then(athleteLoadingData => {
 
                     let teamLoadingData = this.formatAthleteLoadData(athleteLoadingData)
-
+                    console.log(data)
 
                     this.setState({
                         pageBodyContentLoading: false,
@@ -863,30 +863,29 @@ class ManageCoachTeamsPage extends Component {
     }
 
     handleViewProgramLoadingLogs = (program, athlete) => {
-
+        console.log(program)
+        console.log(athlete)
         this.setState({
             pageBodyContentLoading: true
         }, () => {
-            this.props.firebase.getProgramData(
+            this.props.firebase.getAthleteTeamFullProgramData(
                 athlete.uid,
-                program
-            ).once('value', userData => {
-
-                const programData = userData.val();
-
-
-                var rawAnatomyData = this.state.currTeam.rawAnatomyData
+                program,
+                this.state.currTeam.team
+            ).then(programData => {
                 console.log(programData)
+                var rawAnatomyData = this.state.currTeam.rawAnatomyData
                 var loadingInfo = {
                     athleteUID: athlete.uid,
                     username: athlete.username,
-                    programName: program,
+                    programName: programData.name,
+                    programUID: programData.programUID,
                     specificDayLoadingInfo: undefined,
                     ACWRGraphProps: generateACWRGraphData(programData, rawAnatomyData),
                     rollingAverageGraphProps: generateSafeLoadGraphProps(programData, rawAnatomyData),
                     currentBodyPart: 'Overall_Total',
                     currMuscleGroupOpen: 'Arms',
-                    loadingScheme: programData.loading_scheme
+                    loadingScheme: programData.loadingScheme
                 }
 
                 this.state.currTeam.pageHistory.next(this.state.currTeam.view)
@@ -912,11 +911,11 @@ class ManageCoachTeamsPage extends Component {
     }
 
     handleGetSpecificDayProgramData = (day) => {
-        this.props.firebase.getProgramData(
+        this.props.firebase.getAthleteTeamFullProgramData(
             this.state.currTeam.memberProgramLoadingInfo.athleteUID,
-            this.state.currTeam.memberProgramLoadingInfo.programName
-        ).once('value', userData => {
-            const programData = userData.val();
+            this.state.currTeam.memberProgramLoadingInfo.programUID,
+            this.state.currTeam.team
+        ).then(programData => {
 
             this.setState(prevState => ({
                 currTeam: {

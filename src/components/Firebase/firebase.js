@@ -666,6 +666,35 @@ class Firebase {
         })
     }
 
+    getAthleteTeamFullProgramData = (athleteUID, programUID, teamName) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('programs')
+                .where('athlete', '==', athleteUID)
+                .where('programUID', '==', programUID)
+                .where('team', '==', teamName)
+                .get()
+                .then(snap => {
+                    if (!snap.empty) {
+                        var progInfo = snap.docs[0].data()
+
+                        this.getProgramExData(
+                            false,
+                            athleteUID,
+                            programUID,
+                        ).then(exData => {
+
+                            res({ ...progInfo, ...exData })
+                        })
+                    } else {
+                        console.log("nothing")
+                        res(true)
+                    }
+                })
+
+        })
+    }
+
     generateProgDeploymentData = (coachUID, programUID) => {
         return new Promise((res, rej) => {
             this.database
@@ -842,10 +871,15 @@ class Firebase {
     }
 
     getAnatomyData = () => {
-        return this.database
-            .collection('anatomy')
-            .doc('ykgEqKnLxEgp3SHiOe8W')
-            .get()
+        return new Promise((res, rej) => {
+            this.database
+                .collection('anatomy')
+                .doc('ykgEqKnLxEgp3SHiOe8W')
+                .get()
+                .then(snap => {
+                    res(snap)
+                })
+        })
     }
 
     getExData = (owners) => {
@@ -1351,13 +1385,14 @@ class Firebase {
                 this.getCoachCurrentAthletes(coachUID),
                 this.getAnatomyData()
             ]).then(data => {
+                console.log(data[5])
                 res({
                     athleteData: data[0],
                     programData: data[1],
                     deployProgramGroupData: data[2],
                     deployProgramData: data[3],
                     allAthletes: data[4],
-                    anatomy: data[5].anatomy
+                    anatomy: data[5].data().anatomy
                 })
             })
         })
