@@ -659,9 +659,8 @@ class Firebase {
                             for (var i in payload) {
                                 payload[i] = { ...payload[i], ...exData[i] }
                             }
+                            res(payload)
                         })
-
-                        res(payload)
                     }
                 })
         })

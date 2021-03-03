@@ -681,22 +681,32 @@ class ManageCoachTeamsPage extends Component {
                 this.state.currTeam.team
             )
                 .then(programData => {
-                    console.log(programData)
                     if (programData.length > 0) {
+
                         var loadingData = this.processAthleteLoadingData(programData, { uid: athlete.athleteUID, username: athlete.username })
 
-                        res({
-                            username: athlete.username,
-                            email: athlete.email,
-                            lastDayOverloaded: loadingData.lastDayOverloaded,
-                            warningValue: loadingData.lastDayOverloaded,
-                            modal:
-                                <TeamMemberLoadLogModal
-                                    logsData={loadingData.programData}
-                                    warningThreshold={5}
-                                    warnBelowThreshold={true}
-                                />
-                        })
+                        if (loadingData.lastDayOverloaded !== -1) {
+                            res({
+                                username: athlete.username,
+                                email: athlete.email,
+                                lastDayOverloaded: loadingData.lastDayOverloaded,
+                                warningValue: loadingData.lastDayOverloaded,
+                                modal:
+                                    <TeamMemberLoadLogModal
+                                        logsData={loadingData.programData}
+                                        warningThreshold={5}
+                                        warnBelowThreshold={true}
+                                    />
+                            })
+                        } else {
+                            res({
+                                username: athlete.username,
+                                email: athlete.email,
+                                lastDayOverloaded: '',
+                                warningValue: undefined,
+                                modal: 'No Loading Data'
+                            })
+                        }
                     } else {
                         res({
                             username: athlete.username,
@@ -713,13 +723,13 @@ class ManageCoachTeamsPage extends Component {
     validProgramForLoadCheck = (programData) => {
         return (
             programData.owner === this.props.firebase.auth.currentUser.uid
-            && programData.currentDayInProgram > 1
+            && programData.currentDay > 1
             && programData.isActiveInSequence !== false
         )
     }
 
     determineDaysSinceLastOverload = (programData) => {
-
+        console.log(programData)
         for (var day = programData.currentDay - 1; day >= 1; day--) {
 
             var loadingData = programData[day].loadingData
@@ -746,6 +756,8 @@ class ManageCoachTeamsPage extends Component {
 
     processAthleteLoadingData = (currentPrograms, athlete) => {
         console.log(currentPrograms)
+        console.log(Object.keys(currentPrograms[0]))
+
         var payload = {
             lastDayOverloaded: undefined,
             programData: {
@@ -765,12 +777,15 @@ class ManageCoachTeamsPage extends Component {
                 data: []
             },
         }
+
         var mostRecentDay = -1
         currentPrograms.forEach(program => {
-            console.log(program)
+            console.log('scannign through programs')
+            console.log(Object.keys(program))
 
             if (this.validProgramForLoadCheck(program)) {
-
+                console.log('isValid program')
+                console.log(program)
                 var lastOverload = this.determineDaysSinceLastOverload(program)
 
                 if (lastOverload !== -1) {
