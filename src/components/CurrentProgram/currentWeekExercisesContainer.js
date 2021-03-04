@@ -19,6 +19,9 @@ const CurrentWeekExercisesContainer = ({
             {
                 [0, 1, 2, 3, 4, 5, 6].map(dayIndex => {
                     var day = daysInWeekScope[dayIndex]
+                    console.log(dailyExercises)
+                    console.log(dayIndex)
+                    console.log(daysInWeekScope)
                     if (dailyExercises[day].length > 0) {
                         return (
                             <ExerciseTableContainer

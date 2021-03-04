@@ -571,7 +571,14 @@ class ManageProgramsPage extends Component {
 
                                 var frontEndProgData = { ...programObject }
 
-                                frontEndProgData[programObject.currentDay]['loadingData'] = processedDayData
+                                if (frontEndProgData[programObject.currentDay]) {
+                                    frontEndProgData[programObject.currentDay]['loadingData'] = processedDayData
+
+                                } else {
+                                    frontEndProgData[programObject.currentDay] = {
+                                        loadingData: processedDayData
+                                    }
+                                }
 
                                 frontEndProgData.currentDay += 1
 
@@ -1420,6 +1427,27 @@ class ManageProgramsPage extends Component {
                     this.state.editMode,
                     this.state.user.getUserType()
                 )
+
+                let promises = []
+                deleteList.forEach(progToDelete => {
+                    promises.push(
+                        this.props.firebase.deleteProgramDB(
+                            progToDelete,
+                            this.state.user.getUserType(),
+                            this.state.user.getID(),
+                            status
+                        )
+                    )
+                })
+
+                Promise.all(promises).then(res => {
+                    this.setState(prev => ({
+                        ...prev,
+                        pageBodyContentLoading: false,
+                        currentProgTableData: newTableData,
+                        pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
+                    }))
+                })
             } else if (progObj.getStatus() === 'past') {
                 progObj = this.state.pastProgList.getProgram(programUID)
 
@@ -1430,28 +1458,28 @@ class ManageProgramsPage extends Component {
                     this.state.pastProgList,
                     this.state.editMode
                 )
-            }
 
-            console.log(deleteList)
-            let promises = []
-            deleteList.forEach(progToDelete => {
-                promises.push(
-                    this.props.firebase.deleteProgramDB(
-                        progToDelete,
-                        this.state.user.getUserType(),
-                        this.state.user.getID(),
-                        status
+                let promises = []
+                deleteList.forEach(progToDelete => {
+                    promises.push(
+                        this.props.firebase.deleteProgramDB(
+                            progToDelete,
+                            this.state.user.getUserType(),
+                            this.state.user.getID(),
+                            status
+                        )
                     )
-                )
-            })
+                })
 
-            Promise.all(promises).then(res => {
-                this.setState(prev => ({
-                    ...prev,
-                    pageBodyContentLoading: false,
-                    [tableTarget]: newTableData
-                }))
-            })
+                Promise.all(promises).then(res => {
+                    this.setState(prev => ({
+                        ...prev,
+                        pageBodyContentLoading: false,
+                        pastProgTableData: newTableData,
+                    }))
+                })
+
+            }
         })
     }
 

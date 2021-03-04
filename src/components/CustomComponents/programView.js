@@ -405,10 +405,19 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     const programDataReducer = (state, action) => {
         switch (action.type) {
             case PROGRAM_ACTIONS.CHANGE_CURRENT_EXERCISE_LIST:
-                return {
-                    ...state,
-                    rawData: action.payload.rawData,
-                    exerciseListPerDay: action.payload.exerciseListPerDay
+                if (action.payload.daysInWeekScope) {
+                    return {
+                        ...state,
+                        rawData: action.payload.rawData,
+                        daysInWeekScope: action.payload.daysInWeekScope,
+                        exerciseListPerDay: action.payload.exerciseListPerDay
+                    }
+                } else {
+                    return {
+                        ...state,
+                        rawData: action.payload.rawData,
+                        exerciseListPerDay: action.payload.exerciseListPerDay
+                    }
                 }
 
             case PROGRAM_ACTIONS.UPDATE_ON_WEEK_CHANGE:
@@ -959,12 +968,13 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         } else {
             if (!firstRender) {
                 setOverviewData(initialiseOverviewData(data))
-
+                console.log("pretty sure it fails here")
                 setProgramData({
                     type: PROGRAM_ACTIONS.CHANGE_CURRENT_EXERCISE_LIST,
                     payload: {
                         rawData: data,
-                        exerciseListPerDay: updatedDailyExerciseList(data, handleDeleteExerciseButton, handleUpdateExercise)
+                        exerciseListPerDay: updatedDailyExerciseList(data, handleDeleteExerciseButton, handleUpdateExercise),
+                        daysInWeekScope: generateDaysInWeekScope(data.currentDay)
                     }
                 })
 

@@ -134,6 +134,7 @@ const updatedDailyExerciseList = (programObject, handleDeleteExerciseButton, han
         var sortedExerciseArray = orderUserExercisesBasedOnExUID(dailyExercises)
         exPerDayObj[programDaysInCurrWeek[dayIndex]] = sortedExerciseArray
     }
+    console.log(exPerDayObj)
     return exPerDayObj
 }
 

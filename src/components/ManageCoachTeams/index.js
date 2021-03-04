@@ -52,40 +52,6 @@ class ManageCoachTeamsPage extends Component {
                 })
             })
         });
-
-        // var currUserUid = this.props.firebase.auth.currentUser.uid
-        // this.props.firebase.getUserData(currUserUid).on('value', userData => {
-        //     const userObject = userData.val();
-
-        //     this.updateObjectState(userObject)
-        // });
-    }
-
-
-    componentWillUnmount() {
-        this.props.firebase.getUserData().off();
-    }
-
-    updateObjectState = (userObject) => {
-
-        this.setState({
-            loading: false,
-            // athleteTableData: this.initAthleteTableData(userObject),
-            // programTableData: initProgDeployCoachProgramTableData(userObject),
-            // programGroupTableData: initProgDeployCoachProgGroupTableData(userObject),
-            currentProgramsData: userObject.currentPrograms,
-            selectedTeamsTable: undefined,
-        })
-
-    }
-
-    initCurrTeamListArray = (userObject) => {
-        if (userObject.teams) {
-            let newArr = [...Object.keys(userObject.teams)]
-            newArr.push('none')
-            return newArr
-        }
-        return ['none']
     }
 
     initAthleteTableData = (userObject) => {
