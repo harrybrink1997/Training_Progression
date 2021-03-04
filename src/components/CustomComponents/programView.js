@@ -62,10 +62,6 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         var insertionDayUI = exerciseObject.day
         var insertionDayTotal = convertUIDayToTotalDays(insertionDayUI, currProgramDataObj.currentDay)
 
-        console.log(insertionDayTotal)
-        console.log(insertionDayUI)
-        console.log(currProgramDataObj)
-
         if (insertionDayTotal < currProgramDataObj.currentDay) {
             setInsertionDayError(true)
         } else {
@@ -422,7 +418,9 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                     rawData: action.payload.rawData,
                     daysInWeekScope: action.payload.daysInWeekScope,
                     exerciseListPerDay: action.payload.exerciseListPerDay,
-                    prevWeekExData: action.payload.prevWeekExData
+                    prevWeekExData: action.payload.prevWeekExData,
+                    currentDay: action.payload.currentDay
+
                 }
             case PROGRAM_ACTIONS.UPDATE_ON_WEEK_CHANGE:
                 return {
@@ -971,17 +969,17 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             setSubmitDailyExDataProcessing(true)
         } else {
             if (!firstRender) {
-                console.log(data)
+
                 setProgramData({
                     type: PROGRAM_ACTIONS.UPDATE_ON_SUBMIT_FINALISED,
                     payload: {
                         rawData: data,
                         exerciseListPerDay: updatedDailyExerciseList(data, handleDeleteExerciseButton, handleUpdateExercise),
                         daysInWeekScope: generateDaysInWeekScope(data.currentDay),
-                        prevWeekExData: generatePrevWeeksData(data)
+                        prevWeekExData: generatePrevWeeksData(data),
+                        currentDay: data.currentDay
                     }
                 })
-
                 setOverviewData(initialiseOverviewData(data))
 
                 setProgressionData({
@@ -996,6 +994,10 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             }
         }
     }, [submitProcessingBackend])
+
+    // useEffect(() => {
+    //     set
+    // }, [exerciseTableRefresh])
 
     useEffect(() => {
         if (exerciseData) {

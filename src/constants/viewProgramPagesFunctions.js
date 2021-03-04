@@ -59,8 +59,10 @@ const generateExerciseUID = (exerciseObject, exerciseListPerDay, currentDayInPro
     var uiDay = exerciseObject.day
 
     var insertionDay = convertUIDayToTotalDays(uiDay, currentDayInProgram)
-
-    if (exerciseListPerDay[insertionDay].length > 0) {
+    console.log(insertionDay)
+    console.log(exerciseListPerDay)
+    console.log(exerciseObject)
+    if (exerciseListPerDay[insertionDay] && exerciseListPerDay[insertionDay].length > 0) {
         var dayExercises = exerciseListPerDay[insertionDay]
 
         var currMaxID = -1
