@@ -62,6 +62,10 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         var insertionDayUI = exerciseObject.day
         var insertionDayTotal = convertUIDayToTotalDays(insertionDayUI, currProgramDataObj.currentDay)
 
+        console.log(insertionDayTotal)
+        console.log(insertionDayUI)
+        console.log(currProgramDataObj)
+
         if (insertionDayTotal < currProgramDataObj.currentDay) {
             setInsertionDayError(true)
         } else {
@@ -398,28 +402,28 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         CHANGE_WEEK: 'changeWeek',
         CHANGE_DAYS_OPEN_VIEW: 'changeDaysOpenView',
         START_PROGRAM: 'startProgram',
-        COPY_EXERCISE_DATA: 'cpyExData'
+        COPY_EXERCISE_DATA: 'cpyExData',
+        UPDATE_ON_SUBMIT_FINALISED: 'submitFinalised'
 
     }
 
     const programDataReducer = (state, action) => {
         switch (action.type) {
             case PROGRAM_ACTIONS.CHANGE_CURRENT_EXERCISE_LIST:
-                if (action.payload.daysInWeekScope) {
-                    return {
-                        ...state,
-                        rawData: action.payload.rawData,
-                        daysInWeekScope: action.payload.daysInWeekScope,
-                        exerciseListPerDay: action.payload.exerciseListPerDay
-                    }
-                } else {
-                    return {
-                        ...state,
-                        rawData: action.payload.rawData,
-                        exerciseListPerDay: action.payload.exerciseListPerDay
-                    }
+                return {
+                    ...state,
+                    rawData: action.payload.rawData,
+                    exerciseListPerDay: action.payload.exerciseListPerDay
                 }
 
+            case PROGRAM_ACTIONS.UPDATE_ON_SUBMIT_FINALISED:
+                return {
+                    ...state,
+                    rawData: action.payload.rawData,
+                    daysInWeekScope: action.payload.daysInWeekScope,
+                    exerciseListPerDay: action.payload.exerciseListPerDay,
+                    prevWeekExData: action.payload.prevWeekExData
+                }
             case PROGRAM_ACTIONS.UPDATE_ON_WEEK_CHANGE:
                 return {
                     ...state,
@@ -967,16 +971,18 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             setSubmitDailyExDataProcessing(true)
         } else {
             if (!firstRender) {
-                setOverviewData(initialiseOverviewData(data))
-                console.log("pretty sure it fails here")
+                console.log(data)
                 setProgramData({
-                    type: PROGRAM_ACTIONS.CHANGE_CURRENT_EXERCISE_LIST,
+                    type: PROGRAM_ACTIONS.UPDATE_ON_SUBMIT_FINALISED,
                     payload: {
                         rawData: data,
                         exerciseListPerDay: updatedDailyExerciseList(data, handleDeleteExerciseButton, handleUpdateExercise),
-                        daysInWeekScope: generateDaysInWeekScope(data.currentDay)
+                        daysInWeekScope: generateDaysInWeekScope(data.currentDay),
+                        prevWeekExData: generatePrevWeeksData(data)
                     }
                 })
+
+                setOverviewData(initialiseOverviewData(data))
 
                 setProgressionData({
                     type: PROGRESSION_ACTIONS.UPDATE_GRAPH_DATA,
@@ -1001,8 +1007,9 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     useEffect(() => {
         if (programData) {
             programDataRef.current = programData
-
+            console.log("updated profram ref")
             if (!isDevelopmentMode) {
+                console.log("update safe load data")
                 setSafeLoadData({
                     type: SAFE_LOAD_ACTIONS.REFRESH,
                     payload: programData.rawData
