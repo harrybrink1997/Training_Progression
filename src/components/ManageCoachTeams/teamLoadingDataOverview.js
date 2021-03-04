@@ -46,7 +46,7 @@ const TeamLoadingDataOverview = ({ dayThreshold, data, submitHandler }) => {
                 <Form onSubmit={handleSubmit}>
                     <div className='rowContainer'>
                         <Form.Field inline>
-                            <label>Days Since Overloading:</label>
+                            <label style={{ color: 'white' }}>Days Since Overloading:</label>
                             <Input
                                 value={threshold}
                                 size='mini'

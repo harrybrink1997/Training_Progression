@@ -757,36 +757,98 @@ class Firebase {
             })
         } else {
             return new Promise((res, rej) => {
-                this.database
-                    .collection('programs')
-                    .where('programUID', '==', programUID)
-                    .where('owner', '==', userUID)
-                    .where('athlete', '==', userUID)
-                    .where('status', '==', status)
-                    .get()
-                    .then(snap => {
-                        if (!snap.empty) {
-                            const batch = this.database.batch()
-                            const docUID = snap.docs[0].id
-                            var progRef = this.database.collection('programs').doc(docUID)
-                            batch.delete(progRef)
 
-                            progRef
-                                .collection('exercises')
-                                .get()
-                                .then(coll => {
-                                    if (!coll.empty) {
-                                        coll.docs.forEach(doc => {
-                                            var dayRef = progRef.collection('exercises').doc(doc.id)
-                                            batch.delete(dayRef)
+                let progDel = new Promise((res, rej) => {
+                    this.database
+                        .collection('programs')
+                        .where('programUID', '==', programUID)
+                        .where('owner', '==', userUID)
+                        .where('athlete', '==', userUID)
+                        .where('status', '==', status)
+                        .get()
+                        .then(snap => {
+                            if (!snap.empty) {
+                                const batch = this.database.batch()
+                                const docUID = snap.docs[0].id
+                                var progRef = this.database.collection('programs').doc(docUID)
+                                batch.delete(progRef)
+
+                                progRef
+                                    .collection('exercises')
+                                    .get()
+                                    .then(coll => {
+                                        if (!coll.empty) {
+                                            coll.docs.forEach(doc => {
+                                                var dayRef = progRef.collection('exercises').doc(doc.id)
+                                                batch.delete(dayRef)
+                                            })
+                                        }
+                                        batch.commit().then(() => {
+                                            res(true)
+                                        })
+                                    })
+                            }
+                        })
+                })
+
+                let progGroupDel = new Promise((res, rej) => {
+                    this.database
+                        .collection('users')
+                        .doc(userUID)
+                        .collection('programGroups')
+                        .get()
+                        .then(groupSnap => {
+                            if (!groupSnap.empty && groupSnap.docs.length === 1) {
+                                let groups = groupSnap.docs[0].data()
+                                let groupDeleteList = []
+                                console.log(groups)
+                                console.log(programUID)
+                                Object.keys(groups).forEach(group => {
+                                    if (groups[group].sequential) {
+                                        if (Object.keys(groups[group].sequential).includes(programUID)) {
+                                            groupDeleteList.push(group)
+                                        }
+                                    }
+
+                                    if (groups[group].unlimited) {
+                                        if (groups[group].unlimited.includes(programUID)) {
+                                            groupDeleteList.push(group)
+                                        }
+                                    }
+                                })
+                                if (groupDeleteList.length > 0) {
+                                    console.log('going into delete list')
+                                    console.log(groupDeleteList)
+                                    const batch = this.database.batch()
+                                    const docRef = this.database.collection('users').doc(userUID).collection('programGroups').doc('programGroups')
+
+                                    if (Object.keys(groups).length === groupDeleteList.length) {
+                                        batch.delete(docRef)
+                                    } else {
+                                        groupDeleteList.forEach(group => {
+                                            batch.update(docRef, {
+                                                [group]: FieldValue.delete()
+                                            })
                                         })
                                     }
+
                                     batch.commit().then(() => {
                                         res(true)
                                     })
-                                })
-                        }
-                    })
+                                } else {
+                                    console.log("group list empty")
+                                    res(true)
+                                }
+                            } else {
+                                console.log("just not workign at all")
+                                res(true)
+                            }
+                        })
+                })
+
+                Promise.all([progDel, progGroupDel]).then(() => {
+                    res(true)
+                })
             })
         }
     }

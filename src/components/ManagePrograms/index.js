@@ -1260,27 +1260,13 @@ class ManageProgramsPage extends Component {
     }
 
     checkIfProgramAlreadyExists(newProgram) {
-        var nameToCheck = newProgram.split('_')[0] + '_' + newProgram.split('_')[1]
-        if (this.state.currentProgramList.length > 0) {
-            for (var program in this.state.currentProgramList) {
-                var currProgName = this.state.currentProgramList[program]
-                currProgName = currProgName.split('_')[0] + '_' + currProgName.split('_')[1]
 
-                if (currProgName === nameToCheck) {
-                    return true
-                }
-            }
-        }
-
-        if (this.state.pastProgramList.length > 0) {
-            for (program in this.state.pastProgramList) {
-                var currProgName = this.state.pastProgramList[program]
-                currProgName = currProgName.split('_')[0] + '_' + currProgName.split('_')[1]
-
-                if (currProgName === nameToCheck) {
-                    return true
-                }
-            }
+        if (
+            this.state.currProgList.programNameExists(newProgram)
+            ||
+            this.state.pastProgList.programNameExists(newProgram)
+        ) {
+            return true
         }
 
         return false
@@ -1298,77 +1284,82 @@ class ManageProgramsPage extends Component {
             var timestamp = new Date().getTime()
             programName = programName.trim()
 
+            if (this.checkIfProgramAlreadyExists(programName)) {
+                alert('Program with name "' + programName.split('_')[0] + '" already exists in either your current or past programs.')
 
-            // if (this.checkIfProgramAlreadyExists(programName)) {
-            //     alert('Program with name "' + programName.split('_')[0] + '" already exists in either your current or past programs.')
-            // } else {
+                this.setState(prev => ({
+                    ...prev,
+                    pageBodyContentLoading: false
+                }))
+            } else {
 
-            var payload = {
-                name: programName,
-                owner: this.props.firebase.auth.currentUser.uid,
-                athlete: this.props.firebase.auth.currentUser.uid,
-                acutePeriod: acutePeriod,
-                chronicPeriod: chronicPeriod,
-                loadingScheme: loadingScheme,
-                creationDate: timestamp,
-                currentDay: 1,
-                status: 'current',
-                programUID:
-                    programName
-                    + '_' + this.props.firebase.auth.currentUser.uid
-                    + '_' + timestamp
+                var payload = {
+                    name: programName,
+                    owner: this.props.firebase.auth.currentUser.uid,
+                    athlete: this.props.firebase.auth.currentUser.uid,
+                    acutePeriod: acutePeriod,
+                    chronicPeriod: chronicPeriod,
+                    loadingScheme: loadingScheme,
+                    creationDate: timestamp,
+                    currentDay: 1,
+                    status: 'current',
+                    programUID:
+                        programName
+                        + '_' + this.props.firebase.auth.currentUser.uid
+                        + '_' + timestamp
 
+                }
+
+                var goalListArr = []
+
+                if (this.state.user.getUserType() === 'athlete') {
+                    var index = 1
+                    Object.values(goalList).forEach(goal => {
+                        var formattedObj = goal.getFormattedGoalObject()
+
+                        if (Object.keys(formattedObj.subGoals).length === 0) {
+                            delete formattedObj.subGoals
+                        }
+
+                        formattedObj.programUID =
+                            programName + '_' + this.props.firebase.auth.currentUser.uid + '_' + timestamp
+                        formattedObj.goalProgUID = 'Goal_' + index.toString()
+                        goalListArr.push(formattedObj)
+                        index++
+                    })
+
+                    var dateConversion = date.split('-')
+
+                    dateConversion = dateConversion[2] + '-' + dateConversion[1] + '-' + dateConversion[0]
+
+                    const startTimestamp = Math.floor(new Date(dateConversion).getTime())
+
+                    payload.team = 'none'
+
+                    payload.startDayUTS = startTimestamp
+                }
+
+                if (goalListArr.length === 0) {
+                    goalListArr = undefined
+                }
+
+                var newProg = createProgramObject(payload)
+
+                this.state.currProgList.addProgStart(newProg)
+
+                this.setState(prev => ({
+                    ...prev,
+                    currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode),
+                    pageBodyContentLoading: false
+                }))
+
+                console.log(payload)
+
+                this.props.firebase.createProgramDB(
+                    payload,
+                    goalListArr
+                )
             }
-
-            var goalListArr = []
-
-            if (this.state.user.getUserType() === 'athlete') {
-                var index = 1
-                Object.values(goalList).forEach(goal => {
-                    var formattedObj = goal.getFormattedGoalObject()
-
-                    if (Object.keys(formattedObj.subGoals).length === 0) {
-                        delete formattedObj.subGoals
-                    }
-
-                    formattedObj.programUID =
-                        programName + '_' + this.props.firebase.auth.currentUser.uid + '_' + timestamp
-                    formattedObj.goalProgUID = 'Goal_' + index.toString()
-                    goalListArr.push(formattedObj)
-                    index++
-                })
-
-                var dateConversion = date.split('-')
-
-                dateConversion = dateConversion[2] + '-' + dateConversion[1] + '-' + dateConversion[0]
-
-                const startTimestamp = Math.floor(new Date(dateConversion).getTime())
-
-                payload.team = 'none'
-
-                payload.startDayUTS = startTimestamp
-            }
-
-            if (goalListArr.length === 0) {
-                goalListArr = undefined
-            }
-
-            var newProg = createProgramObject(payload)
-
-            this.state.currProgList.addProgStart(newProg)
-
-            this.setState(prev => ({
-                ...prev,
-                currentProgTableData: this.initCurrentProgramTableData(this.state.currProgList, this.state.editMode),
-                pageBodyContentLoading: false
-            }))
-
-            console.log(payload)
-
-            this.props.firebase.createProgramDB(
-                payload,
-                goalListArr
-            )
         })
     }
 

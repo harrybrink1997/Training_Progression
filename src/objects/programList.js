@@ -15,6 +15,19 @@ class ProgramList {
         }
     }
 
+    programNameExists = (newProgramUID) => {
+        let proposedName = newProgramUID.split('_')[0]
+
+        for (var i in this.getProgramList()) {
+            let program = this.getProgramList()[i]
+            if (program.name === proposedName) {
+                return true
+            }
+        }
+
+        return false
+    }
+
     removeProgram = (programUID) => {
         for (var prog in this.programList) {
             if (this.programList[prog].programEqualToUID(programUID)) {

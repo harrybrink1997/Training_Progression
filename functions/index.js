@@ -12,6 +12,8 @@ exports.cleanUpDBPostProgDelete = functions.firestore
         admin.firestore()
             .collection('goals')
             .where('programUID', '==', snapshot.programUID)
+            .where('programStatus', '==', snapshot.status)
+            .where('athleteUID', '==', snapshot.athlete)
             .get()
             .then(goalSnap => {
                 if (!goalSnap.empty) {
@@ -19,7 +21,6 @@ exports.cleanUpDBPostProgDelete = functions.firestore
                     var goalRef = admin.firestore().collection('goals')
 
                     goalSnap.docs.forEach(doc => {
-                        console.log(doc.id)
                         batch.delete(goalRef.doc(doc.id))
                     })
 

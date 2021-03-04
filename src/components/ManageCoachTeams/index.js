@@ -439,12 +439,7 @@ class ManageCoachTeamsPage extends Component {
 
                 })
             })
-
-
-            // }
         })
-        // })
-
     }
 
     countAthletesOnTeam = (team, currentAthletes) => {
@@ -506,49 +501,6 @@ class ManageCoachTeamsPage extends Component {
                     })
                 })
             })
-
-            return
-            this.props.firebase.getUserData(
-                this.props.firebase.auth.currentUser.uid
-            )
-                .once('value', async userData => {
-                    const userObject = userData.val();
-
-                    this.props.firebase.anatomy().once('value', async snapshot => {
-                        const anatomyObject = snapshot.val();
-
-                        var currTeamMemberData = this.initCurrTeamMemberData(team, userObject.currentAthletes)
-
-                        this.initTeamLoadingData(currTeamMemberData).then(promises => {
-                            Promise.all(promises).then(athleteResponses => {
-
-                                var teamLoadingData = this.formatAthleteLoadData(athleteResponses)
-
-                                this.setState({
-                                    pageBodyContentLoading: false,
-                                    currTeam: {
-                                        team: team,
-                                        description: userObject.teams[team].description,
-                                        view: 'home',
-                                        pageHistory: new PageHistory(),
-                                        showViewProgramErrorModal: false,
-                                        viewProgramErrorType: undefined,
-                                        currTeamProgramData: this.initCurrTeamProgramData(userObject.teams[team].programs),
-                                        currTeamMemberData: currTeamMemberData,
-                                        nonCurrTeamMemberData: this.initNonCurrTeamMembersData(this.state.athleteTableData, currTeamMemberData),
-                                        viewTeamFunctions: {},
-                                        loadingData: teamLoadingData,
-                                        rawAnatomyData: anatomyObject,
-                                        memberProgramLoadingInfo: undefined,
-                                        daysSinceOverloadThreshold: 5,
-                                        overviewTableVisible: true,
-                                        teamLoadOverviewData: this.initOverviewData(teamLoadingData, 5),
-                                    }
-                                })
-                            })
-                        })
-                    })
-                })
         })
     }
 
