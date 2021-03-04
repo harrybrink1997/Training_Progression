@@ -315,14 +315,27 @@ class Firebase {
     }
 
     createProgramGroupDB = (coachUID, groupName, payload) => {
-        return this.database
-            .collection('users')
-            .doc(coachUID)
-            .collection('programGroups')
-            .doc('programGroups')
-            .set({
-                [groupName]: payload
-            }, { merge: true })
+        return new Promise((res, rej) => {
+            this.database
+                .collection('users')
+                .doc(coachUID)
+                .collection('programGroups')
+                .doc('programGroups')
+                .set({
+                    [groupName]: payload
+                }, { merge: true })
+                .then(() => {
+                    this.database
+                        .collection('users')
+                        .doc(coachUID)
+                        .collection('programGroups')
+                        .doc('programGroups')
+                        .get()
+                        .then(snap => {
+                            res(snap.data())
+                        })
+                })
+        })
     }
 
     createProgramDB = (programData, goalData) => {
@@ -720,6 +733,67 @@ class Firebase {
         })
     }
 
+    deleteProgramGroupsDB = (coachUID, groupNames) => {
+        return new Promise((res, rej) => {
+            let docRef = this.database
+                .collection('users')
+                .doc(coachUID)
+                .collection('programGroups')
+                .doc('programGroups')
+
+            docRef
+                .get()
+                .then(snap => {
+                    if (!snap.empty) {
+                        if (Object.keys(snap.data()).length === groupNames.length) {
+                            docRef.delete().then(() => {
+                                res(true)
+                            })
+                        } else {
+                            const batch = this.database.batch()
+
+                            groupNames.forEach(group => {
+                                batch.update(docRef, {
+                                    [group]: FieldValue.delete()
+                                })
+                            })
+
+                            batch.commit().then(() => {
+                                res(true)
+                            })
+                        }
+                    } else {
+                        res(true)
+                    }
+                })
+
+        })
+    }
+
+    getUserProgramsAndGroups = (userUID, userType) => {
+        return new Promise((res, rej) => {
+
+            if (userType === 'athlete') {
+                this.getUserPrograms(userUID, userType).then(snap => {
+                    res({
+                        programs: snap,
+                        programGroups: undefined
+                    })
+                })
+            } else {
+                Promise.all([
+                    this.getUserPrograms(userUID, userType),
+                    this.getCoachProgramGroups(userUID)
+                ]).then(data => {
+                    res({
+                        programs: data[0],
+                        programGroups: data[1]
+                    })
+                })
+            }
+        })
+    }
+
     deleteProgramDB = (programUID, userType, userUID, status) => {
 
         if (userType === 'athlete') {
@@ -801,8 +875,6 @@ class Firebase {
                             if (!groupSnap.empty && groupSnap.docs.length === 1) {
                                 let groups = groupSnap.docs[0].data()
                                 let groupDeleteList = []
-                                console.log(groups)
-                                console.log(programUID)
                                 Object.keys(groups).forEach(group => {
                                     if (groups[group].sequential) {
                                         if (Object.keys(groups[group].sequential).includes(programUID)) {
@@ -836,11 +908,9 @@ class Firebase {
                                         res(true)
                                     })
                                 } else {
-                                    console.log("group list empty")
                                     res(true)
                                 }
                             } else {
-                                console.log("just not workign at all")
                                 res(true)
                             }
                         })

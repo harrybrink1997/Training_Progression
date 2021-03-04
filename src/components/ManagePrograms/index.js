@@ -4,7 +4,7 @@ import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import { Dimmer, Loader, List, Button } from 'semantic-ui-react'
 
 import CreateProgramModal from './createProgramModal'
-import CreateProgramGroupModal from './createProgramGroupModal'
+import ManageProgramGroupModal from './manageProgramGroupModal'
 import loadingSchemeString, { loadingSchemeStringInverse } from '../../constants/loadingSchemeString'
 import ManageProgramTables from './manageProgramTables'
 import { AcceptRequestButton, DeclineRequestButton, AcceptReplaceRequestButton, DeclineReplaceRequestButton } from '../CustomComponents/customButtons'
@@ -19,7 +19,8 @@ import { listAndFormatExercises, checkNullExerciseData, setAvailExerciseCols } f
 import ProgramView, { ProgramViewPageSubHeader } from '../CustomComponents/programView'
 import { capitaliseFirstLetter, underscoreToSpaced } from '../../constants/stringManipulation';
 import { calculateDailyLoads } from '../CurrentProgram/calculateWeeklyLoads'
-import { create, thomsonCrossSectionDependencies } from 'mathjs';
+import { initProgDeployCoachProgGroupTableData } from '../CustomComponents/programDeployment';
+
 
 class ManageProgramsPage extends Component {
 
@@ -49,51 +50,58 @@ class ManageProgramsPage extends Component {
                         userInfo
                     )
 
-                    this.props.firebase.getUserPrograms(userObject.getID(), userObject.getUserType())
-                        .then(snapshot => {
-                            var pendingPrograms = []
-                            var currentPrograms = []
-                            var pastPrograms
-                            if (snapshot.length === 0) {
-                                pendingPrograms = []
-                            } else {
-                                snapshot.forEach(prog => {
-                                    var progObj = createProgramObject(prog)
+                    this.props.firebase.getUserProgramsAndGroups(userObject.getID(), userObject.getUserType()).then(snap => {
+                        let snapshot = snap.programs
+                        var pendingPrograms = []
+                        var currentPrograms = []
+                        var pastPrograms
+                        if (snapshot.length === 0) {
+                            pendingPrograms = []
+                        } else {
+                            snapshot.forEach(prog => {
+                                var progObj = createProgramObject(prog)
 
-                                    if (progObj.getStatus() === 'current') {
-                                        currentPrograms.push(progObj)
-                                    } else if (progObj.getStatus() === 'past') {
-                                        pastPrograms.push(progObj)
-                                    } else {
-                                        pendingPrograms.push(progObj)
-                                    }
-                                })
-                            }
-
-                            var pendingList = new ProgramList(pendingPrograms)
-
-                            var currProgList = new ProgramList(currentPrograms)
-
-                            var pastProgList = new ProgramList(pastPrograms)
-
-                            this.setState({
-                                user: userObject,
-                                currProgList: currProgList,
-                                pastProgList: pastProgList,
-                                pendingProgList: pendingList,
-                                pendingProgTableData: this.initPendingProgramTableData(pendingList, currProgList),
-                                currentProgTableData: this.initCurrentProgramTableData(currProgList, false, userObject.getUserType()),
-                                pastProgTableData: this.initPastProgramTableData(pastProgList, false),
-                                pendProgsModalFootText: (!pendingList.isEmptyList()) && '',
-                                view: this.PAGE_VIEWS.HOME,
-                                pageHistory: new PageHistory(),
-                                editMode: false,
-                                currProgram: undefined,
-                                pageBodyContentLoading: false,
-                                loading: false
-
+                                if (progObj.getStatus() === 'current') {
+                                    currentPrograms.push(progObj)
+                                } else if (progObj.getStatus() === 'past') {
+                                    pastPrograms.push(progObj)
+                                } else {
+                                    pendingPrograms.push(progObj)
+                                }
                             })
+                        }
+
+                        let pendingList = new ProgramList(pendingPrograms)
+                        let currProgList = new ProgramList(currentPrograms)
+                        let pastProgList = new ProgramList(pastPrograms)
+
+                        let programGroupList
+                        let programGroupTableData = undefined
+
+                        if (snap.programGroups) {
+                            programGroupList = Object.keys(snap.programGroups)
+                            programGroupTableData = initProgDeployCoachProgGroupTableData(snap.programGroups)
+                        }
+
+                        this.setState({
+                            user: userObject,
+                            currProgList: currProgList,
+                            pastProgList: pastProgList,
+                            pendingProgList: pendingList,
+                            pendingProgTableData: this.initPendingProgramTableData(pendingList, currProgList),
+                            currentProgTableData: this.initCurrentProgramTableData(currProgList, false, userObject.getUserType()),
+                            pastProgTableData: this.initPastProgramTableData(pastProgList, false),
+                            pendProgsModalFootText: (!pendingList.isEmptyList()) && '',
+                            view: this.PAGE_VIEWS.HOME,
+                            pageHistory: new PageHistory(),
+                            editMode: false,
+                            currProgram: undefined,
+                            pageBodyContentLoading: false,
+                            programGroupTableData: programGroupTableData,
+                            currentProgramGroups: programGroupList,
+                            loading: false
                         })
+                    })
                 })
                 .catch(error => {
                     console.log(error)
@@ -1273,6 +1281,29 @@ class ManageProgramsPage extends Component {
 
     }
 
+    handleDeleteProgramGroup = (groupNames) => {
+        console.log(groupNames)
+
+        this.props.firebase.deleteProgramGroupsDB(
+            this.props.firebase.auth.currentUser.uid,
+            groupNames
+        ).then(() => {
+            let currGroupList = [...this.state.currentProgramGroups].filter(group => {
+                return !groupNames.includes(group)
+            })
+
+            let currGroupTableData = [...this.state.programGroupTableData].filter(group => {
+                return !groupNames.includes(group.programGroup)
+            })
+
+            this.setState({
+                currentProgramGroups: currGroupList,
+                programGroupTableData: currGroupTableData
+            })
+
+        })
+    }
+
     handleCreateProgram = async (programName, acutePeriod, chronicPeriod, loadingScheme, date, goalList) => {
 
         this.setState({
@@ -1324,6 +1355,8 @@ class ManageProgramsPage extends Component {
                         formattedObj.programUID =
                             programName + '_' + this.props.firebase.auth.currentUser.uid + '_' + timestamp
                         formattedObj.goalProgUID = 'Goal_' + index.toString()
+                        formattedObj.programStatus = 'current'
+                        formattedObj.athleteUID = this.props.firebase.auth.currentUser.uid
                         goalListArr.push(formattedObj)
                         index++
                     })
@@ -1511,7 +1544,16 @@ class ManageProgramsPage extends Component {
             this.props.firebase.auth.currentUser.uid,
             groupName,
             payload
-        )
+        ).then(updatedData => {
+            let newList = Object.keys(updatedData)
+            let newGroupTableData = initProgDeployCoachProgGroupTableData(updatedData)
+
+            this.setState({
+                programGroupTableData: newGroupTableData,
+                currentProgramGroups: newList
+            })
+
+        })
     }
     render() {
         const {
@@ -1522,11 +1564,12 @@ class ManageProgramsPage extends Component {
             pastProgTableData,
             view,
             pageBodyContentLoading,
-            currProgram
+            currProgram,
+            currentProgramGroups,
+            programGroupTableData,
         } = this.state
-        console.log(pendingProgTableData)
-        console.log(currentProgTableData)
-        console.log(pastProgTableData)
+        console.log(currentProgramGroups)
+        console.log(programGroupTableData)
 
         let loadingHTML =
             <Dimmer active>
@@ -1563,9 +1606,12 @@ class ManageProgramsPage extends Component {
                                 {
                                     user && user.getUserType() === 'coach' && currentProgTableData &&
                                     < div id='hpRightBtnContainer'>
-                                        <CreateProgramGroupModal
+                                        <ManageProgramGroupModal
                                             programTableData={currentProgTableData.data}
-                                            handleFormSubmit={this.handleCreateProgramGroup}
+                                            handleCreateFormSubmit={this.handleCreateProgramGroup}
+                                            currentGroupList={currentProgramGroups}
+                                            tableGroupTableData={programGroupTableData}
+                                            handleDeleteFormSubmit={this.handleDeleteProgramGroup}
                                         />
                                     </div>
                                 }

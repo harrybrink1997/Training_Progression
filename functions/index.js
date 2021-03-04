@@ -11,9 +11,9 @@ exports.cleanUpDBPostProgDelete = functions.firestore
     .onDelete((snapshot, context) => {
         admin.firestore()
             .collection('goals')
-            .where('programUID', '==', snapshot.programUID)
-            .where('programStatus', '==', snapshot.status)
-            .where('athleteUID', '==', snapshot.athlete)
+            .where('programUID', '==', snapshot.data().programUID)
+            .where('programStatus', '==', snapshot.data().status)
+            .where('athleteUID', '==', snapshot.data().athlete)
             .get()
             .then(goalSnap => {
                 if (!goalSnap.empty) {
