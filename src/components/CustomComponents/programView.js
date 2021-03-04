@@ -1043,14 +1043,6 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         }
     }, [overviewLoaded, programLoaded, progressionLoaded, exercisesLoaded])
 
-    // useEffect(() => {
-    //     console.log(progressionData)
-    //     console.log(progressionData.ACWRGraphProps[progressionData.currentBodyPart])
-    //     console.log(progressionData.ACWRGraphProps[progressionData.currentBodyPart])
-
-    // }, [progressionData])
-
-
     // HTML that will actually be rendered
     let loadingHTML =
         <div className='vert-aligned'>
@@ -1133,7 +1125,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                                         <div className='graphTitle'>
                                             Goals
                                     </div>
-                                        <div onClick={() => setGoalTableVisible(!goalTableVisible)}>
+                                        <div className='clickableDiv' onClick={() => setGoalTableVisible(!goalTableVisible)}>
                                             {
                                                 goalTableVisible &&
                                                 <Icon name='toggle on' style={{ fontSize: '20px' }} />
@@ -1174,7 +1166,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                                         <div className='graphTitle'>
                                             Predicted Safe Loads
                                     </div>
-                                        <div onClick={() => setSafeLoadTableVisible(!safeLoadTableVisible)}>
+                                        <div className='clickableDiv' onClick={() => setSafeLoadTableVisible(!safeLoadTableVisible)}>
                                             {
                                                 safeLoadTableVisible &&
                                                 <Icon name='toggle on' style={{ fontSize: '20px' }} />

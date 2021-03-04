@@ -86,8 +86,11 @@ export const LoadingSpreadStatsTable = ({ data }) => {
                     rows.map(row => {
                         // Prepare the row for display
                         prepareRow(row)
-                        if (row.values.currDayLoad > row.values.maxSafeLoad ||
-                            row.values.currDayLoad < row.values.minSafeLoad) {
+
+                        console.log(row.values)
+
+                        if (parseFloat(row.values.currDayLoad) > parseFloat(row.values.maxSafeLoad) ||
+                            parseFloat(row.values.currDayLoad) < parseFloat(row.values.minSafeLoad)) {
 
                             if (row.depth == 1) {
                                 return (
@@ -165,59 +168,3 @@ export const LoadingSpreadStatsTable = ({ data }) => {
     )
 
 }
-
-// export const GoalsTableNoBtns = ({ data }) => {
-
-
-//     const {
-//         getTableProps,
-//         getTableBodyProps,
-//         headerGroups,
-//         rows,
-//         prepareRow,
-//         state: { expanded },
-//     } = useTable(
-//         {
-//             columns,
-//             data,
-//         },
-//         useExpanded
-//     )
-//     return (
-//         <Table celled {...getTableProps()}>
-//             <Table.Header>
-//                 {headerGroups.map(headerGroup => (
-//                     <Table.Row {...headerGroup.getHeaderGroupProps()}>
-//                         {headerGroup.headers.map(column => (
-//                             <Table.HeaderCell {...column.getHeaderProps()}>{column.render('Header')}</Table.HeaderCell>
-//                         ))}
-//                     </Table.Row>
-//                 ))}
-//             </Table.Header>
-//             <Table.Body {...getTableBodyProps()}>
-//                 {rows.map((row, i) => {
-//                     prepareRow(row)
-//                     console.log(row)
-//                     if (row.depth == 1) {
-//                         return (
-//                             <Table.Row className='react-table-expandedChildRow' {...row.getRowProps()}>
-//                                 {row.cells.map(cell => {
-//                                     return <Table.Cell {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
-//                                 })}
-//                             </Table.Row>
-//                         )
-//                     } else {
-//                         return (
-//                             <Table.Row {...row.getRowProps()}>
-//                                 {row.cells.map(cell => {
-//                                     return <Table.Cell {...cell.getCellProps()}>{cell.render('Cell')}</Table.Cell>
-//                                 })}
-//                             </Table.Row>
-//                         )
-//                     }
-//                 })}
-//             </Table.Body>
-//         </Table>
-//     )
-
-// }

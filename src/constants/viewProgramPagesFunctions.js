@@ -532,7 +532,6 @@ const stripDateFromTSString = (inputDay) => {
 const generateCurrDaySafeLoadData = (programData, anatomyObject) => {
 
     var returnData = []
-
     if (programData.currentDay !== 1) {
         var currDayData = dailyLoadCalcs(
             programData[programData.currentDay],
@@ -544,7 +543,8 @@ const generateCurrDaySafeLoadData = (programData, anatomyObject) => {
             var prevDayChronicLoad = programData[programData.currentDay - 1]['loadingData'][muscleGroup]['Total']['chronicEWMA']
             var prevDayAcuteLoad = programData[programData.currentDay - 1]['loadingData'][muscleGroup]['Total']['acuteEWMA']
             var maxLoadData = 0;
-            (prevDayAcuteLoad * 1.1 > prevDayChronicLoad * 1.2) ? maxLoadData = prevDayAcuteLoad : maxLoadData = prevDayChronicLoad
+            (prevDayAcuteLoad * 1.1 > prevDayChronicLoad * 1.2) ? maxLoadData = parseFloat(prevDayAcuteLoad) * 1.1 : maxLoadData = parseFloat(prevDayChronicLoad) * 1.2
+
             if (maxLoadData !== 0 || prevDayChronicLoad !== 0) {
                 returnData.push({
                     bodyPart: muscleGroup,
@@ -561,7 +561,6 @@ const generateCurrDaySafeLoadData = (programData, anatomyObject) => {
             }
         })
     }
-    console.log(returnData)
     return returnData
 
 }
@@ -573,7 +572,7 @@ const generateSpecificMuscleSafeLoadData = (programData, muscleGroup, currDayDat
         var prevDayChronicLoad = programData[programData.currentDay - 1]['loadingData'][muscleGroup][muscle]['chronicEWMA']
         var prevDayAcuteLoad = programData[programData.currentDay - 1]['loadingData'][muscleGroup][muscle]['acuteEWMA']
         var maxLoadData = 0;
-        (prevDayAcuteLoad * 1.1 > prevDayChronicLoad * 1.2) ? maxLoadData = prevDayAcuteLoad : maxLoadData = prevDayChronicLoad
+        (prevDayAcuteLoad * 1.1 > prevDayChronicLoad * 1.2) ? maxLoadData = parseFloat(prevDayAcuteLoad) * 1.1 : maxLoadData = parseFloat(prevDayChronicLoad) * 1.2
 
         if (maxLoadData !== 0 || prevDayChronicLoad !== 0) {
             returnData.push({

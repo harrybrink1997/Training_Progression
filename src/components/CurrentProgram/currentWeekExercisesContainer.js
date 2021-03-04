@@ -54,7 +54,7 @@ const ExerciseTableContainer = ({ dayText, tableData, tableScheme, initVisib, de
 
     return (
         < div>
-            <div onClick={handleOpenClose}>
+            <div className='clickableDiv' onClick={handleOpenClose}>
 
                 <InputLabel
                     text={dayText}

@@ -76,17 +76,9 @@ const MuscleGroupContainer = ({ muscleGroup, defaultOpen, muscleList, activeMusc
 
 const MuscleList = ({ muscleList, activeMuscle, clickHandler }) => {
 
-    const checker = (ap) => {
-        console.log(ap)
-    }
-
-    const [check, setChec] = useState(checker(muscleList))
-
     return (
 
-        < div
-
-        >
+        < div>
             {
                 muscleList.map(muscle => {
                     return (
