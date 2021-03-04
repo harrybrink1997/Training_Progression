@@ -10,7 +10,7 @@ import ConfirmNullExerciseData from '../CurrentProgram/confirmNullExerciseData'
 import ViewPrevWeeksData from '../CurrentProgram/viewPrevWeeksData'
 import BodyPartListGroup from './bodyPartListGroup'
 import InputLabel from './DarkModeInput'
-import { ACWEGraph, RollChronicACWRGraph } from '../ProgressionData/ACWRGraph'
+import { ACWRGraph, RollChronicACWRGraph } from '../ProgressionData/ACWRGraph'
 import { generateDaysInWeekScope, updatedDailyExerciseList, setAvailExerciseChartData, formatExerciseObjectForLocalInsertion, generateExerciseUID, generateACWRGraphData, generateSafeLoadGraphProps, generateGoalTableData, generateCurrDaySafeLoadData, generatePrevWeeksData } from '../../constants/viewProgramPagesFunctions'
 import StartProgramView from './startProgramView'
 import GoalsTable from './currentGoalTable'
@@ -81,8 +81,6 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                 handleUpdateExercise,
                 handleDeleteExerciseButton
             )
-
-
 
             var rawDataInsertionObj = { ...frontEndRenderObj }
 
@@ -280,6 +278,21 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                 }
 
             case PROGRESSION_ACTIONS.UPDATE_GRAPH_DATA:
+                console.log(action.payload.rawProgramData)
+                console.log(action.payload.anatomyData)
+                console.log(
+                    generateACWRGraphData(
+                        action.payload.rawProgramData,
+                        action.payload.anatomyData
+                    )
+                )
+                console.log(
+                    generateSafeLoadGraphProps(
+                        action.payload.rawProgramData,
+                        action.payload.anatomyData
+                    )
+                )
+
                 return {
                     ...state,
                     ACWRGraphProps: generateACWRGraphData(
@@ -568,18 +581,16 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     const initialiseProgressionData = (rawProgramData) => {
         if (!isDevelopmentMode) {
             if (rawProgramData.currentDay === 1) {
-                return undefined
-            } else if (rawProgramData.order && !rawProgramData.isActiveInSequence) {
-                return undefined
-            } else {
-
-                console.log({
-                    ACWRGraphProps: generateACWRGraphData(rawProgramData, rawAnatomyData),
-                    rollingAverageGraphProps: generateSafeLoadGraphProps(rawProgramData, rawAnatomyData),
+                return {
                     currentBodyPart: 'Overall_Total',
                     currMuscleGroupOpen: 'Arms',
-
-                })
+                }
+            } else if (rawProgramData.order && !rawProgramData.isActiveInSequence) {
+                return {
+                    currentBodyPart: 'Overall_Total',
+                    currMuscleGroupOpen: 'Arms',
+                }
+            } else {
 
                 return {
                     ACWRGraphProps: generateACWRGraphData(rawProgramData, rawAnatomyData),
@@ -935,10 +946,10 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     // Use Effects to monitor the loading state of the program page.
 
     useEffect(() => {
-        if (programLoaded && exercisesLoaded) {
+        if (programLoaded && exercisesLoaded && isDevelopmentMode) {
+
             let newProgramData = { ...programData }
             const currDay = newProgramData.currentDay
-
             setProgramData({
                 type: PROGRAM_ACTIONS.UPDATE_ON_WEEK_CHANGE,
                 payload: {
@@ -995,10 +1006,6 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
         }
     }, [submitProcessingBackend])
 
-    // useEffect(() => {
-    //     set
-    // }, [exerciseTableRefresh])
-
     useEffect(() => {
         if (exerciseData) {
             setExercisesLoaded(true)
@@ -1035,6 +1042,13 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
             setFirstRender(false)
         }
     }, [overviewLoaded, programLoaded, progressionLoaded, exercisesLoaded])
+
+    // useEffect(() => {
+    //     console.log(progressionData)
+    //     console.log(progressionData.ACWRGraphProps[progressionData.currentBodyPart])
+    //     console.log(progressionData.ACWRGraphProps[progressionData.currentBodyPart])
+
+    // }, [progressionData])
 
 
     // HTML that will actually be rendered
@@ -1221,7 +1235,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
     let progressionHTML =
         <>
             {
-                !progressionData &&
+                !progressionData.ACWRGraphProps &&
                 <div className='centred-info'>
                     <div className='paragraphDiv'>
                         Progression data is unable to be calculated because this program has not yet been started.
@@ -1229,7 +1243,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                 </div>
             }
             {
-                progressionData &&
+                progressionData.ACWRGraphProps &&
                 <div className='pageContainerLevel1' id='pdBodyContainer1'>
                     <div className='pageContainerLevel2' id='pdSideBarContainer'>
                         <BodyPartListGroup
@@ -1269,7 +1283,7 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                                     position='bottom center'
                                 />}
                             />
-                            <ACWEGraph ACWRData={progressionData.ACWRGraphProps[progressionData.currentBodyPart]} />
+                            <ACWRGraph ACWRData={progressionData.ACWRGraphProps[progressionData.currentBodyPart]} />
                         </div>
                     </div>
 

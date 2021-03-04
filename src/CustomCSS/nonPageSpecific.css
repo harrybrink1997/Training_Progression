@@ -16,6 +16,11 @@
     border-radius: 5px;
 }
 
+.clickableDiv label:hover {
+    cursor: pointer;
+}
+
+
 .rowContainer {
     display: flex;
     flex-direction: row;
@@ -42,7 +47,7 @@
 
 
 #muscleListActiveMuscleLabel {
-    color:#BB86FC;
+    color:#BB86FC !important;
 }
 
 #muscleListActiveMuscleGroupLabel {
@@ -62,7 +67,6 @@
 
 .lightPurpleText {
     color:#BB86FC;
-
 }
 
 .vert-aligned {

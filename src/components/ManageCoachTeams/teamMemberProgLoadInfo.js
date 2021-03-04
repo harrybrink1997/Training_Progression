@@ -3,7 +3,7 @@ import React, { useReducer, useState, useEffect } from 'react'
 import { Icon, Loader, Popup } from 'semantic-ui-react'
 import BodyPartListGroup from '../CustomComponents/bodyPartListGroup'
 import InputLabel from '../CustomComponents/DarkModeInput'
-import { ACWEGraph, RollChronicACWRGraph } from '../ProgressionData/ACWRGraph'
+import { ACWRGraph, RollChronicACWRGraph } from '../ProgressionData/ACWRGraph'
 import { LoadingSchemeExTable } from '../CustomComponents/exerciseTablesNoBtns'
 import * as dayFunctions from '../../constants/dayCalculations'
 
@@ -117,7 +117,7 @@ const TeamMemberProgLoadInfo = ({ loadingInfo, anatomyData, specificDayExData, c
                                 position='bottom center'
                             />}
                         />
-                        <ACWEGraph
+                        <ACWRGraph
                             ACWRData={progressionData.ACWRGraphProps[progressionData.currentBodyPart]}
                             clickHandler={handleClickDay}
                         />

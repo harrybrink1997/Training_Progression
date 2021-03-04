@@ -4,7 +4,7 @@ import { Popup, Icon, Header, Dimmer, Loader, Progress, Statistic } from 'semant
 import { withAuthorisation } from '../Session';
 import CurrentProgramDropdown from './currentProgramsDropdown'
 import ProgressionPredictiveGraph from './progressionPredictiveGraph'
-import { ACWEGraph, RollChronicACWRGraph } from './ACWRGraph'
+import { ACWRGraph, RollChronicACWRGraph } from './ACWRGraph'
 import BodyPartListGroup from '../CustomComponents/bodyPartListGroup'
 import InputLabel from '../CustomComponents/DarkModeInput'
 import GoalProgressionPieChart from './goalProgressionPieChart'
@@ -650,7 +650,7 @@ class ProgressionDataPage extends Component {
                                     position='bottom center'
                                 />}
                             />
-                            <ACWEGraph ACWRData={ACWRGraphProps[currentBodyPart]} />
+                            <ACWRGraph ACWRData={ACWRGraphProps[currentBodyPart]} />
                         </div>
 
 

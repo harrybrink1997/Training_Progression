@@ -1,12 +1,9 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { ComposedChart, LineChart, Area, Line, Brush, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { Label } from 'semantic-ui-react'
 
-import InputLabel from '../CustomComponents/DarkModeInput'
+const ACWRGraph = ({ ACWRData, clickHandler = undefined }) => {
 
-const ACWEGraph = ({ ACWRData, clickHandler = undefined }) => {
-
-    const hasGraphData = ACWRData != [] && ACWRData != undefined
+    const hasGraphData = ACWRData !== undefined && ACWRData.length > 0
 
     const handleOnClick = (e) => {
         if (clickHandler) {
@@ -102,4 +99,4 @@ const reChartSeriesHtml = (seriesNames) => {
     }))
 }
 
-export { ACWEGraph, RollChronicACWRGraph }
+export { ACWRGraph, RollChronicACWRGraph }
