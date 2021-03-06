@@ -5,10 +5,9 @@ import SignOutButton from '../SignOut'
 import * as ROUTES from '../../constants/routes'
 import { useLocation } from 'react-router-dom'
 
-import { Button, Menu, Image } from 'semantic-ui-react'
+import { Button, Menu, Image, Dropdown, Icon } from 'semantic-ui-react'
 
 const Navigation = ({ custClass }) => {
-
     return (
         <AuthUserContext.Consumer>
             {authUser =>
@@ -36,71 +35,119 @@ const Navigation = ({ custClass }) => {
 }
 
 
+const getWindowDimensions = () => {
+    const { innerWidth: width, innerHeight: height } = window;
+    return {
+        width,
+        height
+    };
+}
+
+const useWindowDimensions = () => {
+    const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
+
+    useEffect(() => {
+        function handleResize() {
+            setWindowDimensions(getWindowDimensions());
+        }
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return windowDimensions;
+}
+
+
 const NavigationAuth = ({ custClass }) => {
 
+    const { height, width } = useWindowDimensions()
+    let location = useLocation().pathname
+    const [sideMenu, setSideMenu] = useState(false)
 
     return (
-        < Menu className={"auth-nav-bar" + " " + custClass} >
-            <Menu.Item
-                as='a'
-                href={ROUTES.LANDING}
-            >
-                <Image src={require('./Images/corvusStrengthLogoTransparent.png')} size='tiny' centered />
-            </Menu.Item>
-            {/* <Menu.Item
-                as='a'
-                href={ROUTES.SAFETY_GRAPH}
-                active={useLocation().pathname == '/safety-graph'}
-            >
-                Safety Graph
-            </Menu.Item> */}
-            <Menu.Item
-                as='a'
-                href={ROUTES.HOME}
-                active={useLocation().pathname == '/home'}
-            >
-                Home
-            </Menu.Item>
-            {/* <Menu.Item
-                as='a'
-                href={ROUTES.ADMIN}
-                active={useLocation().pathname == '/admin'}
-            >
-                Admin
-            </Menu.Item> */}
-            <Menu.Item
-                as='a'
-                href={ROUTES.ACCOUNT}
-                active={useLocation().pathname == '/account'}
-            >
-                Account
-            </Menu.Item>
-            <Menu.Item
-                as='a'
-                href={ROUTES.CURRENT_PROGRAMS}
-                active={useLocation().pathname == '/current-programs'}
-            >
-                Current Programs
-            </Menu.Item>
-            <Menu.Item
-                as='a'
-                href={ROUTES.PROG_DATA}
-                active={useLocation().pathname == '/progression'}
-            >
-                Progression Data
-            </Menu.Item>
-            <Menu.Item
-                as='a'
-                href={ROUTES.PAST_PROGRAMS}
-                active={useLocation().pathname == '/past-programs'}
-            >
-                Past Programs
-            </Menu.Item>
-            <Menu.Item className='signOutButton' position='right'>
-                {/* <Button>hello</Button> */}
-                <SignOutButton />
-            </Menu.Item>
-        </Menu >
+        <>
+            {
+                width >= 400 &&
+                < Menu className={"auth-nav-bar" + " " + custClass} >
+                    <Menu.Item
+                        as='a'
+                        href={ROUTES.LANDING}
+                    >
+                        <Image src={require('./Images/corvusStrengthLogoTransparent.png')} size='tiny' centered />
+                    </Menu.Item>
+                    <Menu.Item
+                        as='a'
+                        href={ROUTES.HOME}
+                        active={location == '/home'}
+                    >
+                        Home
+                     </Menu.Item>
+                    <Menu.Item
+                        as='a'
+                        href={ROUTES.ACCOUNT}
+                        active={location == '/account'}
+                    >
+                        Account
+                    </Menu.Item>
+                    <Menu.Item className='signOutButton' position='right'>
+                        <SignOutButton />
+                    </Menu.Item>
+                </Menu >
+            }
+            {
+                width < 400 &&
+                // <div className='clickableDiv' onClick={() => { setSideMenu(!sideMenu) }}>
+                < Menu
+                    vertical
+                    className={"auth-nav-bar" + " " + custClass}
+                >
+                    <Menu.Item
+                        as='a'
+                        href={ROUTES.LANDING}
+                    >
+                        <Image src={require('./Images/corvusStrengthLogoTransparent.png')} size='tiny' centered />
+                    </Menu.Item>
+                    <div
+                        onClick={() => { setSideMenu(!sideMenu) }}
+                    >
+                        <Icon
+                            name="align justify"
+                            size="large"
+                        />
+                    </div>
+                    {
+                        sideMenu &&
+                        <>
+                            <Menu
+                                className={"auth-nav-bar" + " " + custClass + "vertical"}
+                            >
+                                <Menu.Item
+                                    as='a'
+                                    href={ROUTES.HOME}
+                                    active={location == '/home'}
+                                >
+                                    Home
+                            </Menu.Item>
+                                <Menu.Item
+                                    as='a'
+                                    href={ROUTES.ACCOUNT}
+                                    active={location == '/account'}
+                                >
+                                    Account
+                            </Menu.Item>
+                                <Menu.Item className='signOutButton'
+                                    position='right'
+                                >
+                                    <SignOutButton />
+                                </Menu.Item>
+                            </Menu>
+                        </>
+                    }
+                </Menu >
+            }
+
+        </>
     )
 }
 
