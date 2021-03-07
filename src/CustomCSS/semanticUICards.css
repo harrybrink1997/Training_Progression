@@ -1,5 +1,4 @@
 .ui.cards .ui.card {
-    background: #333333;
     width: 150px;
     /* color: white; */
 }
@@ -22,5 +21,9 @@
 
 .ui.cards .ui.card:hover {
     background: #191919;
-    /* color: white; */
+}
+
+.ui.cards {
+    justify-content: space-evenly;
+    flex-wrap: wrap;
 }

@@ -794,15 +794,150 @@ class Firebase {
         })
     }
 
-    deleteProgramDB = (programUID, userType, userUID, status) => {
+    appendEndDayToProgramGoals = (programUID, athleteUID, endDayUTS) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('goals')
+                .where('programUID', '==', programUID)
+                .where('athleteUID', '==', athleteUID)
+                .where('programStatus', '==', 'current')
+                .get()
+                .then(snapshot => {
+                    if (!snapshot.empty) {
+                        const batch = this.database.batch()
 
-        if (userType === 'athlete') {
+                        snapshot.docs.forEach(doc => {
+                            let docRef = this.database.collection('goals').doc(doc.id)
+
+                            batch.update(docRef,
+                                {
+                                    programEndDay: endDayUTS
+                                }
+                            )
+
+
+                        })
+                        batch.commit().then(() => {
+                            res(true)
+                        })
+                    } else {
+                        res(true)
+                    }
+
+                })
+                .catch(error => {
+                    rej(error)
+                })
+        })
+    }
+
+    appendCloseOffPropertiesToProgram = (programUID, athleteUID, closeDayUTS) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('programs')
+                .where('programUID', '==', programUID)
+                .where('athlete', '==', athleteUID)
+                .where('status', '==', 'current')
+                .get()
+                .then(snap => {
+                    if (!snap.empty && snap.docs.length === 1) {
+                        let docUID = snap.docs[0].id
+                        this.database
+                            .collection("programs")
+                            .doc(docUID)
+                            .update({
+                                endDayUTS: closeDayUTS,
+                                status: 'past'
+                            })
+                            .then(() => {
+                                res(true)
+                            })
+                    }
+                })
+        })
+    }
+
+    closeOffProgramDB = (programUID, athleteUID, endDayUTS, programUIDToActivate) => {
+        return new Promise((res, rej) => {
+            Promise.all([
+                this.appendCloseOffPropertiesToProgram(programUID, athleteUID, endDayUTS),
+                this.appendEndDayToProgramGoals(programUID, athleteUID, endDayUTS)
+            ]).then(() => {
+                if (programUIDToActivate) {
+                    this.database
+                        .collection('programs')
+                        .where('programUID', '==', programUIDToActivate)
+                        .where('athlete', '==', athleteUID)
+                        .where('status', '==', 'current')
+                        .get()
+                        .then(snap => {
+                            if (!snap.empty && snap.docs.length === 1) {
+                                let docUID = snap.docs[0].id
+                                this.database
+                                    .collection("programs")
+                                    .doc(docUID)
+                                    .update({
+                                        isActiveInSequence: true
+                                    })
+                                    .then(() => {
+                                        res(true)
+                                    })
+
+                            } else {
+                                res(true)
+                            }
+
+                        })
+                } else {
+                    res(true)
+                }
+            })
+        })
+    }
+
+    deleteProgramDB = (programUID, userType, userUID, status, endDayUTS = undefined) => {
+
+        if (userType === 'athlete' && !endDayUTS) {
             return new Promise((res, rej) => {
                 this.database
                     .collection('programs')
                     .where('programUID', '==', programUID)
                     .where('athlete', '==', userUID)
                     .where('status', '==', status)
+                    .get()
+                    .then(snap => {
+                        if (!snap.empty) {
+                            const batch = this.database.batch()
+                            const docUID = snap.docs[0].id
+                            var progRef = this.database.collection('programs').doc(docUID)
+
+                            batch.delete(progRef)
+
+                            progRef
+                                .collection('exercises')
+                                .get()
+                                .then(coll => {
+                                    if (!coll.empty) {
+                                        coll.docs.forEach(doc => {
+                                            var dayRef = progRef.collection('exercises').doc(doc.id)
+                                            batch.delete(dayRef)
+                                        })
+                                    }
+                                    batch.commit().then(() => {
+                                        res(true)
+                                    })
+                                })
+                        }
+                    })
+            })
+        } else if (userType === 'athlete' && endDayUTS) {
+            return new Promise((res, rej) => {
+                this.database
+                    .collection('programs')
+                    .where('programUID', '==', programUID)
+                    .where('athlete', '==', userUID)
+                    .where('status', '==', status)
+                    .where('endDayUTS', '==', endDayUTS)
                     .get()
                     .then(snap => {
                         if (!snap.empty) {
@@ -1206,7 +1341,7 @@ class Firebase {
 
     }
 
-    getProgGoalData = (programUID, athleteUID, programStatus) => {
+    getProgGoalData = (programUID, athleteUID, programStatus, endDayUTS = undefined) => {
         if (programStatus === 'current') {
             return new Promise((res, rej) => {
                 this.database
@@ -1237,7 +1372,35 @@ class Firebase {
                     })
             })
         } else {
-            console.log("havent structured database to store past program goals properly therefore no data grabbed cause probably worng lol")
+            return new Promise((res, rej) => {
+                this.database
+                    .collection('goals')
+                    .where('programUID', '==', programUID)
+                    .where('athleteUID', '==', athleteUID)
+                    .where('programStatus', '==', 'current')
+                    .where('programEndDay', '==', endDayUTS)
+                    .get()
+                    .then(snapshot => {
+
+                        var payLoad = {}
+
+                        if (!snapshot.empty) {
+                            snapshot.docs.forEach(doc => {
+                                let data = doc.data()
+                                let goalUID = data.goalProgUID
+                                delete data.goalProgUID
+                                payLoad[goalUID] = data
+                            })
+                            res(payLoad)
+                        } else {
+                            res(payLoad)
+                        }
+
+                    })
+                    .catch(error => {
+                        rej(error)
+                    })
+            })
         }
     }
 
@@ -1324,6 +1487,108 @@ class Firebase {
 
             })
         }
+    }
+
+    getPastProgramExData = (programUID, athleteUID, endDayUTS) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('programs')
+                .where('programUID', '==', programUID)
+                .where('athlete', '==', athleteUID)
+                .where('status', '==', 'past')
+                .where('endDayUTS', '==', endDayUTS)
+                .get()
+                .then(snap => {
+                    if (!snap.empty && snap.docs.length === 1) {
+                        let docUID = snap.docs[0].id
+
+                        this.database
+                            .collection('programs')
+                            .doc(docUID)
+                            .collection('exercises')
+                            .get()
+                            .then(snapshot => {
+                                if (!snapshot.empty) {
+                                    var payLoad = {}
+                                    snapshot.docs.forEach(doc => {
+                                        payLoad[doc.id] = { ...doc.data() }
+                                    })
+                                    res(payLoad)
+                                } else {
+                                    return res({})
+                                }
+                            })
+                    } else {
+                        res(true)
+                    }
+                })
+        })
+    }
+
+    getPastProgramNotes = (programUID, athleteUID, endDayUTS) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('programs')
+                .where('programUID', '==', programUID)
+                .where('athlete', '==', athleteUID)
+                .where('status', '==', 'past')
+                .where('endDayUTS', '==', endDayUTS)
+                .get()
+                .then(snap => {
+                    if (!snap.empty && snap.docs.length === 1) {
+                        res(snap.docs[0].data().notes)
+                    } else {
+                        res(true)
+                    }
+                })
+        })
+    }
+
+    updatePastProgramNotes = (programUID, athleteUID, endDayUTS, value) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('programs')
+                .where('programUID', '==', programUID)
+                .where('athlete', '==', athleteUID)
+                .where('status', '==', 'past')
+                .where('endDayUTS', '==', endDayUTS)
+                .get()
+                .then(snap => {
+                    if (!snap.empty && snap.docs.length === 1) {
+                        let docUID = snap.docs[0].id
+
+                        this.database
+                            .collection('programs')
+                            .doc(docUID)
+                            .update({
+                                notes: value
+                            })
+                            .then(() => {
+                                res(true)
+                            })
+                    } else {
+                        res(true)
+                    }
+                })
+        })
+    }
+
+    getPastProgramViewData = (programUID, athleteUID, endDayUTS) => {
+        return new Promise((res, rej) => {
+            Promise.all([
+                this.getProgGoalData(programUID, athleteUID, 'past', endDayUTS),
+                this.getPastProgramExData(programUID, athleteUID, endDayUTS),
+                this.getPastProgramNotes(programUID, athleteUID, endDayUTS),
+                this.getAnatomyData()
+            ]).then(data => {
+                res({
+                    goalData: data[0],
+                    exData: data[1],
+                    notes: data[2],
+                    anatomy: data[3].data().anatomy
+                })
+            })
+        })
     }
 
     getProgramExGoalData = (isCoach, userUID, programUID, programStatus) => {

@@ -340,7 +340,6 @@ class HomePage extends Component {
                         }
                     </Card.Group>
                 </div>
-
             </NonLandingPageWrapper>
 
         return (

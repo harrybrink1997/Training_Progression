@@ -1,3 +1,5 @@
+import { boolean } from "mathjs"
+
 class Program {
     constructor(data) {
         this.name = data.name
@@ -138,6 +140,10 @@ class Program {
         return this.isActiveInSequence
     }
 
+    setIsActiveInSequence(value) {
+        this.isActiveInSequence = value
+    }
+
     getCreationDate() {
         return this.creationDate
     }
@@ -232,6 +238,22 @@ class PastProgram extends Program {
         super(data)
         this.startDayUTS = data.startDayUTS
         this.endDayUTS = data.endDayUTS
+    }
+
+    generateDBObject() {
+        var baseObj = super.generateDBObject()
+        baseObj.startDayUTS = this.getStartDayUTS()
+        baseObj.endDayUTS = this.getEndDayUTS()
+
+        return baseObj
+    }
+
+    getStartDayUTS() {
+        return this.startDayUTS
+    }
+
+    getEndDayUTS() {
+        return this.endDayUTS
     }
 }
 

@@ -15,6 +15,22 @@ class ProgramList {
         }
     }
 
+    activateNextProgramInSequence(order) {
+        let relatedPrograms = this.findRelatedSequentialPrograms(order)
+
+        if (relatedPrograms.length === 0) {
+            return false
+        } else if (relatedPrograms.length === 1) {
+            return relatedPrograms[0].programUID
+        } else {
+            relatedPrograms.sort((a, b) => {
+                return parseInt(a.order.split("_")[0]) - parseInt(b.order.split("_")[0])
+            })
+            return relatedPrograms[0].programUID
+        }
+
+    }
+
     programNameExists = (newProgramUID) => {
         let proposedName = newProgramUID.split('_')[0]
 
@@ -122,4 +138,32 @@ class ProgramList {
     }
 }
 
-export { ProgramList }
+class PastProgramList extends ProgramList {
+    constructor(props) {
+        super(props)
+    }
+
+    removeProgram = (programUID, closeDayUTS) => {
+        for (var prog in this.programList) {
+            let program = this.programList[prog]
+
+            if (program.programEqualToUID(programUID) && program.getEndDayUTS() === closeDayUTS) {
+                this.programList.splice(prog, 1)
+            }
+        }
+    }
+
+    getProgram = (programUID, closeDayUTS) => {
+        for (var prog in this.programList) {
+            let program = this.programList[prog]
+
+            if (program.programEqualToUID(programUID) && program.getEndDayUTS() === closeDayUTS) {
+                return program
+            }
+        }
+        return undefined
+    }
+
+}
+
+export { ProgramList, PastProgramList }

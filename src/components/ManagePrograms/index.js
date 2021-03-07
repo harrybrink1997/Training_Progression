@@ -13,13 +13,17 @@ import OverrideReplaceProgramModal from './overrideReplaceProgramModal'
 import ReplaceProgramSequenceModal from './replaceProgramSequenceModal'
 import { createUserObject } from '../../objects/user'
 import { createProgramObject } from '../../objects/program'
-import { ProgramList } from '../../objects/programList'
+import { ProgramList, PastProgramList } from '../../objects/programList'
 import PageHistory from '../CustomComponents/pageHistory'
-import { listAndFormatExercises, checkNullExerciseData, setAvailExerciseCols } from '../../constants/viewProgramPagesFunctions'
+import { listAndFormatExercises, checkNullExerciseData, setAvailExerciseCols, generatePastProgramGoalTableData } from '../../constants/viewProgramPagesFunctions'
 import ProgramView, { ProgramViewPageSubHeader } from '../CustomComponents/programView'
 import { capitaliseFirstLetter, underscoreToSpaced } from '../../constants/stringManipulation';
 import { calculateDailyLoads } from '../CurrentProgram/calculateWeeklyLoads'
 import { initProgDeployCoachProgGroupTableData } from '../CustomComponents/programDeployment';
+import CloseOffProgramModal from '../CurrentProgram/closeOffProgramModal'
+import utsToDateString from '../../constants/utsToDateString'
+import ErrorBanner from '../CustomComponents/errorBanner';
+import PastProgramView from '../CustomComponents/pastProgramView';
 
 
 class ManageProgramsPage extends Component {
@@ -29,7 +33,8 @@ class ManageProgramsPage extends Component {
 
         this.PAGE_VIEWS = {
             HOME: 'home',
-            PROG_VIEW_HOME: 'programHomeView'
+            PROG_VIEW_HOME: 'programHomeView',
+            PAST_PROG_VIEW_HOME: 'pastProgramHomeView'
         }
 
         this.state = {
@@ -52,9 +57,9 @@ class ManageProgramsPage extends Component {
 
                     this.props.firebase.getUserProgramsAndGroups(userObject.getID(), userObject.getUserType()).then(snap => {
                         let snapshot = snap.programs
-                        var pendingPrograms = []
-                        var currentPrograms = []
-                        var pastPrograms
+                        let pendingPrograms = []
+                        let currentPrograms = []
+                        let pastPrograms = []
                         if (snapshot.length === 0) {
                             pendingPrograms = []
                         } else {
@@ -73,7 +78,7 @@ class ManageProgramsPage extends Component {
 
                         let pendingList = new ProgramList(pendingPrograms)
                         let currProgList = new ProgramList(currentPrograms)
-                        let pastProgList = new ProgramList(pastPrograms)
+                        let pastProgList = new PastProgramList(pastPrograms)
 
                         let programGroupList
                         let programGroupTableData = undefined
@@ -99,6 +104,8 @@ class ManageProgramsPage extends Component {
                             pageBodyContentLoading: false,
                             programGroupTableData: programGroupTableData,
                             currentProgramGroups: programGroupList,
+                            error: false,
+                            errorText: undefined,
                             loading: false
                         })
                     })
@@ -156,13 +163,16 @@ class ManageProgramsPage extends Component {
                                         onClick={() => { this.handleProgramClick(prog.generateProgramUID(), prog.getStatus()) }}
                                     >
                                         View Program
-                            </Button>
+                                    </Button>
+                                    <CloseOffProgramModal
+                                        handleFormSubmit={() => { this.handleCloseOffProgram(prog.generateProgramUID()) }}
+                                    />
                                     <Button
                                         className='lightRedButton-inverted'
                                         onClick={() => { this.handleDeleteProgram(prog.generateProgramUID(), prog.getStatus()) }}
                                     >
                                         Delete Program
-                            </Button>
+                                    </Button>
                                 </>
                         })
                     }
@@ -207,10 +217,77 @@ class ManageProgramsPage extends Component {
     }
 
     initPastProgramTableData = (list, editMode) => {
+
         if (list.isEmptyList()) {
             return undefined
         } else {
+            let payload = {
+                columns: [
+                    {
+                        Header: 'Program',
+                        accessor: 'name'
+                    },
+                    {
+                        Header: 'Loading Scheme',
+                        accessor: 'loadingScheme'
+                    },
+                    {
+                        Header: 'Date Closed',
+                        accessor: 'closeDay'
+                    },
+                    {
+                        accessor: 'buttons'
+                    }
 
+                ],
+                data: []
+            }
+
+            if (!editMode) {
+                list.getProgramList().forEach(prog => {
+                    payload.data.push({
+                        name: prog.getName(),
+                        programUID: prog.generateProgramUID(),
+                        loadingScheme: loadingSchemeString(prog.getLoadingScheme()),
+                        closeDay: utsToDateString(parseInt(prog.getEndDayUTS())),
+                        buttons:
+                            <Button
+                                className='lightPurpleButton-inverted'
+                                onClick={() => { this.handlePastProgramClick(prog.generateProgramUID(), prog.getEndDayUTS()) }}
+                            >
+                                View Program
+                        </Button>
+
+                    })
+                })
+            } else {
+                list.getProgramList().forEach(prog => {
+                    payload.data.push({
+                        name: prog.getName(),
+                        programUID: prog.generateProgramUID(),
+                        loadingScheme: loadingSchemeString(prog.getLoadingScheme()),
+                        closeDay: utsToDateString(parseInt(prog.getEndDayUTS())),
+
+                        buttons:
+                            <>
+                                <Button
+                                    className='lightPurpleButton-inverted'
+                                    onClick={() => { this.handlePastProgramClick(prog.generateProgramUID(), prog.getEndDayUTS()) }}
+                                >
+                                    View Program
+                                    </Button>
+                                <Button
+                                    className='lightRedButton-inverted'
+                                    onClick={() => { this.handleDeleteProgram(prog.generateProgramUID(), prog.getStatus(), prog.getEndDayUTS()) }}
+                                >
+                                    Delete Program
+                                    </Button>
+                            </>
+                    })
+                })
+            }
+
+            return payload
         }
     }
 
@@ -296,6 +373,57 @@ class ManageProgramsPage extends Component {
         }
 
         return payload
+    }
+
+    handlePastProgramClick = (programUID, endDayUTS) => {
+        console.log(endDayUTS)
+        console.log(programUID)
+        this.setState({
+            pageBodyContentLoading: true
+        }, () => {
+            this.props.firebase.getPastProgramViewData(
+                programUID,
+                this.props.firebase.auth.currentUser.uid,
+                endDayUTS
+            ).then(data => {
+                let program = this.state.pastProgList.getProgram(programUID, endDayUTS).generateDBObject()
+
+                let goalData = generatePastProgramGoalTableData(data.goalData)
+                let programData = { ...program, ...data.exData }
+
+                console.log(data)
+                console.log(goalData)
+
+                this.state.pageHistory.next(this.state.view)
+
+                this.setState(prev => ({
+                    ...prev,
+                    view: this.PAGE_VIEWS.PAST_PROG_VIEW_HOME,
+                    pageBodyContentLoading: false,
+                    currProgram: {
+                        programUID: programUID,
+                        status: 'past',
+                        programData: programData,
+                        submitProcessingBackend: false,
+                        rawAnatomyData: data.anatomy,
+                        notes: data.notes,
+                        goalData: goalData,
+                        handlerFunctions: {
+                            handlePastProgramNotesUpdate: this.handlePastProgramNotesUpdate
+                        }
+                    }
+                }))
+            })
+        })
+    }
+
+    handlePastProgramNotesUpdate = (value) => {
+        console.log(value)
+        this.props.firebase.updatePastProgramNotes(
+            this.state.currProgram.programUID,
+            this.props.firebase.auth.currentUser.uid,
+
+        )
     }
 
     handleProgramClick = (programUID, status) => {
@@ -694,6 +822,66 @@ class ManageProgramsPage extends Component {
             this.state.currProgram.programUID,
             startDateUTS
         )
+    }
+
+    handleCloseOffProgram = (programUID) => {
+
+        this.setState({
+            pageBodyContentLoading: true
+        }, () => {
+            let program = this.state.currProgList.getProgram(programUID)
+
+            if (program.getCurrentDay() === 1) {
+                this.setState({
+                    pageBodyContentLoading: false,
+                    error: true,
+                    errorText: 'We did some checking and we can process this request. The program you want to close off is on day 1 and contains no data. Maybe delete the program instead.'
+                })
+            } else {
+                let timestamp = new Date().getTime()
+                let nextInSeq = undefined
+                // Remove the program from the current program list.
+                this.state.currProgList.removeProgram(programUID)
+
+                // Format new data object for the front end.
+                let programData = program.generateDBObject()
+                programData.status = 'past'
+                programData.endDayUTS = timestamp
+
+                // Create a past program object for new insertion.
+                let newPastProgram = createProgramObject(programData)
+
+                this.state.pastProgList.addProgStart(newPastProgram)
+
+                // If the program is sequential start the next program. 
+                if (program.getOrder()) {
+                    nextInSeq = this.state.currProgList.activateNextProgramInSequence(program.getOrder())
+                    if (nextInSeq) {
+                        this.state.currProgList.getProgram(nextInSeq).setIsActiveInSequence(true)
+                    }
+                }
+
+                this.props.firebase.closeOffProgramDB(
+                    programUID,
+                    this.props.firebase.auth.currentUser.uid,
+                    timestamp,
+                    nextInSeq
+                ).then(() => {
+                    this.setState({
+                        pageBodyContentLoading: false,
+                        currentProgTableData: this.initCurrentProgramTableData(
+                            this.state.currProgList,
+                            this.state.editMode
+                        ),
+                        pastProgTableData: this.initPastProgramTableData(
+                            this.state.pastProgList,
+                            this.state.editMode
+                        )
+                    })
+                })
+            }
+        })
+
     }
 
     currentProgTableColumns = (userType) => {
@@ -1426,7 +1614,7 @@ class ManageProgramsPage extends Component {
 
     }
 
-    handleDeleteProgram = (programUID, status) => {
+    handleDeleteProgram = (programUID, status, endDayUTS = undefined) => {
         this.setState({
             pageBodyContentLoading: true
         }, () => {
@@ -1445,7 +1633,6 @@ class ManageProgramsPage extends Component {
                     this.state.currProgList.removeProgram(programUID)
                 }
 
-                var tableTarget = 'currentProgTableData'
                 var newTableData = this.initCurrentProgramTableData(
                     this.state.currProgList,
                     this.state.editMode,
@@ -1472,12 +1659,11 @@ class ManageProgramsPage extends Component {
                         pendingProgTableData: this.initPendingProgramTableData(this.state.pendingProgList, this.state.currProgList)
                     }))
                 })
-            } else if (progObj.getStatus() === 'past') {
-                progObj = this.state.pastProgList.getProgram(programUID)
+            } else if (status === 'past') {
+                progObj = this.state.pastProgList.getProgram(programUID, endDayUTS)
 
-                this.state.pastProgList.removeProgram(programUID)
+                this.state.pastProgList.removeProgram(programUID, endDayUTS)
 
-                var tableTarget = 'pastProgTableData'
                 var newTableData = this.initPastProgramTableData(
                     this.state.pastProgList,
                     this.state.editMode
@@ -1490,7 +1676,8 @@ class ManageProgramsPage extends Component {
                             progToDelete,
                             this.state.user.getUserType(),
                             this.state.user.getID(),
-                            status
+                            status,
+                            progObj.getEndDayUTS()
                         )
                     )
                 })
@@ -1567,6 +1754,8 @@ class ManageProgramsPage extends Component {
             currProgram,
             currentProgramGroups,
             programGroupTableData,
+            error,
+            errorText
         } = this.state
         console.log(currentProgramGroups)
         console.log(programGroupTableData)
@@ -1579,6 +1768,14 @@ class ManageProgramsPage extends Component {
         let nonLoadingHTML =
             <NonLandingPageWrapper>
                 <div className="pageContainerLevel1">
+                    {
+                        error &&
+                        <ErrorBanner clickHandler={() => { this.setState({ error: false, errorText: undefined }) }}>
+                            <p>
+                                {errorText}
+                            </p>
+                        </ErrorBanner>
+                    }
                     <div id='mainContainerHeaderDiv'>
                         <div id='mainHeaderText'>
                             Program Management
@@ -1650,7 +1847,7 @@ class ManageProgramsPage extends Component {
                     </div>
                 }
                 {
-                    view === this.PAGE_VIEWS.PROG_VIEW_HOME && currProgram &&
+                    view === this.PAGE_VIEWS.PROG_VIEW_HOME && currProgram && currProgram.status === 'current' &&
                     <ProgramView
                         developmentMode={user.getUserType() === 'coach'}
                         userType={user.getUserType()}
@@ -1662,7 +1859,17 @@ class ManageProgramsPage extends Component {
                         handlerFunctions={currProgram.viewProgramFunctions}
                         submitProcessingBackend={currProgram.submitProcessingBackend}
                     />
+                }
+                {
+                    view === this.PAGE_VIEWS.PAST_PROG_VIEW_HOME && currProgram && currProgram.status === 'past' &&
+                    <PastProgramView
+                        data={currProgram.programData}
+                        processedGoalData={currProgram.goalData}
+                        anatomy={currProgram.rawAnatomyData}
+                        notes={currProgram.notes}
+                        handlerFunctions={currProgram.handlerFunctions}
 
+                    />
                 }
             </NonLandingPageWrapper >
 

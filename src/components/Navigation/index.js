@@ -65,6 +65,10 @@ const NavigationAuth = ({ custClass }) => {
     let location = useLocation().pathname
     const [sideMenu, setSideMenu] = useState(false)
 
+    const generateSmlScreenMenuClassName = (linkTo, currentPosition) => {
+        return (linkTo === currentPosition) ? "smlScreenMenuItem active" : "smlScreenMenuItem"
+    }
+
     return (
         <>
             {
@@ -97,18 +101,14 @@ const NavigationAuth = ({ custClass }) => {
             }
             {
                 width < 400 &&
-                // <div className='clickableDiv' onClick={() => { setSideMenu(!sideMenu) }}>
-                < Menu
-                    vertical
-                    className={"auth-nav-bar" + " " + custClass}
-                >
-                    <Menu.Item
-                        as='a'
-                        href={ROUTES.LANDING}
-                    >
-                        <Image src={require('./Images/corvusStrengthLogoTransparent.png')} size='tiny' centered />
-                    </Menu.Item>
+                <div id="smlScreenLandingMenu">
+                    <div id="smlScreenMenuCorvusIcon">
+                        <a href={ROUTES.LANDING}>
+                            <Image src={require('./Images/corvusStrengthLogoTransparent.png')} size='tiny' centered />
+                        </a>
+                    </div>
                     <div
+                        id="smlScreenMenuToggle"
                         onClick={() => { setSideMenu(!sideMenu) }}
                     >
                         <Icon
@@ -118,33 +118,28 @@ const NavigationAuth = ({ custClass }) => {
                     </div>
                     {
                         sideMenu &&
-                        <>
-                            <Menu
-                                className={"auth-nav-bar" + " " + custClass + "vertical"}
-                            >
-                                <Menu.Item
-                                    as='a'
+                        <div id="smlScreenMenuContainer">
+                            <span
+                                className={generateSmlScreenMenuClassName("/home", location)}>
+                                <a
                                     href={ROUTES.HOME}
-                                    active={location == '/home'}
                                 >
                                     Home
-                            </Menu.Item>
-                                <Menu.Item
-                                    as='a'
+                                </a>
+                            </span>
+                            <span className={generateSmlScreenMenuClassName("/account", location)}>
+                                <a
                                     href={ROUTES.ACCOUNT}
-                                    active={location == '/account'}
                                 >
                                     Account
-                            </Menu.Item>
-                                <Menu.Item className='signOutButton'
-                                    position='right'
-                                >
-                                    <SignOutButton />
-                                </Menu.Item>
-                            </Menu>
-                        </>
+                                </a>
+                            </span>
+                            <span className="smlScreenMenuItem signOutButton">
+                                <SignOutButton />
+                            </span>
+                        </div>
                     }
-                </Menu >
+                </div>
             }
 
         </>

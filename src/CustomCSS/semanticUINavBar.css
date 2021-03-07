@@ -39,8 +39,6 @@
     box-shadow: none;
     height: 75px;
     width: 100%;
-    /* position: absolute;
-    top: 0px; */
 }
 
 .ui.not-auth-nav-bar.menu {
@@ -64,4 +62,25 @@
 
 .ui.not-auth-nav-bar.menu .item:hover {
     color: white;
+}
+
+#smlScreenMenuContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+#smlScreenMenuToggle {
+    padding-left: 5px;
+}
+
+#smlScreenMenuCorvusIcon {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.smlScreenMenuItem.active > a {
+    text-shadow: 0 0 20px #868cfc;
+    color: #868cfc;
 }

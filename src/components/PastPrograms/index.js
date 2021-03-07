@@ -323,11 +323,10 @@ class PastProgramsPage extends Component {
         }
     }
 
-    generateGoalTableData = (programObject) => {
-        console.log(programObject)
+    generateGoalTableData = (goals) => {
 
-        if (programObject.goals != undefined) {
-            if (Object.keys(programObject.goals).length > 0) {
+        if (goals) {
+            if (Object.keys(goals).length > 0) {
 
                 var tableData = []
                 var goalStatsData = {
@@ -343,8 +342,8 @@ class PastProgramsPage extends Component {
                     numEasyGoals: 0
                 }
 
-                Object.keys(programObject.goals).forEach(goalKey => {
-                    var goal = programObject.goals[goalKey]
+                Object.keys(goals).forEach(goalKey => {
+                    var goal = goals[goalKey]
                     if (goal.subGoals != undefined) {
 
                         var processedSubGoalData = this.generateSubGoalData(goal.subGoals)

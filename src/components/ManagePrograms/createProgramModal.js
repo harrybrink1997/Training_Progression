@@ -211,7 +211,7 @@ const CreateProgramModal = ({ handleFormSubmit, userType }) => {
                     {
                         pageNum == 2 &&
                         <Form onSubmit={handleNonFinalSubmit} >
-                            <Form.Group widths='equal'>
+                            <Form.Group>
                                 <Form.Field>
                                     <InputLabel
                                         text='Acute Workload Timeframe (Measured in Days) &nbsp;'
@@ -229,29 +229,36 @@ const CreateProgramModal = ({ handleFormSubmit, userType }) => {
                                         value={acutePeriod}
                                         onChange={changeAcutePeriod}
                                         required
+                                        type="number"
                                     />
                                 </Form.Field>
+                                <div className="sml-margin-top">
 
-                                <Form.Field>
-                                    <InputLabel
-                                        text='Chronic Workload Timeframe (Measured in Days) &nbsp;'
-                                        toolTip={<Popup
-                                            basic
-                                            trigger={<Icon name='question circle outline' />}
-                                            header='Recommended 28'
-                                            content='This number will determine your chronic workload timeframe. This should be modified based on training cycle.'
-                                            position='right center'
-                                        />}
-                                    />
-                                    <Input
-                                        fluid
-                                        value={chronicPeriod}
-                                        onChange={changeChronicPeriod}
-                                        required
-                                    />
-                                </Form.Field>
+                                    <Form.Field>
+                                        <InputLabel
+                                            text='Chronic Workload Timeframe (Measured in Days) &nbsp;'
+                                            toolTip={<Popup
+                                                basic
+                                                trigger={<Icon name='question circle outline' />}
+                                                header='Recommended 28'
+                                                content='This number will determine your chronic workload timeframe. This should be modified based on training cycle.'
+                                                position='right center'
+                                            />}
+                                        />
+                                        <Input
+                                            fluid
+                                            value={chronicPeriod}
+                                            onChange={changeChronicPeriod}
+                                            required
+                                            type="number"
+                                        />
+                                    </Form.Field>
+                                </div>
+
                             </Form.Group>
-                            <Button className='submitBtn' type="submit">Next</Button>
+                            <div className="formButtonContainer">
+                                <Button className='submitBtn' type="submit">Next</Button>
+                            </div>
                         </Form>
                     }
                     {

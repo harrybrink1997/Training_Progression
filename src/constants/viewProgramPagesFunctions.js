@@ -1071,6 +1071,187 @@ const generatePrevWeeksData = (programObject) => {
     return dataObject
 }
 
+const generatePastProgramGoalTableData = (goals) => {
+
+    if (goals) {
+        if (Object.keys(goals).length > 0) {
+
+            var tableData = []
+            var goalStatsData = {
+                numSubGoals: 0,
+                numSubGoalsComplete: 0,
+                numMainGoals: 0,
+                numMainGoalsComplete: 0,
+                numEasyGoalsComplete: 0,
+                numMediumGoalsComplete: 0,
+                numHardGoalsComplete: 0,
+                numHardGoals: 0,
+                numMediumGoals: 0,
+                numEasyGoals: 0
+            }
+
+            Object.keys(goals).forEach(goalKey => {
+                var goal = goals[goalKey]
+                if (goal.subGoals != undefined) {
+
+                    var processedSubGoalData = generatePastProgramSubGoalData(goal.subGoals)
+
+                    tableData.push({
+                        description: goal.mainGoal.description,
+                        progressString: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
+                        completed: goal.mainGoal.completed,
+                        subRows: processedSubGoalData.tableData,
+                        goalUID: goalKey,
+                        targetCloseDate: goal.mainGoal.closeOffDate,
+                        difficulty: goal.mainGoal.difficulty,
+                    })
+
+                    goalStatsData.numSubGoals += processedSubGoalData.statsData.numSubGoals
+
+                    goalStatsData.numSubGoalsComplete += processedSubGoalData.statsData.numSubGoalsComplete
+
+                    goalStatsData.numEasyGoalsComplete += processedSubGoalData.statsData.numEasyGoalsComplete
+
+                    goalStatsData.numMediumGoalsComplete += processedSubGoalData.statsData.numMediumGoalsComplete
+
+                    goalStatsData.numHardGoalsComplete += processedSubGoalData.statsData.numHardGoalsComplete
+
+                } else {
+                    tableData.push({
+                        description: goal.mainGoal.description,
+                        progressString: (goal.mainGoal.completed) ? 'Complete' : 'In Progress',
+                        targetCloseDate: goal.mainGoal.closeOffDate,
+                        completed: goal.mainGoal.completed,
+                        goalUID: goalKey,
+                        difficulty: goal.mainGoal.difficulty,
+                    })
+
+
+                }
+                goalStatsData.numMainGoals++
+                goalStatsData['num' + goal.mainGoal.difficulty + 'Goals']++
+
+                if (goal.mainGoal.completed) {
+                    goalStatsData.numMainGoalsComplete++
+                    goalStatsData['num' + goal.mainGoal.difficulty + 'GoalsComplete']++
+                }
+            })
+
+            var formattedGoalChartData = generateGoalProgChartData(goalStatsData)
+            return {
+                tableData: tableData,
+                statsData: goalStatsData,
+                pieChartData: formattedGoalChartData.pieChartData,
+                barChartData: formattedGoalChartData.barChartData
+
+            }
+        } else {
+            return {
+                tabledata: [],
+                statsData: {},
+                pieChartData: {
+                    data: [],
+                    colours: []
+                },
+                barChartData: []
+            }
+        }
+    }
+    return {
+        tableData: [],
+        statsData: {},
+        pieChartData: {
+            data: [],
+            colours: []
+        },
+        barChartData: []
+    }
+}
+
+const generatePastProgramSubGoalData = (subGoalList) => {
+    var returnArray = []
+    var subGoalStatsData = {
+        numSubGoals: 0,
+        numSubGoalsComplete: 0,
+        numEasyGoalsComplete: 0,
+        numMediumGoalsComplete: 0,
+        numHardGoalsComplete: 0,
+        numHardGoals: 0,
+        numMediumGoals: 0,
+        numEasyGoals: 0,
+    }
+
+    Object.keys(subGoalList).forEach(subGoalKey => {
+        var subGoal = subGoalList[subGoalKey]
+        console.log(subGoal)
+        returnArray.push({
+            description: subGoal.description,
+            progressString: (subGoal.completed) ? 'Complete' : 'In Progress',
+            completed: subGoal.completed,
+            targetCloseDate: subGoal.closeOffDate,
+            goalUID: subGoalKey,
+            difficulty: subGoal.difficulty,
+        })
+
+        subGoalStatsData.numSubGoals++
+        subGoalStatsData['num' + subGoal.difficulty + 'Goals']++
+
+        if (subGoal.completed) {
+            subGoalStatsData.numSubGoalsComplete++
+            console.log('num' + subGoal.difficulty + 'GoalsComplete')
+            subGoalStatsData['num' + subGoal.difficulty + 'GoalsComplete']++
+        }
+    })
+
+    return {
+        tableData: returnArray,
+        statsData: subGoalStatsData
+    }
+}
+
+const generateGoalProgChartData = (goalStatsData) => {
+
+    return {
+        pieChartData: {
+            colours: ['#8cfc86', '#fcf686', '#fc868c'],
+            data: [
+                {
+                    name: 'Easy',
+                    value: goalStatsData.numEasyGoalsComplete
+                },
+                {
+                    name: 'Medium',
+                    value: goalStatsData.numMediumGoalsComplete
+                },
+                {
+                    name: 'Hard',
+                    value: goalStatsData.numHardGoalsComplete
+                }
+            ]
+        },
+        barChartData: {
+            data: [
+                {
+                    name: 'All Goals',
+                    Completed: goalStatsData.numSubGoalsComplete + goalStatsData.numMainGoalsComplete,
+                    Total: goalStatsData.numSubGoals + goalStatsData.numMainGoals
+                },
+                {
+                    name: 'Main Goals',
+                    Completed: goalStatsData.numSubGoalsComplete,
+                    Total: goalStatsData.numMainGoals
+                },
+                {
+                    name: 'Sub Goals',
+                    Completed: goalStatsData.numSubGoalsComplete,
+                    Total: goalStatsData.numSubGoals
+                }
+            ]
+        }
+    }
+
+}
+
 export {
     generateDaysInWeekScope,
     updatedDailyExerciseList,
@@ -1086,5 +1267,6 @@ export {
     generateHistoricalTableData,
     listAndFormatExercises,
     generateGoalTableData,
-    generatePrevWeeksData
+    generatePrevWeeksData,
+    generatePastProgramGoalTableData
 }

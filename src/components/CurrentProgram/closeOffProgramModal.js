@@ -23,15 +23,20 @@ const CloseOffProgramModal = ({ handleFormSubmit }) => {
             onClose={() => setShow(false)}
             onOpen={() => setShow(true)}
             open={show}
-            trigger={<Button className='closeOffPeriod'>Close Off Program</Button>}
+            trigger={<Button className='lightPurpleButton-inverted'>Close Off Program</Button>}
         >
             <Modal.Header>Close Off Program</Modal.Header>
 
             <Form onSubmit={handleSubmit}>
                 <Modal.Content>
-                    WARNING! <br /> This action is not reversible. Once closed off a program is no longer editable and you
+                    <div className='modalContentWarningHeader'>
+                        WARNING!
+                    </div>
+                    <div id='cpPageSubmitDayWarningContent'>
+                        This action is not reversible. Once closed off a program is no longer editable and you
                         will only be able to access the historical data.
-                    </Modal.Content>
+                    </div>
+                </Modal.Content>
                 <Modal.Actions>
                     <Button className='lightPurpleButton-inverted' onClick={handleClose}>Cancel</Button>
                     <Button className='submitBtn' type="submit">Proceed</Button>
