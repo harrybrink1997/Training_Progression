@@ -1575,6 +1575,25 @@ class Firebase {
         })
     }
 
+    getUserExerciseData = (userUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('exercises')
+                .where("owner", '==', userUID)
+                .get()
+                .then(snap => {
+                    if (snap.empty) {
+                        res([])
+                    } else {
+                        let payload = snap.docs.map(doc => {
+                            return doc.data()
+                        })
+                        res(payload)
+                    }
+                })
+        })
+    }
+
     getPastProgramViewData = (programUID, athleteUID, endDayUTS) => {
         console.log(programUID)
         console.log(athleteUID)

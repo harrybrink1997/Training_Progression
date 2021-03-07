@@ -420,7 +420,6 @@ class ManageProgramsPage extends Component {
     }
 
     handlePastProgramNotesUpdate = (value) => {
-        console.log(value)
         this.props.firebase.updatePastProgramNotes(
             this.state.currProgram.programUID,
             this.props.firebase.auth.currentUser.uid,

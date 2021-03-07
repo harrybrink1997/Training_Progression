@@ -1,11 +1,7 @@
 import React, { Component } from 'react'
 
 import { withAuthorisation } from '../Session';
-
-import CreateExerciseModal from './createExerciseModal'
-
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
-import CoachTeamAthleteDataContainer from './coachTeamAthleteDataContainer'
 import { AcceptRequestButton, DeclineRequestButton } from '../CustomComponents/customButtons'
 
 import OnBoarding from './onBoarding'
@@ -240,6 +236,11 @@ class HomePage extends Component {
         })
     }
 
+    handleExercisesRedirect = () => {
+        this.props.history.push(ROUTES.MANAGE_EXERCISES)
+
+    }
+
     getCurrentGreeting = (username) => {
         var currTime = new Date().toLocaleTimeString()
         var name = username.split(" ")[0]
@@ -338,6 +339,16 @@ class HomePage extends Component {
                                 </Card>
                             </div>
                         }
+                        <div>
+                            <Card onClick={() => { this.handleExercisesRedirect() }}>
+                                <Card.Content className='iconContent'>
+                                    <Icon name='group' size='huge' />
+                                </Card.Content>
+                                <Card.Content>
+                                    <Card.Header textAlign='center'>My <br /> Exercises</Card.Header>
+                                </Card.Content>
+                            </Card>
+                        </div>
                     </Card.Group>
                 </div>
             </NonLandingPageWrapper>

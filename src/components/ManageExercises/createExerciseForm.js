@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { Modal, Button, Form, Container, Input, Breadcrumb } from 'semantic-ui-react'
-import MuscleSelectionDropdown from './muscleSelectionDropdown'
+import { Dropdown, Button, Form, Container, Input, Breadcrumb } from 'semantic-ui-react'
 import ExerciseDifficultyDropdown from '../CustomComponents/exerciseDifficultyDropdown'
 
 
-const CreateExerciseModal = ({ handleFormSubmit, anatomyObject }) => {
+const CreateExerciseForm = ({ handleFormSubmit, anatomyObject, currentList }) => {
 
     const [show, setShow] = useState(false);
 
@@ -12,6 +11,7 @@ const CreateExerciseModal = ({ handleFormSubmit, anatomyObject }) => {
     const [primMusc, setPrimMusc] = useState([])
     const [secMusc, setSecMusc] = useState([])
     const [exDiff, setExDiff] = useState('')
+    const [nameError, setNameError] = useState(false)
 
     const [pageNum, setPageNum] = useState(1)
 
@@ -73,16 +73,8 @@ const CreateExerciseModal = ({ handleFormSubmit, anatomyObject }) => {
     }
 
     return (
-        <Modal
-            size='small'
-            centered={false}
-            onClose={() => setShow(false)}
-            onOpen={() => setShow(true)}
-            open={show}
-            trigger={<Button className='lightPurpleButton-inverted'>Create Exercise</Button>}
-        >
-            <Modal.Header >Create Your Own Exercise</Modal.Header>
-            <Modal.Content>
+        <div className='centred-info'>
+            <div className='half-width'>
                 <Breadcrumb>
                     {
                         (pageNum >= 1) ? (pageNum == 1)
@@ -144,7 +136,7 @@ const CreateExerciseModal = ({ handleFormSubmit, anatomyObject }) => {
                             </Form.Field>
                             {
                                 exName != '' ?
-                                    < Button className='submitBtn' type="submit">Next</Button>
+                                    < Button className='lightPurpleButton' type="submit">Next</Button>
                                     :
                                     <></>
                             }
@@ -161,7 +153,7 @@ const CreateExerciseModal = ({ handleFormSubmit, anatomyObject }) => {
                             />
                             {
                                 (primMusc.length != 0) ?
-                                    < Button className='submitBtn' type="submit">Next</Button>
+                                    < Button className='lightPurpleButton' type="submit">Next</Button>
                                     :
                                     <></>
                             }
@@ -179,7 +171,7 @@ const CreateExerciseModal = ({ handleFormSubmit, anatomyObject }) => {
                             />
                             {
                                 (secMusc.length != 0) ?
-                                    < Button className='submitBtn' type="submit">Next</Button>
+                                    < Button className='lightPurpleButton' type="submit">Next</Button>
                                     :
                                     <></>
                             }
@@ -194,16 +186,63 @@ const CreateExerciseModal = ({ handleFormSubmit, anatomyObject }) => {
                             />
                             {
                                 exDiff != '' ?
-                                    < Button className='submitBtn' type="submit">Create Exercise</Button>
+                                    < Button className='lightPurpleButton' type="submit">Create Exercise</Button>
                                     :
                                     <></>
                             }
                         </Form>
                     }
                 </Container>
-            </Modal.Content>
-        </Modal >
+            </div>
+        </div>
+
     );
 }
 
-export default CreateExerciseModal;
+const MuscleSelectionDropdown = ({ selectHandler, headerString, value, muscleGroups }) => {
+
+
+    const generateDropData = () => {
+        var inputData = []
+
+        Object.keys(muscleGroups).forEach(muscleGroup => {
+            inputData.push({
+                key: muscleGroup,
+                text: muscleGroup,
+                value: muscleGroup,
+                content: <Dropdown.Header content={muscleGroup}></Dropdown.Header>,
+                disabled: true
+            })
+            // inputData.push({
+            //     content: <Dropdown.Divider />
+            // })
+
+            muscleGroups[muscleGroup].forEach(muscle => {
+                inputData.push({
+                    key: muscle,
+                    text: muscle,
+                    value: muscle,
+                })
+            })
+
+        })
+
+
+        return inputData
+    }
+
+    const [dropdownData] = useState(generateDropData())
+
+    const handleMuscleSelect = (event, { value }) => {
+        event.preventDefault()
+        selectHandler(value)
+    }
+
+    return (
+
+        <Dropdown placeholder={headerString} fluid multiple selection options={dropdownData} onChange={handleMuscleSelect} value={value} />
+
+    )
+}
+
+export default CreateExerciseForm;

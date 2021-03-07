@@ -163,3 +163,9 @@
 .formButtonContainer {
     margin-top: 10px;
 }
+
+.pageBodyLoaderContainer {
+    display: flex;
+    align-items: center;
+    height: 80vh;
+}
