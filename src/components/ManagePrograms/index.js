@@ -24,6 +24,8 @@ import CloseOffProgramModal from '../CurrentProgram/closeOffProgramModal'
 import utsToDateString from '../../constants/utsToDateString'
 import ErrorBanner from '../CustomComponents/errorBanner';
 import PastProgramView from '../CustomComponents/pastProgramView';
+import * as ROUTES from '../../constants/routes'
+
 
 
 class ManageProgramsPage extends Component {
@@ -377,8 +379,6 @@ class ManageProgramsPage extends Component {
     }
 
     handlePastProgramClick = (programUID, endDayUTS) => {
-        console.log(endDayUTS)
-        console.log(programUID)
         this.setState({
             pageBodyContentLoading: true
         }, () => {
@@ -1703,6 +1703,11 @@ class ManageProgramsPage extends Component {
         })
     }
 
+    homePageRedirect = () => {
+        this.props.history.push(ROUTES.HOME)
+
+    }
+
     handleCreateProgramGroup = (groupName, programData) => {
 
         var payload = {
@@ -1835,14 +1840,19 @@ class ManageProgramsPage extends Component {
                     </div>
                 </div>
                 {
-                    view !== this.PAGE_VIEWS.HOME &&
+                    view &&
                     <div className='rowContainer clickableDiv'>
                         <Button
                             content='Back'
                             className='backButton-inverted'
                             circular
                             icon='arrow left'
-                            onClick={() => { this.handleBackClick(view) }}
+                            onClick={() => {
+                                view !== this.PAGE_VIEWS.HOME ?
+                                    this.handleBackClick(view)
+                                    : this.homePageRedirect()
+
+                            }}
                         />
                     </div>
                 }

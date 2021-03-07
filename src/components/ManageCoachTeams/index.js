@@ -54,6 +54,11 @@ class ManageCoachTeamsPage extends Component {
         });
     }
 
+    homePageRedirect = () => {
+        this.props.history.push(ROUTES.HOME)
+
+    }
+
     initAthleteTableData = (userObject) => {
 
         var payload = {
@@ -1067,6 +1072,17 @@ class ManageCoachTeamsPage extends Component {
                         </Button>
                     </div>
                 </div>
+                <div className='rowContainer clickableDiv'>
+                    <Button
+                        content='Back'
+                        className='backButton-inverted'
+                        circular
+                        icon='arrow left'
+                        onClick={() => {
+                            this.homePageRedirect()
+                        }}
+                    />
+                </div>
                 {
                     manageTeamsTableData &&
                     <div className='pageContainerLevel1'>
@@ -1134,7 +1150,9 @@ class ManageCoachTeamsPage extends Component {
                             className='backButton-inverted'
                             circular
                             icon='arrow left'
-                            onClick={() => { this.handleBackClick(currTeam.view) }}
+                            onClick={() => {
+                                this.handleBackClick(currTeam.view)
+                            }}
                         />
                     </div>
                 }

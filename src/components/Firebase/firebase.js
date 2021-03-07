@@ -1519,6 +1519,7 @@ class Firebase {
                                 }
                             })
                     } else {
+                        console.log("going in")
                         res(true)
                     }
                 })
@@ -1538,6 +1539,7 @@ class Firebase {
                     if (!snap.empty && snap.docs.length === 1) {
                         res(snap.docs[0].data().notes)
                     } else {
+                        console.log("going in ")
                         res(true)
                     }
                 })
@@ -1574,6 +1576,9 @@ class Firebase {
     }
 
     getPastProgramViewData = (programUID, athleteUID, endDayUTS) => {
+        console.log(programUID)
+        console.log(athleteUID)
+        console.log(endDayUTS)
         return new Promise((res, rej) => {
             Promise.all([
                 this.getProgGoalData(programUID, athleteUID, 'past', endDayUTS),
