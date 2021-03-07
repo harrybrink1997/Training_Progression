@@ -438,38 +438,40 @@ class ManageProgramsPage extends Component {
             this.props.firebase.getAnatomyData()
                 .then(snapshot => {
                     const anatomyObject = snapshot.data().anatomy
+                    // Get the program exercise data
 
-                    // Get all exercise data to view with the program and format them all.
-                    this.props.firebase.getExData(['none'])
+                    Promise.all(this.props.firebase.getProgramExGoalData(
+                        this.state.user.getUserType() === 'coach',
+                        this.state.user.getID(),
+                        programUID,
+                        status
+                    ))
                         .then(snapshot => {
-                            var exList = listAndFormatExercises(
-                                snapshot.docs.map(doc => doc.data())
-                            )
 
-                            // Get the program exercise data
+                            let progData = this.state.currProgList.getProgram(programUID).generateDBObject()
 
-                            Promise.all(this.props.firebase.getProgramExGoalData(
-                                this.state.user.getUserType() === 'coach',
-                                this.state.user.getID(),
-                                programUID,
-                                status
-                            ))
+                            if (Object.keys(snapshot[0]).length > 0) {
+                                progData.goals = snapshot[0]
+                            }
+
+                            progData = { ...progData, ...snapshot[1] }
+
+
+
+                            // Get all exercise data to view with the program and format them all.
+
+                            let exList = ['none', progData.athlete]
+
+                            if (progData.athlete !== progData.owner) {
+                                exList.push(progData.owner)
+                            }
+
+                            this.props.firebase.getExData(exList)
                                 .then(snapshot => {
-                                    let progData
-                                    if (status === 'current') {
-                                        progData = this.state.currProgList.getProgram(programUID).generateCompleteJSONObject()
-
-                                    } else if (status === 'past') {
-                                        progData = this.state.pastProgList.getProgram(programUID).generateCompleteJSONObject()
-                                    }
-
-                                    if (Object.keys(snapshot[0]).length > 0) {
-                                        progData.goals = snapshot[0]
-                                    }
-
-                                    progData = { ...progData, ...snapshot[1] }
+                                    var exList = listAndFormatExercises(snapshot)
 
                                     this.state.pageHistory.next(this.state.view)
+
 
                                     this.setState(prev => ({
                                         ...prev,

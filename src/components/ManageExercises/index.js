@@ -4,6 +4,10 @@ import { withAuthorisation } from '../Session';
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import PageBodyLoader from '../CustomComponents/pageBodyLoader'
 import CreateExerciseForm from './createExerciseForm'
+import BasicTablePagination from '../CustomComponents/basicTablePagination'
+import * as ROUTES from '../../constants/routes'
+
+
 class ManageExercisesPage extends Component {
 
 
@@ -22,9 +26,12 @@ class ManageExercisesPage extends Component {
                 this.props.firebase.getUserExerciseData(
                     this.props.firebase.auth.currentUser.uid
                 ),
-                this.props.firebase.getAnatomyData()
+                this.props.firebase.getAnatomyData(),
+                this.props.firebase.getExData(['none'])
             ]).then(data => {
+
                 this.setState({
+                    globalExerciseNames: this.initCurrentExerciseList(data[2]),
                     exerciseTableData: this.initCurrentExerciseTableData(data[0]),
                     currentExerciseNames: this.initCurrentExerciseList(data[0]),
                     anatomy: data[1].data().anatomy,
@@ -52,18 +59,24 @@ class ManageExercisesPage extends Component {
                 {
                     Header: 'Experience',
                     accessor: 'experience'
+                },
+                {
+                    accessor: 'buttons'
                 }
             ],
             data: []
         }
 
         if (list.length > 0) {
-            payload.data.map(ex => {
+            if (list.length === 1) {
+                console.log(list)
+            }
+            payload.data = list.map(ex => {
                 return {
-                    name: ex.name,
+                    name: ex.name.split("_").join(" "),
                     experience: ex.experience,
-                    primary: ex.primary,
-                    secondary: ex.secondary,
+                    primary: ex.primary.join(","),
+                    secondary: ex.secondary.join(", "),
                     buttons:
                         <Button
                             className="lightPurpleButton-inverted"
@@ -76,11 +89,13 @@ class ManageExercisesPage extends Component {
                 }
             })
         }
+
+        return payload
     }
 
     initCurrentExerciseList = (list) => {
         let payload = list.map(ex => {
-            return list.name.replace("_", " ")
+            return ex.name.split("_").join(" ").toLowerCase()
         })
         return payload
     }
@@ -89,25 +104,59 @@ class ManageExercisesPage extends Component {
         this.setState({
             loading: true
         }, () => {
-
+            this.props.firebase.deleteLocalExercise(
+                name,
+                this.props.firebase.auth.currentUser.uid
+            ).then(updatedLocalExercises => {
+                this.setState({
+                    currentExerciseNames: this.initCurrentExerciseList(updatedLocalExercises),
+                    exerciseTableData: this.initCurrentExerciseTableData(updatedLocalExercises),
+                    loading: false
+                })
+            })
         })
     }
 
     handleCreateExercise = (name, primary, secondary, experience) => {
-        let payload = {
-            experience: experience,
-            primary: primary,
-            secondary: secondary,
-            name: name
+        this.setState({
+            loading: true
+        }, () => {
+            let payload = {
+                experience: experience,
+                primary: primary,
+                secondary: secondary,
+                name: name,
+                owner: this.props.firebase.auth.currentUser.uid
+            }
+            console.log(payload)
+            this.props.firebase.addNewLocalExercise(
+                this.props.firebase.auth.currentUser.uid,
+                payload
+            ).then(updatedLocalExercises => {
+                this.setState({
+                    currentExerciseNames: this.initCurrentExerciseList(updatedLocalExercises),
+                    exerciseTableData: this.initCurrentExerciseTableData(updatedLocalExercises),
+                    loading: false
+                })
+            })
+        })
+    }
+    handleBackClick = () => {
+        if (this.state.view !== 'home') {
+            this.setState({
+                view: 'home'
+            })
+        } else {
+            this.props.history.push(ROUTES.HOME)
         }
     }
-
     render() {
         const {
             loading,
             view,
             anatomy,
             currentExerciseNames,
+            globalExerciseNames,
             exerciseTableData
         } = this.state
 
@@ -119,6 +168,18 @@ class ManageExercisesPage extends Component {
 
         let nonLoadingHTML =
             <div>
+                <div className='rowContainer clickableDiv'>
+                    <Button
+                        content='Back'
+                        className='backButton-inverted'
+                        circular
+                        icon='arrow left'
+                        onClick={() => {
+                            this.handleBackClick()
+
+                        }}
+                    />
+                </div>
                 {
                     view === 'home' &&
                     <div id='programAssignmentCardGroupContainer'>
@@ -161,8 +222,19 @@ class ManageExercisesPage extends Component {
                     <CreateExerciseForm
                         handleFormSubmit={this.handleCreateExercise}
                         anatomyObject={anatomy}
-                        currentList={currentExerciseNames}
+                        currentList={[...currentExerciseNames, ...globalExerciseNames]}
                     />
+                }
+                {
+                    view === 'viewExercises' &&
+                    <div className='centred-info'>
+                        <div className='half-width'>
+                            <BasicTablePagination
+                                data={exerciseTableData.data}
+                                columns={exerciseTableData.columns}
+                            />
+                        </div>
+                    </div>
                 }
             </div>
 

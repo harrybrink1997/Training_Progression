@@ -1149,11 +1149,61 @@ class Firebase {
         })
     }
 
+    addNewLocalExercise = (userUID, payload) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('exercises')
+                .doc()
+                .set(payload)
+                .then(() => {
+                    this.getExData([userUID]).then(data => {
+                        res(data)
+                    })
+                })
+        })
+    }
+
+    deleteLocalExercise = (name, userUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('exercises')
+                .where('owner', '==', userUID)
+                .where('name', '==', name)
+                .get()
+                .then(snap => {
+                    if (!snap.empty && snap.docs.length === 1) {
+
+                        this.database
+                            .collection('exercises')
+                            .doc(snap.docs[0].id)
+                            .delete()
+                            .then(() => {
+                                this.getExData([userUID]).then(data => {
+                                    res(data)
+                                })
+                            })
+                    }
+
+                })
+        })
+    }
+
     getExData = (owners) => {
-        return this.database
-            .collection('exercises')
-            .where('owner', 'in', owners)
-            .get()
+        return new Promise((res, rej) => {
+            this.database
+                .collection('exercises')
+                .where('owner', 'in', owners)
+                .get()
+                .then(snap => {
+                    if (!snap.empty) {
+                        let payload = snap.docs.map(doc => doc.data())
+
+                        res(payload)
+                    } else {
+                        res([])
+                    }
+                })
+        })
     }
 
     addExerciseDB = (isCoach, userUID, programUID, day, exData) => {

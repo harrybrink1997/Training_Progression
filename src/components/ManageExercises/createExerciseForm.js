@@ -22,7 +22,9 @@ const CreateExerciseForm = ({ handleFormSubmit, anatomyObject, currentList }) =>
 
     const handleExNameSubmit = (event) => {
         event.preventDefault()
-        setPageNum(prevNum => prevNum + 1)
+        if (!nameError) {
+            setPageNum(prevNum => prevNum + 1)
+        }
 
     }
 
@@ -42,12 +44,20 @@ const CreateExerciseForm = ({ handleFormSubmit, anatomyObject, currentList }) =>
     }
 
     const handleExDiffChange = (value) => {
-        console.log(value)
         setExDiff(value)
     }
 
     const changeExName = (event, { value }) => {
-        if (value !== '_') {
+
+        if (value.slice(-1) !== "_") {
+
+            if (currentList.includes(value.toLowerCase())) {
+                setNameError(true)
+            } else {
+                if (nameError) {
+                    setNameError(false)
+                }
+            }
             setExName(value)
         }
     }
@@ -63,7 +73,25 @@ const CreateExerciseForm = ({ handleFormSubmit, anatomyObject, currentList }) =>
     const handeExDiffSubmit = (event) => {
         event.preventDefault();
         setShow(false);
-        handleFormSubmit(exName, primMusc, secMusc, exDiff)
+
+        let name = exName.trim()
+
+        if (name.split(' ').length > 0) {
+            var nameArr = name.split(' ')
+
+            name = []
+            nameArr.forEach(word => {
+                if (word !== '') {
+                    name.push(word.charAt(0).toUpperCase() + word.slice(1))
+                }
+            })
+
+            name = name.join('_')
+        } else {
+            name = name.charAt(0).toUpperCase() + name.slice(1);
+        }
+
+        handleFormSubmit(name, primMusc, secMusc, exDiff)
 
         setPageNum(1)
         setExName('')
@@ -140,6 +168,9 @@ const CreateExerciseForm = ({ handleFormSubmit, anatomyObject, currentList }) =>
                                     :
                                     <></>
                             }
+                            <div id='signInEmailFooterMessagesContainer'>
+                                {nameError && <p>Exercise Already Exists</p>}
+                            </div>
                         </Form>
                     }
                     {

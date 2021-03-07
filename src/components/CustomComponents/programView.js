@@ -600,6 +600,14 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
 
                 }
             }
+        } else {
+            return {
+                ACWRGraphProps: undefined,
+                rollingAverageGraphProps: undefined,
+                // currentBodyPart: 'Overall_Total',
+                // currMuscleGroupOpen: 'Arms',
+
+            }
         }
     }
 
@@ -891,8 +899,6 @@ const ProgramView = ({ data, handlerFunctions, availExData, availExColumns, null
                 exerciseListPerDay: newExerciseListPerDay
             }
         })
-
-        console.log(insertData)
 
         handlerFunctions.handleCopyPrevWeekExData(insertData)
     }

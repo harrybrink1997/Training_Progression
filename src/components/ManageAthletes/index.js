@@ -104,9 +104,7 @@ class ManageAthletesPage extends Component {
             // Get all exercise data to view with the program and format them all.
             this.props.firebase.getExData(['none'])
                 .then(snapshot => {
-                    var exList = listAndFormatExercises(
-                        snapshot.docs.map(doc => doc.data())
-                    )
+                    var exList = listAndFormatExercises(snapshot)
 
                     // Get the program exercise data
 
