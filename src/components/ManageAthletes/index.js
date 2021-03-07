@@ -100,28 +100,28 @@ class ManageAthletesPage extends Component {
         this.setState({
             pageBodyContentLoading: true
         }, () => {
+            // Get the program exercise data
 
-            // Get all exercise data to view with the program and format them all.
-            this.props.firebase.getExData(['none'])
+            Promise.all(this.props.firebase.getProgramExGoalData(
+                false,
+                athleteUID,
+                programUID,
+                status
+            ))
                 .then(snapshot => {
-                    var exList = listAndFormatExercises(snapshot)
+                    let progData = this.state.currAthlete.currentProgramList.getProgram(programUID).generateDBObject()
 
-                    // Get the program exercise data
+                    if (Object.keys(snapshot[0]).length > 0) {
+                        progData.goals = snapshot[0]
+                    }
 
-                    Promise.all(this.props.firebase.getProgramExGoalData(
-                        false,
-                        athleteUID,
-                        programUID,
-                        status
-                    ))
+                    progData = { ...progData, ...snapshot[1] }
+
+                    // Get all exercise data to view with the program and format them all.
+                    console.log(progData)
+                    this.props.firebase.getExData(['none', progData.athlete, progData.owner])
                         .then(snapshot => {
-                            let progData = this.state.currAthlete.currentProgramList.getProgram(programUID).generateCompleteJSONObject()
-
-                            if (Object.keys(snapshot[0]).length > 0) {
-                                progData.goals = snapshot[0]
-                            }
-
-                            progData = { ...progData, ...snapshot[1] }
+                            var exList = listAndFormatExercises(snapshot)
 
                             this.state.currAthlete.pageHistory.next(this.state.currAthlete.view)
 
@@ -399,18 +399,28 @@ class ManageAthletesPage extends Component {
                     dateAssigned: utsToDateString(parseInt(program.deploymentDate)),
                     status: program.status,
                     buttons:
-                        program.status !== 'pending' &&
-                        <Button
-                            className='lightPurpleButton-inverted'
-                            onClick={() => {
-                                this.status === 'current' ?
-                                    this.handleViewProgramClick(athleteUID, program.programUID, program.deploymentDate, program.status)
-                                    : this.handleViewPastProgramClick(athleteUID, program.programUID, program.endDayUTS)
-                            }}
-                        >
-                            View Program
-                        </Button>
+                        program.status !== 'pending' ?
+                            program.status === 'current' ?
+                                <Button
+                                    className='lightPurpleButton-inverted'
+                                    onClick={() => {
+                                        this.handleViewProgramClick(athleteUID, program.programUID, program.deploymentDate, program.status)
 
+                                    }}
+                                >
+                                    View Program
+                                </Button>
+                                :
+                                <Button
+                                    className='lightPurpleButton-inverted'
+                                    onClick={() => {
+                                        this.handleViewPastProgramClick(athleteUID, program.programUID, program.endDayUTS)
+                                    }}
+                                >
+                                    View Program
+                                </Button>
+                            :
+                            <></>
 
                 })
             })
