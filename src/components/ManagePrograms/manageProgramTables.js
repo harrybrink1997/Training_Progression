@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Button } from 'semantic-ui-react'
 import BasicTable from '../CustomComponents/basicTable'
 
-const ManageProgramTables = ({ pendingData, currentData, pastData }) => {
+const ManageProgramTables = ({ pendingData, currentData, pastData, currentTableView, changeTableHandler }) => {
     const [table, setTable] = useState('current')
 
     let nonDataHTML =
@@ -13,11 +13,11 @@ const ManageProgramTables = ({ pendingData, currentData, pastData }) => {
     return (
         <>
             <ManageProgramToggle
-                clickHandler={setTable}
-                currentView={table}
+                clickHandler={changeTableHandler}
+                currentView={currentTableView}
             />
             {
-                table === 'current' &&
+                currentTableView === 'current' &&
                 <>
                     {
                         currentData ?
@@ -31,7 +31,7 @@ const ManageProgramTables = ({ pendingData, currentData, pastData }) => {
                 </>
             }
             {
-                table === 'past' &&
+                currentTableView === 'past' &&
                 <>
                     {
                         pastData ?
@@ -45,7 +45,7 @@ const ManageProgramTables = ({ pendingData, currentData, pastData }) => {
                 </>
             }
             {
-                table === 'pending' &&
+                currentTableView === 'pending' &&
                 <>
                     {
                         pendingData ?

@@ -104,6 +104,7 @@ class ManageProgramsPage extends Component {
                             pageBodyContentLoading: false,
                             programGroupTableData: programGroupTableData,
                             currentProgramGroups: programGroupList,
+                            currentTableView: 'current',
                             error: false,
                             errorText: undefined,
                             loading: false
@@ -403,6 +404,7 @@ class ManageProgramsPage extends Component {
                     currProgram: {
                         programUID: programUID,
                         status: 'past',
+                        endDayUTS: endDayUTS,
                         programData: programData,
                         submitProcessingBackend: false,
                         rawAnatomyData: data.anatomy,
@@ -422,7 +424,8 @@ class ManageProgramsPage extends Component {
         this.props.firebase.updatePastProgramNotes(
             this.state.currProgram.programUID,
             this.props.firebase.auth.currentUser.uid,
-
+            this.state.currProgram.endDayUTS,
+            value
         )
     }
 
@@ -1584,6 +1587,12 @@ class ManageProgramsPage extends Component {
         })
     }
 
+    handleChangeCurrentTableView = (table) => {
+        this.setState({
+            currentTableView: table
+        })
+    }
+
     toggleEditPrograms = () => {
 
 
@@ -1754,6 +1763,7 @@ class ManageProgramsPage extends Component {
             currProgram,
             currentProgramGroups,
             programGroupTableData,
+            currentTableView,
             error,
             errorText
         } = this.state
@@ -1843,6 +1853,8 @@ class ManageProgramsPage extends Component {
                             pendingData={pendingProgTableData}
                             currentData={currentProgTableData}
                             pastData={pastProgTableData}
+                            currentTableView={currentTableView}
+                            changeTableHandler={this.handleChangeCurrentTableView}
                         />
                     </div>
                 }
