@@ -1147,7 +1147,7 @@ const generatePastProgramGoalTableData = (goals) => {
             }
         } else {
             return {
-                tabledata: [],
+                tableData: [],
                 statsData: {},
                 pieChartData: {
                     data: [],
@@ -1252,6 +1252,49 @@ const generateGoalProgChartData = (goalStatsData) => {
 
 }
 
+const generatePastProgramExerciseData = (programData) => {
+    var currWeek = Math.ceil(programData.currentDay / 7)
+
+    var dataObject = {}
+    for (var prevWeekNum = 1; prevWeekNum <= currWeek; prevWeekNum++) {
+        dataObject[prevWeekNum] = {}
+
+        for (var day = 1; day < 8; day++) {
+
+            var dayInProgram = (prevWeekNum - 1) * 7 + day
+            var dayObject = {}
+            if (programData[dayInProgram] != undefined) {
+                Object.keys(programData[dayInProgram]).forEach(exercise => {
+                    if (exercise != 'loadingData') {
+                        dayObject[exercise] = programData[dayInProgram][exercise]
+                    }
+                })
+            }
+
+            dataObject[prevWeekNum][day] = dayObject
+        }
+    }
+
+    // Check if the object is actually empty and there is no data.
+    var hasData = false
+
+    for (var weeks in dataObject) {
+        var week = dataObject[weeks]
+        for (var day in week) {
+            if (Object.keys(week[day]).length > 0) {
+                hasData = true
+                break
+            }
+        }
+    }
+
+    if (hasData) {
+        return dataObject
+    } else {
+        return {}
+    }
+}
+
 export {
     generateDaysInWeekScope,
     updatedDailyExerciseList,
@@ -1268,5 +1311,6 @@ export {
     listAndFormatExercises,
     generateGoalTableData,
     generatePrevWeeksData,
-    generatePastProgramGoalTableData
+    generatePastProgramGoalTableData,
+    generatePastProgramExerciseData
 }

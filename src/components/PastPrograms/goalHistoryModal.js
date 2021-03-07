@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Modal, Button, Statistic } from 'semantic-ui-react'
 import InputLabel from '../CustomComponents/DarkModeInput'
 import GoalProgressionPieChart from '../ProgressionData/goalProgressionPieChart'
@@ -11,6 +11,14 @@ const GoalHistoryModal = ({ goalTableData, goalStatsData, goalProgPieChartData }
     const handleClose = (event) => {
         setShow(false);
     }
+
+    const d = (w) => {
+        console.log(w)
+        console.log(goalStatsData)
+        console.log(goalProgPieChartData)
+    }
+
+    const e = useState(d(goalTableData))
 
     return (
         <Modal

@@ -95,7 +95,9 @@ const ExerciseHistoryModal = ({ data, defaultWeek, progScheme }) => {
                         Object.keys(historicalData[currWeek]).map(day => {
                             if (Object.keys(historicalData[currWeek][day]).length != 0) {
                                 return (
-                                    <div id='cpPrevExModalDayContainer'>
+                                    <div
+                                        key={day}
+                                        id='cpPrevExModalDayContainer'>
                                         <ExerciseTableContainerNoBtns
                                             key={day}
                                             dayText={'Day ' + day}

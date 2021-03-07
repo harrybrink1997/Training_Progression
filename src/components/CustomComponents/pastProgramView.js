@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
 
 import utsToDateString from '../../constants/utsToDateString'
-import { generatePrevWeeksData } from '../../constants/viewProgramPagesFunctions'
+import { generatePastProgramExerciseData } from '../../constants/viewProgramPagesFunctions'
 import { GeneralInfoTable } from '../PastPrograms/generalInfoTable'
 import InputLabel from './DarkModeInput'
-import NonLandingPageWrapper from './nonLandingPageWrapper'
 import loadingSchemeString from '../../constants/loadingSchemeString'
 import BodyPartListGroup from './bodyPartListGroup'
 import LoadInfoTable from '../PastPrograms/loadInfoTable'
@@ -152,6 +151,7 @@ const PastProgramView = ({ data, processedGoalData, anatomy, notes, handlerFunct
     const [overviewData, setOverviewData] = useState(initOverviewData(data))
 
     const initGoalData = (rawGoalData) => {
+        console.log(rawGoalData)
         return ({
             goalTableData: rawGoalData.tableData,
             goalStatsData: rawGoalData.statsData,
@@ -161,7 +161,7 @@ const PastProgramView = ({ data, processedGoalData, anatomy, notes, handlerFunct
 
     const initLoadData = (rawData) => {
         return {
-            prevWeekData: generatePrevWeeksData(rawData),
+            prevWeekData: generatePastProgramExerciseData(rawData),
             loadInfoData: generateLoadInfoTableData(currentBodyPart)
         }
     }
