@@ -1041,12 +1041,38 @@ class ManageCoachTeamsPage extends Component {
         return payload
     }
 
+    handleDeleteTeam = () => {
+        console.log(this.state.currTeam)
+        console.log(this.state)
+
+        this.setState({
+            pageBodyContentLoading: true
+        }, () => {
+            this.props.firebase.handleDeleteTeam(
+                this.props.firebase.auth.currentUser.uid,
+                this.state.currTeam.team
+            ).then(() => {
+                console.log('going in')
+                let newTableData = [...this.state.manageTeamsTableData.data].filter(team => {
+                    return team.team !== this.state.currTeam.team
+                })
+
+                this.setState(prev => ({
+                    ...prev,
+                    currTeam: undefined,
+                    pageBodyContentLoading: false,
+                    manageTeamsTableData: {
+                        ...prev.manageTeamsTableData,
+                        data: newTableData
+                    }
+                }))
+            })
+        })
+    }
+
     render() {
         const {
             loading,
-            programTableData,
-            teamsTableData,
-            programGroupTableData,
             pageBodyContentLoading,
             currTeam,
             manageTeamsTableData
@@ -1160,6 +1186,7 @@ class ManageCoachTeamsPage extends Component {
                     currTeam && currTeam.view === 'home' &&
                     <ManageCurrTeamHome
                         clickHandler={this.handleManageCurrTeamViewChange}
+                        deleteTeamHandler={this.handleDeleteTeam}
                     />
                 }
                 {

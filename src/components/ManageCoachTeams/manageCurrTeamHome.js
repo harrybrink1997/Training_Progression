@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, Icon } from 'semantic-ui-react'
 
-const ManageCurrTeamHome = ({ clickHandler }) => {
+const ManageCurrTeamHome = ({ clickHandler, deleteTeamHandler }) => {
 
     return (
         <div id='programAssignmentCardGroupContainer'>
@@ -33,6 +33,16 @@ const ManageCurrTeamHome = ({ clickHandler }) => {
                         </Card.Content>
                         <Card.Content>
                             <Card.Header textAlign='center'>Manage <br /> Members</Card.Header>
+                        </Card.Content>
+                    </Card>
+                </div>
+                <div>
+                    <Card onClick={() => { deleteTeamHandler() }}>
+                        <Card.Content className='iconContent'>
+                            <Icon name='group' size='huge' />
+                        </Card.Content>
+                        <Card.Content>
+                            <Card.Header textAlign='center'>Delete <br /> Team</Card.Header>
                         </Card.Content>
                     </Card>
                 </div>

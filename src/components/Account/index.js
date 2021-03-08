@@ -95,20 +95,19 @@ class AccountPage extends Component {
                     </div>
                 </div>
                 <div>
-                    <div id='cardContainer'>
-                        <Card.Group >
-                            <div>
+                    <Card.Group >
+                        <div>
 
-                                <Card onClick={() => { this.handleChangePasswordRedirect() }}>
-                                    <Card.Content className='iconContent'>
-                                        <Icon name='shield alternate' size='huge' />
-                                    </Card.Content>
-                                    <Card.Content>
-                                        <Card.Header textAlign='center'>Password Change</Card.Header>
-                                    </Card.Content>
-                                </Card>
-                            </div>
-                            {/* <div>
+                            <Card onClick={() => { this.handleChangePasswordRedirect() }}>
+                                <Card.Content className='iconContent'>
+                                    <Icon name='shield alternate' size='huge' />
+                                </Card.Content>
+                                <Card.Content>
+                                    <Card.Header textAlign='center'>Password Change</Card.Header>
+                                </Card.Content>
+                            </Card>
+                        </div>
+                        {/* <div>
                                 <Card onClick={() => { this.handleChangeEmailRedirect() }}>
                                     <Card.Content className='iconContent'>
                                         <Icon name='mail' size='huge' />
@@ -119,31 +118,30 @@ class AccountPage extends Component {
                                 </Card>
 
                             </div> */}
+                        <div>
+                            <Card onClick={() => { this.handleDeleteAccountRedirect() }}>
+                                <Card.Content className='iconContent'>
+                                    <Icon name='user delete' size='huge' />
+                                </Card.Content>
+                                <Card.Content>
+                                    <Card.Header textAlign='center'>Delete <br /> Account</Card.Header>
+                                </Card.Content>
+                            </Card>
+                        </div>
+                        {
+                            userType === 'athlete' &&
                             <div>
-                                <Card onClick={() => { this.handleDeleteAccountRedirect() }}>
+                                <Card onClick={() => { this.handleJoinTeamRedirect() }}>
                                     <Card.Content className='iconContent'>
-                                        <Icon name='user delete' size='huge' />
+                                        <Icon name='users' size='huge' />
                                     </Card.Content>
                                     <Card.Content>
-                                        <Card.Header textAlign='center'>Delete <br /> Account</Card.Header>
+                                        <Card.Header textAlign='center'>Join <br /> Team</Card.Header>
                                     </Card.Content>
                                 </Card>
                             </div>
-                            {
-                                userType === 'athlete' &&
-                                <div>
-                                    <Card onClick={() => { this.handleJoinTeamRedirect() }}>
-                                        <Card.Content className='iconContent'>
-                                            <Icon name='users' size='huge' />
-                                        </Card.Content>
-                                        <Card.Content>
-                                            <Card.Header textAlign='center'>Join <br /> Team</Card.Header>
-                                        </Card.Content>
-                                    </Card>
-                                </div>
-                            }
-                        </Card.Group>
-                    </div>
+                        }
+                    </Card.Group>
                 </div>
             </NonLandingPageWrapper>
 

@@ -1188,6 +1188,67 @@ class Firebase {
         })
     }
 
+    deleteTeamFromAthletes = (coachUID, name) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('currentCoachAthletes')
+                .where('coachUID', '==', coachUID)
+                .get()
+                .then(snap => {
+                    if (!snap.empty) {
+                        const batch = this.database.batch()
+
+                        snap.docs.forEach(doc => {
+                            if (doc.data().currentTeams && doc.data().currentTeams[name]) {
+                                let docRef = this.database.collection('currentCoachAthletes').doc(doc.id)
+                                let teamPath = `currentTeams.${name}`
+                                batch.update(docRef, {
+                                    [teamPath]: FieldValue.delete()
+                                })
+                            }
+                        })
+
+                        batch.commit().then(() => res(true))
+                    } else {
+                        res(true)
+                    }
+                })
+        })
+    }
+
+    handleDeleteTeam = (coachUID, name) => {
+        return new Promise((res, rej) => {
+            Promise.all([
+                this.deleteTeamFromCoach(coachUID, name),
+                this.deleteTeamFromAthletes(coachUID, name)
+            ]).then(() => res(true))
+        })
+    }
+
+    deleteTeamFromCoach = (coachUID, name) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('users')
+                .doc(coachUID)
+                .collection('teams')
+                .where('teamName', '==', name)
+                .get()
+                .then(snap => {
+                    if (!snap.empty && snap.docs.length === 1) {
+                        this.database
+                            .collection('users')
+                            .doc(coachUID)
+                            .collection('teams')
+                            .doc(snap.docs[0].id)
+                            .delete()
+                            .then(() => res(true))
+                    } else {
+                        res(true)
+                    }
+                })
+        })
+    }
+
     getExData = (owners) => {
         return new Promise((res, rej) => {
             this.database
