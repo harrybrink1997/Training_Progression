@@ -13,7 +13,15 @@ const INITIAL_STATE = {
 
 const LoginForm = ({ submitLoginHandler, signInProcessing }) => {
 
-    const [email, setEmail] = useState(INITIAL_STATE.email)
+    const getSignInEmail = () => {
+        if (window.localStorage.getItem('corvusEmailForSignIn')) {
+            return window.localStorage.getItem('corvusEmailForSignIn')
+        } else {
+            return INITIAL_STATE.email
+        }
+    }
+
+    const [email, setEmail] = useState(getSignInEmail())
     const [password, setPassword] = useState(INITIAL_STATE.password)
 
     const handleSubmit = (event) => {

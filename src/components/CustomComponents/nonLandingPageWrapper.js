@@ -9,7 +9,7 @@ const NonLandingPageWrapper = (props) => {
             <div id="nonLandingPageBodyContentWrapper">
                 {props.children}
             </div>
-            <Footer />
+            {/* <Footer /> */}
         </div>
     )
 }

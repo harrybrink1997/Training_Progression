@@ -33,3 +33,19 @@ exports.cleanUpDBPostProgDelete = functions.firestore
             })
 
     })
+
+
+exports.scrubUserFromDatabase = functions.auth.user().onDelete(user => {
+    console.log(user.uid)
+    admin.firestore()
+        .collection('users')
+        .doc(user.uid)
+        .delete()
+        .then(() => {
+            return
+        })
+        .catch(error => {
+            console.log(error)
+        })
+})
+    // exports.removeUnverifiedAccounts = functions.firestore

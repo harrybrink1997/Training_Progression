@@ -38,8 +38,12 @@ class SignInPage extends Component {
         }, () => {
             this.props.firebase
                 .doSignInWithEmailAndPassword(email, password)
-                .then(() => {
-                    this.props.history.push(ROUTES.HOME);
+                .then(user => {
+                    if (user.user.emailVerified) {
+                        this.props.history.push(ROUTES.HOME);
+                    } else {
+                        throw new Error("The email you are trying to sign in with has not been verified. Please verify this email before signing in.")
+                    }
                 })
                 .catch(error => {
                     this.setState({

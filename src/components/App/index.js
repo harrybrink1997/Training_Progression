@@ -24,6 +24,7 @@ import ManageAthleteTeamsPage from '../ManageAthleteTeams'
 import ManageProgramsPage from '../ManagePrograms'
 import CreateCoachTeamPage from '../CreateCoachTeam'
 import ManageExercisesPage from '../ManageExercises'
+import VerifyEmailPage from '../VerifyEmail'
 
 import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
@@ -60,6 +61,7 @@ import '../../CustomCSS/semanticUIDropdown.css'
 import '../../CustomCSS/semanticUIPopUp.css'
 import '../../CustomCSS/semanticUIForm.css'
 import '../../CustomCSS/joyride.css'
+import '../../CustomCSS/fullPageForm.css'
 
 const App = () => {
 
@@ -90,6 +92,7 @@ const App = () => {
             <Route path={ROUTES.MANAGE_PROGRAMS} component={ManageProgramsPage} />
             <Route path={ROUTES.CREATE_COACH_TEAM} component={CreateCoachTeamPage} />
             <Route path={ROUTES.MANAGE_EXERCISES} component={ManageExercisesPage} />
+            <Route path={ROUTES.VERIFY_EMAIL} component={VerifyEmailPage} />
         </Router >
     )
 };

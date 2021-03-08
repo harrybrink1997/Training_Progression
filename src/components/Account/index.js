@@ -19,40 +19,24 @@ class AccountPage extends Component {
         }
     }
     async componentDidMount() {
-        this.setState({ loading: true });
-
-        var currUserUid = this.props.firebase.auth.currentUser.uid
-        // Creates reference to the current user object in the database. Function will be run each time the user
-        // object updates in the database. 
-        await this.props.firebase.getUserData(currUserUid).once('value', async userData => {
-            var userObject = userData.val();
-
-            // await this.props.firebase.userType(currUserUid).once('value', async userRole => {
-            //     var role = userRole.val()
-
-            if (!this.state.loading) {
-                this.setState({
-                    loading: true,
-                }, () => {
-                    // Format the user data based on whether or not user has current programs. 
-                    this.updateObjectState(userObject)
-                })
-            } else {
-                this.updateObjectState(userObject)
-            }
-            // })
-
-        })
-    }
-
-    updateObjectState = (userObject, role) => {
-        // Format the user data based on whether or not user has current programs. 
         this.setState({
-            email: userObject.email,
-            username: userObject.username,
-            userType: userObject.userType,
-            loading: false
-        })
+            loading: true
+        }, () => {
+            this.props.firebase.getUser(
+                this.props.firebase.auth.currentUser.uid
+            ).then(snap => {
+                if (!snap.empty) {
+                    this.setState({
+                        email: snap.data().email,
+                        username: snap.data().username,
+                        userType: snap.data().userType,
+                        loading: false
+                    })
+                } else {
+                    this.props.history.push(ROUTES.HOME)
+                }
+            })
+        });
     }
 
     handleChangePasswordRedirect = () => {

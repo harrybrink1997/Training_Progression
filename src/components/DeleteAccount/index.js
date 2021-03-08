@@ -4,6 +4,7 @@ import { Button } from 'semantic-ui-react'
 import { withAuthorisation } from '../Session';
 import * as ROUTES from '../../constants/routes'
 import InputLabel from '../CustomComponents/DarkModeInput'
+import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper';
 
 class DeleteAccountPage extends Component {
 
@@ -11,25 +12,21 @@ class DeleteAccountPage extends Component {
         super(props)
 
         this.state = {
-            deleteAccountError: null
+            deleteAccountError: null,
+            processing: false
         }
     }
 
     handleSubmitDeleteAccount = () => {
-        console.log("submitted")
-        var userID = this.props.firebase.auth.currentUser.uid
-        this.props.firebase.doDeleteAuthentication()
-            .then(() => {
-                this.props.firebase.deleteUserInDatabase(
-                    userID
-                )
-            })
-            .catch(error => {
-                this.setState({
-                    deleteAccountError: error
+        this.setState({ processing: true, deleteAccountError: undefined }, () => {
+            this.props.firebase.doDeleteAuthentication()
+                .catch(error => {
+                    this.setState({
+                        deleteAccountError: error,
+                        processing: false
+                    })
                 })
-            })
-
+        })
     }
 
     handleKeepAccount = () => {
@@ -39,39 +36,43 @@ class DeleteAccountPage extends Component {
     render() {
 
         const {
-            deleteAccountError
+            deleteAccountError,
+            processing
         } = this.state
 
         return (
-            <div id='signInPageMainContainer'>
-                <div id='signInEmailMainContainer' className='pageContainerLevel1'>
-                    <InputLabel
-                        text='Delete Account'
-                        custID='signInPageMainLabel'
-                    />
-                    <div id='deleteAccountAreYouSureMessage'>
-                        Are you sure you want to delete your account? All historical data will be lost and cannot be recovered.
+            <NonLandingPageWrapper>
+                <div id='signInPageMainContainer'>
+                    <div id='signInEmailMainContainer' className='pageContainerLevel1'>
+                        <InputLabel
+                            text='Delete Account'
+                            custID='signInPageMainLabel'
+                        />
+                        <div id='deleteAccountAreYouSureMessage'>
+                            Are you sure you want to delete your account? All historical data will be lost and cannot be recovered.
                     </div>
 
-                    <div id='deleteAccountButtonRow' className='rowContainer'>
-                        <Button
-                            className='lightPurpleButton'
-                            onClick={() => { this.handleKeepAccount() }}
-                        >
-                            Keep Account
+                        <div id='deleteAccountButtonRow' className='rowContainer'>
+                            <Button
+                                className='lightPurpleButton'
+                                onClick={() => { this.handleKeepAccount() }}
+                            >
+                                Keep Account
                         </Button>
-                        <Button
-                            className='lightPurpleButton-inverted'
-                            onClick={() => { this.handleSubmitDeleteAccount() }}
-                        >
-                            Delete Account
+                            <Button
+                                className='lightPurpleButton-inverted'
+                                loading={processing}
+                                onClick={() => { this.handleSubmitDeleteAccount() }}
+                            >
+                                Delete Account
                         </Button>
+                        </div>
+                        <div id='signInEmailFooterMessagesContainer'>
+                            {deleteAccountError && <p>{deleteAccountError.message}</p>}
+                        </div>
                     </div>
-                    <div id='signInEmailFooterMessagesContainer'>
-                        {deleteAccountError && <p>{deleteAccountError.message}</p>}
-                    </div>
-                </div>
-            </div >
+                </div >
+            </NonLandingPageWrapper>
         )
     }
 }

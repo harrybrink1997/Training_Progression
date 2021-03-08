@@ -147,14 +147,34 @@ const NavigationAuth = ({ custClass }) => {
 }
 
 const NavigationNotAuth = ({ custClass }) => {
+
+    const { height, width } = useWindowDimensions()
+
     return (
-        <Menu className={"not-auth-nav-bar" + " " + custClass}>
-            <Menu.Item
-                as='a'
-                href={ROUTES.LANDING}
-            >
-            </Menu.Item>
-        </Menu>
+        <>
+            {
+                width >= 400 &&
+                < Menu className={"auth-nav-bar" + " " + custClass} >
+                    <Menu.Item
+                        as='a'
+                        href={ROUTES.LANDING}
+                    >
+                        <Image src={require('./Images/corvusStrengthLogoTransparent.png')} size='tiny' centered />
+                    </Menu.Item>
+                </Menu >
+            }
+            {
+                width < 400 &&
+                <div id="smlScreenLandingMenu">
+                    <div id="smlScreenMenuCorvusIcon">
+                        <a href={ROUTES.LANDING}>
+                            <Image src={require('./Images/corvusStrengthLogoTransparent.png')} size='tiny' centered />
+                        </a>
+                    </div>
+                </div>
+            }
+
+        </>
     )
 }
 

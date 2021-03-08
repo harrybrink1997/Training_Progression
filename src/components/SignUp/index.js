@@ -25,10 +25,14 @@ class SignUpPage extends Component {
         this.setState({
             signUpProcessing: true
         }, () => {
+            let actionCodeSettings = {
+                url: '/home',
+                handleCodeInApp: true,
+            }
             this.props.firebase
                 .doCreateUserWithEmailAndPassword(email, password)
                 .then(async authUser => {
-
+                    window.localStorage.setItem('corvusEmailForSignIn', email)
                     // Create a user in your Firebase realtime database
                     var userPath = `users/${authUser.user.uid}`
                     console.log(userPath)
@@ -42,19 +46,13 @@ class SignUpPage extends Component {
                             admin: false,
                         }
                     }
-                    // await this.props.firebase.grantModeratorRole(authUser.user.uid, userType)
-                    // await this.props.firebase.auth.currentUser.getIdTokenResult(true)
-
-                    // TODO DELETE AFTER DB MIGRATION
-                    var rtPL = {}
-                    rtPL[userPath] = payLoad
-                    await this.props.firebase.createUserUpstream(rtPL)
-                    // END OF DELETE
-
                     await this.props.firebase.createUserDB(authUser.user.uid, payLoad)
+
+                    await authUser.user.sendEmailVerification()
+
                 })
                 .then(() => {
-                    this.props.history.push(ROUTES.HOME);
+                    this.props.history.push(ROUTES.VERIFY_EMAIL);
                 })
                 .catch(error => {
                     this.setState({

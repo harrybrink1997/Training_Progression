@@ -80,7 +80,13 @@ class Firebase {
     }
 
     doDeleteAuthentication = () => {
-        return this.auth.currentUser.delete()
+        return new Promise((res, rej) => {
+            this.auth.currentUser.delete()
+                .then(() => res(true))
+                .catch(error => {
+                    rej(error)
+                })
+        })
     }
 
     deleteUserInDatabase = (uid) => {
