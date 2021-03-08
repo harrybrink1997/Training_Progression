@@ -1,10 +1,8 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const { user } = require('firebase-functions/lib/providers/auth');
+const { auth } = require('firebase');
 admin.initializeApp(functions.config().firebase);
-
-exports.setUserPrivledges = functions.https.onCall((data, context) => {
-    return admin.auth().setCustomUserClaims(context.auth.uid, { userType: data.userType })
-})
 
 exports.cleanUpDBPostProgDelete = functions.firestore
     .document('programs/{docUID}')
@@ -35,17 +33,16 @@ exports.cleanUpDBPostProgDelete = functions.firestore
     })
 
 
-exports.scrubUserFromDatabase = functions.auth.user().onDelete(user => {
-    console.log(user.uid)
-    admin.firestore()
-        .collection('users')
-        .doc(user.uid)
-        .delete()
-        .then(() => {
-            return
-        })
-        .catch(error => {
-            console.log(error)
-        })
-})
-    // exports.removeUnverifiedAccounts = functions.firestore
+exports.scrubUserFromDatabase = functions.auth.user()
+    .onDelete(user => {
+        admin.firestore()
+            .collection('users')
+            .doc(user.uid)
+            .delete()
+            .then(() => {
+                return
+            })
+            .catch(error => {
+                console.log(error)
+            })
+    })
