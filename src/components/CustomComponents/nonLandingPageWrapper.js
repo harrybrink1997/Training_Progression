@@ -1,11 +1,15 @@
 import React from 'react'
 import Navigation from '../Navigation'
+import Footer from './footer'
 
 const NonLandingPageWrapper = (props) => {
     return (
-        <div>
+        <div id="nonLandingPageWrapper">
             <Navigation />
-            {props.children}
+            <div id="nonLandingPageBodyContentWrapper">
+                {props.children}
+            </div>
+            <Footer />
         </div>
     )
 }

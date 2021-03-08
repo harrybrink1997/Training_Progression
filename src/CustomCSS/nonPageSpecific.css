@@ -169,3 +169,23 @@
     align-items: center;
     height: 80vh;
 }
+
+.pageBodyContentMainHeader {
+    width: 100%
+}
+
+#nonLandingPageWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#nonLandingPageBodyContentWrapper {
+    flex-grow: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 1320px;
+    width: 100%;
+}

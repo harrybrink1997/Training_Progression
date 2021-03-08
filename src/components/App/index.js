@@ -64,35 +64,32 @@ import '../../CustomCSS/joyride.css'
 const App = () => {
 
     return (
-        < Router >
-            <div>
-                {/* <Navigation /> */}
-                <Route exact path={ROUTES.LANDING} component={LandingPage} />
-                <Route path={ROUTES.SIGN_UP} component={SignUpPage} />
-                <Route path={ROUTES.SIGN_IN} component={SignInPage} />
-                <Route
-                    path={ROUTES.PASSWORD_FORGET}
-                    component={PasswordForgetPage}
-                />
-                <Route path={ROUTES.HOME} component={HomePage} />
-                <Route path={ROUTES.ACCOUNT} component={AccountPage} />
-                {/* <Route path={ROUTES.ADMIN} component={AdminPage} /> */}
-                <Route path={ROUTES.SAFETY_GRAPH} component={SafetyGraphPage} />
-                <Route path={ROUTES.PROG_DATA} component={ProgressionDataPage} />
-                <Route path={ROUTES.CURRENT_PROGRAMS} component={CurrentProgramPage} />
-                <Route path={ROUTES.PAST_PROGRAMS} component={PastProgramPage} />
-                <Route path={ROUTES.LEARN_MORE} component={LearnMorePage} />
-                <Route path={ROUTES.PASSWORD_CHANGE} component={PasswordChangePage} />
-                <Route path={ROUTES.EMAIL_CHANGE} component={EmailChangePage} />
-                <Route path={ROUTES.DELETE_ACCOUNT} component={DeleteAccountPage} />
-                <Route path={ROUTES.JOIN_TEAM} component={JoinTeamPage} />
-                <Route path={ROUTES.MANAGE_ATHLETES} component={ManageAthletesPage} />
-                <Route path={ROUTES.MANAGE_COACH_TEAMS} component={ManageCoachTeamsPage} />
-                <Route path={ROUTES.MANAGE_ATHLETE_TEAMS} component={ManageAthleteTeamsPage} />
-                <Route path={ROUTES.MANAGE_PROGRAMS} component={ManageProgramsPage} />
-                <Route path={ROUTES.CREATE_COACH_TEAM} component={CreateCoachTeamPage} />
-                <Route path={ROUTES.MANAGE_EXERCISES} component={ManageExercisesPage} />
-            </div>
+        < Router>
+            <Route exact path={ROUTES.LANDING} component={LandingPage} />
+            <Route path={ROUTES.SIGN_UP} component={SignUpPage} />
+            <Route path={ROUTES.SIGN_IN} component={SignInPage} />
+            <Route
+                path={ROUTES.PASSWORD_FORGET}
+                component={PasswordForgetPage}
+            />
+            <Route path={ROUTES.HOME} component={HomePage} />
+            <Route path={ROUTES.ACCOUNT} component={AccountPage} />
+            {/* <Route path={ROUTES.ADMIN} component={AdminPage} /> */}
+            <Route path={ROUTES.SAFETY_GRAPH} component={SafetyGraphPage} />
+            <Route path={ROUTES.PROG_DATA} component={ProgressionDataPage} />
+            <Route path={ROUTES.CURRENT_PROGRAMS} component={CurrentProgramPage} />
+            <Route path={ROUTES.PAST_PROGRAMS} component={PastProgramPage} />
+            <Route path={ROUTES.LEARN_MORE} component={LearnMorePage} />
+            <Route path={ROUTES.PASSWORD_CHANGE} component={PasswordChangePage} />
+            <Route path={ROUTES.EMAIL_CHANGE} component={EmailChangePage} />
+            <Route path={ROUTES.DELETE_ACCOUNT} component={DeleteAccountPage} />
+            <Route path={ROUTES.JOIN_TEAM} component={JoinTeamPage} />
+            <Route path={ROUTES.MANAGE_ATHLETES} component={ManageAthletesPage} />
+            <Route path={ROUTES.MANAGE_COACH_TEAMS} component={ManageCoachTeamsPage} />
+            <Route path={ROUTES.MANAGE_ATHLETE_TEAMS} component={ManageAthleteTeamsPage} />
+            <Route path={ROUTES.MANAGE_PROGRAMS} component={ManageProgramsPage} />
+            <Route path={ROUTES.CREATE_COACH_TEAM} component={CreateCoachTeamPage} />
+            <Route path={ROUTES.MANAGE_EXERCISES} component={ManageExercisesPage} />
         </Router >
     )
 };

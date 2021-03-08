@@ -275,7 +275,7 @@ class HomePage extends Component {
 
         let nonLoadingHTML =
             <NonLandingPageWrapper>
-                <div className="pageContainerLevel1">
+                <div className="pageContainerLevel1 pageBodyContentMainHeader">
                     <OnBoarding
                         run={firstTimeUser}
                     />
@@ -285,15 +285,6 @@ class HomePage extends Component {
                                 greeting
                             }
                         </div>
-                        {/* <div id='hpBtnContainer' >
-                            <div id='hpRightBtnContainer'>
-                                <CreateExerciseModal
-                                    handleFormSubmit={this.handleCreateExercise}
-                                    anatomyObject={anatomyObject}
-                                />
-                            </div>
-
-                        </div> */}
                         {
                             coachRequestTableData &&
                             <div className="centred-info">
@@ -304,60 +295,61 @@ class HomePage extends Component {
                         }
                     </div>
                 </div>
-                <div id='programAssignmentCardGroupContainer'>
-                    <Card.Group>
+                <Card.Group className="three">
+                    <div>
+
+                        <Card onClick={() => { this.handleManageProgramsRedirect() }}>
+                            <Card.Content className='iconContent'>
+                                <Icon name='file alternate outline' size='huge' />
+                            </Card.Content>
+                            <Card.Content>
+                                <Card.Header textAlign='center'>My <br /> Programs</Card.Header>
+                            </Card.Content>
+                        </Card>
+                    </div>
+                    <div>
+
+                        <Card onClick={() => { this.handleManageTeamsRedirect() }}>
+                            <Card.Content className='iconContent'>
+                                <Icon name='group' size='huge' />
+                            </Card.Content>
+                            <Card.Content>
+                                <Card.Header textAlign='center'>My <br /> Teams</Card.Header>
+                            </Card.Content>
+                        </Card>
+                    </div>
+                    {
+                        user && user.getUserType() === 'coach' &&
                         <div>
-                            <Card onClick={() => { this.handleManageProgramsRedirect() }}>
-                                <Card.Content className='iconContent'>
-                                    <Icon name='file alternate outline' size='huge' />
-                                </Card.Content>
-                                <Card.Content>
-                                    <Card.Header textAlign='center'>My <br /> Programs</Card.Header>
-                                </Card.Content>
-                            </Card>
-                        </div>
-                        <div>
-                            <Card onClick={() => { this.handleManageTeamsRedirect() }}>
-                                <Card.Content className='iconContent'>
-                                    <Icon name='group' size='huge' />
-                                </Card.Content>
-                                <Card.Content>
-                                    <Card.Header textAlign='center'>My <br /> Teams</Card.Header>
-                                </Card.Content>
-                            </Card>
-                        </div>
-                        {
-                            user && user.getUserType() === 'coach' &&
-                            <div>
-                                <Card onClick={() => { this.handleManageAthletesRedirect() }}>
-                                    <Card.Content className='iconContent'>
-                                        <Icon name='group' size='huge' />
-                                    </Card.Content>
-                                    <Card.Content>
-                                        <Card.Header textAlign='center'>My <br /> Athletes</Card.Header>
-                                    </Card.Content>
-                                </Card>
-                            </div>
-                        }
-                        <div>
-                            <Card onClick={() => { this.handleExercisesRedirect() }}>
+
+                            <Card onClick={() => { this.handleManageAthletesRedirect() }}>
                                 <Card.Content className='iconContent'>
                                     <Icon name='group' size='huge' />
                                 </Card.Content>
                                 <Card.Content>
-                                    <Card.Header textAlign='center'>My <br /> Exercises</Card.Header>
+                                    <Card.Header textAlign='center'>My <br /> Athletes</Card.Header>
                                 </Card.Content>
                             </Card>
                         </div>
-                    </Card.Group>
-                </div>
+                    }
+                    <div>
+                        <Card onClick={() => { this.handleExercisesRedirect() }}>
+                            <Card.Content className='iconContent'>
+                                <Icon name='group' size='huge' />
+                            </Card.Content>
+                            <Card.Content>
+                                <Card.Header textAlign='center'>My <br /> Exercises</Card.Header>
+                            </Card.Content>
+                        </Card>
+                    </div>
+                </Card.Group>
             </NonLandingPageWrapper>
 
         return (
-            <div>
+            <>
                 {loading && loadingHTML}
                 {!loading && nonLoadingHTML}
-            </div>
+            </>
         )
     }
 
