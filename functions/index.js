@@ -34,57 +34,67 @@ exports.cleanUpDBPostProgDelete = functions.firestore
 
 exports.scrubUserFromDatabase = functions.auth.user()
     .onDelete(user => {
-        let userUID = user.uid
-        admin.firestore()
-            .collection('users')
-            .doc(user.uid)
-            .get()
-            .then(snap => {
-                if (!snap.empty) {
-                    const userType = snap.data().userType
-                    if (userType === 'coach') {
-                        deleteCoachData(userUID)
-                            .then(() => {
-                                admin.firestore()
-                                    .collection('users')
-                                    .doc(user.uid)
-                                    .delete()
-                                    .then(() => {
-                                        return true
-                                    })
-                                    .catch(error => {
-                                        console.log(error)
-                                    })
-                                return true
-                            })
-                            .catch(error => {
-                                console.log(error)
-                            })
-                    } else {
-                        deleteAthleteData(userUID)
-                            .then(() => {
-                                admin.firestore()
-                                    .collection('users')
-                                    .doc(user.uid)
-                                    .delete()
-                                    .then(() => {
-                                        return true
-                                    })
-                                    .catch(error => {
-                                        console.log(error)
-                                    })
-                                return true
-                            })
-                            .catch(error => {
-                                console.log(error)
-                            })
+        return new Promise((res, rej) => {
+            let userUID = user.uid
+            admin.firestore()
+                .collection('users')
+                .doc(user.uid)
+                .get()
+                .then(snap => {
+                    if (!snap.empty) {
+                        const userType = snap.data().userType
+                        if (userType === 'coach') {
+                            deleteCoachData(userUID)
+                                .then(() => {
+                                    admin.firestore()
+                                        .collection('users')
+                                        .doc(user.uid)
+                                        .delete()
+                                        .then(() => {
+                                            res(true)
+                                            return true
+                                        })
+                                        .catch(error => {
+                                            rej(error)
+                                            console.log(error)
+                                        })
+                                    return true
+                                })
+                                .catch(error => {
+                                    rej(error)
+                                    console.log(error)
+                                })
+                        } else {
+                            deleteAthleteData(userUID)
+                                .then(() => {
+                                    admin.firestore()
+                                        .collection('users')
+                                        .doc(user.uid)
+                                        .delete()
+                                        .then(() => {
+                                            res(true)
+                                            return true
+                                        })
+                                        .catch(error => {
+                                            rej(error)
+                                            console.log(error)
+                                        })
+                                    return true
+                                })
+                                .catch(error => {
+                                    rej(error)
+                                    console.log(error)
+                                })
+                        }
                     }
-                }
-                return true
-            })
-            .catch(error => {
-                console.log(error)
-            })
+                    return true
+                })
+                .catch(error => {
+                    rej(error)
+                    console.log(error)
+                })
+        })
+
 
     })
 
@@ -169,7 +179,6 @@ const deletePrograms = (userUID, userType) => {
             admin.firestore()
                 .collection('programs')
                 .where('owner', '==', userUID)
-                .where('status', '!=', 'past')
                 .get()
                 .then(snap => {
                     if (!snap.empty) {
@@ -180,8 +189,10 @@ const deletePrograms = (userUID, userType) => {
                         let promises = []
 
                         snap.docs.forEach(doc => {
-                            promises.push(deleteProgramHelper(doc.id))
-                            batch.delete(path.doc(doc.id))
+                            if (doc.data().status !== 'past') {
+                                promises.push(deleteProgramHelper(doc.id))
+                                batch.delete(path.doc(doc.id))
+                            }
                         })
 
                         Promise.all(promises)

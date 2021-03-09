@@ -2501,41 +2501,15 @@ class Firebase {
                     if (snap.empty) {
                         res({})
                     } else {
-                        res(snap.docs[0].data().programs)
+                        if (!snap.docs[0].data().programs) {
+                            res({})
+                        } else {
+                            res(snap.docs[0].data().programs)
+                        }
                     }
                 })
         })
     }
-
-    // getCoachCurrentAthletes = (coachUID) => {
-    //     return new Promise((res, rej) => {
-    //         this.database
-    //             .collection('currentCoachAthletes')
-    //             .where('coachUID', '==', coachUID)
-    //             .get()
-    //             .then(snap => {
-    //                 if (snap.empty) {
-    //                     res([])
-    //                 } else {
-    //                     var promises = []
-    //                     snap.docs.forEach(doc => {
-    //                         var data = doc.data()
-
-    //                         var insertObj = {
-    //                             athleteUID: data.athleteUID,
-    //                             joiningDate: data.joiningDate
-    //                         }
-
-    //                         promises.push(this.getAthleteDetails(insertObj.athleteUID, insertObj))
-    //                     })
-
-    //                     Promise.all(promises).then(athleteInfo => {
-    //                         res(athleteInfo)
-    //                     })
-    //                 }
-    //             })
-    //     })
-    // }
 
     getTeamCurrentAthletes = (coachUID, teamName) => {
         return new Promise((res, rej) => {

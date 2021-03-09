@@ -269,7 +269,7 @@ class ManageCoachTeamsPage extends Component {
                 this.props.firebase.auth.currentUser.uid,
                 this.state.currTeam.team
             ).then(progObj => {
-
+                console.log(progObj)
                 console.log(programData)
 
                 var athleteList = this.state.currTeam.currTeamMemberData.data.map(athlete => {
