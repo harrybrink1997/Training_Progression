@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Modal, Button, Card, Icon, Form, Input, Container, Breadcrumb } from 'semantic-ui-react'
 import ProgramClassification from '../CustomComponents/programClassification'
 import RowSelectTable from '../CustomComponents/rowSelectTable'
-
+import NoDataMessage from '../CustomComponents/noDataMessage'
 
 
 
@@ -303,21 +303,30 @@ const DeleteProgramGroup = ({ handleFormSubmit, programGroupTableData }) => {
         ]
 
     return (
-        <div>
-            <Form onSubmit={handleDeleteGroups}>
-                <RowSelectTable
-                    data={programGroupTableData}
-                    columns={programGroupTableColumns}
-                    rowSelectChangeHandler={setSelectedList}
-                />
-                <Button
-                    type="submit"
-                    className="lightPurpleButton"
-                >
-                    Delete Groups
-                </Button>
-            </Form>
-        </div>
+        <>
+            {
+                programGroupTableData ?
+                    <div>
+                        <Form onSubmit={handleDeleteGroups}>
+                            <RowSelectTable
+                                data={programGroupTableData}
+                                columns={programGroupTableColumns}
+                                rowSelectChangeHandler={setSelectedList}
+                            />
+                            <Button
+                                type="submit"
+                                className="lightPurpleButton"
+                            >
+                                Delete Groups
+                        </Button>
+                        </Form>
+                    </div>
+                    :
+                    <NoDataMessage>
+                        No program groups to show.
+                    </NoDataMessage>
+            }
+        </>
     )
 
 

@@ -88,6 +88,9 @@ class ManageProgramsPage extends Component {
                         if (snap.programGroups) {
                             programGroupList = Object.keys(snap.programGroups)
                             programGroupTableData = initProgDeployCoachProgGroupTableData(snap.programGroups)
+                        } else {
+                            programGroupList = []
+                            programGroupTableData = undefined
                         }
 
                         this.setState({
@@ -152,7 +155,6 @@ class ManageProgramsPage extends Component {
             } else {
                 programList.getProgramList().forEach(prog => {
                     if (prog.isActiveInSequence !== false) {
-
                         payload.data.push({
                             program: prog.getName(),
                             loadingScheme: loadingSchemeString(prog.getLoadingScheme()),
@@ -160,23 +162,40 @@ class ManageProgramsPage extends Component {
                             acutePeriod: prog.getAcutePeriod(),
                             chronicPeriod: prog.getChronicPeriod(),
                             buttons:
-                                <>
-                                    <Button
-                                        className='lightPurpleButton-inverted'
-                                        onClick={() => { this.handleProgramClick(prog.generateProgramUID(), prog.getStatus()) }}
-                                    >
-                                        View Program
+                                this.state.user.getUserType() !== 'coach'
+                                    ?
+                                    <>
+                                        <Button
+                                            className='lightPurpleButton-inverted'
+                                            onClick={() => { this.handleProgramClick(prog.generateProgramUID(), prog.getStatus()) }}
+                                        >
+                                            View Program
                                     </Button>
-                                    <CloseOffProgramModal
-                                        handleFormSubmit={() => { this.handleCloseOffProgram(prog.generateProgramUID()) }}
-                                    />
-                                    <Button
-                                        className='lightRedButton-inverted'
-                                        onClick={() => { this.handleDeleteProgram(prog.generateProgramUID(), prog.getStatus()) }}
-                                    >
-                                        Delete Program
+                                        <CloseOffProgramModal
+                                            handleFormSubmit={() => { this.handleCloseOffProgram(prog.generateProgramUID()) }}
+                                        />
+                                        <Button
+                                            className='lightRedButton-inverted'
+                                            onClick={() => { this.handleDeleteProgram(prog.generateProgramUID(), prog.getStatus()) }}
+                                        >
+                                            Delete Program
                                     </Button>
-                                </>
+                                    </>
+                                    :
+                                    <>
+                                        <Button
+                                            className='lightPurpleButton-inverted'
+                                            onClick={() => { this.handleProgramClick(prog.generateProgramUID(), prog.getStatus()) }}
+                                        >
+                                            View Program
+                                    </Button>
+                                        <Button
+                                            className='lightRedButton-inverted'
+                                            onClick={() => { this.handleDeleteProgram(prog.generateProgramUID(), prog.getStatus()) }}
+                                        >
+                                            Delete Program
+                                    </Button>
+                                    </>
                         })
                     }
                 })

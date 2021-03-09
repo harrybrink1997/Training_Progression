@@ -50,25 +50,7 @@ const CreateCoachTeamForm = ({ handleFormSubmit, athleteTableData, programTableD
             },
         ]
 
-    const programGroupTableColumns =
-        [
-            {
-                Header: 'Program Group',
-                accessor: 'programGroup',
-                filter: 'fuzzyText'
-            },
-            {
-                Header: 'Unlimited Programs',
-                accessor: 'unlimited',
-            },
-            {
-                Header: 'Sequential Programs',
-                accessor: 'sequential',
-            }
-        ]
-
     const changeTeamName = (event, { value }) => {
-        value = value.trim()
         if (currTeamListArray.includes(value)) {
             setTeamName(value)
             setReservedWordError(true)
@@ -85,21 +67,26 @@ const CreateCoachTeamForm = ({ handleFormSubmit, athleteTableData, programTableD
 
     }
 
-    const handleSubmit = (programData = undefined) => {
-        setShow(false);
+    const handleSubmit = (programData = {}) => {
 
-        var athleteData = []
+        if (currTeamListArray.includes(teamName.trim())) {
+            setReservedWordError(true)
+            setPageNum(1)
+        } else {
+            var athleteData = []
 
-        Object.values(selectedAthletes).forEach(athlete => {
-            athleteData.push(athlete.original)
-        })
+            Object.values(selectedAthletes).forEach(athlete => {
+                athleteData.push(athlete.original)
+            })
 
-        handleFormSubmit(teamName.trim(), teamDescription.trim(), athleteData, programData)
-        setTeamName('')
-        setTeamDescription('')
-        setSelectedAthletes([])
-        setSelectedPrograms([])
-        setPageNum(1)
+            handleFormSubmit(teamName.trim(), teamDescription.trim(), athleteData, programData)
+            setShow(false);
+            setTeamName('')
+            setTeamDescription('')
+            setSelectedAthletes([])
+            setSelectedPrograms([])
+            setPageNum(1)
+        }
     }
 
     const handleNonFinalSubmit = () => {
@@ -109,7 +96,11 @@ const CreateCoachTeamForm = ({ handleFormSubmit, athleteTableData, programTableD
     }
 
     const handleAthleteSelection = (athleteTableSelection) => {
-        setSelectedAthletes(athleteTableSelection)
+        if (athleteTableSelection.length === 0) {
+            handleSubmit()
+        } else {
+            setSelectedAthletes(athleteTableSelection)
+        }
     }
     // Use effect to determine next step once athletes are assigned. 
     useEffect(() => {
@@ -269,7 +260,7 @@ const CreateCoachTeamForm = ({ handleFormSubmit, athleteTableData, programTableD
                         data={athleteTableData.data}
                         columns={athleteTableData.columns}
                         submitHandler={handleAthleteSelection}
-                        buttonText={programTableData ? 'Next' : 'Create Team'}
+                        buttonText={(programTableData && selectedAthletes.length > 0) ? 'Next' : 'Create Team'}
                     />
                 }
                 {

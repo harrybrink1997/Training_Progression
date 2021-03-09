@@ -22,7 +22,7 @@ const SelectAthletesTable = ({ data, columns, submitHandler, buttonText }) => {
                     className='lightPurpleButton'
                     onClick={() => { submitHandler(selectedAthletes) }}
                 >
-                    {buttonText}
+                    {selectedAthletes.length === 0 ? 'Create Team' : buttonText}
                 </Button>
 
             </div>

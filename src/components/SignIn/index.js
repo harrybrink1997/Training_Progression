@@ -13,6 +13,14 @@ import ForgetPasswordLink from '../PasswordForget/passwordForgetLink'
 import InputLabel from '../CustomComponents/DarkModeInput';
 import Navigation from '../Navigation'
 
+const devAccounts = [
+    'athlete@gmail.com',
+    'athlete1@gmail.com',
+    'athlete2@gmail.com',
+    'coach@gmail.com',
+    'coach1@gmail.com'
+]
+
 class SignInPage extends Component {
     constructor(props) {
         super(props);
@@ -39,10 +47,14 @@ class SignInPage extends Component {
             this.props.firebase
                 .doSignInWithEmailAndPassword(email, password)
                 .then(user => {
-                    if (user.user.emailVerified) {
+                    if (devAccounts.includes(email)) {
                         this.props.history.push(ROUTES.HOME);
                     } else {
-                        throw new Error("The email you are trying to sign in with has not been verified. Please verify this email before signing in.")
+                        if (user.user.emailVerified) {
+                            this.props.history.push(ROUTES.HOME);
+                        } else {
+                            throw new Error("The email you are trying to sign in with has not been verified. Please verify this email before signing in.")
+                        }
                     }
                 })
                 .catch(error => {

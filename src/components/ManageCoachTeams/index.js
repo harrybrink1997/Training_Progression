@@ -1132,7 +1132,7 @@ class ManageCoachTeamsPage extends Component {
                             </div>
 
                             {
-                                currTeam.view === 'manageTeamPrograms' &&
+                                currTeam.view === 'manageTeamPrograms' && currTeam.currTeamMemberData.data.length > 0 &&
                                 <div className='rowContainer centred-info sml-margin-top'>
                                     <Button
                                         className='lightPurpleButton'
