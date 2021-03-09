@@ -17,7 +17,7 @@ import LearnMorePage from '../LearnMore'
 import PasswordChangePage from '../PasswordChange'
 import EmailChangePage from '../EmailChange'
 import DeleteAccountPage from '../DeleteAccount'
-import JoinTeamPage from '../JoinTeam'
+import ManageCoachesPage from '../ManageCoaches'
 import ManageAthletesPage from '../ManageAthletes'
 import ManageCoachTeamsPage from '../ManageCoachTeams'
 import ManageAthleteTeamsPage from '../ManageAthleteTeams'
@@ -85,7 +85,7 @@ const App = () => {
             <Route path={ROUTES.PASSWORD_CHANGE} component={PasswordChangePage} />
             <Route path={ROUTES.EMAIL_CHANGE} component={EmailChangePage} />
             <Route path={ROUTES.DELETE_ACCOUNT} component={DeleteAccountPage} />
-            <Route path={ROUTES.JOIN_TEAM} component={JoinTeamPage} />
+            <Route path={ROUTES.MANAGE_COACHES} component={ManageCoachesPage} />
             <Route path={ROUTES.MANAGE_ATHLETES} component={ManageAthletesPage} />
             <Route path={ROUTES.MANAGE_COACH_TEAMS} component={ManageCoachTeamsPage} />
             <Route path={ROUTES.MANAGE_ATHLETE_TEAMS} component={ManageAthleteTeamsPage} />

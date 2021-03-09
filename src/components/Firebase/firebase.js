@@ -2489,6 +2489,43 @@ class Firebase {
 
     }
 
+    getCurrentAthleteCoaches = (athleteUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('currentCoachAthletes')
+                .where('athleteUID', '==', athleteUID)
+                .get()
+                .then(snap => {
+                    if (!snap.empty) {
+                        let promises = []
+
+                        snap.docs.forEach(doc => {
+                            promises.push(
+                                this.getUser(doc.data().coachUID)
+                            )
+                        })
+
+                        Promise.all(promises).then(data => {
+                            let payload = []
+
+                            data.forEach(coach => {
+                                payload.push({
+                                    username: coach.data().username,
+                                    email: coach.data().email,
+                                    coachUID: coach.id
+                                })
+                            })
+
+                            res(payload)
+                        })
+
+                    } else {
+                        res([])
+                    }
+                })
+        })
+    }
+
     getTeamProgramData = (coachUID, teamName) => {
         return new Promise((res, rej) => {
             this.database

@@ -8,28 +8,40 @@ admin.initializeApp(functions.config().firebase);
 exports.cleanUpDBPostProgDelete = functions.firestore
     .document('programs/{docUID}')
     .onDelete((snapshot, context) => {
-        admin.firestore()
-            .collection('goals')
-            .where('programUID', '==', snapshot.data().programUID)
-            .where('programStatus', '==', snapshot.data().status)
-            .where('athleteUID', '==', snapshot.data().athlete)
-            .get()
-            .then(goalSnap => {
-                if (!goalSnap.empty) {
-                    var batch = admin.firestore().batch()
-                    var goalRef = admin.firestore().collection('goals')
+        return new Promise((res, rej) => {
+            admin.firestore()
+                .collection('goals')
+                .where('programUID', '==', snapshot.data().programUID)
+                .where('programStatus', '==', snapshot.data().status)
+                .where('athleteUID', '==', snapshot.data().athlete)
+                .get()
+                .then(goalSnap => {
+                    if (!goalSnap.empty) {
+                        var batch = admin.firestore().batch()
+                        var goalRef = admin.firestore().collection('goals')
 
-                    goalSnap.docs.forEach(doc => {
-                        batch.delete(goalRef.doc(doc.id))
-                    })
+                        goalSnap.docs.forEach(doc => {
+                            batch.delete(goalRef.doc(doc.id))
+                        })
 
-                    batch.commit()
-                }
-                return true
-            })
-            .catch(error => {
-                console.log(error)
-            })
+                        batch.commit()
+                            .then(() => {
+                                res(true)
+                                return true
+                            })
+                            .catch(error => {
+                                rej(error)
+                                console.log(error)
+                            })
+                    }
+                    return true
+                })
+                .catch(error => {
+                    rej(error)
+                    console.log(error)
+                })
+        })
+
     })
 
 exports.scrubUserFromDatabase = functions.auth.user()
@@ -103,7 +115,8 @@ const deleteAthleteData = (docUID) => {
         Promise.all([
             deleteLocalExercises(docUID),
             deletePrograms(docUID, 'athlete'),
-            deleteUserAssociations(docUID, 'athlete')
+            deleteUserAssociations(docUID, 'athlete'),
+            deleteCoachRequests(docUID, 'athlete')
         ])
             .then(() => {
                 res(true)
@@ -122,7 +135,8 @@ const deleteCoachData = (docUID) => {
             deleteCoachProgramGroups(docUID),
             deleteLocalExercises(docUID),
             deletePrograms(docUID, 'coach'),
-            deleteUserAssociations(docUID, 'coach')
+            deleteUserAssociations(docUID, 'coach'),
+            deleteCoachRequests(docUID, 'coach')
         ])
             .then(() => {
                 res(true)
@@ -402,6 +416,43 @@ const deleteCoachProgramGroups = (docUID) => {
                         .catch(error => {
                             rej(error)
                         })
+                } else {
+                    res(true)
+                }
+                return true
+            })
+            .catch(error => {
+                rej(error)
+            })
+    })
+}
+
+const deleteCoachRequests = (userUID, userType) => {
+    return new Promise((res, rej) => {
+        let targetVariable = userType + "UID"
+        admin.firestore()
+            .collection('coachRequests')
+            .where(targetVariable, '==', userUID)
+            .get()
+            .then(snap => {
+                if (!snap.empty) {
+                    const batch = admin.firestore().batch()
+                    let path = admin.firestore()
+                        .collection('coachRequests')
+
+                    snap.docs.forEach(doc => {
+                        batch.delete(path.doc(doc.id))
+                    })
+
+                    batch.commit()
+                        .then(() => {
+                            res(true)
+                            return true
+                        })
+                        .catch(error => {
+                            rej(error)
+                        })
+
                 } else {
                     res(true)
                 }

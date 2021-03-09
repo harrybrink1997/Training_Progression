@@ -16,7 +16,7 @@ const JoinTeamForm = ({ submitRequestHandler, submitProcessing }) => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        if (email != '') {
+        if (email !== '') {
             submitRequestHandler(email, message)
         }
     }

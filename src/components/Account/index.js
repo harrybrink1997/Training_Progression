@@ -46,8 +46,8 @@ class AccountPage extends Component {
         this.props.history.push(ROUTES.DELETE_ACCOUNT)
     }
 
-    handleJoinTeamRedirect = () => {
-        this.props.history.push(ROUTES.JOIN_TEAM)
+    handleManageCoaches = () => {
+        this.props.history.push(ROUTES.MANAGE_COACHES)
     }
 
     handleChangeEmailRedirect = () => {
@@ -91,17 +91,6 @@ class AccountPage extends Component {
                                 </Card.Content>
                             </Card>
                         </div>
-                        {/* <div>
-                                <Card onClick={() => { this.handleChangeEmailRedirect() }}>
-                                    <Card.Content className='iconContent'>
-                                        <Icon name='mail' size='huge' />
-                                    </Card.Content>
-                                    <Card.Content>
-                                        <Card.Header textAlign='center'>Email <br /> Change</Card.Header>
-                                    </Card.Content>
-                                </Card>
-
-                            </div> */}
                         <div>
                             <Card onClick={() => { this.handleDeleteAccountRedirect() }}>
                                 <Card.Content className='iconContent'>
@@ -115,12 +104,12 @@ class AccountPage extends Component {
                         {
                             userType === 'athlete' &&
                             <div>
-                                <Card onClick={() => { this.handleJoinTeamRedirect() }}>
+                                <Card onClick={() => { this.handleManageCoaches() }}>
                                     <Card.Content className='iconContent'>
                                         <Icon name='users' size='huge' />
                                     </Card.Content>
                                     <Card.Content>
-                                        <Card.Header textAlign='center'>Join <br /> Team</Card.Header>
+                                        <Card.Header textAlign='center'>Manage <br /> Coaches</Card.Header>
                                     </Card.Content>
                                 </Card>
                             </div>
