@@ -25,46 +25,38 @@ class SignUpPage extends Component {
         this.setState({
             signUpProcessing: true
         }, () => {
-            // this.props.firebase
-            // .doCreateUserWithEmailAndPassword(email, password)
-            // .then(async authUser => {
-            window.localStorage.setItem('corvusEmailForSignIn', email)
-            // Create a user in your Firebase realtime database
-
-            var payLoad = {
-                username: username,
-                email: email,
-                userType: userType,
-                permissions: {
-                    admin: false,
-                }
+            let actionCodeSettings = {
+                url: '/home',
+                handleCodeInApp: true,
             }
-            // await this.props.firebase.createUserDB(authUser.user.uid, payLoad)
+            this.props.firebase
+                .doCreateUserWithEmailAndPassword(email, password)
+                .then(async authUser => {
+                    window.localStorage.setItem('corvusEmailForSignIn', email)
+                    // Create a user in your Firebase realtime database
 
-            const actionCodeSettings = {
-                url: 'http://localhost:3000/sigin',
-                handleCodeInApp: true
-            }
-            this.props.firebase.auth.sendSignInLinkToEmail(email, actionCodeSettings)
+                    var payLoad = {
+                        username: username,
+                        email: email,
+                        userType: userType,
+                        permissions: {
+                            admin: false,
+                        }
+                    }
+                    await this.props.firebase.createUserDB(authUser.user.uid, payLoad)
+
+                    await authUser.user.sendEmailVerification()
+
+                })
                 .then(() => {
-                    console.log("email send")
+                    this.props.history.push(ROUTES.VERIFY_EMAIL);
                 })
                 .catch(error => {
-                    console.log(error.message)
-                })
-
-            // await authUser.user.sendEmailVerification()
-
-            // })
-            // .then(() => {
-            // this.props.history.push(ROUTES.VERIFY_EMAIL);
-            // })
-            // .catch(error => {
-            //     this.setState({
-            //         signUpError: error,
-            //         signUpProcessing: false
-            //     });
-            // });
+                    this.setState({
+                        signUpError: error,
+                        signUpProcessing: false
+                    });
+                });
         })
 
 

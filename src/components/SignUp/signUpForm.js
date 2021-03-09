@@ -22,14 +22,13 @@ const SignUpForm = ({ submitSignUpHandler, signUpProcessing }) => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        if (username != '' && email != '' && passwordOne != '' && passwordOne === passwordTwo) {
+        if (username !== '' && email !== '' && passwordOne !== '' && passwordOne === passwordTwo) {
             submitSignUpHandler(username, email, passwordOne, userType)
         }
     }
 
     return (
         <Form onSubmit={handleSubmit}>
-
             <Form.Field>
                 <Input
                     name="username"
@@ -48,6 +47,7 @@ const SignUpForm = ({ submitSignUpHandler, signUpProcessing }) => {
                     placeholder="Email Address"
                 />
             </Form.Field>
+
             <Form.Field>
                 <Input
                     name="password"
@@ -87,6 +87,7 @@ const SignUpForm = ({ submitSignUpHandler, signUpProcessing }) => {
                 />
 
             </Form.Group>
+
             {
                 username != ''
                 && email != ''

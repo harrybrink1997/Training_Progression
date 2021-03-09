@@ -19,7 +19,7 @@ class SignInPage extends Component {
 
         this.state = {
             loginError: null,
-            signInProcessing: false
+            signInProcessing: false,
         };
     }
 
@@ -52,14 +52,14 @@ class SignInPage extends Component {
                     });
                 });
         })
-
     }
 
     render() {
         const {
             loginError,
             loading,
-            signInProcessing
+            signInProcessing,
+            signInFromLink
         } = this.state;
 
         let loadingHTML =
@@ -91,7 +91,7 @@ class SignInPage extends Component {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
 
         return (
             <div>
