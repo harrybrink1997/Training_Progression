@@ -8,39 +8,76 @@ admin.initializeApp(functions.config().firebase);
 exports.cleanUpDBPostProgDelete = functions.firestore
     .document('programs/{docUID}')
     .onDelete((snapshot, context) => {
-        return new Promise((res, rej) => {
-            admin.firestore()
-                .collection('goals')
-                .where('programUID', '==', snapshot.data().programUID)
-                .where('programStatus', '==', snapshot.data().status)
-                .where('athleteUID', '==', snapshot.data().athlete)
-                .get()
-                .then(goalSnap => {
-                    if (!goalSnap.empty) {
-                        var batch = admin.firestore().batch()
-                        var goalRef = admin.firestore().collection('goals')
+        if (snapshot.data().status === 'past') {
+            return new Promise((res, rej) => {
+                admin.firestore()
+                    .collection('goals')
+                    .where('programUID', '==', snapshot.data().programUID)
+                    .where('programStatus', '==', snapshot.data().status)
+                    .where('athleteUID', '==', snapshot.data().athlete)
+                    .where('programEndDay', '==', snapshot.data().endDayUTS)
+                    .get()
+                    .then(goalSnap => {
+                        if (!goalSnap.empty) {
+                            var batch = admin.firestore().batch()
+                            var goalRef = admin.firestore().collection('goals')
 
-                        goalSnap.docs.forEach(doc => {
-                            batch.delete(goalRef.doc(doc.id))
-                        })
+                            goalSnap.docs.forEach(doc => {
+                                batch.delete(goalRef.doc(doc.id))
+                            })
 
-                        batch.commit()
-                            .then(() => {
-                                res(true)
-                                return true
+                            batch.commit()
+                                .then(() => {
+                                    res(true)
+                                    return true
+                                })
+                                .catch(error => {
+                                    rej(error)
+                                    console.log(error)
+                                })
+                        }
+                        return true
+                    })
+                    .catch(error => {
+                        rej(error)
+                        console.log(error)
+                    })
+            })
+        } else {
+            return new Promise((res, rej) => {
+                admin.firestore()
+                    .collection('goals')
+                    .where('programUID', '==', snapshot.data().programUID)
+                    .where('programStatus', '==', snapshot.data().status)
+                    .where('athleteUID', '==', snapshot.data().athlete)
+                    .get()
+                    .then(goalSnap => {
+                        if (!goalSnap.empty) {
+                            var batch = admin.firestore().batch()
+                            var goalRef = admin.firestore().collection('goals')
+
+                            goalSnap.docs.forEach(doc => {
+                                batch.delete(goalRef.doc(doc.id))
                             })
-                            .catch(error => {
-                                rej(error)
-                                console.log(error)
-                            })
-                    }
-                    return true
-                })
-                .catch(error => {
-                    rej(error)
-                    console.log(error)
-                })
-        })
+
+                            batch.commit()
+                                .then(() => {
+                                    res(true)
+                                    return true
+                                })
+                                .catch(error => {
+                                    rej(error)
+                                    console.log(error)
+                                })
+                        }
+                        return true
+                    })
+                    .catch(error => {
+                        rej(error)
+                        console.log(error)
+                    })
+            })
+        }
 
     })
 

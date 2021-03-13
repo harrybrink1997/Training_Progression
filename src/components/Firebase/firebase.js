@@ -817,7 +817,8 @@ class Firebase {
 
                             batch.update(docRef,
                                 {
-                                    programEndDay: endDayUTS
+                                    programEndDay: endDayUTS,
+                                    programStatus: 'past'
                                 }
                             )
 

@@ -247,7 +247,7 @@ const underscoreToSpaced = (string) => {
 }
 
 const checkNullExerciseData = (data, scheme) => {
-
+    console.log(data)
     var exData = {
         allValid: true,
         exercisesToCheck: []
@@ -268,25 +268,27 @@ const checkNullExerciseData = (data, scheme) => {
                         rpe: exercise.rpe,
                         sets: exercise.sets,
                         reps: exercise.reps,
+                        time: exercise.time,
                         exercise: exercise.exercise
                     })
+                    break;
                 }
             }
         } else {
             for (var stat in exercise) {
-                if (stat !== 'time') {
-                    if (exercise[stat] === '' || exercise[stat] === undefined) {
-                        if (exData.allValid) {
-                            exData.allValid = false
-                        }
-                        exData.exercisesToCheck.push({
-                            rpe: exercise.rpe,
-                            weight: exercise.weight,
-                            sets: exercise.sets,
-                            reps: exercise.reps,
-                            exercise: exercise.exercise
-                        })
+                if (exercise[stat] === '' || exercise[stat] === undefined) {
+                    if (exData.allValid) {
+                        exData.allValid = false
                     }
+                    exData.exercisesToCheck.push({
+                        rpe: exercise.rpe,
+                        weight: exercise.weight,
+                        sets: exercise.sets,
+                        reps: exercise.reps,
+                        time: exercise.time,
+                        exercise: exercise.exercise
+                    })
+                    break;
                 }
             }
         }

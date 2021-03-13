@@ -700,13 +700,11 @@ class ManageProgramsPage extends Component {
                     var programObject = programClass.generateCompleteJSONObject()
 
                     programObject = { ...programObject, ...snapshot }
-                    console.log(programObject)
 
                     var dataCheck = checkNullExerciseData(
                         programObject[programObject.currentDay],
                         programObject.loadingScheme
                     )
-                    console.log(dataCheck)
                     if (dataCheck.allValid) {
                         var processedDayData = calculateDailyLoads(
                             programObject,
