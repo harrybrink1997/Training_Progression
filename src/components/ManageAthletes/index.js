@@ -533,6 +533,8 @@ class ManageAthletesPage extends Component {
     }
 
     updateStateOnNewTeamAssignment = (teamList) => {
+
+        const prevPage = this.state.currAthlete.pageHistory.back()
         this.setState(prevState => ({
             ...prevState,
             pageBodyContentLoading: false,
@@ -542,7 +544,7 @@ class ManageAthletesPage extends Component {
                     ...prevState.currAthlete.athTeamTableData,
                     data: teamList
                 },
-                view: 'manageTeams'
+                view: prevPage
             }
         }))
     }
@@ -588,6 +590,8 @@ class ManageAthletesPage extends Component {
                 })
 
             } else {
+                const prevPage = this.state.currAthlete.pageHistory.back()
+
                 this.setState(prevState => ({
                     ...prevState,
                     pageBodyContentLoading: false,
@@ -595,7 +599,7 @@ class ManageAthletesPage extends Component {
                         ...prevState.currAthlete,
                         showViewProgramErrorModal: true,
                         viewProgramErrorType: 'athleteCurrBelongsToTeam',
-                        view: 'manageTeams'
+                        view: prevPage
                     }
 
                 }))
@@ -863,13 +867,15 @@ class ManageAthletesPage extends Component {
                 this.state.currAthlete.uid,
                 progInfo
             ).then(updatedProgramData => {
+
+                const prevPage = this.state.currAthlete.pageHistory.back()
                 this.setState(prevState => ({
                     ...prevState,
                     pageBodyContentLoading: false,
                     currAthlete: {
                         ...prevState.currAthlete,
                         athProgTableData: this.initAthProgTableData(updatedProgramData),
-                        view: 'managePrograms'
+                        view: prevPage
                     }
                 }))
             })
@@ -1157,6 +1163,7 @@ class ManageAthletesPage extends Component {
             manageAthleteTableData,
             currAthlete,
         } = this.state
+        console.log(currAthlete)
         let loadingHTML =
             <Dimmer active>
                 <Loader inline='centered' content='Loading...' />
@@ -1230,7 +1237,7 @@ class ManageAthletesPage extends Component {
                                 </div>
                             }
                             {
-                                currAthlete.view === 'manageTeams' &&
+                                currAthlete.view === 'manageTeams' && currAthlete.currTeamTableData &&
                                 <div className='rowContainer centred-info sml-margin-top'>
                                     <Button
                                         className='lightPurpleButton'
