@@ -56,6 +56,20 @@ class ManageCoachesPage extends Component {
 
     handleLeaveCoachButton = (coachUID) => {
         console.log(coachUID)
+        this.setState({
+            loading: true
+        }, () => {
+            this.props.firebase.removeAthleteFromCoach(
+                coachUID,
+                this.props.firebase.auth.currentUser.uid
+            )
+                .then(updatedData => {
+                    this.setState({
+                        currentCoachTableData: this.initCurrentCoachTableData(updatedData),
+                        loading: false
+                    })
+                })
+        })
     }
 
     initCurrentCoachTableData = (data) => {

@@ -20,6 +20,11 @@
     cursor: pointer;
 }
 
+.modalButtons {
+    display: flex;
+    justify-content: space-evenly;
+}
+
 
 .rowContainer {
     display: flex;

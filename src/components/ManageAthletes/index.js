@@ -1045,6 +1045,36 @@ class ManageAthletesPage extends Component {
         }
     }
 
+    handleRemoveAthleteFromCoach = () => {
+        this.setState({
+            pageBodyContentLoading: true
+        }, () => {
+            this.props.firebase.removeAthleteFromCoach(
+                this.props.firebase.auth.currentUser.uid,
+                this.state.currAthlete.uid,
+                'coach'
+            ).then(() => {
+                let newCurrAthleteData = [...this.state.manageAthleteTableData.data]
+                console.log(newCurrAthleteData)
+
+                newCurrAthleteData = newCurrAthleteData.filter(ath => {
+                    return this.state.currAthlete.uid !== ath.athleteUID
+                })
+
+                this.setState(prev => ({
+                    ...prev,
+                    manageAthleteTableData: {
+                        ...prev.manageAthleteTableData,
+                        data: newCurrAthleteData
+                    },
+                    currAthlete: undefined,
+                    pageBodyContentLoading: false,
+                }))
+            })
+        })
+
+    }
+
     handleUpdateExercise = (updateObject) => {
 
         var day = updateObject.exUid.split('_').reverse()[1]
@@ -1237,6 +1267,7 @@ class ManageAthletesPage extends Component {
                     currAthlete && currAthlete.view === 'home' &&
                     <ManageCurrAthleteHome
                         clickHandler={this.handleManageCurrAthleteViewChange}
+                        removeAthleteHandler={this.handleRemoveAthleteFromCoach}
                     />
                 }
                 {

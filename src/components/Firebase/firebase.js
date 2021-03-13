@@ -2526,6 +2526,87 @@ class Firebase {
         })
     }
 
+    removeAthleteFromCoach = (coachUID, athleteUID, caller = 'athlete') => {
+        return new Promise((res, rej) => {
+            Promise.all([
+                this.deleteAthleteCoachAssociation(athleteUID, coachUID),
+                this.deleteCoachAssignedPrograms(athleteUID, coachUID)
+            ])
+                .then(() => {
+                    if (caller === 'athlete') {
+                        this.getCurrentAthleteCoaches(athleteUID)
+                            .then(data => {
+                                res(data)
+                            })
+                    } else {
+                        res(true)
+                    }
+                })
+        })
+    }
+
+    deleteCoachAssignedPrograms = (athleteUID, coachUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('programs')
+                .where('owner', '==', coachUID)
+                .where('athlete', '==', athleteUID)
+                .get()
+                .then(snap => {
+                    if (!snap.empty) {
+                        let promises = []
+
+                        snap.docs.forEach(doc => {
+                            if (doc.data().status !== 'past') {
+                                promises.push(
+                                    this.deleteProgramDB(
+                                        doc.data().programUID,
+                                        'athlete',
+                                        athleteUID,
+                                        doc.data().status
+                                    )
+                                )
+                            }
+                        })
+
+                        Promise.all(promises).then(() => {
+                            res(true)
+                        })
+                    } else {
+                        res(true)
+                    }
+                })
+        })
+    }
+
+    deleteAthleteCoachAssociation = (athleteUID, coachUID) => {
+        return new Promise((res, rej) => {
+            this.database
+                .collection('currentCoachAthletes')
+                .where('athleteUID', '==', athleteUID)
+                .where('coachUID', '==', coachUID)
+                .get()
+                .then(snap => {
+                    if (!snap.empty && snap.docs.length === 1) {
+                        this.database
+                            .collection('currentCoachAthletes')
+                            .doc(snap.docs[0].id)
+                            .delete()
+                            .then(() => {
+                                res(true)
+                            })
+                    } else {
+                        res(true)
+                    }
+                })
+                .catch(error => {
+                    rej(error)
+                    console.log(error)
+                })
+        })
+    }
+
+
     getTeamProgramData = (coachUID, teamName) => {
         return new Promise((res, rej) => {
             this.database
@@ -2662,266 +2743,6 @@ class Firebase {
                     })
             }
         })
-    }
-
-
-    //////////////////////////////////////////////
-    //////////////////////////////////////////////
-    //////////////////////////////////////////////
-
-
-
-    // USER API
-    // TODO REMOVE AFTER DATABASE MIGRATION
-    getUserData = (uid) => this.db.ref(`users/${uid}`);
-
-    getCoachCurrAthData = (uid) => this.db.ref(`users/${uid}/currentAthletes`)
-
-    // TODO REMOVE AFTER DB MIGRATION
-    createUserUpstream = (submitInfo) => {
-        return this.db
-            .ref('/')
-            .update(submitInfo)
-    }
-
-
-
-
-    acceptTeamRequestUpstream = (submitInfo) => {
-        return this.db
-            .ref('/')
-            .update(submitInfo)
-    }
-
-    sendTeamRequestUpstream = (athlete, coach, message) => {
-        return this.db
-            .ref(`users/${coach}/teamRequests/${athlete}`)
-            .set(message)
-    }
-
-    userTypes = () => this.db.ref('userTypes')
-
-    userType = (uid) => {
-        return this.db.ref(`users/${uid}/userType`)
-    }
-
-    getProgramData = (uid, programName) => {
-        return this.db.ref(`users/${uid}/currentPrograms/${programName}`)
-    }
-
-    getSharedPrograms = (coachUID, athleteUID, team) => {
-        return this.db.ref(`users/${coachUID}/currentAthletes/${athleteUID}/teams/${team}`)
-    }
-
-    users = () => this.db.ref('users');
-
-    exercisesName = name => this.db.ref(`exercises/${name}`)
-
-    exercises = () => this.db.ref('exercises')
-
-    anatomy = () => this.db.ref('anatomy')
-
-    localExerciseData = (uid) => this.db.ref(`users/${uid}/localExercises`)
-
-
-    modifyGoalUpstream = (uid, pName, goalPath, value) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${pName}/goals/${goalPath}`)
-            .set(value)
-    }
-
-    createSubGoalUpstream = (uid, pName, mainGoal, goalInfo) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${pName}/goals/${mainGoal}`)
-            .update(goalInfo)
-    }
-
-    createMainGoalUpstream = (uid, pName, newGoalUID, value) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${pName}/goals/${newGoalUID}`)
-            .set(value)
-    }
-
-    completeGoalUpstream = (uid, pName, goalPath, value) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${pName}/goals/${goalPath}/completed`)
-            .set(value)
-    }
-
-    updateGoalStatusesUpstream = (uid, pName, goalInfo) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${pName}/goals`)
-            .update(goalInfo)
-    }
-
-    deleteGoalUpstream = (uid, pName, goalPath) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${pName}/goals/${goalPath}`)
-            .remove()
-    }
-
-    createProgramUpstream = (uid, pName, acuteP, chronicP, lScheme, startDay, sUTS, goalList) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${pName}`)
-            .set({
-                loading_scheme: lScheme,
-                acutePeriod: acuteP,
-                chronicPeriod: chronicP,
-                startDayUTS: sUTS,
-                currentDayInProgram: startDay,
-                currentDayUTS: sUTS,
-                goals: goalList
-            })
-    }
-
-    setActiveProgram = (uid, name) => {
-        return this.db
-            .ref(`users/${uid}/activeProgram`)
-            .set(name)
-
-    }
-
-    // TODO remove
-    setCurrentDay = (uid, progName, day) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/currentDay`)
-            .set(day)
-
-    }
-
-    setCurrentDayUI = (uid, progName, day) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/currentDayUI`)
-            .set(day)
-
-    }
-
-    // TODO remove
-    createExerciseUpStreamRemove = (uid, progName, week, day, exercise, exUid) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`)
-            .set(exercise)
-    }
-
-    createExerciseUpStream = (uid, progName, day, exercise, exUid) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/${day}/${exUid}`)
-            .set(exercise)
-    }
-
-    createBulkExercisesUpstream = (uid, progName, days) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}`)
-            .update(days)
-    }
-
-    handleSubmitDayUpstream = (uid, progName, submitInfo) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}`)
-            .update(submitInfo)
-    }
-
-
-    createNewExerciseReferenceUpstream = (uid, exName, exData) => {
-        return this.db
-            .ref(`users/${uid}/localExercises/${exName}`)
-            .set(exData)
-    }
-
-    pushExercisePropertiesUpstreamRemove = (uid, progName, week, day, exUid, value) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`)
-            .set(value)
-    }
-    pushExercisePropertiesUpstream = (uid, progName, day, exUid, value) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/${day}/${exUid}`)
-            .set(value)
-    }
-
-    // TODO REMOVE
-    pushWeekLoadingDataUpstream = (uid, progName, week, value) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/${week}/loadingData`)
-            .set(value)
-    }
-    pushDailyLoadingDataUpstream = (uid, progName, day, value) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/${day}/loadingData`)
-            .set(value)
-    }
-
-    pushRollingAverageUpstream = (uid, progName, weeksID, value) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/rollingAverages/${weeksID}`)
-            .set(value)
-    }
-
-    // TODO Remove
-    deleteExerciseUpStreamRemove = (uid, progName, week, day, exUid) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/${week}/${day}/${exUid}`)
-            .remove()
-    }
-
-    deleteExerciseUpStream = (uid, progName, day, exUid) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/${day}/${exUid}`)
-            .remove()
-    }
-
-    closeOffProgramUpstream = (payLoad) => {
-        return this.db
-            .ref('/')
-            .update(payLoad)
-    }
-
-    pushPastProgramNotesUpstream = (uid, progName, val) => {
-        return this.db
-            .ref(`users/${uid}/pastPrograms/${progName}/notes`)
-            .set(val)
-    }
-
-    progressToNextDay = (uid, progName, val) => {
-        return this.db
-            .ref(`users/${uid}/currentPrograms/${progName}/currentDayInProgram`)
-            .set(val)
-    }
-
-    deleteCurrentProgramsUpstream = (payLoad) => {
-        return this.db
-            .ref('/')
-            .update(payLoad)
-    }
-
-    deletePastProgramUpstream = (uid, progName) => {
-        return this.db
-            .ref(`users/${uid}/pastPrograms/${progName}`)
-            .remove()
-    }
-
-    createProgramGroupUpstream = (uid, groupName, val) => {
-        return this.db
-            .ref(`users/${uid}/programGroups/${groupName}`)
-            .set(val)
-    }
-
-    createTeamUpstream = (teamInfo) => {
-        return this.db
-            .ref('/')
-            .update(teamInfo)
-    }
-
-    processPendingProgramsUpstream = (programData) => {
-        return this.db
-            .ref('/')
-            .update(programData)
-    }
-
-    updateDatabaseFromRootPath = (payLoad) => {
-        return this.db
-            .ref('/')
-            .update(payLoad)
     }
 }
 export default Firebase

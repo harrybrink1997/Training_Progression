@@ -172,7 +172,7 @@ const CreateProgramModal = ({ handleFormSubmit, userType }) => {
                             ?
                             <Breadcrumb.Section link active>Goals</Breadcrumb.Section>
                             :
-                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 3)}>Goals</Breadcrumb.Section>
+                            <Breadcrumb.Section link onClick={(e) => handlePageChange(e, 4)}>Goals</Breadcrumb.Section>
                             :
                             <></>
                     }

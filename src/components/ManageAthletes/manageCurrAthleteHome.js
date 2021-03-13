@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, Icon } from 'semantic-ui-react'
-
-const ManageCurrAthleteHome = ({ clickHandler }) => {
+import RemoveAthleteModal from './removeAthleteModal'
+const ManageCurrAthleteHome = ({ clickHandler, removeAthleteHandler }) => {
 
     return (
         <div id='programAssignmentCardGroupContainer'>
@@ -26,6 +26,9 @@ const ManageCurrAthleteHome = ({ clickHandler }) => {
                         </Card.Content>
                     </Card>
                 </div>
+                <RemoveAthleteModal
+                    handleFormSubmit={removeAthleteHandler}
+                />
             </Card.Group>
         </div>
     )
