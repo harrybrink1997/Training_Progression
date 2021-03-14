@@ -8,6 +8,14 @@ const PageBodyContentHeaderContainerHeader = ({ children }) => {
     )
 }
 
+const PageBodyContentHeaderContainerSubHeader1 = ({ children }) => {
+    return (
+        <div className='pageBodyContentHeaderContainerSubHeader1'>
+            {children}
+        </div>
+    )
+}
+
 const PageBodyContentHeaderContainerButtons = ({ children }) => {
     return (
         <div className='centred-info'>
@@ -15,8 +23,6 @@ const PageBodyContentHeaderContainerButtons = ({ children }) => {
         </div>
     )
 }
-
-
 
 const PageBodyContentHeaderContainer = ({ children }) => {
     return (
@@ -28,5 +34,6 @@ const PageBodyContentHeaderContainer = ({ children }) => {
 
 
 PageBodyContentHeaderContainer.Header = PageBodyContentHeaderContainerHeader
+PageBodyContentHeaderContainer.SubHeader1 = PageBodyContentHeaderContainerSubHeader1
 PageBodyContentHeaderContainer.Buttons = PageBodyContentHeaderContainerButtons
 export default PageBodyContentHeaderContainer

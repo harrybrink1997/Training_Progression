@@ -12,6 +12,7 @@ import * as ROUTES from '../../constants/routes'
 import { createUserObject } from '../../objects/user'
 import CoachRequestModal from './coachRequestModal';
 import PageBodyContentHeaderContainer from '../PageStructure/pageBodyContentHeaderContainer'
+import PageBodyContentContainer from '../PageStructure/pageBodyContentContainer'
 import { capitaliseFirstLetter } from '../../constants/stringManipulation'
 
 class HomePage extends Component {
@@ -292,55 +293,56 @@ class HomePage extends Component {
                     }
                 </PageBodyContentHeaderContainer>
 
-
-                <Card.Group className="three">
-                    <div>
-
-                        <Card onClick={() => { this.handleManageProgramsRedirect() }}>
-                            <Card.Content className='iconContent'>
-                                <Icon name='file alternate outline' size='huge' />
-                            </Card.Content>
-                            <Card.Content>
-                                <Card.Header textAlign='center'>My <br /> Programs</Card.Header>
-                            </Card.Content>
-                        </Card>
-                    </div>
-                    <div>
-
-                        <Card onClick={() => { this.handleManageTeamsRedirect() }}>
-                            <Card.Content className='iconContent'>
-                                <Icon name='group' size='huge' />
-                            </Card.Content>
-                            <Card.Content>
-                                <Card.Header textAlign='center'>My <br /> Teams</Card.Header>
-                            </Card.Content>
-                        </Card>
-                    </div>
-                    {
-                        user && user.getUserType() === 'coach' &&
+                <PageBodyContentContainer>
+                    <Card.Group className="three">
                         <div>
 
-                            <Card onClick={() => { this.handleManageAthletesRedirect() }}>
+                            <Card onClick={() => { this.handleManageProgramsRedirect() }}>
+                                <Card.Content className='iconContent'>
+                                    <Icon name='file alternate outline' size='huge' />
+                                </Card.Content>
+                                <Card.Content>
+                                    <Card.Header textAlign='center'>My <br /> Programs</Card.Header>
+                                </Card.Content>
+                            </Card>
+                        </div>
+                        <div>
+
+                            <Card onClick={() => { this.handleManageTeamsRedirect() }}>
                                 <Card.Content className='iconContent'>
                                     <Icon name='group' size='huge' />
                                 </Card.Content>
                                 <Card.Content>
-                                    <Card.Header textAlign='center'>My <br /> Athletes</Card.Header>
+                                    <Card.Header textAlign='center'>My <br /> Teams</Card.Header>
                                 </Card.Content>
                             </Card>
                         </div>
-                    }
-                    <div>
-                        <Card onClick={() => { this.handleExercisesRedirect() }}>
-                            <Card.Content className='iconContent'>
-                                <Icon name='group' size='huge' />
-                            </Card.Content>
-                            <Card.Content>
-                                <Card.Header textAlign='center'>My <br /> Exercises</Card.Header>
-                            </Card.Content>
-                        </Card>
-                    </div>
-                </Card.Group>
+                        {
+                            user && user.getUserType() === 'coach' &&
+                            <div>
+
+                                <Card onClick={() => { this.handleManageAthletesRedirect() }}>
+                                    <Card.Content className='iconContent'>
+                                        <Icon name='group' size='huge' />
+                                    </Card.Content>
+                                    <Card.Content>
+                                        <Card.Header textAlign='center'>My <br /> Athletes</Card.Header>
+                                    </Card.Content>
+                                </Card>
+                            </div>
+                        }
+                        <div>
+                            <Card onClick={() => { this.handleExercisesRedirect() }}>
+                                <Card.Content className='iconContent'>
+                                    <Icon name='group' size='huge' />
+                                </Card.Content>
+                                <Card.Content>
+                                    <Card.Header textAlign='center'>My <br /> Exercises</Card.Header>
+                                </Card.Content>
+                            </Card>
+                        </div>
+                    </Card.Group>
+                </PageBodyContentContainer>
             </NonLandingPageWrapper>
 
         return (

@@ -5,6 +5,8 @@ import { withAuthorisation } from '../Session';
 import { Dimmer, Loader, Card, Icon, Image } from 'semantic-ui-react'
 import * as ROUTES from '../../constants/routes'
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
+import PageBodyContentHeaderContainer from '../PageStructure/pageBodyContentHeaderContainer'
+import { capitaliseFirstLetter } from '../../constants/stringManipulation';
 
 class AccountPage extends Component {
 
@@ -70,14 +72,14 @@ class AccountPage extends Component {
 
         let nonLoadingHTML =
             <NonLandingPageWrapper>
-                <div className='pageContainerLevel1'>
-                    <div id='accpUsernameHeader'>
-                        {username}
-                    </div>
-                    <div id='accpUserDetailsHeader'>
+                <PageBodyContentHeaderContainer>
+                    <PageBodyContentHeaderContainer.Header>
+                        {capitaliseFirstLetter(username)}
+                    </PageBodyContentHeaderContainer.Header>
+                    <PageBodyContentHeaderContainer.SubHeader1>
                         Email: {email}
-                    </div>
-                </div>
+                    </PageBodyContentHeaderContainer.SubHeader1>
+                </PageBodyContentHeaderContainer>
                 <div>
                     <Card.Group >
                         <div>
@@ -119,10 +121,10 @@ class AccountPage extends Component {
             </NonLandingPageWrapper>
 
         return (
-            <div>
+            <>
                 { loading && loadingHTML}
                 {!loading && nonLoadingHTML}
-            </div>
+            </>
         )
     }
 }

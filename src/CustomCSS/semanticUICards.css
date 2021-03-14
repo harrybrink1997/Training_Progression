@@ -25,6 +25,15 @@
 
 .ui.cards {
     width: 100%;
+    margin: 0px;
+}
+
+.ui.three.cards {
+    margin: 0px;
+}
+
+.ui.two.cards {
+    margin: 0px;
 }
 
 .ui.cards.three > div {

@@ -208,3 +208,14 @@
     margin-top: 40px;
     margin-bottom: 40px;
 }
+
+.pageBodyContentHeaderContainerSubHeader1 {
+    text-align: center;
+    font-size: 14pt;
+    margin-bottom: 10px;
+}
+
+.pageBodyContentContainer {
+    width: 100%;
+    height: 100%
+}
