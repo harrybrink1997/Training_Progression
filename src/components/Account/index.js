@@ -6,6 +6,7 @@ import { Dimmer, Loader, Card, Icon, Image } from 'semantic-ui-react'
 import * as ROUTES from '../../constants/routes'
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import PageBodyContentHeaderContainer from '../PageStructure/pageBodyContentHeaderContainer'
+import PageBodyContentContainer from '../PageStructure/pageBodyContentContainer'
 import { capitaliseFirstLetter } from '../../constants/stringManipulation';
 
 class AccountPage extends Component {
@@ -80,8 +81,8 @@ class AccountPage extends Component {
                         Email: {email}
                     </PageBodyContentHeaderContainer.SubHeader1>
                 </PageBodyContentHeaderContainer>
-                <div>
-                    <Card.Group >
+                <PageBodyContentContainer>
+                    <Card.Group className="three">
                         <div>
 
                             <Card onClick={() => { this.handleChangePasswordRedirect() }}>
@@ -89,7 +90,7 @@ class AccountPage extends Component {
                                     <Icon name='shield alternate' size='huge' />
                                 </Card.Content>
                                 <Card.Content>
-                                    <Card.Header textAlign='center'>Password Change</Card.Header>
+                                    <Card.Header textAlign='center'>Password <br /> Change</Card.Header>
                                 </Card.Content>
                             </Card>
                         </div>
@@ -117,7 +118,7 @@ class AccountPage extends Component {
                             </div>
                         }
                     </Card.Group>
-                </div>
+                </PageBodyContentContainer>
             </NonLandingPageWrapper>
 
         return (

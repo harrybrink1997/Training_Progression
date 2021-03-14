@@ -296,7 +296,6 @@ class HomePage extends Component {
                 <PageBodyContentContainer>
                     <Card.Group className="three">
                         <div>
-
                             <Card onClick={() => { this.handleManageProgramsRedirect() }}>
                                 <Card.Content className='iconContent'>
                                     <Icon name='file alternate outline' size='huge' />

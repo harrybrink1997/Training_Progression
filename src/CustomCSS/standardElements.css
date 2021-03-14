@@ -16,6 +16,14 @@ input {
     width: 100% !important;
     outline: 0px !important;
     border: none !important;
+    overflow: visible !important;
+}
+
+@media screen 
+    and (max-width: 600px) {
+        input {
+            height: 30px !important;
+        }
 }
 
 /*Colour of input focus */
@@ -69,7 +77,4 @@ a:hover {
     height: 100%;
     display: flex;
     flex-direction: column;
-} 
-/* label {
-    color: white !important;
-} */
+}

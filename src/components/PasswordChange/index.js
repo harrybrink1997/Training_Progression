@@ -3,7 +3,7 @@ import React, { Component, useState } from 'react';
 import { withAuthorisation } from '../Session';
 import PasswordChangeForm from './passwordChangeForm'
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
-
+import FullPageForm from '../PageStructure/fullPageForm'
 
 import InputLabel from '../CustomComponents/DarkModeInput'
 
@@ -53,22 +53,19 @@ class PasswordChangePage extends Component {
 
         return (
             <NonLandingPageWrapper>
-                <div id='signInPageMainContainer'>
-                    <div id='signInEmailMainContainer' className='pageContainerLevel1'>
-                        <InputLabel
-                            text='Password Change'
-                            custID='signInPageMainLabel'
-                        />
-                        <PasswordChangeForm
-                            submitPasswordChangeHandler={this.handleSubmitPasswordChange}
-                            submitProcessing={submitProcessing}
-                        />
-                        <div id='signInEmailFooterMessagesContainer'>
-                            {passwordChangeError && <p>{passwordChangeError.message}</p>}
-                            {passwordChanged && <div>Password Changed!</div>}
-                        </div>
+                <FullPageForm>
+                    <FullPageForm.Header>
+                        Password Change
+                    </FullPageForm.Header>
+                    <PasswordChangeForm
+                        submitPasswordChangeHandler={this.handleSubmitPasswordChange}
+                        submitProcessing={submitProcessing}
+                    />
+                    <div id='signInEmailFooterMessagesContainer'>
+                        {passwordChangeError && <p>{passwordChangeError.message}</p>}
+                        {passwordChanged && <div>Password Changed!</div>}
                     </div>
-                </div>
+                </FullPageForm>
             </NonLandingPageWrapper>
         )
     }

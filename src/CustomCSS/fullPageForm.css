@@ -1,24 +1,31 @@
-#fullPageFormContent {
+.fullPageFormContent {
     text-align: center;
     padding: 20px 20px 20px 20px;
     font-size: 12pt;
     flex-grow: 2;
 }
 
-#fullPageFormMainHeader {
+.fullPageFormHeader {
     text-align: center;
-    font-size: calc(1vw + 1.5vh + 1vmin);
+    font-size: 24pt;
     line-height: normal;
     font-weight: 700;
+    margin-bottom: 10px;
 }
 
-#fullPageForm {
+.fullPageForm {
     display: flex;
     flex-direction: column;
     padding: 20px;
-    background: #333333;
     border-radius: 5px;
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
     max-height: 800px;
+}
+
+@media screen 
+and (max-width: 600px) {
+    .fullPageFormHeader {
+        font-size: calc(2vw + 2vh + 1vmin);
+    } 
 }

@@ -9,3 +9,8 @@
 .ui.radio.checkbox label:active {
     color: white;
 }
+
+@media screen 
+    and (max-width: 600px) {
+
+}
