@@ -93,14 +93,6 @@
     width: 100%;
 }
 
-#mainHeaderText {
-    font-size: calc(1vw + 3vh + 1vmin);
-    text-align: center;
-    line-height: normal;
-    margin-top: 40px;
-    margin-bottom: 40px;
-}
-
 #hpStatHeaderContainer {
     display: flex;
 }

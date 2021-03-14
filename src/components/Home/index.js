@@ -11,7 +11,8 @@ import InputLabel from '../CustomComponents/DarkModeInput';
 import * as ROUTES from '../../constants/routes'
 import { createUserObject } from '../../objects/user'
 import CoachRequestModal from './coachRequestModal';
-
+import PageBodyContentHeaderContainer from '../PageStructure/pageBodyContentHeaderContainer'
+import { capitaliseFirstLetter } from '../../constants/stringManipulation'
 
 class HomePage extends Component {
 
@@ -243,7 +244,7 @@ class HomePage extends Component {
 
     getCurrentGreeting = (username) => {
         var currTime = new Date().toLocaleTimeString()
-        var name = username.split(" ")[0]
+        var name = capitaliseFirstLetter(username.split(" ")[0])
         if (parseInt(currTime.split(":")[0]) < 12) {
             return "Good Morning" + " " + name
         } else {
@@ -275,26 +276,23 @@ class HomePage extends Component {
 
         let nonLoadingHTML =
             <NonLandingPageWrapper>
-                <div className="pageContainerLevel1 pageBodyContentMainHeader">
-                    <OnBoarding
-                        run={firstTimeUser}
-                    />
-                    <div id='mainContainerHeaderDiv'>
-                        <div id='mainHeaderText'>
-                            {
-                                greeting
-                            }
-                        </div>
+                <PageBodyContentHeaderContainer>
+                    <PageBodyContentHeaderContainer.Header>
                         {
-                            coachRequestTableData &&
-                            <div className="centred-info">
-                                <CoachRequestModal
-                                    requestTableData={coachRequestTableData}
-                                />
-                            </div>
+                            greeting
                         }
-                    </div>
-                </div>
+                    </PageBodyContentHeaderContainer.Header>
+                    {
+                        coachRequestTableData &&
+                        <PageBodyContentHeaderContainer.Buttons>
+                            <CoachRequestModal
+                                requestTableData={coachRequestTableData}
+                            />
+                        </PageBodyContentHeaderContainer.Buttons>
+                    }
+                </PageBodyContentHeaderContainer>
+
+
                 <Card.Group className="three">
                     <div>
 
