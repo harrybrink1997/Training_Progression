@@ -24,6 +24,15 @@ const PageBodyContentHeaderContainerButtons = ({ children }) => {
     )
 }
 
+const PageBodyContentHeaderContainerEvenlySpacedButtons = ({ children }) => {
+    return (
+        <div className='pageBodyContentHeaderContainerEvenlySpacedButtons'>
+            {children}
+        </div>
+    )
+
+}
+
 const PageBodyContentHeaderContainer = ({ children }) => {
     return (
         <div className="pageContainerLevel1 pageBodyContentHeaderContainer">
@@ -32,7 +41,7 @@ const PageBodyContentHeaderContainer = ({ children }) => {
     )
 }
 
-
+PageBodyContentHeaderContainer.EvenlySpacedButtons = PageBodyContentHeaderContainerEvenlySpacedButtons
 PageBodyContentHeaderContainer.Header = PageBodyContentHeaderContainerHeader
 PageBodyContentHeaderContainer.SubHeader1 = PageBodyContentHeaderContainerSubHeader1
 PageBodyContentHeaderContainer.Buttons = PageBodyContentHeaderContainerButtons

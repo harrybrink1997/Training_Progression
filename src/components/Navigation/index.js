@@ -6,6 +6,7 @@ import * as ROUTES from '../../constants/routes'
 import { useLocation } from 'react-router-dom'
 
 import { Button, Menu, Image, Dropdown, Icon } from 'semantic-ui-react'
+import useWindowDimensions from '../PageStructure/pageSize'
 
 const Navigation = ({ custClass }) => {
     return (
@@ -33,31 +34,6 @@ const Navigation = ({ custClass }) => {
         </AuthUserContext.Consumer>
     )
 }
-
-
-const getWindowDimensions = () => {
-    const { innerWidth: width, innerHeight: height } = window;
-    return {
-        width,
-        height
-    };
-}
-
-const useWindowDimensions = () => {
-    const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
-
-    useEffect(() => {
-        function handleResize() {
-            setWindowDimensions(getWindowDimensions());
-        }
-
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    return windowDimensions;
-}
-
 
 const NavigationAuth = ({ custClass }) => {
 

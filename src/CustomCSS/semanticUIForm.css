@@ -10,7 +10,7 @@
     color: white;
 }
 
-@media screen 
-    and (max-width: 600px) {
-
+.ui.form {
+    padding: 10px;
 }
+

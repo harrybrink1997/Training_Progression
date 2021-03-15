@@ -4,8 +4,10 @@ import { Dropdown, Table, Grid, Container, Button, Input, Checkbox } from 'seman
 
 import { useTable, useFilters, useGlobalFilter, usePagination } from 'react-table'
 import { DefaultColumnFilter, fuzzyTextFilterFn } from '../../constants/tableFiltering'
+import useWindowDimensions from '../PageStructure/pageSize'
 
 const BasicTablePagination = ({ columns, data }) => {
+    const { width } = useWindowDimensions()
 
     const filterTypes = React.useMemo(
         () => ({
@@ -72,6 +74,7 @@ const BasicTablePagination = ({ columns, data }) => {
     return (
         <>
             <Table celled {...getTableProps()}>
+
                 <Table.Header>
                     {headerGroups.map(headerGroup => (
                         <Table.Row {...headerGroup.getHeaderGroupProps()}>

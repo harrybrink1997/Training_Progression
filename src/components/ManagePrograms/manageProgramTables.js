@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { Button } from 'semantic-ui-react'
 import BasicTable from '../CustomComponents/basicTable'
+import useWindowDimensions from '../PageStructure/pageSize'
 
 const ManageProgramTables = ({ pendingData, currentData, pastData, currentTableView, changeTableHandler }) => {
     const [table, setTable] = useState('current')
+    const { width, height } = useWindowDimensions()
 
     let nonDataHTML =
         <div>
@@ -15,6 +17,8 @@ const ManageProgramTables = ({ pendingData, currentData, pastData, currentTableV
             <ManageProgramToggle
                 clickHandler={changeTableHandler}
                 currentView={currentTableView}
+                height={height}
+                width={width}
             />
             {
                 currentTableView === 'current' &&
@@ -64,11 +68,13 @@ const ManageProgramTables = ({ pendingData, currentData, pastData, currentTableV
 }
 
 
-const ManageProgramToggle = ({ currentView, clickHandler }) => {
+const ManageProgramToggle = ({ currentView, clickHandler, height, width }) => {
+
+
 
     return (
         <div className='availExercises-ExData-toggleContainer centred-info'>
-            <Button.Group size='tiny'>
+            <Button.Group vertical={width < 450} size='tiny'>
                 {
                     currentView === 'current' ?
                         <Button

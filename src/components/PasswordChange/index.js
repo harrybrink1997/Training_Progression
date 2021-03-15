@@ -4,8 +4,7 @@ import { withAuthorisation } from '../Session';
 import PasswordChangeForm from './passwordChangeForm'
 import NonLandingPageWrapper from '../CustomComponents/nonLandingPageWrapper'
 import FullPageForm from '../PageStructure/fullPageForm'
-
-import InputLabel from '../CustomComponents/DarkModeInput'
+import { FooterErrorMessage } from '../CustomComponents/errorMessage'
 
 class PasswordChangePage extends Component {
 
@@ -61,10 +60,13 @@ class PasswordChangePage extends Component {
                         submitPasswordChangeHandler={this.handleSubmitPasswordChange}
                         submitProcessing={submitProcessing}
                     />
-                    <div id='signInEmailFooterMessagesContainer'>
-                        {passwordChangeError && <p>{passwordChangeError.message}</p>}
-                        {passwordChanged && <div>Password Changed!</div>}
-                    </div>
+                    {
+                        passwordChangeError &&
+                        <FooterErrorMessage>
+                            {passwordChangeError.message}
+                        </FooterErrorMessage>
+                    }
+                    {passwordChanged && <div>Password Changed!</div>}
                 </FullPageForm>
             </NonLandingPageWrapper>
         )

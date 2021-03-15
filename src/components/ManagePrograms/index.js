@@ -25,8 +25,9 @@ import utsToDateString from '../../constants/utsToDateString'
 import ErrorBanner from '../CustomComponents/errorBanner';
 import PastProgramView from '../CustomComponents/pastProgramView';
 import * as ROUTES from '../../constants/routes'
-
-
+import PageBodyContentHeaderContainer from '../PageStructure/pageBodyContentHeaderContainer';
+import PageContentBackButtonContainer from '../PageStructure/pageContentBackButtonContainer'
+import PageBodyContentContainer from '../PageStructure/pageBodyContentContainer'
 
 class ManageProgramsPage extends Component {
 
@@ -928,10 +929,6 @@ class ManageProgramsPage extends Component {
                         accessor: 'chronicPeriod',
                     },
                     {
-                        Header: 'Program Length (Weeks)',
-                        accessor: 'programLength',
-                    },
-                    {
                         accessor: 'buttons',
                     }
                 ]
@@ -1800,7 +1797,7 @@ class ManageProgramsPage extends Component {
 
         let nonLoadingHTML =
             <NonLandingPageWrapper>
-                <div className="pageContainerLevel1">
+                <PageBodyContentHeaderContainer>
                     {
                         error &&
                         <ErrorBanner clickHandler={() => { this.setState({ error: false, errorText: undefined }) }}>
@@ -1809,44 +1806,37 @@ class ManageProgramsPage extends Component {
                             </p>
                         </ErrorBanner>
                     }
-                    <div id='mainContainerHeaderDiv'>
-                        <div id='mainHeaderText'>
-                            Program Management
-                        </div>
+                    <PageBodyContentHeaderContainer.Header>
+                        Program Management
+                    </PageBodyContentHeaderContainer.Header>
+                    <PageBodyContentHeaderContainer.EvenlySpacedButtons>
                         {
                             view === this.PAGE_VIEWS.HOME &&
-                            <div id='hpBtnContainer' >
-                                <div id='hpLeftBtnContainer'>
-                                    <Button
-                                        className='lightPurpleButton-inverted'
-                                        onClick={() => { this.toggleEditPrograms() }}
-                                    >
-                                        Edit Programs
+                            <>
+                                <Button
+                                    className='lightPurpleButton-inverted'
+                                    onClick={() => { this.toggleEditPrograms() }}
+                                >
+                                    Edit Programs
                                 </Button>
-                                </div>
-                                <div id='hpMidBtnContainer'>
-                                    {
-                                        user &&
-                                        <CreateProgramModal
-                                            handleFormSubmit={this.handleCreateProgram}
-                                            userType={user.getUserType()}
-                                        />
-                                    }
-                                </div>
+                                {
+                                    user &&
+                                    <CreateProgramModal
+                                        handleFormSubmit={this.handleCreateProgram}
+                                        userType={user.getUserType()}
+                                    />
+                                }
                                 {
                                     user && user.getUserType() === 'coach' && currentProgTableData &&
-                                    < div id='hpRightBtnContainer'>
-                                        <ManageProgramGroupModal
-                                            programTableData={currentProgTableData.data}
-                                            handleCreateFormSubmit={this.handleCreateProgramGroup}
-                                            currentGroupList={currentProgramGroups}
-                                            tableGroupTableData={programGroupTableData}
-                                            handleDeleteFormSubmit={this.handleDeleteProgramGroup}
-                                        />
-                                    </div>
+                                    <ManageProgramGroupModal
+                                        programTableData={currentProgTableData.data}
+                                        handleCreateFormSubmit={this.handleCreateProgramGroup}
+                                        currentGroupList={currentProgramGroups}
+                                        tableGroupTableData={programGroupTableData}
+                                        handleDeleteFormSubmit={this.handleDeleteProgramGroup}
+                                    />
                                 }
-
-                            </div>
+                            </>
                         }
                         {
                             view === this.PAGE_VIEWS.PROG_VIEW_HOME &&
@@ -1855,62 +1845,64 @@ class ManageProgramsPage extends Component {
                                 programUID={currProgram.programUID}
                             />
                         }
-                    </div>
-                </div>
-                {
-                    view &&
-                    <div className='rowContainer clickableDiv'>
-                        <Button
-                            content='Back'
-                            className='backButton-inverted'
-                            circular
-                            icon='arrow left'
-                            onClick={() => {
-                                view !== this.PAGE_VIEWS.HOME ?
-                                    this.handleBackClick(view)
-                                    : this.homePageRedirect()
+                    </PageBodyContentHeaderContainer.EvenlySpacedButtons>
+                </PageBodyContentHeaderContainer>
+                <PageBodyContentContainer>
+                    {
+                        view &&
+                        <PageContentBackButtonContainer>
+                            <Button
+                                content='Back'
+                                className='backButton-inverted'
+                                circular
+                                icon='arrow left'
+                                onClick={() => {
+                                    view !== this.PAGE_VIEWS.HOME ?
+                                        this.handleBackClick(view)
+                                        : this.homePageRedirect()
 
-                            }}
+                                }}
+                            />
+                        </PageContentBackButtonContainer>
+                    }
+                    {
+                        view === this.PAGE_VIEWS.HOME &&
+                        <div className="pageContainerLevel1">
+                            <ManageProgramTables
+                                pendingData={pendingProgTableData}
+                                currentData={currentProgTableData}
+                                pastData={pastProgTableData}
+                                currentTableView={currentTableView}
+                                changeTableHandler={this.handleChangeCurrentTableView}
+                            />
+                        </div>
+                    }
+                    {
+                        view === this.PAGE_VIEWS.PROG_VIEW_HOME && currProgram && currProgram.status === 'current' &&
+                        <ProgramView
+                            developmentMode={user.getUserType() === 'coach'}
+                            userType={user.getUserType()}
+                            data={currProgram.programData}
+                            availExData={currProgram.availExData}
+                            availExColumns={currProgram.availExColumns}
+                            rawAnatomyData={currProgram.rawAnatomyData}
+                            nullExerciseData={currProgram.nullExerciseData}
+                            handlerFunctions={currProgram.viewProgramFunctions}
+                            submitProcessingBackend={currProgram.submitProcessingBackend}
                         />
-                    </div>
-                }
-                {
-                    view === this.PAGE_VIEWS.HOME &&
-                    <div className="pageContainerLevel1">
-                        <ManageProgramTables
-                            pendingData={pendingProgTableData}
-                            currentData={currentProgTableData}
-                            pastData={pastProgTableData}
-                            currentTableView={currentTableView}
-                            changeTableHandler={this.handleChangeCurrentTableView}
-                        />
-                    </div>
-                }
-                {
-                    view === this.PAGE_VIEWS.PROG_VIEW_HOME && currProgram && currProgram.status === 'current' &&
-                    <ProgramView
-                        developmentMode={user.getUserType() === 'coach'}
-                        userType={user.getUserType()}
-                        data={currProgram.programData}
-                        availExData={currProgram.availExData}
-                        availExColumns={currProgram.availExColumns}
-                        rawAnatomyData={currProgram.rawAnatomyData}
-                        nullExerciseData={currProgram.nullExerciseData}
-                        handlerFunctions={currProgram.viewProgramFunctions}
-                        submitProcessingBackend={currProgram.submitProcessingBackend}
-                    />
-                }
-                {
-                    view === this.PAGE_VIEWS.PAST_PROG_VIEW_HOME && currProgram && currProgram.status === 'past' &&
-                    <PastProgramView
-                        data={currProgram.programData}
-                        processedGoalData={currProgram.goalData}
-                        anatomy={currProgram.rawAnatomyData}
-                        notes={currProgram.notes}
-                        handlerFunctions={currProgram.handlerFunctions}
+                    }
+                    {
+                        view === this.PAGE_VIEWS.PAST_PROG_VIEW_HOME && currProgram && currProgram.status === 'past' &&
+                        <PastProgramView
+                            data={currProgram.programData}
+                            processedGoalData={currProgram.goalData}
+                            anatomy={currProgram.rawAnatomyData}
+                            notes={currProgram.notes}
+                            handlerFunctions={currProgram.handlerFunctions}
 
-                    />
-                }
+                        />
+                    }
+                </PageBodyContentContainer>
             </NonLandingPageWrapper >
 
         let pageBodyContentLoadingHTML =
@@ -1922,12 +1914,11 @@ class ManageProgramsPage extends Component {
             </NonLandingPageWrapper>
 
         return (
-
-            <div>
+            <>
                 {loading && !pageBodyContentLoading && loadingHTML}
                 {!loading && !pageBodyContentLoading && nonLoadingHTML}
                 {!loading && pageBodyContentLoading && pageBodyContentLoadingHTML}
-            </div>
+            </>
         )
     }
 }

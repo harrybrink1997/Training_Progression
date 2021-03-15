@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { Table } from 'semantic-ui-react'
 import { useTable, } from 'react-table'
+import useWindowDimensions from '../PageStructure/pageSize'
 
 const BasicTable = ({ columns, data, header = true }) => {
+
+    const { width } = useWindowDimensions()
+
     const {
         getTableProps,
         getTableBodyProps,
@@ -22,7 +26,7 @@ const BasicTable = ({ columns, data, header = true }) => {
         <>
             <Table celled {...getTableProps()}>
                 {
-                    header &&
+                    header && width > 750 &&
                     <Table.Header>
                         {headerGroups.map(headerGroup => (
                             <Table.Row {...headerGroup.getHeaderGroupProps()}>
