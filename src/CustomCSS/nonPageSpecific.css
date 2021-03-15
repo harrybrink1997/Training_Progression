@@ -192,6 +192,7 @@
     align-items: center;
     max-width: 1320px;
     width: 100%;
+    padding: 0 10px 0 10px;
 }
 
 .noDataMessageContainer {
@@ -230,7 +231,7 @@
 
 .pageContentBackButtonContainer {
     width: 100%;
-    
+
 }
 
 /* @media screen

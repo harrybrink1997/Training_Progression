@@ -24,7 +24,9 @@ import { createProgramObject } from '../../objects/program'
 import { PastProgramList, ProgramList } from '../../objects/programList'
 import * as ROUTES from '../../constants/routes'
 import PastProgramView from '../CustomComponents/pastProgramView';
-
+import PageBodyContentHeaderContainer from '../PageStructure/pageBodyContentHeaderContainer';
+import PageContentBackButtonContainer from '../PageStructure/pageContentBackButtonContainer'
+import PageBodyContentContainer from '../PageStructure/pageBodyContentContainer'
 
 class ManageAthletesPage extends Component {
 
@@ -1171,12 +1173,12 @@ class ManageAthletesPage extends Component {
 
         let nonLoadingNonAthHTML =
             <NonLandingPageWrapper>
-                <div className="pageContainerLevel1">
-                    <div className='pageMainHeader'>
-                        Athlete Management
-                    </div>
-                </div>
-                <div className='rowContainer clickableDiv'>
+                <PageBodyContentHeaderContainer>
+                    <PageBodyContentHeaderContainer.Header>
+                        Manage Athletes
+                    </PageBodyContentHeaderContainer.Header>
+                </PageBodyContentHeaderContainer>
+                <PageContentBackButtonContainer>
                     <Button
                         content='Back'
                         className='backButton-inverted'
@@ -1186,7 +1188,7 @@ class ManageAthletesPage extends Component {
                             this.homePageRedirect()
                         }}
                     />
-                </div>
+                </PageContentBackButtonContainer>
                 {
                     manageAthleteTableData &&
                     <BasicTablePagination
@@ -1207,45 +1209,45 @@ class ManageAthletesPage extends Component {
                         athleteName={currAthlete.username}
                     />
                 }
-                <div className="pageContainerLevel1">
+                <PageBodyContentHeaderContainer>
                     {
                         currAthlete &&
                         <>
-                            <div className='pageMainHeader'>
-                                {(currAthlete.username)}
-                            </div>
+                            <PageBodyContentHeaderContainer.Header>
+                                {currAthlete.username && capitaliseFirstLetter(currAthlete.username)}
+                            </PageBodyContentHeaderContainer.Header>
                             {
                                 currAthlete.view !== 'viewProgram' &&
                                 <>
-                                    <div className='pageSubHeader2'>
+                                    <PageBodyContentHeaderContainer.SubHeader1>
                                         Email: {currAthlete.email}
-                                    </div>
-                                    <div className='pageSubHeader2'>
+                                    </PageBodyContentHeaderContainer.SubHeader1>
+                                    <PageBodyContentHeaderContainer.SubHeader1>
                                         Date Joined: {currAthlete.joinDate}
-                                    </div>
+                                    </PageBodyContentHeaderContainer.SubHeader1>
                                 </>
                             }
                             {
                                 currAthlete.view === 'managePrograms' &&
-                                <div className='rowContainer centred-info sml-margin-top'>
+                                <PageBodyContentHeaderContainer.Buttons>
                                     <Button
                                         className='lightPurpleButton'
                                         onClick={() => { this.handleManageCurrAthleteViewChange('programDeployment') }}
                                     >
                                         Assign New Program
                                 </Button>
-                                </div>
+                                </PageBodyContentHeaderContainer.Buttons>
                             }
                             {
                                 currAthlete.view === 'manageTeams' && currAthlete.currTeamTableData &&
-                                <div className='rowContainer centred-info sml-margin-top'>
+                                <PageBodyContentHeaderContainer.Buttons>
                                     <Button
                                         className='lightPurpleButton'
                                         onClick={() => { this.handleManageCurrAthleteViewChange('teamAssignment') }}
                                     >
                                         Assign New Team
                                 </Button>
-                                </div>
+                                </PageBodyContentHeaderContainer.Buttons>
                             }
                             {
                                 currAthlete.view === 'viewProgram' &&
@@ -1257,10 +1259,10 @@ class ManageAthletesPage extends Component {
                         </>
 
                     }
-                </div>
+                </PageBodyContentHeaderContainer>
                 {
                     currAthlete &&
-                    <div className='rowContainer clickableDiv'>
+                    <PageContentBackButtonContainer>
                         <Button
                             content='Back'
                             className='backButton-inverted'
@@ -1268,92 +1270,92 @@ class ManageAthletesPage extends Component {
                             icon='arrow left'
                             onClick={() => { this.handleBackClick(currAthlete.view) }}
                         />
-                    </div>
+                    </PageContentBackButtonContainer>
                 }
-                {
-                    currAthlete && currAthlete.view === 'home' &&
-                    <ManageCurrAthleteHome
-                        clickHandler={this.handleManageCurrAthleteViewChange}
-                        removeAthleteHandler={this.handleRemoveAthleteFromCoach}
-                    />
-                }
-                {
-                    currAthlete && currAthlete.view === 'managePrograms' &&
-                    < div className='pageContainerLevel1'>
-                        <InputLabel
-                            text='Program History'
-                            custID='programHistHeader'
+                <PageBodyContentContainer>
+                    {
+                        currAthlete && currAthlete.view === 'home' &&
+                        <ManageCurrAthleteHome
+                            clickHandler={this.handleManageCurrAthleteViewChange}
+                            removeAthleteHandler={this.handleRemoveAthleteFromCoach}
                         />
-                        {
-                            currAthlete.athProgTableData &&
-                            <BasicTablePagination
-                                data={currAthlete.athProgTableData.data}
-                                columns={currAthlete.athProgTableData.columns}
+                    }
+                    {
+                        currAthlete && currAthlete.view === 'managePrograms' &&
+                        < div className='pageContainerLevel1'>
+                            <InputLabel
+                                text='Program History'
+                                custID='programHistHeader'
                             />
-                        }
-                    </div>
-                }
-                {
-                    currAthlete && currAthlete.view === 'programDeployment' &&
-                    <div className='centred-info'>
-                        <div className='pageContainerLevel1 half-width'>
-                            <ProgramDeployment
-                                initProgTabData={programData}
-                                submitHandler={this.handleDeployAthleteProgram}
-                                initProgGroupTabData={programGroupData}
+                            {
+                                currAthlete.athProgTableData &&
+                                <BasicTablePagination
+                                    data={currAthlete.athProgTableData.data}
+                                    columns={currAthlete.athProgTableData.columns}
+                                />
+                            }
+                        </div>
+                    }
+                    {
+                        currAthlete && currAthlete.view === 'programDeployment' &&
+
+                        <ProgramDeployment
+                            initProgTabData={programData}
+                            submitHandler={this.handleDeployAthleteProgram}
+                            initProgGroupTabData={programGroupData}
+                        />
+
+                    }
+                    {
+                        currAthlete && currAthlete.view === 'viewProgram' && currAthlete.programData &&
+                        <ProgramView
+                            developmentMode={false}
+                            data={currAthlete.programData}
+                            handlerFunctions={currAthlete.viewProgramFunctions}
+                            availExData={currAthlete.availExData}
+                            availExColumns={currAthlete.availExColumns}
+                            nullExerciseData={currAthlete.nullExerciseData}
+                            submitProcessingBackend={currAthlete.submitProcessingBackend}
+                            rawAnatomyData={currAthlete.rawAnatomyData}
+                            userType={'coach'}
+                        />
+                    }
+                    {
+                        currAthlete && currAthlete.view === 'pastProgramView' &&
+                        <PastProgramView
+                            data={currAthlete.programData}
+                            processedGoalData={currAthlete.goalData}
+                            anatomy={currAthlete.rawAnatomyData}
+                            notes={currAthlete.notes}
+                            handlerFunctions={currAthlete.handlerFunctions}
+                        />
+                    }
+                    {
+                        currAthlete && currAthlete.view === 'manageTeams' &&
+                        < div className='pageContainerLevel1'>
+                            <InputLabel
+                                text='Team History'
+                                custID='programHistHeader'
+                            />
+                            {
+                                currAthlete.athTeamTableData &&
+                                <BasicTablePagination
+                                    data={currAthlete.athTeamTableData.data}
+                                    columns={currAthlete.athTeamTableData.columns}
+                                />
+                            }
+                        </div>
+                    }
+                    {
+                        currAthlete && currAthlete.view === 'teamAssignment' &&
+                        <div>
+                            <AssignNewTeam
+                                teamList={currAthlete.coachTeamTableData}
+                                handleSubmit={this.handleAssignAthleteNewTeam}
                             />
                         </div>
-                    </div>
-                }
-                {
-                    currAthlete && currAthlete.view === 'viewProgram' && currAthlete.programData &&
-                    <ProgramView
-                        developmentMode={false}
-                        data={currAthlete.programData}
-                        handlerFunctions={currAthlete.viewProgramFunctions}
-                        availExData={currAthlete.availExData}
-                        availExColumns={currAthlete.availExColumns}
-                        nullExerciseData={currAthlete.nullExerciseData}
-                        submitProcessingBackend={currAthlete.submitProcessingBackend}
-                        rawAnatomyData={currAthlete.rawAnatomyData}
-                        userType={'coach'}
-                    />
-                }
-                {
-                    currAthlete && currAthlete.view === 'pastProgramView' &&
-                    <PastProgramView
-                        data={currAthlete.programData}
-                        processedGoalData={currAthlete.goalData}
-                        anatomy={currAthlete.rawAnatomyData}
-                        notes={currAthlete.notes}
-                        handlerFunctions={currAthlete.handlerFunctions}
-                    />
-                }
-                {
-                    currAthlete && currAthlete.view === 'manageTeams' &&
-                    < div className='pageContainerLevel1'>
-                        <InputLabel
-                            text='Team History'
-                            custID='programHistHeader'
-                        />
-                        {
-                            currAthlete.athTeamTableData &&
-                            <BasicTablePagination
-                                data={currAthlete.athTeamTableData.data}
-                                columns={currAthlete.athTeamTableData.columns}
-                            />
-                        }
-                    </div>
-                }
-                {
-                    currAthlete && currAthlete.view === 'teamAssignment' &&
-                    <div>
-                        <AssignNewTeam
-                            teamList={currAthlete.coachTeamTableData}
-                            handleSubmit={this.handleAssignAthleteNewTeam}
-                        />
-                    </div>
-                }
+                    }
+                </PageBodyContentContainer>
             </NonLandingPageWrapper>
 
         let pageBodyContentLoadingHTML =
@@ -1366,7 +1368,7 @@ class ManageAthletesPage extends Component {
 
 
         return (
-            <div>
+            <>
                 {
                     loading
                     && !pageBodyContentLoading
@@ -1390,7 +1392,7 @@ class ManageAthletesPage extends Component {
                     && currAthlete
                     && pageBodyContentLoadingHTML
                 }
-            </div >
+            </ >
         )
     }
 }
