@@ -179,8 +179,8 @@ const PastProgramView = ({ data, processedGoalData, anatomy, notes, handlerFunct
 
     return (
         <>
-            <div className='rowContainer'>
-                <div className='pageContainerLevel1 half-width' id='ppPageGeneralStatsTable'>
+            <div className='rowContainer two-elements'>
+                <div className='pageContainerLevel1' id='ppPageGeneralStatsTable'>
                     <div className='centeredPageContainerLabel'>
                         <InputLabel
                             text='General Information'
@@ -189,7 +189,7 @@ const PastProgramView = ({ data, processedGoalData, anatomy, notes, handlerFunct
                     </div>
                     <GeneralInfoTable data={overviewData.generalStatsData} />
                 </div>
-                <div className='pageContainerLevel1 half-width' id='ppPageLoadingStatsTable'>
+                <div className='pageContainerLevel1' id='ppPageLoadingStatsTable'>
                     <div className='rowContainer'>
                         <div id='ppPageBodyPartListContainer'>
                             <BodyPartListGroup
@@ -222,8 +222,8 @@ const PastProgramView = ({ data, processedGoalData, anatomy, notes, handlerFunct
                 </div>
             </div>
 
-            <div className='rowContainer'>
-                <div className='pageContainerLevel1 half-width' id='ppPageExHistTable'>
+            <div className='rowContainer two-elements'>
+                <div className='pageContainerLevel1' id='ppPageExHistTable'>
                     <div className='centeredPageContainerLabel'>
                         <InputLabel
                             text='Historical Data'
@@ -247,7 +247,7 @@ const PastProgramView = ({ data, processedGoalData, anatomy, notes, handlerFunct
                         </div>
                     </div>
                 </div>
-                <div className='pageContainerLevel1 half-width' id='ppPageGeneralStatsTable'>
+                <div className='pageContainerLevel1' id='ppPageGeneralStatsTable'>
                     <div className='centeredPageContainerLabel'>
                         <InputLabel
                             text='Program Notes'

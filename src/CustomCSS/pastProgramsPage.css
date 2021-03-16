@@ -80,7 +80,7 @@
 }
 
 #ppPageExGoalHistBtnContainer {
-padding-top: 80px;
+    padding: 40px 0 40px 0;
 }
 
 #ppNoExPromptLabel {

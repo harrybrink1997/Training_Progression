@@ -234,9 +234,20 @@
 
 }
 
-/* @media screen
-and (max-width: 600px) {
-    .pageBodyContentHeaderContainerEvenlySpacedButtons {
+.two-elements > div {
+        width: 50%;
+}
+
+
+@media screen
+and (max-width: 950px) {
+
+    .rowContainer {
         flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
-} */
+    .two-elements > div {
+        width: 100%;
+    }
+}
