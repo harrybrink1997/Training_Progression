@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
 import { Button, Header } from 'semantic-ui-react'
-import { withRouter } from 'react-router-dom'
 import * as ROUTES from '../../constants/routes'
 import Navigation from '../Navigation';
 import { withFirebase } from '../Firebase';
-import { withAuthentication } from '../Session';
 
 class LandingPage extends Component {
 
